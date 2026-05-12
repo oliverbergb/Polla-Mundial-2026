@@ -242,15 +242,8 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2500);
 }
-function totalPoints(preds, especiales) {
-  const matchPts = MATCHES.reduce((s, m) => s + (calcPoints(preds?.[m.id], allResults?.[m.id]) || 0), 0);
-  const adminEsp = allResults["especiales"] || {};
-  const espPts = ESPECIALES_FIELDS.reduce((s, f) => {
-    const pred = (especiales?.[f.id]||"").trim().toLowerCase();
-    const real = (adminEsp[f.id]||"").trim().toLowerCase();
-    return s + (pred && real && pred === real ? 3 : 0);
-  }, 0);
-  return matchPts + espPts;
+function totalPoints(preds) {
+  return MATCHES.reduce((s, m) => s + (calcPoints(preds?.[m.id], allResults?.[m.id]) || 0), 0);
 }
 
 // ─── FIREBASE INIT ────────────────────────────────────────
@@ -371,7 +364,7 @@ function render() {
           <button onclick="logout()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:11px;margin-left:8px">salir</button>
         </div>
         <div class="tabs">
-          ${[["fixture","📅 Fixture"],["mis_pronos","🎯 Pronósticos"],["especiales","⭐ Especiales"],["resultados","✅ Resultados"],["ranking","🏆 Ranking"],["grupos","👥 Grupos"],...(isAdmin?[["admin","⚙️ Admin"]]:[])]
+          ${[["fixture","📅 Fixture"],["mis_pronos","🎯 Pronósticos"],["resultados","✅ Resultados"],["ranking","🏆 Ranking"],["grupos","👥 Grupos"],...(isAdmin?[["admin","⚙️ Admin"]]:[])]
             .map(([id,label]) => `<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}
         </div>
       </div>
@@ -383,7 +376,7 @@ function render() {
 function renderTab() {
   const c = document.getElementById("tab-content");
   if (!c) return;
-  const fns = {fixture:renderFixture, mis_pronos:renderMisPronos, especiales:renderEspeciales, resultados:renderResultados, ranking:renderRanking, grupos:renderGrupos, admin:renderAdmin};
+  const fns = {fixture:renderFixture, mis_pronos:renderMisPronos, resultados:renderResultados, ranking:renderRanking, grupos:renderGrupos, admin:renderAdmin};
   c.innerHTML = fns[currentTab]();
 }
 
@@ -493,7 +486,7 @@ function renderResultados() {
 
 function renderRanking() {
   const rows = Object.entries(allUsers)
-    .map(([uid, u]) => ({ uid, name: u.name, pts: totalPoints(u.predictions, u.especiales) }))
+    .map(([uid, u]) => ({ uid, name: u.name, pts: totalPoints(u.predictions) }))
     .sort((a, b) => b.pts - a.pts);
   const medals = ["🥇","🥈","🥉"];
   const rankColors = ["#eab308","#94a3b8","#b45309"];
@@ -539,84 +532,7 @@ function renderAdmin() {
     </div>`;
 }
 
-// Predicciones especiales se bloquean cuando empieza el torneo
-const ESPECIALES_LOCKOUT = "2026-06-11T19:00:00Z";
-const ESPECIALES_FIELDS = [
-  {id:"campeon",   label:"🏆 Campeón",           placeholder:"Ej: Argentina"},
-  {id:"subcampeon",label:"🥈 Subcampeón",         placeholder:"Ej: Francia"},
-  {id:"tercero",   label:"🥉 Tercer Puesto",       placeholder:"Ej: Brasil"},
-  {id:"botaOro",   label:"👟 Bota de Oro",         placeholder:"Ej: Mbappé"},
-  {id:"jugador",   label:"⭐ Jugador del Torneo",  placeholder:"Ej: Messi"},
-];
-
-function especialesLocked() { return new Date() >= new Date(ESPECIALES_LOCKOUT); }
-
-function renderEspeciales() {
-  const locked = especialesLocked();
-  const myEsp = allUsers[currentUser.uid]?.especiales || {};
-  const adminEsp = allResults["especiales"] || {};
-
-  // Calcular puntos especiales del usuario
-  let espPts = 0;
-  ESPECIALES_FIELDS.forEach(f => {
-    const pred = (myEsp[f.id]||"").trim().toLowerCase();
-    const real = (adminEsp[f.id]||"").trim().toLowerCase();
-    if (pred && real && pred === real) espPts += 3;
-  });
-
-  return `
-    <div class="card" style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-size:12px;color:#94a3b8">Puntos especiales</div>
-        <div style="font-size:28px;font-weight:800;color:#f59e0b">${espPts} pts</div>
-      </div>
-      <div style="font-size:12px;color:#64748b;text-align:right">3pts por cada<br/>predicción exacta</div>
-    </div>
-
-    ${locked ? `<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #ef4444;font-size:13px;color:#94a3b8">
-      🔒 Las predicciones especiales están cerradas — el torneo ya comenzó.
-    </div>` : `<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #22c55e;font-size:13px;color:#94a3b8">
-      ✏️ Puedes editar tus predicciones hasta el inicio del torneo (11 Jun).
-    </div>`}
-
-    ${ESPECIALES_FIELDS.map(f => {
-      const pred = myEsp[f.id] || "";
-      const real = (adminEsp[f.id]||"").trim();
-      const predNorm = pred.trim().toLowerCase();
-      const realNorm = real.toLowerCase();
-      const hasResult = real !== "";
-      const correct = hasResult && predNorm === realNorm;
-      const wrong = hasResult && predNorm !== "" && predNorm !== realNorm;
-      return `
-        <div class="card" style="margin-bottom:8px;border-left:3px solid ${hasResult?(correct?"#22c55e":wrong?"#ef4444":"#334155"):"#f59e0b"}">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:700;font-size:14px">${f.label}</span>
-            ${hasResult ? `<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"#ef4444"}">${correct?"✓ +3":"✗ 0"}</span>` : `<span style="font-size:11px;color:#64748b">3 pts</span>`}
-          </div>
-          ${locked
-            ? `<div style="background:#0f172a;border-radius:8px;padding:8px 12px;font-size:14px;color:${pred?"#f1f5f9":"#475569"}">${pred||"No ingresaste predicción"}</div>`
-            : `<input type="text" placeholder="${f.placeholder}" value="${pred}"
-                style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none"
-                onchange="saveEspecial('${f.id}',this.value)"/>`
-          }
-          ${hasResult ? `<div style="margin-top:6px;font-size:12px;color:#64748b">Resultado oficial: <strong style="color:#f1f5f9">${real}</strong></div>` : ""}
-        </div>`;
-    }).join("")}
-
-    ${isAdmin ? `
-      <div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
-        <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">⚙️ Admin — Ingresar resultados oficiales</div>
-        ${ESPECIALES_FIELDS.map(f => `
-          <div style="margin-bottom:10px">
-            <div style="font-size:12px;color:#94a3b8;margin-bottom:4px">${f.label}</div>
-            <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}"
-              style="width:100%;background:#0f172a;border:1px solid #7c3aed;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none"
-              onchange="saveEspecialResult('${f.id}',this.value)"/>
-          </div>`).join("")}
-      </div>` : ""}`;
-}
-
-
+function calcGroupTable(g) {
   const teams = GROUPS[g];
   const stats = {};
   teams.forEach(t => stats[t] = {pts:0,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0});
@@ -688,15 +604,6 @@ function renderGrupos() {
 }
 
 // ─── ACTIONS ──────────────────────────────────────────────
-window.saveEspecial = async function(field, val) {
-  if (especialesLocked()) return;
-  await db.ref(`users/${currentUser.uid}/especiales/${field}`).set(val);
-};
-window.saveEspecialResult = async function(field, val) {
-  if (!isAdmin) return;
-  await db.ref(`results/especiales/${field}`).set(val);
-  showToast("Guardado ✓");
-};
 window.deleteUser = async function(uid, name) {
   if (!isAdmin) return;
   if (!confirm(`¿Eliminar a "${name}" y todos sus pronósticos?`)) return;
