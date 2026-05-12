@@ -364,9 +364,8 @@ function render() {
           <button onclick="logout()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:11px;margin-left:8px">salir</button>
         </div>
         <div class="tabs">
-          ${[["fixture","📅 Fixture"],["mis_pronos","🎯 Pronósticos"],["resultados","✅ Resultados"],["ranking","🏆 Ranking"],["grupos","👥 Grupos"]].map(([id,label]) =>
-            `<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`
-          ).join("")}
+          ${[["fixture","📅 Fixture"],["mis_pronos","🎯 Pronósticos"],["resultados","✅ Resultados"],["ranking","🏆 Ranking"],["grupos","👥 Grupos"],...(isAdmin?[["admin","⚙️ Admin"]]:[])]
+            .map(([id,label]) => `<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}
         </div>
       </div>
       <div class="content" id="tab-content"></div>
@@ -377,7 +376,7 @@ function render() {
 function renderTab() {
   const c = document.getElementById("tab-content");
   if (!c) return;
-  const fns = {fixture:renderFixture, mis_pronos:renderMisPronos, resultados:renderResultados, ranking:renderRanking, grupos:renderGrupos};
+  const fns = {fixture:renderFixture, mis_pronos:renderMisPronos, resultados:renderResultados, ranking:renderRanking, grupos:renderGrupos, admin:renderAdmin};
   c.innerHTML = fns[currentTab]();
 }
 
@@ -506,19 +505,111 @@ function renderRanking() {
   </div>`;
 }
 
-function renderGrupos() {
-  return Object.entries(GROUPS).map(([g, teams]) => `
-    <div style="background:#1e293b;border-radius:10px;margin-bottom:10px;overflow:hidden">
-      <div style="background:${GROUP_COLORS[g]};padding:8px 14px;font-weight:800;font-size:13px;letter-spacing:1px">GRUPO ${g}</div>
-      ${teams.map((t,i) => `
-        <div style="padding:10px 14px;display:flex;align-items:center;gap:10px;${i<teams.length-1?"border-bottom:1px solid #0f172a":""}">
-          <span style="font-size:20px">${flag(t)}</span>
-          <span style="font-weight:600;font-size:14px">${t}</span>
+function renderAdmin() {
+  if (!isAdmin) return `<div class="card"><p style="color:#ef4444">Acceso denegado.</p></div>`;
+  const rows = Object.entries(allUsers).sort((a,b) => a[1].name.localeCompare(b[1].name));
+  return `
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:4px">⚙️ Panel de Administración</div>
+      <div style="font-size:12px;color:#94a3b8">${rows.length} participante${rows.length!==1?"s":""} registrado${rows.length!==1?"s":""}</div>
+    </div>
+    <div class="card">
+      <div style="font-weight:600;font-size:13px;color:#94a3b8;margin-bottom:10px">PARTICIPANTES</div>
+      ${rows.length===0?`<p style="color:#64748b;text-align:center;padding:20px">No hay participantes aún</p>`:""}
+      ${rows.map(([uid, u]) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0f172a">
+          <span style="font-size:20px">👤</span>
+          <div style="flex:1">
+            <div style="font-weight:600">${u.name} ${uid===currentUser.uid?`<span style="font-size:10px;color:#3b82f6">(tú)</span>`:""}</div>
+            <div style="font-size:11px;color:#64748b">${totalPoints(u.predictions)} pts · ${Object.keys(u.predictions||{}).length} pronósticos</div>
+          </div>
+          ${uid !== currentUser.uid ? `
+            <button onclick="deleteUser('${uid}','${u.name}')"
+              style="background:#7f1d1d;color:#fca5a5;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600">
+              🗑️ Eliminar
+            </button>` : `<span style="font-size:11px;color:#475569">(no puedes eliminarte)</span>`}
         </div>`).join("")}
-    </div>`).join("");
+    </div>`;
+}
+
+function calcGroupTable(g) {
+  const teams = GROUPS[g];
+  const stats = {};
+  teams.forEach(t => stats[t] = {pts:0,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0});
+  MATCHES.filter(m => m.group === g).forEach(m => {
+    const res = allResults[m.id];
+    if (!res || res.h === "" || res.h === undefined) return;
+    const rh = parseInt(res.h), ra = parseInt(res.a);
+    if (isNaN(rh)||isNaN(ra)) return;
+    const h = m.home, a = m.away;
+    if (!stats[h] || !stats[a]) return;
+    stats[h].pj++; stats[a].pj++;
+    stats[h].gf += rh; stats[h].gc += ra;
+    stats[a].gf += ra; stats[a].gc += rh;
+    if (rh > ra) { stats[h].pts+=3; stats[h].pg++; stats[a].pp++; }
+    else if (rh < ra) { stats[a].pts+=3; stats[a].pg++; stats[h].pp++; }
+    else { stats[h].pts+=1; stats[a].pts+=1; stats[h].pe++; stats[a].pe++; }
+  });
+  return Object.entries(stats)
+    .map(([t,s]) => ({team:t,...s,dif:s.gf-s.gc}))
+    .sort((a,b) => b.pts-a.pts || b.dif-a.dif || b.gf-a.gf);
+}
+
+function renderGrupos() {
+  return Object.entries(GROUPS).map(([g, teams]) => {
+    const table = calcGroupTable(g);
+    const posColors = ["#22c55e","#22c55e","#eab308","#ef4444"];
+    const posTips = ["Clasifica","Clasifica","Posible clasificación","Eliminado"];
+    return `
+    <div style="background:#1e293b;border-radius:10px;margin-bottom:14px;overflow:hidden">
+      <div style="background:${GROUP_COLORS[g]};padding:8px 14px;font-weight:800;font-size:13px;letter-spacing:1px">GRUPO ${g}</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="color:#64748b;border-bottom:1px solid #0f172a">
+              <th style="padding:6px 10px;text-align:left;font-weight:600">#</th>
+              <th style="padding:6px 4px;text-align:left;font-weight:600">Equipo</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PJ</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PG</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PE</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PP</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">GD</th>
+              <th style="padding:6px 10px;text-align:center;font-weight:600">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${table.map((r,i) => `
+              <tr style="border-bottom:${i<table.length-1?"1px solid #0f172a":"none"}">
+                <td style="padding:8px 10px">
+                  <div style="width:6px;height:26px;background:${posColors[i]};border-radius:3px" title="${posTips[i]}"></div>
+                </td>
+                <td style="padding:8px 4px;font-weight:600;white-space:nowrap">${flag(r.team)} ${r.team}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pj}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pg}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pe}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pp}</td>
+                <td style="padding:8px 4px;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"#94a3b8"}">${r.dif>0?"+":""}${r.dif}</td>
+                <td style="padding:8px 10px;text-align:center;font-weight:800;font-size:14px;color:${GROUP_COLORS[g]}">${r.pts}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:12px;padding:8px 14px;border-top:1px solid #0f172a">
+        ${posColors.map((c,i) => `<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b">
+          <span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}
+        </span>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
 }
 
 // ─── ACTIONS ──────────────────────────────────────────────
+window.deleteUser = async function(uid, name) {
+  if (!isAdmin) return;
+  if (!confirm(`¿Eliminar a "${name}" y todos sus pronósticos?`)) return;
+  await db.ref(`users/${uid}`).remove();
+  showToast(`${name} eliminado ✓`);
+};
 window.savePred = async function(matchId, side, val) {
   if (isLocked(MATCHES.find(m => m.id === matchId))) return;
   myPredictions[matchId] = { ...(myPredictions[matchId]||{}), [side]: val };
@@ -530,7 +621,7 @@ window.saveResult = async function(matchId, side, val) {
   await db.ref(`results/${matchId}`).update({ [side]: val });
   showToast("Resultado guardado ✓");
 };
-window.setTab = function(t) { currentTab = t; currentGroup = "A"; renderTab(); };
+window.setTab = function(t) { currentTab = t; currentGroup = "A"; render(); };
 window.setGroup = function(g) { currentGroup = g; renderTab(); };
 window.logout = function() { localStorage.removeItem("pollaUid"); currentUser = null; renderLogin(); };
 
