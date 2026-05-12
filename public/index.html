@@ -329,14 +329,11 @@ window.doLogin = async function() {
     const existing = Object.entries(users).find(([,u]) => u.name.toLowerCase() === name.toLowerCase());
     let uid;
     if (existing) {
-      const savedUid = localStorage.getItem("pollaUid");
-      if (savedUid && savedUid === existing[0]) {
-        uid = savedUid;
-      } else {
-        errEl.textContent = "❌ Ese nombre ya está tomado. Elige otro.";
-        btn.disabled = false; btn.textContent = "Entrar 🚀"; return;
-      }
+      // El nombre existe — es este usuario volviendo a entrar, permitir siempre
+      uid = existing[0];
+      localStorage.setItem("pollaUid", uid);
     } else {
+      // Nombre nuevo — registrar
       const cred = await auth.signInAnonymously();
       uid = cred.user.uid;
       await db.ref(`users/${uid}`).set({ name, predictions: {} });
