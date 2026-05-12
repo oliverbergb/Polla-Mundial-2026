@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Rica Polla Mundialera 2026 🏆</title>
-<!-- Firebase compat (más estable) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -50,7 +49,6 @@
 <body>
 <div id="root"><div class="spinner">⚽ Cargando...</div></div>
 <div class="toast" id="toast"></div>
-
 <script>
 // ─── CONFIG ───────────────────────────────────────────────
 const FIREBASE_CONFIG = {
@@ -64,6 +62,17 @@ const FIREBASE_CONFIG = {
 };
 const BALLDONTLIE_KEY = "9c7af450-263d-42e2-8d1c-f2e70036d30d";
 const ADMIN_NAME = "ADMIN"; // Cambia esto a tu nombre
+
+// ─── ESPECIALES ───────────────────────────────────────────
+const ESPECIALES_LOCKOUT = "2026-06-11T19:00:00Z";
+const ESPECIALES_FIELDS = [
+  {id:"campeon",    label:"🏆 Campeón",          placeholder:"Ej: Argentina"},
+  {id:"subcampeon", label:"🥈 Subcampeón",        placeholder:"Ej: Francia"},
+  {id:"tercero",    label:"🥉 Tercer Puesto",      placeholder:"Ej: Brasil"},
+  {id:"botaOro",    label:"👟 Bota de Oro",        placeholder:"Ej: Mbappé"},
+  {id:"jugador",    label:"⭐ Jugador del Torneo", placeholder:"Ej: Messi"},
+];
+function especialesLocked() { return new Date() >= new Date(ESPECIALES_LOCKOUT); }
 
 // ─── FIXTURE ──────────────────────────────────────────────
 const GROUPS = {
@@ -175,7 +184,6 @@ const MATCHES = [
   {id:70,date:"27 Jun",time:"21:00",home:"Argelia",away:"Austria",group:"J",stadium:"Dallas",phase:"groups",kickoff:"2026-06-28T02:00:00Z"},
   {id:71,date:"27 Jun",time:"18:30",home:"Colombia",away:"Portugal",group:"K",stadium:"Miami",phase:"groups",kickoff:"2026-06-27T23:30:00Z"},
   {id:72,date:"27 Jun",time:"18:30",home:"Repechaje 1",away:"Uzbekistán",group:"K",stadium:"Atlanta",phase:"groups",kickoff:"2026-06-27T23:30:00Z"},
-  // 16avos
   {id:73,date:"28 Jun",time:"14:00",home:"2º Grupo A",away:"2º Grupo B",group:null,stadium:"Los Ángeles",phase:"r32",kickoff:"2026-06-28T19:00:00Z"},
   {id:74,date:"29 Jun",time:"14:00",home:"1º Grupo E",away:"3º C/D/F",group:null,stadium:"Boston",phase:"r32",kickoff:"2026-06-29T19:00:00Z"},
   {id:75,date:"29 Jun",time:"17:00",home:"1º Grupo F",away:"2º Grupo C",group:null,stadium:"Monterrey",phase:"r32",kickoff:"2026-06-29T22:00:00Z"},
@@ -192,7 +200,6 @@ const MATCHES = [
   {id:86,date:"3 Jul",time:"14:00",home:"1º Grupo J",away:"2º Grupo H",group:null,stadium:"Miami",phase:"r32",kickoff:"2026-07-03T19:00:00Z"},
   {id:87,date:"3 Jul",time:"20:00",home:"1º Grupo K",away:"3º varios",group:null,stadium:"Kansas City",phase:"r32",kickoff:"2026-07-04T01:00:00Z"},
   {id:88,date:"3 Jul",time:"17:00",home:"2º Grupo D",away:"2º Grupo G",group:null,stadium:"Dallas",phase:"r32",kickoff:"2026-07-03T22:00:00Z"},
-  // Octavos
   {id:89,date:"4 Jul",time:"14:00",home:"G74",away:"G77",group:null,stadium:"Philadelphia",phase:"r16",kickoff:"2026-07-04T19:00:00Z"},
   {id:90,date:"4 Jul",time:"17:00",home:"G73",away:"G75",group:null,stadium:"Houston",phase:"r16",kickoff:"2026-07-04T22:00:00Z"},
   {id:91,date:"5 Jul",time:"14:00",home:"G76",away:"G78",group:null,stadium:"Nueva York",phase:"r16",kickoff:"2026-07-05T19:00:00Z"},
@@ -201,17 +208,13 @@ const MATCHES = [
   {id:94,date:"6 Jul",time:"17:00",home:"G81",away:"G82",group:null,stadium:"Seattle",phase:"r16",kickoff:"2026-07-06T22:00:00Z"},
   {id:95,date:"7 Jul",time:"14:00",home:"G86",away:"G88",group:null,stadium:"Atlanta",phase:"r16",kickoff:"2026-07-07T19:00:00Z"},
   {id:96,date:"7 Jul",time:"17:00",home:"G85",away:"G87",group:null,stadium:"Vancouver",phase:"r16",kickoff:"2026-07-07T22:00:00Z"},
-  // Cuartos
   {id:97,date:"9 Jul",time:"14:00",home:"G89",away:"G90",group:null,stadium:"Boston",phase:"qf",kickoff:"2026-07-09T19:00:00Z"},
   {id:98,date:"10 Jul",time:"14:00",home:"G93",away:"G94",group:null,stadium:"Los Ángeles",phase:"qf",kickoff:"2026-07-10T19:00:00Z"},
   {id:99,date:"11 Jul",time:"14:00",home:"G91",away:"G92",group:null,stadium:"Miami",phase:"qf",kickoff:"2026-07-11T19:00:00Z"},
   {id:100,date:"11 Jul",time:"17:00",home:"G95",away:"G96",group:null,stadium:"Kansas City",phase:"qf",kickoff:"2026-07-11T22:00:00Z"},
-  // Semis
   {id:101,date:"14 Jul",time:"14:00",home:"G97",away:"G98",group:null,stadium:"Dallas",phase:"sf",kickoff:"2026-07-14T19:00:00Z"},
   {id:102,date:"15 Jul",time:"14:00",home:"G99",away:"G100",group:null,stadium:"Atlanta",phase:"sf",kickoff:"2026-07-15T19:00:00Z"},
-  // 3er lugar
   {id:103,date:"18 Jul",time:"16:00",home:"Perdedor SF1",away:"Perdedor SF2",group:null,stadium:"Miami",phase:"third",kickoff:"2026-07-18T21:00:00Z"},
-  // Final
   {id:104,date:"19 Jul",time:"14:00",home:"Ganador SF1",away:"Ganador SF2",group:null,stadium:"MetLife, Nueva York",phase:"final",kickoff:"2026-07-19T19:00:00Z"},
 ];
 
@@ -253,12 +256,11 @@ function totalPoints(preds, especiales) {
   return matchPts + espPts;
 }
 
-// ─── FIREBASE INIT ────────────────────────────────────────
+// ─── FIREBASE ─────────────────────────────────────────────
 function initFirebase() {
   firebase.initializeApp(FIREBASE_CONFIG);
   db = firebase.database();
   auth = firebase.auth();
-
   firebase.auth().onAuthStateChanged(async () => {
     const savedUid = localStorage.getItem("pollaUid");
     if (savedUid) {
@@ -276,7 +278,6 @@ function initFirebase() {
   });
 }
 
-// ─── DATA ─────────────────────────────────────────────────
 function loadData() {
   db.ref("users").on("value", snap => {
     allUsers = snap.val() || {};
@@ -336,14 +337,12 @@ window.doLogin = async function() {
     const existing = Object.entries(users).find(([,u]) => u.name.toLowerCase() === name.toLowerCase());
     let uid;
     if (existing) {
-      // El nombre existe — es este usuario volviendo a entrar, permitir siempre
       uid = existing[0];
       localStorage.setItem("pollaUid", uid);
     } else {
-      // Nombre nuevo — registrar
       const cred = await auth.signInAnonymously();
       uid = cred.user.uid;
-      await db.ref(`users/${uid}`).set({ name, predictions: {} });
+      await db.ref(`users/${uid}`).set({ name, predictions: {}, especiales: {} });
       localStorage.setItem("pollaUid", uid);
     }
     currentUser = { uid, name };
@@ -358,21 +357,29 @@ window.doLogin = async function() {
 // ─── RENDER ───────────────────────────────────────────────
 function render() {
   if (!currentUser) { renderLogin(); return; }
+  const tabList = [
+    ["fixture","📅 Fixture"],
+    ["mis_pronos","🎯 Pronósticos"],
+    ["especiales","⭐ Especiales"],
+    ["resultados","✅ Resultados"],
+    ["ranking","🏆 Ranking"],
+    ["grupos","👥 Grupos"],
+    ...(isAdmin ? [["admin","⚙️ Admin"]] : [])
+  ];
   document.getElementById("root").innerHTML = `
     <div class="app">
       <div class="header">
         <div style="font-size:32px">⚽🏆⚽</div>
         <h1>RICA POLLA MUNDIALERA</h1>
-        <p>USA · México · Canadá 2026 — Hora Lima (UTC-5)
-          ${isAdmin ? `<span class="admin-badge">ADMIN</span>` : ""}
-        </p>
+        <p>USA · México · Canadá 2026 — Hora Lima (UTC-5)${isAdmin?`<span class="admin-badge">ADMIN</span>`:""}</p>
         <div style="font-size:12px;color:#64748b;margin-bottom:4px">
           Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
           <button onclick="logout()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:11px;margin-left:8px">salir</button>
         </div>
         <div class="tabs">
-          ${[["fixture","📅 Fixture"],["mis_pronos","🎯 Pronósticos"],["especiales","⭐ Especiales"],["resultados","✅ Resultados"],["ranking","🏆 Ranking"],["grupos","👥 Grupos"],...(isAdmin?[["admin","⚙️ Admin"]]:[])]
-            .map(([id,label]) => `<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}
+          ${tabList.map(([id,label]) =>
+            `<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`
+          ).join("")}
         </div>
       </div>
       <div class="content" id="tab-content"></div>
@@ -383,10 +390,19 @@ function render() {
 function renderTab() {
   const c = document.getElementById("tab-content");
   if (!c) return;
-  const fns = {fixture:renderFixture, mis_pronos:renderMisPronos, especiales:renderEspeciales, resultados:renderResultados, ranking:renderRanking, grupos:renderGrupos, admin:renderAdmin};
+  const fns = {
+    fixture: renderFixture,
+    mis_pronos: renderMisPronos,
+    especiales: renderEspeciales,
+    resultados: renderResultados,
+    ranking: renderRanking,
+    grupos: renderGrupos,
+    admin: renderAdmin
+  };
   c.innerHTML = fns[currentTab]();
 }
 
+// ─── PILLS ────────────────────────────────────────────────
 function pills() {
   const isPhase = Object.keys(PHASE_LABELS).includes(currentGroup);
   if (isPhase) {
@@ -404,6 +420,7 @@ function getMatches() {
   return isPhase ? MATCHES.filter(m => m.phase === currentGroup) : MATCHES.filter(m => m.group === currentGroup);
 }
 
+// ─── TABS ─────────────────────────────────────────────────
 function renderFixture() {
   return pills() + getMatches().map(m => {
     const res = allResults[m.id];
@@ -423,10 +440,10 @@ function renderFixture() {
 }
 
 function renderMisPronos() {
-  const myPts = totalPoints(myPredictions);
+  const myPts = MATCHES.reduce((s, m) => s + (calcPoints(myPredictions?.[m.id], allResults?.[m.id]) || 0), 0);
   return `
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#94a3b8">Mis puntos</div>
+      <div><div style="font-size:12px;color:#94a3b8">Mis puntos (partidos)</div>
         <div style="font-size:28px;font-weight:800;color:#3b82f6">${myPts} pts</div></div>
       <div style="font-size:12px;color:#64748b;text-align:right">3pts exacto<br/>1pt ganador/empate</div>
     </div>
@@ -459,6 +476,60 @@ function renderMisPronos() {
         </div>
       </div>`;
     }).join("")}`;
+}
+
+function renderEspeciales() {
+  const locked = especialesLocked();
+  const myEsp = allUsers[currentUser.uid]?.especiales || {};
+  const adminEsp = allResults["especiales"] || {};
+  let espPts = 0;
+  ESPECIALES_FIELDS.forEach(f => {
+    const pred = (myEsp[f.id]||"").trim().toLowerCase();
+    const real = (adminEsp[f.id]||"").trim().toLowerCase();
+    if (pred && real && pred === real) espPts += 3;
+  });
+  return `
+    <div class="card" style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:12px;color:#94a3b8">Mis puntos especiales</div>
+        <div style="font-size:28px;font-weight:800;color:#f59e0b">${espPts} pts</div>
+      </div>
+      <div style="font-size:12px;color:#64748b;text-align:right">3pts por cada<br/>predicción exacta</div>
+    </div>
+    ${locked
+      ? `<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #ef4444;font-size:13px;color:#94a3b8">🔒 Predicciones cerradas — el torneo ya comenzó.</div>`
+      : `<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #22c55e;font-size:13px;color:#94a3b8">✏️ Puedes editar tus predicciones hasta el inicio del torneo (11 Jun).</div>`
+    }
+    ${ESPECIALES_FIELDS.map(f => {
+      const pred = myEsp[f.id] || "";
+      const real = (adminEsp[f.id]||"").trim();
+      const correct = real && pred.trim().toLowerCase() === real.toLowerCase();
+      const wrong = real && pred.trim() && !correct;
+      return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"#334155"):"#f59e0b"}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-weight:700;font-size:14px">${f.label}</span>
+          ${real ? `<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"#ef4444"}">${correct?"✓ +3":"✗ 0"}</span>` : `<span style="font-size:11px;color:#64748b">3 pts</span>`}
+        </div>
+        ${locked
+          ? `<div style="background:#0f172a;border-radius:8px;padding:8px 12px;font-size:14px;color:${pred?"#f1f5f9":"#475569"}">${pred||"No ingresaste predicción"}</div>`
+          : `<input type="text" placeholder="${f.placeholder}" value="${pred}"
+              style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none"
+              onchange="saveEspecial('${f.id}',this.value)"/>`
+        }
+        ${real ? `<div style="margin-top:6px;font-size:12px;color:#64748b">Resultado oficial: <strong style="color:#f1f5f9">${real}</strong></div>` : ""}
+      </div>`;
+    }).join("")}
+    ${isAdmin ? `
+      <div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
+        <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">⚙️ Admin — Resultados oficiales</div>
+        ${ESPECIALES_FIELDS.map(f => `
+          <div style="margin-bottom:10px">
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:4px">${f.label}</div>
+            <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}"
+              style="width:100%;background:#0f172a;border:1px solid #7c3aed;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none"
+              onchange="saveEspecialResult('${f.id}',this.value)"/>
+          </div>`).join("")}
+      </div>` : ""}`;
 }
 
 function renderResultados() {
@@ -498,7 +569,7 @@ function renderRanking() {
   const medals = ["🥇","🥈","🥉"];
   const rankColors = ["#eab308","#94a3b8","#b45309"];
   return `<div class="card">
-    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">3pts exacto · 1pt ganador/empate</div>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">Partidos: 3pts exacto · 1pt ganador — Especiales: 3pts c/u</div>
     ${rows.length===0?`<p style="color:#64748b;text-align:center;padding:20px">Aún no hay participantes</p>`:""}
     ${rows.map((r,i) => `
       <div class="rank-row">
@@ -510,6 +581,75 @@ function renderRanking() {
         <span style="font-size:11px;color:#64748b">pts</span>
       </div>`).join("")}
   </div>`;
+}
+
+function calcGroupTable(g) {
+  const teams = GROUPS[g];
+  const stats = {};
+  teams.forEach(t => { stats[t] = {pts:0,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0}; });
+  MATCHES.filter(m => m.group === g).forEach(m => {
+    const res = allResults[m.id];
+    if (!res || res.h === "" || res.h === undefined) return;
+    const rh = parseInt(res.h), ra = parseInt(res.a);
+    if (isNaN(rh)||isNaN(ra)) return;
+    const h = m.home, a = m.away;
+    if (!stats[h]||!stats[a]) return;
+    stats[h].pj++; stats[a].pj++;
+    stats[h].gf += rh; stats[h].gc += ra;
+    stats[a].gf += ra; stats[a].gc += rh;
+    if (rh > ra)      { stats[h].pts+=3; stats[h].pg++; stats[a].pp++; }
+    else if (rh < ra) { stats[a].pts+=3; stats[a].pg++; stats[h].pp++; }
+    else              { stats[h].pts+=1; stats[a].pts+=1; stats[h].pe++; stats[a].pe++; }
+  });
+  return Object.entries(stats)
+    .map(([t,s]) => ({team:t,...s,dif:s.gf-s.gc}))
+    .sort((a,b) => b.pts-a.pts || b.dif-a.dif || b.gf-a.gf);
+}
+
+function renderGrupos() {
+  const posColors = ["#22c55e","#22c55e","#eab308","#ef4444"];
+  const posTips = ["Clasifica","Clasifica","Posible clasificación","Eliminado"];
+  return Object.entries(GROUPS).map(([g]) => {
+    const table = calcGroupTable(g);
+    return `
+    <div style="background:#1e293b;border-radius:10px;margin-bottom:14px;overflow:hidden">
+      <div style="background:${GROUP_COLORS[g]};padding:8px 14px;font-weight:800;font-size:13px;letter-spacing:1px">GRUPO ${g}</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="color:#64748b;border-bottom:1px solid #0f172a">
+              <th style="padding:6px 6px;text-align:left;font-weight:600;width:12px"></th>
+              <th style="padding:6px 4px;text-align:left;font-weight:600">Equipo</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PJ</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PG</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PE</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">PP</th>
+              <th style="padding:6px 4px;text-align:center;font-weight:600">GD</th>
+              <th style="padding:6px 10px;text-align:center;font-weight:600">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${table.map((r,i) => `
+              <tr style="border-bottom:${i<table.length-1?"1px solid #0f172a":"none"}">
+                <td style="padding:8px 6px"><div style="width:5px;height:24px;background:${posColors[i]};border-radius:3px"></div></td>
+                <td style="padding:8px 4px;font-weight:600;white-space:nowrap">${flag(r.team)} ${r.team}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pj}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pg}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pe}</td>
+                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pp}</td>
+                <td style="padding:8px 4px;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"#94a3b8"}">${r.dif>0?"+":""}${r.dif}</td>
+                <td style="padding:8px 10px;text-align:center;font-weight:800;font-size:14px;color:${GROUP_COLORS[g]}">${r.pts}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;padding:8px 14px;border-top:1px solid #0f172a">
+        ${posColors.map((c,i) => `<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b">
+          <span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}
+        </span>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
 }
 
 function renderAdmin() {
@@ -527,167 +667,31 @@ function renderAdmin() {
         <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0f172a">
           <span style="font-size:20px">👤</span>
           <div style="flex:1">
-            <div style="font-weight:600">${u.name} ${uid===currentUser.uid?`<span style="font-size:10px;color:#3b82f6">(tú)</span>`:""}</div>
-            <div style="font-size:11px;color:#64748b">${totalPoints(u.predictions)} pts · ${Object.keys(u.predictions||{}).length} pronósticos</div>
+            <div style="font-weight:600">${u.name}${uid===currentUser.uid?` <span style="font-size:10px;color:#3b82f6">(tú)</span>`:""}</div>
+            <div style="font-size:11px;color:#64748b">${totalPoints(u.predictions, u.especiales)} pts · ${Object.keys(u.predictions||{}).length} pronósticos</div>
           </div>
-          ${uid !== currentUser.uid ? `
-            <button onclick="deleteUser('${uid}','${u.name}')"
-              style="background:#7f1d1d;color:#fca5a5;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600">
-              🗑️ Eliminar
-            </button>` : `<span style="font-size:11px;color:#475569">(no puedes eliminarte)</span>`}
+          ${uid !== currentUser.uid
+            ? `<button onclick="deleteUser('${uid}','${u.name}')"
+                style="background:#7f1d1d;color:#fca5a5;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600">
+                🗑️ Eliminar
+              </button>`
+            : `<span style="font-size:11px;color:#475569">eres tú</span>`}
         </div>`).join("")}
     </div>`;
 }
 
-// Predicciones especiales se bloquean cuando empieza el torneo
-const ESPECIALES_LOCKOUT = "2026-06-11T19:00:00Z";
-const ESPECIALES_FIELDS = [
-  {id:"campeon",   label:"🏆 Campeón",           placeholder:"Ej: Argentina"},
-  {id:"subcampeon",label:"🥈 Subcampeón",         placeholder:"Ej: Francia"},
-  {id:"tercero",   label:"🥉 Tercer Puesto",       placeholder:"Ej: Brasil"},
-  {id:"botaOro",   label:"👟 Bota de Oro",         placeholder:"Ej: Mbappé"},
-  {id:"jugador",   label:"⭐ Jugador del Torneo",  placeholder:"Ej: Messi"},
-];
-
-function especialesLocked() { return new Date() >= new Date(ESPECIALES_LOCKOUT); }
-
-function renderEspeciales() {
-  const locked = especialesLocked();
-  const myEsp = allUsers[currentUser.uid]?.especiales || {};
-  const adminEsp = allResults["especiales"] || {};
-
-  // Calcular puntos especiales del usuario
-  let espPts = 0;
-  ESPECIALES_FIELDS.forEach(f => {
-    const pred = (myEsp[f.id]||"").trim().toLowerCase();
-    const real = (adminEsp[f.id]||"").trim().toLowerCase();
-    if (pred && real && pred === real) espPts += 3;
-  });
-
-  return `
-    <div class="card" style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-size:12px;color:#94a3b8">Puntos especiales</div>
-        <div style="font-size:28px;font-weight:800;color:#f59e0b">${espPts} pts</div>
-      </div>
-      <div style="font-size:12px;color:#64748b;text-align:right">3pts por cada<br/>predicción exacta</div>
-    </div>
-
-    ${locked ? `<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #ef4444;font-size:13px;color:#94a3b8">
-      🔒 Las predicciones especiales están cerradas — el torneo ya comenzó.
-    </div>` : `<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #22c55e;font-size:13px;color:#94a3b8">
-      ✏️ Puedes editar tus predicciones hasta el inicio del torneo (11 Jun).
-    </div>`}
-
-    ${ESPECIALES_FIELDS.map(f => {
-      const pred = myEsp[f.id] || "";
-      const real = (adminEsp[f.id]||"").trim();
-      const predNorm = pred.trim().toLowerCase();
-      const realNorm = real.toLowerCase();
-      const hasResult = real !== "";
-      const correct = hasResult && predNorm === realNorm;
-      const wrong = hasResult && predNorm !== "" && predNorm !== realNorm;
-      return `
-        <div class="card" style="margin-bottom:8px;border-left:3px solid ${hasResult?(correct?"#22c55e":wrong?"#ef4444":"#334155"):"#f59e0b"}">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:700;font-size:14px">${f.label}</span>
-            ${hasResult ? `<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"#ef4444"}">${correct?"✓ +3":"✗ 0"}</span>` : `<span style="font-size:11px;color:#64748b">3 pts</span>`}
-          </div>
-          ${locked
-            ? `<div style="background:#0f172a;border-radius:8px;padding:8px 12px;font-size:14px;color:${pred?"#f1f5f9":"#475569"}">${pred||"No ingresaste predicción"}</div>`
-            : `<input type="text" placeholder="${f.placeholder}" value="${pred}"
-                style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none"
-                onchange="saveEspecial('${f.id}',this.value)"/>`
-          }
-          ${hasResult ? `<div style="margin-top:6px;font-size:12px;color:#64748b">Resultado oficial: <strong style="color:#f1f5f9">${real}</strong></div>` : ""}
-        </div>`;
-    }).join("")}
-
-    ${isAdmin ? `
-      <div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
-        <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">⚙️ Admin — Ingresar resultados oficiales</div>
-        ${ESPECIALES_FIELDS.map(f => `
-          <div style="margin-bottom:10px">
-            <div style="font-size:12px;color:#94a3b8;margin-bottom:4px">${f.label}</div>
-            <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}"
-              style="width:100%;background:#0f172a;border:1px solid #7c3aed;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none"
-              onchange="saveEspecialResult('${f.id}',this.value)"/>
-          </div>`).join("")}
-      </div>` : ""}`;
-}
-
-
-  const teams = GROUPS[g];
-  const stats = {};
-  teams.forEach(t => stats[t] = {pts:0,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0});
-  MATCHES.filter(m => m.group === g).forEach(m => {
-    const res = allResults[m.id];
-    if (!res || res.h === "" || res.h === undefined) return;
-    const rh = parseInt(res.h), ra = parseInt(res.a);
-    if (isNaN(rh)||isNaN(ra)) return;
-    const h = m.home, a = m.away;
-    if (!stats[h] || !stats[a]) return;
-    stats[h].pj++; stats[a].pj++;
-    stats[h].gf += rh; stats[h].gc += ra;
-    stats[a].gf += ra; stats[a].gc += rh;
-    if (rh > ra) { stats[h].pts+=3; stats[h].pg++; stats[a].pp++; }
-    else if (rh < ra) { stats[a].pts+=3; stats[a].pg++; stats[h].pp++; }
-    else { stats[h].pts+=1; stats[a].pts+=1; stats[h].pe++; stats[a].pe++; }
-  });
-  return Object.entries(stats)
-    .map(([t,s]) => ({team:t,...s,dif:s.gf-s.gc}))
-    .sort((a,b) => b.pts-a.pts || b.dif-a.dif || b.gf-a.gf);
-}
-
-function renderGrupos() {
-  return Object.entries(GROUPS).map(([g, teams]) => {
-    const table = calcGroupTable(g);
-    const posColors = ["#22c55e","#22c55e","#eab308","#ef4444"];
-    const posTips = ["Clasifica","Clasifica","Posible clasificación","Eliminado"];
-    return `
-    <div style="background:#1e293b;border-radius:10px;margin-bottom:14px;overflow:hidden">
-      <div style="background:${GROUP_COLORS[g]};padding:8px 14px;font-weight:800;font-size:13px;letter-spacing:1px">GRUPO ${g}</div>
-      <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead>
-            <tr style="color:#64748b;border-bottom:1px solid #0f172a">
-              <th style="padding:6px 10px;text-align:left;font-weight:600">#</th>
-              <th style="padding:6px 4px;text-align:left;font-weight:600">Equipo</th>
-              <th style="padding:6px 4px;text-align:center;font-weight:600">PJ</th>
-              <th style="padding:6px 4px;text-align:center;font-weight:600">PG</th>
-              <th style="padding:6px 4px;text-align:center;font-weight:600">PE</th>
-              <th style="padding:6px 4px;text-align:center;font-weight:600">PP</th>
-              <th style="padding:6px 4px;text-align:center;font-weight:600">GD</th>
-              <th style="padding:6px 10px;text-align:center;font-weight:600">Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${table.map((r,i) => `
-              <tr style="border-bottom:${i<table.length-1?"1px solid #0f172a":"none"}">
-                <td style="padding:8px 10px">
-                  <div style="width:6px;height:26px;background:${posColors[i]};border-radius:3px" title="${posTips[i]}"></div>
-                </td>
-                <td style="padding:8px 4px;font-weight:600;white-space:nowrap">${flag(r.team)} ${r.team}</td>
-                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pj}</td>
-                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pg}</td>
-                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pe}</td>
-                <td style="padding:8px 4px;text-align:center;color:#94a3b8">${r.pp}</td>
-                <td style="padding:8px 4px;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"#94a3b8"}">${r.dif>0?"+":""}${r.dif}</td>
-                <td style="padding:8px 10px;text-align:center;font-weight:800;font-size:14px;color:${GROUP_COLORS[g]}">${r.pts}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
-      </div>
-      <div style="display:flex;gap:12px;padding:8px 14px;border-top:1px solid #0f172a">
-        ${posColors.map((c,i) => `<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b">
-          <span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}
-        </span>`).join("")}
-      </div>
-    </div>`;
-  }).join("");
-}
-
 // ─── ACTIONS ──────────────────────────────────────────────
+window.savePred = async function(matchId, side, val) {
+  if (isLocked(MATCHES.find(m => m.id === matchId))) return;
+  myPredictions[matchId] = { ...(myPredictions[matchId]||{}), [side]: val };
+  await db.ref(`users/${currentUser.uid}/predictions/${matchId}`).update({ [side]: val });
+};
+window.saveResult = async function(matchId, side, val) {
+  if (!isAdmin) return;
+  allResults[matchId] = { ...(allResults[matchId]||{}), [side]: val };
+  await db.ref(`results/${matchId}`).update({ [side]: val });
+  showToast("Resultado guardado ✓");
+};
 window.saveEspecial = async function(field, val) {
   if (especialesLocked()) return;
   await db.ref(`users/${currentUser.uid}/especiales/${field}`).set(val);
@@ -702,17 +706,6 @@ window.deleteUser = async function(uid, name) {
   if (!confirm(`¿Eliminar a "${name}" y todos sus pronósticos?`)) return;
   await db.ref(`users/${uid}`).remove();
   showToast(`${name} eliminado ✓`);
-};
-window.savePred = async function(matchId, side, val) {
-  if (isLocked(MATCHES.find(m => m.id === matchId))) return;
-  myPredictions[matchId] = { ...(myPredictions[matchId]||{}), [side]: val };
-  await db.ref(`users/${currentUser.uid}/predictions/${matchId}`).update({ [side]: val });
-};
-window.saveResult = async function(matchId, side, val) {
-  if (!isAdmin) return;
-  allResults[matchId] = { ...(allResults[matchId]||{}), [side]: val };
-  await db.ref(`results/${matchId}`).update({ [side]: val });
-  showToast("Resultado guardado ✓");
 };
 window.setTab = function(t) { currentTab = t; currentGroup = "A"; render(); };
 window.setGroup = function(g) { currentGroup = g; renderTab(); };
