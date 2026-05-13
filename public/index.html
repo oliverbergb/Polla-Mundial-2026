@@ -664,7 +664,7 @@ function renderLanding(){
       </button>
 
       <div style="width:100%;max-width:340px;position:relative;margin-bottom:6px">
-        <input id="landingCode" type="text" placeholder="Tienes un código? ABC123"
+        <input id="landingCode" type="text" placeholder="¿Tienes un código?"
           maxlength="6"
           style="width:100%;background:#1e293b;border:1.5px solid #334155;border-radius:14px;color:#f1f5f9;padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
           oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#3b82f6':'#334155'"
@@ -694,18 +694,20 @@ window.doJoinFromLanding=async function(){
     const snap=await db.ref("pollas").orderByChild("code").equalTo(code).get();
     if(!snap.exists()){errEl.textContent="Código no encontrado. Verifica e intenta de nuevo.";inp.disabled=false;return;}
     if(currentUser){await joinPollaByCode(code);return;}
-    renderPickName(async(name)=>{
-      pendingName=name;
-      pendingPollaAction=async()=>{await joinPollaByCode(code);};
-      renderAuthScreen(name);
-    });
+    renderPickName(
+      async(name)=>{pendingName=name;pendingPollaAction=async()=>{await joinPollaByCode(code);};renderAuthScreen(name);},
+      ()=>renderLanding()
+    );
   }catch(e){errEl.textContent="Error al conectar. Intenta de nuevo.";inp.disabled=false;}
 };
 
 // ─── PICK NAME ────────────────────────────────────────────
-function renderPickName(onDone){
+let _pickNameCallback=null;
+let _pickNameBack=null;
+function renderPickName(onDone, onBack){
   setFabs(false);
-  const cb=onDone.toString();
+  _pickNameCallback=onDone;
+  _pickNameBack=onBack||null;
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
       <div style="font-size:52px;margin-bottom:16px">🎮</div>
@@ -714,23 +716,26 @@ function renderPickName(onDone){
       <input id="pickNameInput" type="text" placeholder="Tu nombre en la polla"
         maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false"
         style="width:100%;max-width:340px;background:#1e293b;border:2px solid #3b82f6;border-radius:14px;color:#f1f5f9;padding:16px 18px;font-size:22px;font-weight:700;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
-        onkeydown="if(event.key==='Enter')document.getElementById('pickNameBtn').click()"
+        onkeydown="if(event.key==='Enter')doPickName()"
       />
       <div id="pickNameError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:12px"></div>
-      <button id="pickNameBtn" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif"
-        onclick="(async()=>{
-          const n=(document.getElementById('pickNameInput').value||'').trim();
-          if(!n||n.length<2){document.getElementById('pickNameError').textContent='Mínimo 2 caracteres.';return;}
-          const s=await db.ref('users').orderByChild('name').equalTo(n).get();
-          if(s.exists()){document.getElementById('pickNameError').textContent='Ese nombre ya está en uso.';return;}
-          (${cb})(n);
-        })()">
+      <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif">
         Continuar →
       </button>
-      <button onclick="renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">← Volver</button>
+      <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">← Volver</button>
     </div>`;
   setTimeout(()=>document.getElementById("pickNameInput")?.focus(),100);
 }
+
+window.doPickName=async function(){
+  const n=(document.getElementById("pickNameInput").value||"").trim();
+  const errEl=document.getElementById("pickNameError"),btn=document.getElementById("pickNameBtn");
+  if(!n||n.length<2){errEl.textContent="Mínimo 2 caracteres.";return;}
+  btn.disabled=true;btn.textContent="Comprobando...";
+  const s=await db.ref("users").orderByChild("name").equalTo(n).get();
+  if(s.exists()){errEl.textContent="Ese nombre ya está en uso.";btn.disabled=false;btn.textContent="Continuar →";return;}
+  if(_pickNameCallback)await _pickNameCallback(n);
+};
 
 // ─── AUTH SCREEN ──────────────────────────────────────────
 function renderAuthScreen(name){
@@ -765,7 +770,7 @@ function renderAuthScreen(name){
       <button onclick="renderForgot()" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
         ¿Olvidaste tu contraseña?
       </button>
-      <button onclick="renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
+      <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
     </div>`;
   setTimeout(()=>document.getElementById("authEmail")?.focus(),100);
 }
@@ -991,7 +996,7 @@ window.doCrearPolla=async function(){
   if(!currentUser){
     sessionStorage.setItem("pendingPollaName",nombre);
     pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre);sessionStorage.removeItem("pendingPollaName");};
-    renderPickName(async(name)=>{pendingName=name;renderAuthScreen(name);});
+    renderPickName(async(name)=>{pendingName=name;renderAuthScreen(name);},()=>renderCrearPolla());
     return;
   }
   await _doCreatePolla(nombre);
