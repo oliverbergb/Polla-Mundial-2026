@@ -14,7 +14,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
-.header{position:relative;padding:20px 16px 0;text-align:center;border-bottom:2px solid #1e40af;overflow:hidden;background:#0d1829}
+.header{position:relative;padding:20px 16px 0;text-align:center;border-bottom:2px solid #1e40af;overflow:hidden;background:#0d1829;border-radius:0 0 18px 18px;margin-bottom:4px}
 .header-bg{position:absolute;inset:0;opacity:.04;font-size:48px;font-weight:900;color:#fff;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0;pointer-events:none;letter-spacing:-2px;line-height:1;overflow:hidden;user-select:none}
 .header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:2px;margin:6px 0 2px;text-transform:uppercase}
 .header-sub{position:relative;color:#94a3b8;font-size:12px;margin-bottom:4px}
@@ -276,7 +276,7 @@ const GROUPS={
   L:["Inglaterra","Croacia","Ghana","Panamá"],
 };
 const GROUP_COLORS={A:"#ef4444",B:"#f97316",C:"#eab308",D:"#22c55e",E:"#14b8a6",F:"#3b82f6",G:"#8b5cf6",H:"#ec4899",I:"#f43f5e",J:"#10b981",K:"#6366f1",L:"#0ea5e9"};
-const FLAGS={"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Canadá":"🇨🇦","Qatar":"🇶🇦","Suiza":"🇨🇭","Bosnia":"🇧🇦","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Suecia":"🇸🇪","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Irak":"🇮🇶","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","RD Congo":"🇨🇩","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Ghana":"🇬🇭","Panamá":"🇵🇦"};
+const FLAGS={"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Canadá":"🇨🇦","Qatar":"🇶🇦","Suiza":"🇨🇭","Bosnia":"🇧🇦","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Suecia":"🇸🇪","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Irak":"🇮🇶","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","RD Congo":"🇨🇩","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Ghana":"🇬🇭","Panamá":"🇵🇦"};
 const flag=t=>FLAGS[t]||"🏳️";
 const PHASE_LABELS={groups:"Grupos",r32:"16avos",r16:"Octavos",qf:"Cuartos",sf:"Semis",third:"3er Puesto",final:"⭐ Final"};
 const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"third",label:"3er Puesto"},{id:"final",label:"Final ⭐"}];
@@ -857,7 +857,6 @@ function renderEspeciales(){
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div><div style="font-size:12px;color:#94a3b8">Mis puntos especiales</div>
         <div style="font-size:28px;font-weight:900;color:#f59e0b">${espPts} pts</div></div>
-      <div style="font-size:12px;color:#64748b;text-align:right">Campeón 10pts<br/>resto 5pts c/u</div>
     </div>
     ${locked
       ?`<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #ef4444;font-size:13px;color:#94a3b8">🔒 Predicciones cerradas — el torneo ya comenzó.</div>`
@@ -939,9 +938,6 @@ function renderRanking(){
   }).join("");
 
   return`
-    <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:#94a3b8;line-height:1.5">Partidos: 3pts exacto · 2pts ganador+dif · 1pt ganador — Grupos: 2pts posición — Eliminatorias: 3pts exacto+clasificado · 2pts exacto · 1pt clasificado — Especiales: Campeón 10pts · resto 5pts c/u</div>
-    </div>
     ${podioHtml}
     ${rest.length>0?`<div class="card">${restHtml}</div>`:""}
     ${tournamentEnded()&&rows.length>0?`<button onclick="openCarta('${rows[0].name}')" style="width:100%;background:linear-gradient(135deg,#854d0e,#ca8a04);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-top:8px">🏆 Ver carta al campeón</button>`:""}`;
