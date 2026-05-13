@@ -919,7 +919,15 @@ window.doLogin=async function(){
     isAdmin=false;
     await loadPollas();
   }catch(e){
-    errEl.textContent=e.code==="auth/wrong-password"||e.code==="auth/user-not-found"?"Email o contraseña incorrectos.":"Error al conectar. Intenta de nuevo.";
+    const msg={
+      "auth/wrong-password":"Email o contraseña incorrectos.",
+      "auth/user-not-found":"Email o contraseña incorrectos.",
+      "auth/invalid-credential":"Email o contraseña incorrectos.",
+      "auth/too-many-requests":"Demasiados intentos. Espera unos minutos.",
+      "auth/network-request-failed":"Sin conexión. Verifica tu internet.",
+      "auth/user-disabled":"Esta cuenta ha sido deshabilitada.",
+    }[e.code]||"Error al conectar. Intenta de nuevo.";
+    errEl.textContent=msg;
     btn.disabled=false;btn.textContent="Entrar 🚀";
   }
 };
@@ -935,26 +943,62 @@ window.doRegister=async function(){
   if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
   btn.disabled=true;btn.textContent="Creando cuenta...";
   try{
-    const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
-    await auth.setPersistence(persistence);
-    const cred=await auth.createUserWithEmailAndPassword(email,pass);
-    const uid=cred.user.uid;
-    // Check name not taken (now authenticated)
-    const snap=await db.ref("users").orderByChild("name").equalTo(name).get();
-    if(snap.exists()&&!Object.keys(snap.val()).includes(uid)){
-      await cred.user.delete();
+    // Check if email already has a Firebase Auth account but no DB entry (orphan account)
+    // We detect this by checking if the user already exists in DB first
+    const nameSnap=await db.ref("users").orderByChild("name").equalTo(name).get();
+    if(nameSnap.exists()){
       errEl.textContent="Ese nombre ya está en uso, elige otro.";
       btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
+    }
+    const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
+    await auth.setPersistence(persistence);
+    let uid;
+    try{
+      const cred=await auth.createUserWithEmailAndPassword(email,pass);
+      uid=cred.user.uid;
+    }catch(authErr){
+      if(authErr.code==="auth/email-already-in-use"){
+        // Might be an orphan account — try to sign in and recover
+        try{
+          const recov=await auth.signInWithEmailAndPassword(email,pass);
+          uid=recov.user.uid;
+          const existingSnap=await db.ref(`users/${uid}`).get();
+          if(existingSnap.exists()){
+            // Full account exists — just redirect to login
+            errEl.textContent="Ese email ya tiene cuenta. Inicia sesión.";
+            btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
+          }
+          // Orphan: Auth exists but no DB entry — we can recover it
+        }catch(recovErr){
+          errEl.textContent="Ese email ya tiene cuenta. Inicia sesión.";
+          btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
+        }
+      }else{
+        throw authErr;
+      }
     }
     await db.ref(`users/${uid}`).set({name,email});
     currentUser={uid,name,email};
     isAdmin=false;
     await loadPollas();
   }catch(e){
-    console.error("Firebase register error:",e.code, e.message);
-    errEl.textContent=e.code==="auth/email-already-in-use"?"Ese email ya tiene cuenta. Inicia sesión.":"Error: "+e.code;
+    const msg={
+      "auth/network-request-failed":"Sin conexión. Verifica tu internet.",
+      "auth/too-many-requests":"Demasiados intentos. Espera unos minutos.",
+      "auth/weak-password":"La contraseña debe tener al menos 6 caracteres.",
+      "auth/invalid-email":"El email no es válido.",
+    }[e.code]||"Error al crear la cuenta. Intenta de nuevo.";
+    errEl.textContent=msg;
     btn.disabled=false;btn.textContent="Crear cuenta 🚀";
   }
+};
+
+window.togglePass=function(inputId,btn){
+  const inp=document.getElementById(inputId);
+  if(!inp)return;
+  const isHidden=inp.type==="password";
+  inp.type=isHidden?"text":"password";
+  btn.textContent=isHidden?"🙈":"👁";
 };
 
 window.doForgot=async function(){
