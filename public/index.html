@@ -935,13 +935,17 @@ window.doRegister=async function(){
   if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
   btn.disabled=true;btn.textContent="Creando cuenta...";
   try{
-    // Check name not taken
-    const snap=await db.ref("users").orderByChild("name").equalTo(name).get();
-    if(snap.exists()){errEl.textContent="Ese nombre ya está en uso, elige otro.";btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;}
     const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
     await auth.setPersistence(persistence);
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
     const uid=cred.user.uid;
+    // Check name not taken (now authenticated)
+    const snap=await db.ref("users").orderByChild("name").equalTo(name).get();
+    if(snap.exists()&&!Object.keys(snap.val()).includes(uid)){
+      await cred.user.delete();
+      errEl.textContent="Ese nombre ya está en uso, elige otro.";
+      btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
+    }
     await db.ref(`users/${uid}`).set({name,email});
     currentUser={uid,name,email};
     isAdmin=false;
