@@ -10,8 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#06080f;color:#f1f5f9;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23D42B2B' opacity='0.18'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%231565C0' opacity='0.18'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%235BA830' opacity='0.15'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%237B52AB' opacity='0.15'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
+body{background:#ffffff;color:#1e293b;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23D42B2B' opacity='0.07'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%231565C0' opacity='0.07'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%235BA830' opacity='0.06'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%237B52AB' opacity='0.06'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
@@ -731,10 +731,9 @@ window.doPickName=async function(){
   const n=(document.getElementById("pickNameInput").value||"").trim();
   const errEl=document.getElementById("pickNameError"),btn=document.getElementById("pickNameBtn");
   if(!n||n.length<2){errEl.textContent="Mínimo 2 caracteres.";return;}
-  btn.disabled=true;btn.textContent="Comprobando...";
-  const s=await db.ref("users").orderByChild("name").equalTo(n).get();
-  if(s.exists()){errEl.textContent="Ese nombre ya está en uso.";btn.disabled=false;btn.textContent="Continuar →";return;}
+  btn.disabled=true;btn.textContent="Continuar →";
   if(_pickNameCallback)await _pickNameCallback(n);
+  btn.disabled=false;
 };
 
 // ─── AUTH SCREEN ──────────────────────────────────────────
@@ -914,13 +913,13 @@ function renderCrearPolla(){
         <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#f1f5f9">✨ Crear polla</div>
         <div style="width:32px"></div>
       </div>
-      <div style="padding:28px 16px 48px">
+      <div style="padding:28px 16px 48px;display:flex;flex-direction:column;align-items:center">
         <input class="input" id="pollaName" type="text" placeholder="Nombre de tu polla"
           maxlength="40" autocorrect="off"
-          style="width:100%;max-width:100%;box-sizing:border-box;font-size:20px;font-weight:700;padding:16px;margin-bottom:8px;text-align:center"
+          style="width:100%;max-width:400px;box-sizing:border-box;font-size:20px;font-weight:700;padding:16px;margin-bottom:8px;text-align:center"
           onkeydown="if(event.key==='Enter')doCrearPolla()"/>
-        <div class="error" id="crearError" style="text-align:center;margin-bottom:12px"></div>
-        <button class="btn" onclick="doCrearPolla()" style="margin-bottom:28px">Crear polla 🚀</button>
+        <div class="error" id="crearError" style="text-align:center;margin-bottom:12px;width:100%;max-width:400px"></div>
+        <button class="btn" onclick="doCrearPolla()" style="margin-bottom:28px;max-width:400px">Crear polla 🚀</button>
         <div style="text-align:center;margin-bottom:16px">
           <button id="toggleRulesBtn" onclick="toggleRules()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;text-decoration-style:dotted">⚙️ Ajustar puntos y reglas</button>
         </div>
