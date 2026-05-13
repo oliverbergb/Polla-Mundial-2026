@@ -947,7 +947,8 @@ window.doRegister=async function(){
     isAdmin=false;
     await loadPollas();
   }catch(e){
-    errEl.textContent=e.code==="auth/email-already-in-use"?"Ese email ya tiene cuenta. Inicia sesión.":"Error al crear la cuenta. Intenta de nuevo.";
+    console.error("Firebase register error:",e.code, e.message);
+    errEl.textContent=e.code==="auth/email-already-in-use"?"Ese email ya tiene cuenta. Inicia sesión.":"Error: "+e.code;
     btn.disabled=false;btn.textContent="Crear cuenta 🚀";
   }
 };
