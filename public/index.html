@@ -914,15 +914,13 @@ window.doLogin=async function(){
     const uid=cred.user.uid;
     const snap=await db.ref(`users/${uid}`).get();
     if(!snap.exists()){
-      await auth.signOut();
-      errEl.textContent="Completa tu registro primero.";
-      btn.disabled=false;btn.textContent="Entrar 🚀";
-      setTimeout(()=>renderLogin("register"),1500);
+      // Cuenta huérfana: Auth OK pero sin perfil en DB — pedir nombre y completar
+      renderCompleteProfile(email,pass,remember);
       return;
     }
     const u=snap.val();
     currentUser={uid,name:u.name,email};
-    isAdmin=false;
+    isAdmin=u.name.toUpperCase()==="ADMIN";
     await loadPollas();
   }catch(e){
     const msg={
@@ -938,6 +936,41 @@ window.doLogin=async function(){
   }
 };
 
+function renderCompleteProfile(email,pass,remember){
+  document.getElementById("root").innerHTML=`
+    <div class="login-screen">
+      <div style="font-size:44px;margin-bottom:8px">👤</div>
+      <h1 style="font-size:20px;margin-bottom:6px">Elige tu nombre</h1>
+      <p style="color:#475569;font-size:13px;margin-bottom:20px;max-width:300px;font-family:'Inter',sans-serif">Tu cuenta ya existe. Solo elige un nombre para la polla.</p>
+      <input class="input" id="cpName" type="text" placeholder="Nombre de usuario" maxlength="20" autocomplete="username"/>
+      <div class="error" id="cpError"></div>
+      <button class="btn" id="cpBtn" onclick="doCompleteProfile()">Continuar →</button>
+    </div>`;
+  window._cpEmail=email;window._cpPass=pass;window._cpRemember=remember;
+}
+
+window.doCompleteProfile=async function(){
+  const name=(document.getElementById("cpName").value||"").trim();
+  const errEl=document.getElementById("cpError"),btn=document.getElementById("cpBtn");
+  if(!name||name.length<2){errEl.textContent="El nombre debe tener al menos 2 caracteres.";return;}
+  btn.disabled=true;btn.textContent="Guardando...";
+  try{
+    const nameSnap=await db.ref("users").orderByChild("name").equalTo(name).get();
+    if(nameSnap.exists()){errEl.textContent="Ese nombre ya está en uso, elige otro.";btn.disabled=false;btn.textContent="Continuar →";return;}
+    const persistence=window._cpRemember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
+    await auth.setPersistence(persistence);
+    const cred=await auth.signInWithEmailAndPassword(window._cpEmail,window._cpPass);
+    const uid=cred.user.uid;
+    await db.ref(`users/${uid}`).set({name,email:window._cpEmail});
+    currentUser={uid,name,email:window._cpEmail};
+    isAdmin=name.toUpperCase()==="ADMIN";
+    await loadPollas();
+  }catch(e){
+    errEl.textContent="Error al guardar ("+e.code+"). Intenta de nuevo.";
+    btn.disabled=false;btn.textContent="Continuar →";
+  }
+};
+
 window.doRegister=async function(){
   const name=(document.getElementById("regName").value||"").trim();
   const email=(document.getElementById("regEmail").value||"").trim();
@@ -949,51 +982,23 @@ window.doRegister=async function(){
   if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
   btn.disabled=true;btn.textContent="Creando cuenta...";
   try{
-    // Check if email already has a Firebase Auth account but no DB entry (orphan account)
-    // We detect this by checking if the user already exists in DB first
     const nameSnap=await db.ref("users").orderByChild("name").equalTo(name).get();
-    if(nameSnap.exists()){
-      errEl.textContent="Ese nombre ya está en uso, elige otro.";
-      btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
-    }
+    if(nameSnap.exists()){errEl.textContent="Ese nombre ya está en uso, elige otro.";btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;}
     const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
     await auth.setPersistence(persistence);
-    let uid;
-    try{
-      const cred=await auth.createUserWithEmailAndPassword(email,pass);
-      uid=cred.user.uid;
-    }catch(authErr){
-      if(authErr.code==="auth/email-already-in-use"){
-        // Might be an orphan account — try to sign in and recover
-        try{
-          const recov=await auth.signInWithEmailAndPassword(email,pass);
-          uid=recov.user.uid;
-          const existingSnap=await db.ref(`users/${uid}`).get();
-          if(existingSnap.exists()){
-            // Full account exists — just redirect to login
-            errEl.textContent="Ese email ya tiene cuenta. Inicia sesión.";
-            btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
-          }
-          // Orphan: Auth exists but no DB entry — we can recover it
-        }catch(recovErr){
-          errEl.textContent="Ese email ya tiene cuenta. Inicia sesión.";
-          btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
-        }
-      }else{
-        throw authErr;
-      }
-    }
-    await db.ref(`users/${uid}`).set({name,email});
-    currentUser={uid,name,email};
-    isAdmin=false;
+    const cred=await auth.createUserWithEmailAndPassword(email,pass);
+    await db.ref(`users/${cred.user.uid}`).set({name,email});
+    currentUser={uid:cred.user.uid,name,email};
+    isAdmin=name.toUpperCase()==="ADMIN";
     await loadPollas();
   }catch(e){
     const msg={
+      "auth/email-already-in-use":"Ese email ya tiene cuenta. Inicia sesión.",
       "auth/network-request-failed":"Sin conexión. Verifica tu internet.",
       "auth/too-many-requests":"Demasiados intentos. Espera unos minutos.",
       "auth/weak-password":"La contraseña debe tener al menos 6 caracteres.",
       "auth/invalid-email":"El email no es válido.",
-    }[e.code]||"Error al crear la cuenta. Intenta de nuevo.";
+    }[e.code]||"Error ("+e.code+"). Intenta de nuevo.";
     errEl.textContent=msg;
     btn.disabled=false;btn.textContent="Crear cuenta 🚀";
   }
