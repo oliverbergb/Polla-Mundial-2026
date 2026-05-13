@@ -7,18 +7,20 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0f1e;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Ctext x='10' y='55' font-family='Arial Black,sans-serif' font-weight='900' font-size='44' fill='white' opacity='0.035'%3E26%3C/text%3E%3C/svg%3E");background-repeat:repeat}
+body{background:#06080f;color:#f1f5f9;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23D42B2B' opacity='0.18'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%231565C0' opacity='0.18'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%235BA830' opacity='0.15'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%237B52AB' opacity='0.15'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
-.header{position:relative;padding:20px 16px 0;text-align:center;border-bottom:2px solid #1e40af;overflow:hidden;background:#0d1829;border-radius:0 0 18px 18px;margin-bottom:4px}
-.header-bg{position:absolute;inset:0;opacity:.04;font-size:48px;font-weight:900;color:#fff;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0;pointer-events:none;letter-spacing:-2px;line-height:1;overflow:hidden;user-select:none}
-.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:2px;margin:6px 0 2px;text-transform:uppercase}
-.header-sub{position:relative;color:#94a3b8;font-size:12px;margin-bottom:4px}
-.countdown-bar{position:relative;background:#0f172a;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#3b82f6;border:1px solid #1e40af}
+.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:#0a0f1e;border-radius:0 0 18px 18px;margin-bottom:4px;font-family:'Inter',sans-serif}
+.header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#D42B2B,#E8621A,#F5D000,#5BA830,#1565C0,#7B52AB);z-index:1}
+.header-bg{display:none}
+.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Inter',sans-serif;color:#fff}
+.header-sub{position:relative;color:#64748b;font-size:11px;margin-bottom:4px;font-family:'Inter',sans-serif}
+.countdown-bar{position:relative;background:#0f172a;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#3b82f6;border:1px solid #1e40af;font-family:'Inter',sans-serif}
 .tabs{display:flex;overflow-x:auto;gap:4px;scrollbar-width:none;position:relative}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:8px 14px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap}
@@ -580,8 +582,8 @@ function render(){
   document.getElementById("root").innerHTML=`
     <div class="app">
       <div class="header">
-        <div class="header-bg">${patternNums}</div>
-        <div style="position:relative;font-size:11px;font-weight:700;letter-spacing:3px;color:#475569;margin-bottom:2px">MUNDIAL 2026</div>
+        <div class="header-bg"></div>
+        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:4px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">⚽ Mundial 2026</div>
         <h1>RICA POLLA MUNDIALERA</h1>
         <p class="header-sub">USA · México · Canadá 2026${isAdmin?`<span class="admin-badge">ADMIN</span>`:""}</p>
         <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative">
