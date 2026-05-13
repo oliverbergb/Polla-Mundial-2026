@@ -879,7 +879,7 @@ function renderLogin(mode="register"){
         <input class="input" id="regEmail" type="email" placeholder="Email" autocomplete="email"/>
         <div style="position:relative;width:100%;max-width:340px">
           <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
-          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-60%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
+          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
         </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
@@ -889,13 +889,13 @@ function renderLogin(mode="register"){
         <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email"/>
         <div style="position:relative;width:100%;max-width:340px">
           <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
-          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-60%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
+          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
         </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
         <button class="btn" id="loginBtn" onclick="doLogin()">Entrar 🚀</button>
         <div style="margin-top:10px"><button class="link-btn" onclick="renderLogin('forgot')">¿Olvidaste tu contraseña?</button></div>
-        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate gratis</button></div>
+        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate</button></div>
       `}
     </div>`;
 }
@@ -913,7 +913,13 @@ window.doLogin=async function(){
     const cred=await auth.signInWithEmailAndPassword(email,pass);
     const uid=cred.user.uid;
     const snap=await db.ref(`users/${uid}`).get();
-    if(!snap.exists()){errEl.textContent="Cuenta no encontrada.";btn.disabled=false;btn.textContent="Entrar 🚀";return;}
+    if(!snap.exists()){
+      await auth.signOut();
+      errEl.textContent="Completa tu registro primero.";
+      btn.disabled=false;btn.textContent="Entrar 🚀";
+      setTimeout(()=>renderLogin("register"),1500);
+      return;
+    }
     const u=snap.val();
     currentUser={uid,name:u.name,email};
     isAdmin=false;
