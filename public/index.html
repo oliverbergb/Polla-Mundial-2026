@@ -877,9 +877,9 @@ function renderLogin(mode="register"){
       `:isReg?`
         <input class="input" id="regName" type="text" placeholder="Nombre de usuario" maxlength="20" autocomplete="username"/>
         <input class="input" id="regEmail" type="email" placeholder="Email" autocomplete="email"/>
-        <div style="position:relative;width:100%;max-width:340px">
-          <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
-          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
+        <div style="position:relative;width:100%;max-width:340px;margin-bottom:12px">
+          <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" style="width:100%;padding-right:44px;margin-bottom:0"/>
+          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
         </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
@@ -887,9 +887,9 @@ function renderLogin(mode="register"){
         <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿Ya tienes cuenta? <button class="link-btn" onclick="renderLogin('login')">Inicia sesión</button></div>
       `:`
         <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email"/>
-        <div style="position:relative;width:100%;max-width:340px">
-          <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
-          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
+        <div style="position:relative;width:100%;max-width:340px;margin-bottom:12px">
+          <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding-right:44px;margin-bottom:0"/>
+          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
         </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
