@@ -15,15 +15,17 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
-.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:#0a0f1e;border-radius:0 0 18px 18px;margin-bottom:4px;font-family:'Inter',sans-serif}
-.header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#D42B2B,#E8621A,#F5D000,#5BA830,#1565C0,#7B52AB);z-index:1}
+.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:#0a0f1e;border-radius:16px 16px 18px 18px;margin:8px 8px 4px;font-family:'Inter',sans-serif}
+.header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#D42B2B,#E8621A,#F5D000,#5BA830,#1565C0,#7B52AB);z-index:1;border-radius:16px 16px 0 0}
 .header-bg{display:none}
 .header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Inter',sans-serif;color:#fff}
 .header-sub{position:relative;color:#64748b;font-size:11px;margin-bottom:4px;font-family:'Inter',sans-serif}
 .countdown-bar{position:relative;background:#0f172a;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#3b82f6;border:1px solid #1e40af;font-family:'Inter',sans-serif}
+.tabs-wrap{position:relative}
+.tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,#0a0f1e);pointer-events:none;z-index:2}
 .tabs{display:flex;overflow-x:auto;gap:4px;scrollbar-width:none;position:relative}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:8px 14px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap}
+.tab{flex:0 0 auto;padding:8px 14px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
 .tab.active{background:#1e40af;color:#fff;border-bottom:2px solid #3b82f6}
 .tab:not(.active){background:transparent;color:#94a3b8;border-bottom:2px solid transparent}
 
@@ -44,12 +46,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .rank-row:last-child{border-bottom:none}
 
 /* ── LOGIN ── */
-.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;background:#0a0f1e}
-.login-screen h1{font-size:28px;font-weight:900;margin:12px 0 4px}
-.input{width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none}
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;background:transparent}
+.login-screen h1{font-size:26px;font-weight:900;margin:12px 0 4px;font-family:'Inter',sans-serif;letter-spacing:-0.5px}
+.input{width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
 .input:focus{border-color:#3b82f6}
-.btn{width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer}
+.btn{width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .btn:disabled{background:#334155;cursor:not-allowed}
+.btn-secondary{width:100%;max-width:340px;background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px}
+.btn-secondary:hover{border-color:#3b82f6;color:#f1f5f9}
+.link-btn{background:none;border:none;color:#3b82f6;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;padding:0}
+.remember-row{display:flex;align-items:center;gap:8px;max-width:340px;width:100%;margin-bottom:12px;cursor:pointer}
+.remember-row input[type=checkbox]{width:16px;height:16px;accent-color:#3b82f6;cursor:pointer}
+.remember-row span{font-size:13px;color:#94a3b8;font-family:'Inter',sans-serif}
 .error{color:#ef4444;font-size:13px;margin-bottom:10px;max-width:340px}
 .lock-badge{font-size:10px;background:#334155;color:#94a3b8;padding:2px 6px;border-radius:10px;margin-left:4px}
 .admin-badge{background:#7c3aed;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px}
@@ -150,6 +158,17 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="toast" id="toast"></div>
 <button class="fab fab-left" onclick="openHistorial()" title="Mi historial">📊</button>
 <button class="fab fab-right" onclick="openRules()" title="Reglas del juego">❓</button>
+
+<!-- MODAL CAMBIAR NOMBRE -->
+<div id="modal-changename" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeChangeName()">
+  <div class="modal-box">
+    <h2>✏️ Cambiar nombre de usuario</h2>
+    <input class="input" id="changeNameInput" type="text" placeholder="Nuevo nombre" maxlength="20" style="margin-bottom:8px"/>
+    <div class="error" id="changeNameError"></div>
+    <button class="btn" onclick="doChangeName()" style="margin-bottom:10px">Guardar ✓</button>
+    <button class="modal-close" onclick="closeChangeName()" style="background:#334155">Cancelar</button>
+  </div>
+</div>
 
 <!-- MODAL REGLAS -->
 <div id="modal-rules" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeRules()">
@@ -482,21 +501,34 @@ function getCountdown(){
   const now=new Date(),target=new Date(TOURNAMENT_LOCKOUT);
   const diff=target-now;
   if(diff<=0)return null;
-  const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000);
-  return`${d}d ${h}h ${m}m`;
+  const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+  return`${d}d ${h}h ${m}m ${s}s`;
+}
+
+// ─── TIMEZONE ─────────────────────────────────────────────
+function localMatchTime(kickoff){
+  const d=new Date(kickoff);
+  const timeStr=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",hour12:false});
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const city=tz.split("/").pop().replace(/_/g," ");
+  return`${timeStr} ${city}`;
+}
+function localMatchDate(kickoff){
+  const d=new Date(kickoff);
+  return d.toLocaleDateString([],{day:"numeric",month:"short"});
 }
 
 // ─── FIREBASE ─────────────────────────────────────────────
 function initFirebase(){
   firebase.initializeApp(FIREBASE_CONFIG);
   db=firebase.database();auth=firebase.auth();
-  firebase.auth().onAuthStateChanged(async()=>{
-    const uid=localStorage.getItem("pollaUid");
-    if(uid){
+  auth.onAuthStateChanged(async user=>{
+    if(user){
       try{
-        const snap=await db.ref(`users/${uid}`).get();
+        const snap=await db.ref(`users/${user.uid}`).get();
         if(snap.exists()){
-          const u=snap.val();currentUser={uid,name:u.name};
+          const u=snap.val();
+          currentUser={uid:user.uid,name:u.name,email:user.email};
           isAdmin=u.name.toUpperCase()===ADMIN_NAME.toUpperCase();
           loadData();return;
         }
@@ -525,7 +557,7 @@ function loadData(){
   db.ref("results").on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
   fetchLiveResults();
   setInterval(fetchLiveResults,120000);
-  setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},30000);
+  setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
 }
 async function fetchLiveResults(){
   try{
@@ -542,34 +574,124 @@ async function fetchLiveResults(){
 }
 
 // ─── LOGIN ────────────────────────────────────────────────
-function renderLogin(){
+function renderLogin(mode="login"){
+  const isReg=mode==="register";
+  const isForgot=mode==="forgot";
   document.getElementById("root").innerHTML=`
     <div class="login-screen">
-      <div style="font-size:60px;margin-bottom:8px">⚽</div>
-      <div style="font-size:13px;font-weight:700;letter-spacing:3px;color:#475569;margin-bottom:4px">MUNDIAL 2026</div>
-      <h1 style="font-size:26px;letter-spacing:1px">RICA POLLA MUNDIALERA</h1>
-      <p style="color:#475569;margin-bottom:28px;font-size:13px">USA · México · Canadá 2026</p>
-      <input class="input" id="nameInput" type="text" placeholder="Tu nombre o apodo" maxlength="20" onkeydown="if(event.key==='Enter')doLogin()"/>
-      <div class="error" id="loginError"></div>
-      <button class="btn" id="loginBtn" onclick="doLogin()">Entrar 🚀</button>
-      <p style="font-size:11px;color:#334155;margin-top:16px">Solo puedes registrar un nombre por dispositivo</p>
+      <div style="font-size:52px;margin-bottom:6px">⚽</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#475569;margin-bottom:4px;font-family:'Inter',sans-serif">MUNDIAL 2026</div>
+      <h1 style="font-family:'Inter',sans-serif;font-size:22px;letter-spacing:-0.5px;color:#f1f5f9">RICA POLLA MUNDIALERA</h1>
+      <p style="color:#475569;margin-bottom:24px;font-size:12px;font-family:'Inter',sans-serif">USA · México · Canadá 2026</p>
+      ${isForgot?`
+        <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;max-width:300px;font-family:'Inter',sans-serif">Te enviaremos un link para restablecer tu contraseña.</p>
+        <input class="input" id="forgotEmail" type="email" placeholder="Tu email" autocomplete="email"/>
+        <div class="error" id="loginError"></div>
+        <button class="btn" id="loginBtn" onclick="doForgot()">Enviar link 📧</button>
+        <div style="margin-top:14px"><button class="link-btn" onclick="renderLogin('login')">← Volver al login</button></div>
+      `:isReg?`
+        <input class="input" id="regName" type="text" placeholder="Nombre de usuario" maxlength="20" autocomplete="username"/>
+        <input class="input" id="regEmail" type="email" placeholder="Email" autocomplete="email"/>
+        <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password"/>
+        <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
+        <div class="error" id="loginError"></div>
+        <button class="btn" id="loginBtn" onclick="doRegister()">Crear cuenta 🚀</button>
+        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿Ya tienes cuenta? <button class="link-btn" onclick="renderLogin('login')">Inicia sesión</button></div>
+      `:`
+        <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email"/>
+        <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password"/>
+        <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
+        <div class="error" id="loginError"></div>
+        <button class="btn" id="loginBtn" onclick="doLogin()">Entrar 🚀</button>
+        <div style="margin-top:10px"><button class="link-btn" onclick="renderLogin('forgot')">¿Olvidaste tu contraseña?</button></div>
+        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate</button></div>
+      `}
     </div>`;
 }
+
 window.doLogin=async function(){
-  const name=document.getElementById("nameInput").value.trim();
+  const email=(document.getElementById("loginEmail").value||"").trim();
+  const pass=document.getElementById("loginPass").value||"";
+  const remember=document.getElementById("rememberMe").checked;
   const errEl=document.getElementById("loginError"),btn=document.getElementById("loginBtn");
-  if(!name||name.length<2){errEl.textContent="Escribe tu nombre (mínimo 2 caracteres)";return;}
+  if(!email||!pass){errEl.textContent="Completa todos los campos.";return;}
   btn.disabled=true;btn.textContent="Entrando...";
   try{
-    const snap=await db.ref("users").get();const users=snap.val()||{};
-    const existing=Object.entries(users).find(([,u])=>u.name.toLowerCase()===name.toLowerCase());
-    let uid;
-    if(existing){uid=existing[0];}
-    else{const cred=await auth.signInAnonymously();uid=cred.user.uid;await db.ref(`users/${uid}`).set({name,predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}});}
-    localStorage.setItem("pollaUid",uid);
-    currentUser={uid,name};isAdmin=name.toUpperCase()===ADMIN_NAME.toUpperCase();
+    const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
+    await auth.setPersistence(persistence);
+    const cred=await auth.signInWithEmailAndPassword(email,pass);
+    const uid=cred.user.uid;
+    const snap=await db.ref(`users/${uid}`).get();
+    if(!snap.exists()){errEl.textContent="Cuenta no encontrada.";btn.disabled=false;btn.textContent="Entrar 🚀";return;}
+    const u=snap.val();
+    currentUser={uid,name:u.name,email};
+    isAdmin=u.name.toUpperCase()===ADMIN_NAME.toUpperCase();
     loadData();
-  }catch(e){errEl.textContent="Error al conectar. Recarga la página.";btn.disabled=false;btn.textContent="Entrar 🚀";}
+  }catch(e){
+    errEl.textContent=e.code==="auth/wrong-password"||e.code==="auth/user-not-found"?"Email o contraseña incorrectos.":"Error al conectar. Intenta de nuevo.";
+    btn.disabled=false;btn.textContent="Entrar 🚀";
+  }
+};
+
+window.doRegister=async function(){
+  const name=(document.getElementById("regName").value||"").trim();
+  const email=(document.getElementById("regEmail").value||"").trim();
+  const pass=document.getElementById("regPass").value||"";
+  const remember=document.getElementById("rememberMe").checked;
+  const errEl=document.getElementById("loginError"),btn=document.getElementById("loginBtn");
+  if(!name||name.length<2){errEl.textContent="El nombre debe tener al menos 2 caracteres.";return;}
+  if(!email||!email.includes("@")){errEl.textContent="Escribe un email válido.";return;}
+  if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
+  btn.disabled=true;btn.textContent="Creando cuenta...";
+  try{
+    // Check name not taken
+    const snap=await db.ref("users").orderByChild("name").equalTo(name).get();
+    if(snap.exists()){errEl.textContent="Ese nombre ya está en uso, elige otro.";btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;}
+    const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
+    await auth.setPersistence(persistence);
+    const cred=await auth.createUserWithEmailAndPassword(email,pass);
+    const uid=cred.user.uid;
+    await db.ref(`users/${uid}`).set({name,email,predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}});
+    currentUser={uid,name,email};
+    isAdmin=name.toUpperCase()===ADMIN_NAME.toUpperCase();
+    loadData();
+  }catch(e){
+    errEl.textContent=e.code==="auth/email-already-in-use"?"Ese email ya tiene cuenta. Inicia sesión.":"Error al crear la cuenta. Intenta de nuevo.";
+    btn.disabled=false;btn.textContent="Crear cuenta 🚀";
+  }
+};
+
+window.doForgot=async function(){
+  const email=(document.getElementById("forgotEmail").value||"").trim();
+  const errEl=document.getElementById("loginError"),btn=document.getElementById("loginBtn");
+  if(!email||!email.includes("@")){errEl.textContent="Escribe un email válido.";return;}
+  btn.disabled=true;btn.textContent="Enviando...";
+  try{
+    await auth.sendPasswordResetEmail(email);
+    errEl.style.color="#22c55e";
+    errEl.textContent="✓ Link enviado. Revisa tu bandeja de entrada.";
+    btn.disabled=false;btn.textContent="Enviar link 📧";
+  }catch(e){
+    errEl.textContent="No encontramos ese email. ¿Tienes cuenta?";
+    btn.disabled=false;btn.textContent="Enviar link 📧";
+  }
+};
+
+window.openChangeName=function(){document.getElementById("modal-changename").style.display="flex";};
+window.closeChangeName=function(){document.getElementById("modal-changename").style.display="none";};
+window.doChangeName=async function(){
+  const newName=(document.getElementById("changeNameInput").value||"").trim();
+  const errEl=document.getElementById("changeNameError");
+  if(!newName||newName.length<2){errEl.textContent="Mínimo 2 caracteres.";return;}
+  // Check not taken
+  const snap=await db.ref("users").orderByChild("name").equalTo(newName).get();
+  if(snap.exists()&&!Object.keys(snap.val()).includes(currentUser.uid)){errEl.textContent="Ese nombre ya está en uso.";return;}
+  await db.ref(`users/${currentUser.uid}/name`).set(newName);
+  currentUser.name=newName;
+  allUsers[currentUser.uid].name=newName;
+  closeChangeName();
+  showToast("Nombre actualizado ✓");
+  render();
 };
 
 // ─── RENDER ───────────────────────────────────────────────
@@ -577,8 +699,9 @@ function render(){
   if(!currentUser){renderLogin();return;}
   const countdown=getCountdown();
   const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],["especiales","⭐ Especiales"],["ranking","🏆 Ranking"],...(isAdmin?[["admin","⚙️ Admin"]]:[])]
-  // Header bg pattern
-  const patternNums=Array(60).fill("26").join(" ");
+  // Save tab scroll position
+  const tabsEl=document.querySelector(".tabs");
+  const savedScroll=tabsEl?tabsEl.scrollLeft:0;
   document.getElementById("root").innerHTML=`
     <div class="app">
       <div class="header">
@@ -586,15 +709,19 @@ function render(){
         <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:4px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">⚽ Mundial 2026</div>
         <h1>RICA POLLA MUNDIALERA</h1>
         <p class="header-sub">USA · México · Canadá 2026${isAdmin?`<span class="admin-badge">ADMIN</span>`:""}</p>
-        <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative;font-family:'Inter',sans-serif">
           Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
-          <button onclick="logout()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;margin-left:8px">salir</button>
+          <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:6px;font-family:'Inter',sans-serif">✏️</button>
+          <button onclick="logout()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;margin-left:4px;font-family:'Inter',sans-serif">salir</button>
         </div>
         ${countdown?`<div class="countdown-bar" style="position:relative">⏱ <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e">⚽ ¡El Mundial está en curso!</div>`}
-        <div class="tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}</div>
+        <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}</div></div>
       </div>
       <div class="content" id="tab-content"></div>
     </div>`;
+  // Restore tab scroll position
+  const newTabs=document.getElementById("main-tabs");
+  if(newTabs&&savedScroll)newTabs.scrollLeft=savedScroll;
   renderTab();
 }
 function renderTab(){
@@ -764,7 +891,7 @@ function renderMisPronos(){
       const color=hasRes?(pts===3?"#22c55e":pts===2?"#3b82f6":pts===1?"#eab308":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
       return`<div class="match-card" style="border-left:3px solid ${color}">
         <div class="match-meta">
-          <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:m.date+" · "+m.time+" Lima"} · ${m.stadium}${locked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
+          <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}${locked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
           ${hasRes&&pts!==null?`<span class="pts-badge pts-${Math.min(pts,2)}">${pts===3?"✓ +3":pts===2?"≈ +2":pts===1?"~ +1":"✗ 0"}</span>`:""}
         </div>
         <div class="match-teams">
@@ -835,7 +962,7 @@ function renderElimPhase(phaseId){
     }
     return`<div class="match-card" style="border-left:3px solid ${color}">
       <div class="match-meta">
-        <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:m.date+" · "+m.time+" Lima"} · ${m.stadium}${matchLocked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
+        <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}${matchLocked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
         ${hasRes&&pts!==null?`<span class="pts-badge ${pts===3?"pts-3":pts===2?"pts-2":"pts-0"}">${pts===3?"✓ +3":pts===2?"≈ +2":"✗ 0"}</span>`:""}
       </div>
       <div class="match-teams">
@@ -1095,7 +1222,7 @@ window.deleteUser=async function(uid,name){
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
-window.logout=function(){localStorage.removeItem("pollaUid");currentUser=null;renderLogin();};
+window.logout=async function(){await auth.signOut();currentUser=null;renderLogin();};
 window.openRules=function(){document.getElementById("modal-rules").style.display="flex";};
 window.closeRules=function(){document.getElementById("modal-rules").style.display="none";};
 
