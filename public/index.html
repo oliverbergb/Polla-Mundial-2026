@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Rica Polla Mundialera 2026 🏆</title>
+<title>Tu Polla 🏆</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#ffffff;color:#1e293b;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23D42B2B' opacity='0.07'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%231565C0' opacity='0.07'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%235BA830' opacity='0.06'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%237B52AB' opacity='0.06'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
+body{background:#0d1b2a;color:#f1f5f9;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23D42B2B' opacity='0.18'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%231565C0' opacity='0.18'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%235BA830' opacity='0.15'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%237B52AB' opacity='0.15'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
@@ -268,7 +268,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="carta-divider"></div>
     <div class="carta-label">⭐ Carta al Campeón</div>
     <div class="carta-text" id="carta-content"><p style="color:#475569;font-style:italic;text-align:center">Generando carta...</p></div>
-    <div class="carta-firma">— Rica Polla Mundialera 2026</div>
+    <div class="carta-firma">— Tu Polla 2026</div>
     <button class="carta-close" onclick="closeCarta()">Cerrar ✓</button>
   </div>
 </div>
@@ -465,8 +465,20 @@ function isLive(m){
   const now=new Date(),start=new Date(m.kickoff),end=new Date(start.getTime()+110*60000);
   return now>=start&&now<=end;
 }
+// Kickoff of first match in each elim phase (UTC) — auto-unlocks at this time
+const PHASE_UNLOCK_TIMES={
+  r32:"2026-06-28T19:00:00Z",   // first 16avos
+  r16:"2026-07-04T18:00:00Z",   // first octavos (approx)
+  qf: "2026-07-11T18:00:00Z",   // first cuartos (approx)
+  sf: "2026-07-14T21:00:00Z",   // first semis (approx)
+  third:"2026-07-18T18:00:00Z", // 3er puesto (approx)
+  final:"2026-07-19T18:00:00Z", // final (approx)
+};
 function isPhaseLocked(phase){
   if(phase==="groups")return new Date()>=new Date(TOURNAMENT_LOCKOUT);
+  // Auto-unlock when the phase's first match kicks off
+  const unlockTime=PHASE_UNLOCK_TIMES[phase];
+  if(unlockTime&&new Date()>=new Date(unlockTime))return true;
   return !!phaseLocks[phase];
 }
 function tournamentEnded(){return new Date()>=new Date(TOURNAMENT_END);}
@@ -655,7 +667,7 @@ function renderLanding(){
       <div style="margin-bottom:40px">
         <div style="font-size:68px;margin-bottom:6px;display:inline-block;animation:bounce2 1.4s ease-in-out infinite">⚽</div>
         <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#475569;margin-bottom:8px">MUNDIAL 2026</div>
-        <div style="font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#ef4444 0%,#f97316 25%,#eab308 50%,#22c55e 75%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RICA POLLA<br>MUNDIALERA</div>
+        <div style="font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#ef4444 0%,#f97316 25%,#eab308 50%,#22c55e 75%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
         <div style="font-size:12px;color:#334155;margin-top:8px;font-weight:600">USA · México · Canadá</div>
       </div>
 
@@ -847,7 +859,7 @@ function renderPollaLobby(){
       <div style="text-align:center;margin-bottom:32px">
         <div style="font-size:44px;margin-bottom:8px">⚽</div>
         <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#475569;margin-bottom:4px">MUNDIAL 2026</div>
-        <div style="font-size:18px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px">RICA POLLA MUNDIALERA</div>
+        <div style="font-size:18px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px">TU POLLA</div>
         <div style="font-size:12px;color:#475569;margin-top:4px">Hola, <strong style="color:#94a3b8">${currentUser.name}</strong>
           <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:4px">✏️</button>
           <button onclick="logout()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;margin-left:4px">salir</button>
@@ -1107,7 +1119,7 @@ function renderLogin(mode="register"){
     <div class="login-screen">
       <div style="font-size:52px;margin-bottom:6px">⚽</div>
       <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#475569;margin-bottom:4px;font-family:'Inter',sans-serif">MUNDIAL 2026</div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:22px;letter-spacing:-0.5px;color:#f1f5f9">RICA POLLA MUNDIALERA</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:22px;letter-spacing:-0.5px;color:#f1f5f9">TU POLLA</h1>
       <p style="color:#475569;margin-bottom:24px;font-size:12px;font-family:'Inter',sans-serif">USA · México · Canadá 2026</p>
       ${isForgot?`
         <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;max-width:300px;font-family:'Inter',sans-serif">Te enviaremos un link para restablecer tu contraseña.</p>
@@ -1242,7 +1254,7 @@ function render(){
   const countdown=getCountdown();
   const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
   isAdmin=isCreator;
-  const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales","⭐ Especiales"]]:[]),["ranking","🏆 Ranking"],...(isCreator?[["admin","⚙️ Admin"]]:[])];
+  const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales","⭐ Especiales"]]:[]),["ranking","🏆 Ranking"]];
   const tabsEl=document.querySelector(".tabs");
   const savedScroll=tabsEl?tabsEl.scrollLeft:0;
   document.getElementById("root").innerHTML=`
@@ -1253,8 +1265,8 @@ function render(){
           <button onclick="goToLobby()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
           ${isCreator?`<button onclick="showInvite()" style="background:rgba(30,64,175,0.3);border:1px solid #1e40af;color:#60a5fa;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;border-radius:6px;padding:3px 8px">🔗 Invitar</button>`:`<div></div>`}
         </div>
-        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:4px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">⚽ ${currentPolla?.nombre||"Mundial 2026"}</div>
-        <h1>RICA POLLA MUNDIALERA</h1>
+        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:3px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">TU POLLA · MUNDIAL 2026</div>
+        <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
         <p class="header-sub">USA · México · Canadá 2026</p>
         <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative;font-family:'Inter',sans-serif">
           Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
@@ -1272,7 +1284,7 @@ function render(){
 }
 function renderTab(){
   const c=document.getElementById("tab-content");if(!c)return;
-  const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking,admin:renderAdmin};
+  const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking};
   c.innerHTML=(fns[currentTab]||renderGrupos)();
   if(currentTab==="grupos")initDragDrop();
 }
@@ -1470,7 +1482,7 @@ function renderElimPhase(phaseId){
       <div style="font-size:32px;margin-bottom:8px">🔒</div>
       <div style="font-weight:700;font-size:15px;margin-bottom:6px">${phaseInfo.label}</div>
       <div>Esta fase se desbloqueará cuando se conozcan los clasificados reales.</div>
-      ${isAdmin?`<button onclick="unlockPhase('${phaseId}')" style="margin-top:14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:700">⚙️ Desbloquear fase</button>`:""}
+      ${isAdmin?`<button style="display:${isAdmin?'inline-block':'none'}" onclick="unlockPhase('${phaseId}')" style="margin-top:14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:700">⚙️ Desbloquear fase</button>``:""}
     </div>`;
   }
   if(!matches.length)return`<div class="elim-locked-info">No hay partidos configurados para esta fase.</div>`;
@@ -1699,7 +1711,7 @@ window.openCarta=async function(winnerName){
   document.getElementById("carta-winner-name").textContent=winnerName;
   document.getElementById("carta-overlay").style.display="flex";
   document.getElementById("carta-content").innerHTML=`<p style="color:#475569;font-style:italic;text-align:center">Generando carta...</p>`;
-  const prompt=`Eres el narrador oficial de la Rica Polla Mundialera 2026, una polla de pronósticos del Mundial entre amigos.
+  const prompt=`Eres el narrador oficial de la Tu Polla 2026, una polla de pronósticos del Mundial entre amigos.
 Escribe una carta corta (3 párrafos) felicitando a ${winnerName} por ganar.
 Reglas ESTRICTAS:
 - El primer párrafo debe ser EXACTAMENTE esta frase, sin cambiar ni una coma: "${winnerName}, ¡lo lograste! Definitivamente tienes la polla más rica del Mundial."
