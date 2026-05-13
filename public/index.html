@@ -133,6 +133,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .carta-box{background:#0f172a;border-radius:20px;max-width:420px;width:100%;padding:28px 22px 24px;border:1px solid #eab308;text-align:center}
 .carta-trophy{font-size:52px;margin-bottom:8px;display:block;animation:bounce .8s ease infinite alternate}
 @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+@keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .carta-crown{font-size:11px;font-weight:700;letter-spacing:2px;color:#64748b;text-transform:uppercase;margin-bottom:4px}
 .carta-name{font-size:24px;font-weight:900;color:#f1f5f9;margin-bottom:12px}
 .carta-divider{border:none;border-top:1px solid #1e293b;margin:14px 0}
@@ -428,6 +429,7 @@ const MATCHES=[
 // ─── STATE ────────────────────────────────────────────────
 let db,auth,currentUser=null,currentTab="grupos",currentGroup="A",currentElimPhase="r32";
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
+let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,prevRanking={};
 let currentPollaId=null,currentPolla=null,myPollas={};
 
@@ -565,7 +567,6 @@ function localMatchDate(kickoff){
 function initFirebase(){
   firebase.initializeApp(FIREBASE_CONFIG);
   db=firebase.database();auth=firebase.auth();
-  // Check for invite link
   const urlParams=new URLSearchParams(window.location.search);
   const inviteCode=urlParams.get("polla");
   if(inviteCode)sessionStorage.setItem("pendingPolla",inviteCode);
@@ -575,31 +576,46 @@ function initFirebase(){
         const snap=await db.ref(`users/${user.uid}`).get();
         if(snap.exists()){
           const u=snap.val();
-          currentUser={uid:user.uid,name:u.name,email:user.email};
+          currentUser={uid:user.uid,name:u.name,email:user.email||""};
           isAdmin=u.name.toUpperCase()===ADMIN_NAME.toUpperCase();
           await loadPollas();return;
         }
+        const nameToUse=pendingName||user.displayName||"";
+        if(nameToUse){
+          await db.ref(`users/${user.uid}`).set({name:nameToUse,email:user.email||""});
+          currentUser={uid:user.uid,name:nameToUse,email:user.email||""};
+          isAdmin=false;
+          await loadPollas();return;
+        }
+        renderPickName(async(name)=>{
+          await db.ref(`users/${user.uid}`).set({name,email:user.email||""});
+          currentUser={uid:user.uid,name,email:user.email||""};
+          isAdmin=false;
+          await loadPollas();
+        });
+        return;
       }catch(e){}
     }
-    renderLogin();
+    renderLanding();
   });
 }
 
 async function loadPollas(){
-  // Get all pollas where user is a participant
   const snap=await db.ref("pollas").get();
   const allPollas=snap.val()||{};
   myPollas={};
   Object.entries(allPollas).forEach(([id,p])=>{
     if(p.participantes&&p.participantes[currentUser.uid])myPollas[id]=p;
   });
-  // Handle pending invite
   const pending=sessionStorage.getItem("pendingPolla");
   if(pending){
     sessionStorage.removeItem("pendingPolla");
-    // Clean URL
     window.history.replaceState({},"",window.location.pathname);
     await joinPollaByCode(pending,true);return;
+  }
+  if(pendingPollaAction){
+    const action=pendingPollaAction;pendingPollaAction=null;
+    await action();return;
   }
   const ids=Object.keys(myPollas);
   if(ids.length===0){renderPollaLobby();return;}
@@ -630,6 +646,193 @@ function loadData(){
   setInterval(fetchLiveResults,120000);
   setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
 }
+
+// ─── LANDING ──────────────────────────────────────────────
+function renderLanding(){
+  setFabs(false);
+  document.getElementById("root").innerHTML=`
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
+      <div style="margin-bottom:40px">
+        <div style="font-size:68px;margin-bottom:6px;display:inline-block;animation:bounce2 1.4s ease-in-out infinite">⚽</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#475569;margin-bottom:8px">MUNDIAL 2026</div>
+        <div style="font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#ef4444 0%,#f97316 25%,#eab308 50%,#22c55e 75%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">RICA POLLA<br>MUNDIALERA</div>
+        <div style="font-size:12px;color:#334155;margin-top:8px;font-weight:600">USA · México · Canadá</div>
+      </div>
+
+      <button onclick="renderCrearPolla()" style="width:100%;max-width:340px;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px;box-shadow:0 4px 24px rgba(59,130,246,0.4)">
+        ✨ Crear una polla
+      </button>
+
+      <div style="width:100%;max-width:340px;position:relative;margin-bottom:6px">
+        <input id="landingCode" type="text" placeholder="Tienes un código? ABC123"
+          maxlength="6"
+          style="width:100%;background:#1e293b;border:1.5px solid #334155;border-radius:14px;color:#f1f5f9;padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
+          oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#3b82f6':'#334155'"
+          onkeydown="if(event.key==='Enter')doJoinFromLanding()"
+          onfocus="this.style.borderColor='#3b82f6'"
+          onblur="this.style.borderColor=this.value.length>0?'#3b82f6':'#334155'"
+        />
+        <button onclick="doJoinFromLanding()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:#1e40af;border:none;border-radius:10px;color:#fff;padding:7px 13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">→</button>
+      </div>
+      <div id="landingError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:16px"></div>
+
+      <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px">
+        Ya tengo cuenta — iniciar sesión
+      </button>
+    </div>`;
+  setTimeout(()=>document.getElementById("landingCode")?.focus(),200);
+}
+
+window.doJoinFromLanding=async function(){
+  const code=(document.getElementById("landingCode").value||"").trim().toUpperCase();
+  const errEl=document.getElementById("landingError");
+  if(code.length<4){errEl.textContent="Escribe el código completo.";return;}
+  errEl.textContent="";
+  const inp=document.getElementById("landingCode");
+  inp.disabled=true;
+  try{
+    const snap=await db.ref("pollas").orderByChild("code").equalTo(code).get();
+    if(!snap.exists()){errEl.textContent="Código no encontrado. Verifica e intenta de nuevo.";inp.disabled=false;return;}
+    if(currentUser){await joinPollaByCode(code);return;}
+    renderPickName(async(name)=>{
+      pendingName=name;
+      pendingPollaAction=async()=>{await joinPollaByCode(code);};
+      renderAuthScreen(name);
+    });
+  }catch(e){errEl.textContent="Error al conectar. Intenta de nuevo.";inp.disabled=false;}
+};
+
+// ─── PICK NAME ────────────────────────────────────────────
+function renderPickName(onDone){
+  setFabs(false);
+  const cb=onDone.toString();
+  document.getElementById("root").innerHTML=`
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
+      <div style="font-size:52px;margin-bottom:16px">🎮</div>
+      <div style="font-size:24px;font-weight:900;color:#f1f5f9;margin-bottom:6px;letter-spacing:-0.5px">¿Cómo te conocerán<br>tus rivales?</div>
+      <div style="font-size:13px;color:#475569;margin-bottom:28px">Puedes cambiarlo después cuando quieras</div>
+      <input id="pickNameInput" type="text" placeholder="Tu nombre en la polla"
+        maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false"
+        style="width:100%;max-width:340px;background:#1e293b;border:2px solid #3b82f6;border-radius:14px;color:#f1f5f9;padding:16px 18px;font-size:22px;font-weight:700;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
+        onkeydown="if(event.key==='Enter')document.getElementById('pickNameBtn').click()"
+      />
+      <div id="pickNameError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:12px"></div>
+      <button id="pickNameBtn" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif"
+        onclick="(async()=>{
+          const n=(document.getElementById('pickNameInput').value||'').trim();
+          if(!n||n.length<2){document.getElementById('pickNameError').textContent='Mínimo 2 caracteres.';return;}
+          const s=await db.ref('users').orderByChild('name').equalTo(n).get();
+          if(s.exists()){document.getElementById('pickNameError').textContent='Ese nombre ya está en uso.';return;}
+          (${cb})(n);
+        })()">
+        Continuar →
+      </button>
+      <button onclick="renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">← Volver</button>
+    </div>`;
+  setTimeout(()=>document.getElementById("pickNameInput")?.focus(),100);
+}
+
+// ─── AUTH SCREEN ──────────────────────────────────────────
+function renderAuthScreen(name){
+  setFabs(false);
+  document.getElementById("root").innerHTML=`
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
+      ${name?`<div style="font-size:18px;font-weight:900;color:#f1f5f9;margin-bottom:4px">Hola, ${name} 👋</div><div style="font-size:13px;color:#475569;margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:18px;font-weight:900;color:#f1f5f9;margin-bottom:24px">Bienvenido de vuelta</div>`}
+
+      <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1e293b;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
+
+      <div style="display:flex;align-items:center;gap:10px;width:100%;max-width:340px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:#1e293b"></div>
+        <span style="font-size:11px;color:#334155;font-weight:700">O CON EMAIL</span>
+        <div style="flex:1;height:1px;background:#1e293b"></div>
+      </div>
+
+      <input id="authEmail" type="email" placeholder="Email" autocomplete="email"
+        style="width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"/>
+      <div style="position:relative;width:100%;max-width:340px;margin-bottom:10px">
+        <input id="authPass" type="password" placeholder="Contraseña" autocomplete="current-password"
+          style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
+          onkeydown="if(event.key==='Enter')doEmailAuth()"/>
+        <button type="button" onclick="togglePass('authPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
+      </div>
+      <div id="authError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px;text-align:left"></div>
+      <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">
+        Entrar →
+      </button>
+      <button onclick="renderForgot()" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
+        ¿Olvidaste tu contraseña?
+      </button>
+      <button onclick="renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
+    </div>`;
+  setTimeout(()=>document.getElementById("authEmail")?.focus(),100);
+}
+
+window.doGoogleAuth=async function(){
+  try{
+    const provider=new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  }catch(e){
+    if(e.code!=="auth/popup-closed-by-user")showToast("Error con Google. Intenta de nuevo.","#ef4444");
+  }
+};
+
+window.doEmailAuth=async function(){
+  const email=(document.getElementById("authEmail").value||"").trim();
+  const pass=document.getElementById("authPass").value||"";
+  const errEl=document.getElementById("authError"),btn=document.getElementById("authBtn");
+  if(!email||!email.includes("@")){errEl.textContent="Escribe un email válido.";return;}
+  if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
+  btn.disabled=true;btn.textContent="Entrando...";
+  try{
+    try{await auth.signInWithEmailAndPassword(email,pass);}
+    catch(le){
+      if(le.code==="auth/user-not-found"||le.code==="auth/invalid-credential"){
+        await auth.createUserWithEmailAndPassword(email,pass);
+      }else{throw le;}
+    }
+  }catch(e){
+    const msg={"auth/wrong-password":"Contraseña incorrecta.","auth/invalid-credential":"Email o contraseña incorrectos.","auth/too-many-requests":"Demasiados intentos. Espera.","auth/network-request-failed":"Sin conexión.","auth/email-already-in-use":"Email ya registrado."}[e.code]||"Error ("+e.code+").";
+    errEl.textContent=msg;btn.disabled=false;btn.textContent="Entrar →";
+  }
+};
+
+function renderForgot(){
+  setFabs(false);
+  document.getElementById("root").innerHTML=`
+    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
+      <div style="font-size:44px;margin-bottom:16px">🔑</div>
+      <div style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">Recuperar contraseña</div>
+      <div style="font-size:13px;color:#475569;margin-bottom:24px">Te enviaremos un link por email</div>
+      <input id="forgotEmail" type="email" placeholder="Tu email" autocomplete="email"
+        style="width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
+        onkeydown="if(event.key==='Enter')doForgot()"/>
+      <div id="forgotMsg" style="font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px"></div>
+      <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">Enviar link 📧</button>
+      <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
+    </div>`;
+}
+
+window.doForgot=async function(){
+  const email=(document.getElementById("forgotEmail").value||"").trim();
+  const msgEl=document.getElementById("forgotMsg"),btn=document.getElementById("forgotBtn");
+  if(!email||!email.includes("@")){msgEl.style.color="#ef4444";msgEl.textContent="Escribe un email válido.";return;}
+  btn.disabled=true;
+  try{
+    await auth.sendPasswordResetEmail(email);
+    msgEl.style.color="#22c55e";msgEl.textContent="✓ Link enviado. Revisa tu correo.";
+  }catch(e){msgEl.style.color="#ef4444";msgEl.textContent="No encontramos ese email.";}
+  btn.disabled=false;btn.textContent="Enviar link 📧";
+};
+
+window.togglePass=function(inputId,btn){
+  const inp=document.getElementById(inputId);if(!inp)return;
+  const h=inp.type==="password";inp.type=h?"text":"password";btn.textContent=h?"🙈":"👁";
+};
+
+function renderLogin(mode){if(mode==="forgot")renderForgot();else renderLanding();}
 
 // ─── POLLA LOBBY ──────────────────────────────────────────
 function renderPollaLobby(){
@@ -686,114 +889,95 @@ const DEFAULT_RULES={
   incluirEspeciales:true
 };
 
-function ruleRow(id,label,defaultVal){
-  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #0f172a">
+function ruleRow(id,label,val){
+  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0f172a">
     <span style="font-size:13px;color:#cbd5e1">${label}</span>
     <div style="display:flex;align-items:center;gap:6px">
-      <input type="number" id="rule_${id}" value="${defaultVal}" min="0" max="20" style="width:52px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
-      <span style="font-size:11px;color:#475569;width:22px">pts</span>
+      <input type="number" id="rule_${id}" value="${val}" min="0" max="20" style="width:48px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+      <span style="font-size:11px;color:#475569;width:20px">pts</span>
     </div>
   </div>`;
 }
-function exBox(lines){
-  return`<div style="background:#0a0f1e;border-radius:8px;padding:9px 12px;margin:8px 0 4px;font-size:12px;color:#64748b;line-height:1.8">${lines}</div>`;
-}
-function secTitle(icon,title,desc){
-  return`<div style="margin-bottom:12px">
-    <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${icon} ${title}</div>
-    ${desc?`<div style="font-size:12px;color:#475569">${desc}</div>`:''}
-  </div>`;
-}
+function exBox(html){return`<div style="background:#0a0f1e;border-radius:8px;padding:10px 12px;margin:8px 0 10px;font-size:12px;color:#64748b;line-height:1.8">${html}</div>`;}
 function renderCrearPolla(){
   const r=DEFAULT_RULES;
   setFabs(false);
   document.getElementById("root").innerHTML=`
-    <div style="max-width:480px;margin:0 auto;padding:24px 16px 40px;position:relative;z-index:1">
-      <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;margin-bottom:16px;font-family:'Inter',sans-serif">← Volver</button>
-      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:4px">✨ Crear polla</h2>
-      <p style="font-size:12px;color:#64748b;margin-bottom:20px">Define cuántos puntos vale cada acierto y comparte con tus amigos.</p>
-
-      <!-- NOMBRE -->
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Nombre de la polla</div>
-        <input class="input" id="pollaName" type="text" placeholder="Ej: La polla de la oficina" maxlength="40" style="margin-bottom:0"/>
+    <div style="max-width:520px;margin:0 auto;min-height:100vh;position:relative;z-index:1">
+      <div style="background:#0a0f1e;border-bottom:1px solid #1e293b;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
+        <button onclick="renderLanding()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
+        <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#f1f5f9">✨ Crear polla</div>
+        <div style="width:32px"></div>
       </div>
-
-      <!-- GRUPOS PARTIDOS -->
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-        ${secTitle("🟢","Fase de Grupos — Partidos","Pronosticas el marcador exacto de cada partido de grupos.")}
-        ${exBox(`
-          <span style="color:#94a3b8">Pronóstico:</span> Argentina <strong style="color:#f1f5f9">2–1</strong> Brasil &nbsp;·&nbsp; <span style="color:#94a3b8">Real:</span> Argentina <strong style="color:#22c55e">2–1</strong> Brasil<br>
-          → <strong style="color:#22c55e">Resultado exacto</strong> ✓ (marcador y ganador correctos)<br><br>
-          <span style="color:#94a3b8">Pronóstico:</span> Argentina <strong style="color:#f1f5f9">3–1</strong> Brasil &nbsp;·&nbsp; <span style="color:#94a3b8">Real:</span> Argentina <strong style="color:#22c55e">2–0</strong> Brasil<br>
-          → <strong style="color:#facc15">Ganador + diferencia</strong> ✓ (ganó Argentina por 2 en ambos)<br><br>
-          <span style="color:#94a3b8">Pronóstico:</span> Argentina <strong style="color:#f1f5f9">1–0</strong> Brasil &nbsp;·&nbsp; <span style="color:#94a3b8">Real:</span> Argentina <strong style="color:#22c55e">3–1</strong> Brasil<br>
-          → <strong style="color:#facc15">Solo ganador</strong> ✓ (acertaste quién gana, nada más)
-        `)}
-        ${ruleRow("ptsExactoGrupos","Resultado exacto",r.ptsExactoGrupos)}
-        ${ruleRow("ptsGanadorDifGrupos","Ganador + diferencia de goles",r.ptsGanadorDifGrupos)}
-        ${ruleRow("ptsSoloGanadorGrupos","Solo ganador o empate",r.ptsSoloGanadorGrupos)}
-      </div>
-
-      <!-- CLASIFICACIÓN DE GRUPOS -->
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🏟️ Clasificación de Grupos</div>
-            <div style="font-size:12px;color:#475569;margin-top:2px">Antes del torneo ordenas los 4 equipos de cada grupo según crees que terminarán.</div>
-          </div>
-          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:10px;margin-top:2px">
-            <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-            <span style="font-size:12px;color:#94a3b8;white-space:nowrap">Incluir</span>
-          </label>
+      <div style="padding:28px 16px 48px">
+        <input class="input" id="pollaName" type="text" placeholder="Nombre de tu polla"
+          maxlength="40" autocorrect="off"
+          style="width:100%;max-width:100%;box-sizing:border-box;font-size:20px;font-weight:700;padding:16px;margin-bottom:8px;text-align:center"
+          onkeydown="if(event.key==='Enter')doCrearPolla()"/>
+        <div class="error" id="crearError" style="text-align:center;margin-bottom:12px"></div>
+        <button class="btn" onclick="doCrearPolla()" style="margin-bottom:28px">Crear polla 🚀</button>
+        <div style="text-align:center;margin-bottom:16px">
+          <button id="toggleRulesBtn" onclick="toggleRules()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;text-decoration-style:dotted">⚙️ Ajustar puntos y reglas</button>
         </div>
-        ${exBox(`
-          <span style="color:#94a3b8">Pronóstico Grupo A:</span> 🥇 México · 🥈 Sudáfrica · 🥉 Corea · 4° Rep. Checa<br>
-          <span style="color:#94a3b8">Real:</span> 🥇 México · 🥈 <strong style="color:#22c55e">Sudáfrica</strong> · 🥉 Rep. Checa · 4° Corea<br>
-          → México ✓ y Sudáfrica ✓ = <strong style="color:#22c55e">2 aciertos</strong> · los otros dos no coinciden
-        `)}
-        ${ruleRow("ptsPosGrupo","Puntos por cada equipo en posición exacta",r.ptsPosGrupo)}
-      </div>
-
-      <!-- ELIMINATORIA -->
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-        ${secTitle("🔥","Fase Eliminatoria","El resultado es siempre el de los 90 min. Si hay prórroga o penales, solo cuenta quién pasa.")}
-        ${exBox(`
-          <span style="color:#94a3b8">Pronóstico:</span> Francia <strong style="color:#f1f5f9">1–1</strong> España, pasa <strong style="color:#f1f5f9">Francia</strong><br>
-          <span style="color:#94a3b8">Real:</span> Francia <strong style="color:#22c55e">1–1</strong> España, pasa <strong style="color:#22c55e">Francia</strong> (pen)<br>
-          → <strong style="color:#22c55e">Exacto + clasificado</strong> ✓ (marcador 90 min y quién pasa)<br><br>
-          <span style="color:#94a3b8">Pronóstico:</span> Francia <strong style="color:#f1f5f9">2–0</strong> España, pasa <strong style="color:#f1f5f9">Francia</strong><br>
-          <span style="color:#94a3b8">Real:</span> Francia <strong style="color:#22c55e">1–1</strong> España, pasa <strong style="color:#22c55e">Francia</strong> (pen)<br>
-          → <strong style="color:#facc15">Solo clasificado</strong> ✓ (el marcador no coincide, pero acertaste quién pasa)
-        `)}
-        ${ruleRow("ptsExactoElim","Marcador exacto + quién clasifica",r.ptsExactoElim)}
-        ${ruleRow("ptsExactoSinClasif","Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
-        ${ruleRow("ptsSoloClasif","Solo acertaste quién clasifica",r.ptsSoloClasif)}
-      </div>
-
-      <!-- ESPECIALES -->
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">⭐ Pronósticos Especiales</div>
-            <div style="font-size:12px;color:#475569;margin-top:2px">Se pronostican antes del torneo: campeón, goleador, portero y mejor jugador.</div>
+        <div id="rulesPanel" style="display:none">
+          <div style="font-size:12px;color:#475569;text-align:center;margin-bottom:16px;line-height:1.6">Las reglas estándar ya están listas.<br>Solo cambia lo que quieras.</div>
+          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">🟢 Partidos de Grupos</div>
+            <div style="font-size:12px;color:#475569;margin-bottom:10px">Pronosticas el marcador de cada partido.</div>
+            ${exBox(`<span style="color:#94a3b8">Pronosticas</span> Argentina <b style="color:#f1f5f9">2–1</b> Brasil<br>✅ <b style="color:#22c55e">Exacto</b> si el real es 2–1<br>🟡 <b style="color:#facc15">Ganador+dif.</b> si el real es 3–2 (Argentina gana por 1)<br>🟡 <b style="color:#facc15">Solo ganador</b> si el real es 1–0<br>❌ Sin puntos si Brasil gana o hay empate`)}
+            ${ruleRow("ptsExactoGrupos","✅ Marcador exacto",r.ptsExactoGrupos)}
+            ${ruleRow("ptsGanadorDifGrupos","🟡 Ganador + misma diferencia",r.ptsGanadorDifGrupos)}
+            ${ruleRow("ptsSoloGanadorGrupos","🟡 Solo ganador o empate",r.ptsSoloGanadorGrupos)}
           </div>
-          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:10px;margin-top:2px">
-            <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-            <span style="font-size:12px;color:#94a3b8;white-space:nowrap">Incluir</span>
-          </label>
+          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">🔥 Fase Eliminatoria</div>
+            <div style="font-size:12px;color:#475569;margin-bottom:10px">Como grupos, pero también dices quién clasifica si hay penales.</div>
+            ${exBox(`<span style="color:#94a3b8">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España`)}
+            ${ruleRow("ptsExactoElim","✅ Marcador exacto + quién clasifica",r.ptsExactoElim)}
+            ${ruleRow("ptsExactoSinClasif","🟡 Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
+            ${ruleRow("ptsSoloClasif","🟡 Solo acertaste quién clasifica",r.ptsSoloClasif)}
+          </div>
+          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
+                <div style="font-size:12px;color:#475569;margin-top:2px">Ordenas los 4 equipos de cada grupo antes del torneo.</div>
+              </div>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
+                <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+              </label>
+            </div>
+            ${exBox(`<span style="color:#94a3b8">Grupo A:</span> 🥇 México ✓ · 🥈 Sudáfrica ✓ · 🥉 Rep. Checa · 4° Corea<br>→ 2 aciertos = <b style="color:#22c55e">2 × pts</b>`)}
+            ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
+          </div>
+          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
+                <div style="font-size:12px;color:#475569;margin-top:2px">Campeón, Bota de Oro, Guante y Mejor Jugador.</div>
+              </div>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
+                <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+              </label>
+            </div>
+            ${ruleRow("espCampeon","🏆 Campeón",r.espCampeon)}
+            ${ruleRow("espBotaOro","⚽ Bota de Oro",r.espBotaOro)}
+            ${ruleRow("espGuanteOro","🧤 Guante de Oro",r.espGuanteOro)}
+            ${ruleRow("espMejorJugador","⭐ Mejor Jugador",r.espMejorJugador)}
+          </div>
         </div>
-        ${exBox(`Si aciertas el campeón 🏆 ganas los puntos configurados. Igual para Bota de Oro ⚽, Guante de Oro 🧤 y Mejor Jugador ⭐.`)}
-        ${ruleRow("espCampeon","Campeón 🏆",r.espCampeon)}
-        ${ruleRow("espBotaOro","Bota de Oro ⚽",r.espBotaOro)}
-        ${ruleRow("espGuanteOro","Guante de Oro 🧤",r.espGuanteOro)}
-        ${ruleRow("espMejorJugador","Mejor Jugador ⭐",r.espMejorJugador)}
       </div>
-
-      <div class="error" id="crearError"></div>
-      <button class="btn" onclick="doCrearPolla()">Crear polla 🚀</button>
     </div>`;
+  setTimeout(()=>document.getElementById("pollaName")?.focus(),100);
 }
+window.toggleRules=function(){
+  const p=document.getElementById("rulesPanel"),b=document.getElementById("toggleRulesBtn");
+  const open=p.style.display==="none";
+  p.style.display=open?"block":"none";
+  b.textContent=open?"⚙️ Ocultar ajustes":"⚙️ Ajustar puntos y reglas";
+};
 
 function generateCode(){
   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -804,35 +988,35 @@ window.doCrearPolla=async function(){
   const nombre=(document.getElementById("pollaName").value||"").trim();
   const errEl=document.getElementById("crearError");
   if(!nombre||nombre.length<2){errEl.textContent="Escribe un nombre para la polla.";return;}
+  if(!currentUser){
+    sessionStorage.setItem("pendingPollaName",nombre);
+    pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre);sessionStorage.removeItem("pendingPollaName");};
+    renderPickName(async(name)=>{pendingName=name;renderAuthScreen(name);});
+    return;
+  }
+  await _doCreatePolla(nombre);
+};
+
+async function _doCreatePolla(nombre){
   const getRuleVal=id=>{const v=parseInt(document.getElementById(`rule_${id}`)?.value);return isNaN(v)?DEFAULT_RULES[id]:v;};
   const rules={
-    ptsExactoGrupos:getRuleVal("ptsExactoGrupos"),
-    ptsGanadorDifGrupos:getRuleVal("ptsGanadorDifGrupos"),
-    ptsSoloGanadorGrupos:getRuleVal("ptsSoloGanadorGrupos"),
-    ptsExactoElim:getRuleVal("ptsExactoElim"),
-    ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),
-    ptsSoloClasif:getRuleVal("ptsSoloClasif"),
+    ptsExactoGrupos:getRuleVal("ptsExactoGrupos"),ptsGanadorDifGrupos:getRuleVal("ptsGanadorDifGrupos"),
+    ptsSoloGanadorGrupos:getRuleVal("ptsSoloGanadorGrupos"),ptsExactoElim:getRuleVal("ptsExactoElim"),
+    ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),ptsSoloClasif:getRuleVal("ptsSoloClasif"),
     ptsPosGrupo:getRuleVal("ptsPosGrupo"),
-    incluirClasificacion:(document.getElementById("incluirClasificacion")?.checked!==false),
-    espCampeon:getRuleVal("espCampeon"),
-    espBotaOro:getRuleVal("espBotaOro"),
-    espGuanteOro:getRuleVal("espGuanteOro"),
-    espMejorJugador:getRuleVal("espMejorJugador"),
-    incluirEspeciales:document.getElementById("incluirEspeciales").checked,
+    incluirClasificacion:document.getElementById("incluirClasificacion")?.checked!==false,
+    espCampeon:getRuleVal("espCampeon"),espBotaOro:getRuleVal("espBotaOro"),
+    espGuanteOro:getRuleVal("espGuanteOro"),espMejorJugador:getRuleVal("espMejorJugador"),
+    incluirEspeciales:document.getElementById("incluirEspeciales")?.checked!==false,
   };
   const code=generateCode();
   const pollaId=db.ref("pollas").push().key;
-  const pollaData={
-    nombre,rules,code,creadorUid:currentUser.uid,
-    creadaEn:Date.now(),
-    participantes:{[currentUser.uid]:{name:currentUser.name,joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}}},
-  };
+  const pollaData={nombre,rules,code,creadorUid:currentUser.uid,creadaEn:Date.now(),
+    participantes:{[currentUser.uid]:{name:currentUser.name,joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}}}};
   await db.ref(`pollas/${pollaId}`).set(pollaData);
-  currentPollaId=pollaId;currentPolla=pollaData;
-  myPollas[pollaId]=pollaData;
-  // Show invite screen
+  currentPollaId=pollaId;currentPolla=pollaData;myPollas[pollaId]=pollaData;
   renderInvite(pollaId,nombre,code);
-};
+}
 
 function renderInvite(pollaId,nombre,code){
   const link=`${window.location.origin}${window.location.pathname}?polla=${code}`;
@@ -912,7 +1096,7 @@ async function fetchLiveResults(){
 }
 
 // ─── LOGIN ────────────────────────────────────────────────
-function renderLogin(mode="register"){setFabs(false);
+function renderLogin(mode="register"){
   const isReg=mode==="register";
   const isForgot=mode==="forgot";
   document.getElementById("root").innerHTML=`
@@ -930,9 +1114,9 @@ function renderLogin(mode="register"){setFabs(false);
       `:isReg?`
         <input class="input" id="regName" type="text" placeholder="Nombre de usuario" maxlength="20" autocomplete="username"/>
         <input class="input" id="regEmail" type="email" placeholder="Email" autocomplete="email"/>
-        <div style="position:relative;width:100%;max-width:340px;margin-bottom:12px">
-          <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" style="width:100%;padding-right:44px;margin-bottom:0"/>
-          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
+        <div style="position:relative;width:100%;max-width:340px">
+          <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
+          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-60%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
         </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
@@ -940,15 +1124,15 @@ function renderLogin(mode="register"){setFabs(false);
         <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿Ya tienes cuenta? <button class="link-btn" onclick="renderLogin('login')">Inicia sesión</button></div>
       `:`
         <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email"/>
-        <div style="position:relative;width:100%;max-width:340px;margin-bottom:12px">
-          <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding-right:44px;margin-bottom:0"/>
-          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
+        <div style="position:relative;width:100%;max-width:340px">
+          <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
+          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-60%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
         </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
         <button class="btn" id="loginBtn" onclick="doLogin()">Entrar 🚀</button>
         <div style="margin-top:10px"><button class="link-btn" onclick="renderLogin('forgot')">¿Olvidaste tu contraseña?</button></div>
-        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate</button></div>
+        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate gratis</button></div>
       `}
     </div>`;
 }
@@ -966,61 +1150,14 @@ window.doLogin=async function(){
     const cred=await auth.signInWithEmailAndPassword(email,pass);
     const uid=cred.user.uid;
     const snap=await db.ref(`users/${uid}`).get();
-    if(!snap.exists()){
-      // Cuenta huérfana: Auth OK pero sin perfil en DB — pedir nombre y completar
-      renderCompleteProfile(email,pass,remember);
-      return;
-    }
+    if(!snap.exists()){errEl.textContent="Cuenta no encontrada.";btn.disabled=false;btn.textContent="Entrar 🚀";return;}
     const u=snap.val();
     currentUser={uid,name:u.name,email};
-    isAdmin=u.name.toUpperCase()==="ADMIN";
+    isAdmin=false;
     await loadPollas();
   }catch(e){
-    const msg={
-      "auth/wrong-password":"Email o contraseña incorrectos.",
-      "auth/user-not-found":"Email o contraseña incorrectos.",
-      "auth/invalid-credential":"Email o contraseña incorrectos.",
-      "auth/too-many-requests":"Demasiados intentos. Espera unos minutos.",
-      "auth/network-request-failed":"Sin conexión. Verifica tu internet.",
-      "auth/user-disabled":"Esta cuenta ha sido deshabilitada.",
-    }[e.code]||"Error al conectar. Intenta de nuevo.";
-    errEl.textContent=msg;
+    errEl.textContent=e.code==="auth/wrong-password"||e.code==="auth/user-not-found"?"Email o contraseña incorrectos.":"Error al conectar. Intenta de nuevo.";
     btn.disabled=false;btn.textContent="Entrar 🚀";
-  }
-};
-
-function renderCompleteProfile(email,pass,remember){
-  document.getElementById("root").innerHTML=`
-    <div class="login-screen">
-      <div style="font-size:44px;margin-bottom:8px">👤</div>
-      <h1 style="font-size:20px;margin-bottom:6px">Elige tu nombre</h1>
-      <p style="color:#475569;font-size:13px;margin-bottom:20px;max-width:300px;font-family:'Inter',sans-serif">Tu cuenta ya existe. Solo elige un nombre para la polla.</p>
-      <input class="input" id="cpName" type="text" placeholder="Nombre de usuario" maxlength="20" autocomplete="username"/>
-      <div class="error" id="cpError"></div>
-      <button class="btn" id="cpBtn" onclick="doCompleteProfile()">Continuar →</button>
-    </div>`;
-  window._cpEmail=email;window._cpPass=pass;window._cpRemember=remember;
-}
-
-window.doCompleteProfile=async function(){
-  const name=(document.getElementById("cpName").value||"").trim();
-  const errEl=document.getElementById("cpError"),btn=document.getElementById("cpBtn");
-  if(!name||name.length<2){errEl.textContent="El nombre debe tener al menos 2 caracteres.";return;}
-  btn.disabled=true;btn.textContent="Guardando...";
-  try{
-    const nameSnap=await db.ref("users").orderByChild("name").equalTo(name).get();
-    if(nameSnap.exists()){errEl.textContent="Ese nombre ya está en uso, elige otro.";btn.disabled=false;btn.textContent="Continuar →";return;}
-    const persistence=window._cpRemember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
-    await auth.setPersistence(persistence);
-    const cred=await auth.signInWithEmailAndPassword(window._cpEmail,window._cpPass);
-    const uid=cred.user.uid;
-    await db.ref(`users/${uid}`).set({name,email:window._cpEmail});
-    currentUser={uid,name,email:window._cpEmail};
-    isAdmin=name.toUpperCase()==="ADMIN";
-    await loadPollas();
-  }catch(e){
-    errEl.textContent="Error al guardar ("+e.code+"). Intenta de nuevo.";
-    btn.disabled=false;btn.textContent="Continuar →";
   }
 };
 
@@ -1035,34 +1172,26 @@ window.doRegister=async function(){
   if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
   btn.disabled=true;btn.textContent="Creando cuenta...";
   try{
-    const nameSnap=await db.ref("users").orderByChild("name").equalTo(name).get();
-    if(nameSnap.exists()){errEl.textContent="Ese nombre ya está en uso, elige otro.";btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;}
     const persistence=remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION;
     await auth.setPersistence(persistence);
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
-    await db.ref(`users/${cred.user.uid}`).set({name,email});
-    currentUser={uid:cred.user.uid,name,email};
-    isAdmin=name.toUpperCase()==="ADMIN";
+    const uid=cred.user.uid;
+    // Check name not taken (now authenticated)
+    const snap=await db.ref("users").orderByChild("name").equalTo(name).get();
+    if(snap.exists()&&!Object.keys(snap.val()).includes(uid)){
+      await cred.user.delete();
+      errEl.textContent="Ese nombre ya está en uso, elige otro.";
+      btn.disabled=false;btn.textContent="Crear cuenta 🚀";return;
+    }
+    await db.ref(`users/${uid}`).set({name,email});
+    currentUser={uid,name,email};
+    isAdmin=false;
     await loadPollas();
   }catch(e){
-    const msg={
-      "auth/email-already-in-use":"Ese email ya tiene cuenta. Inicia sesión.",
-      "auth/network-request-failed":"Sin conexión. Verifica tu internet.",
-      "auth/too-many-requests":"Demasiados intentos. Espera unos minutos.",
-      "auth/weak-password":"La contraseña debe tener al menos 6 caracteres.",
-      "auth/invalid-email":"El email no es válido.",
-    }[e.code]||"Error ("+e.code+"). Intenta de nuevo.";
-    errEl.textContent=msg;
+    console.error("Firebase register error:",e.code, e.message);
+    errEl.textContent=e.code==="auth/email-already-in-use"?"Ese email ya tiene cuenta. Inicia sesión.":"Error: "+e.code;
     btn.disabled=false;btn.textContent="Crear cuenta 🚀";
   }
-};
-
-window.togglePass=function(inputId,btn){
-  const inp=document.getElementById(inputId);
-  if(!inp)return;
-  const isHidden=inp.type==="password";
-  inp.type=isHidden?"text":"password";
-  btn.textContent=isHidden?"🙈":"👁";
 };
 
 window.doForgot=async function(){
@@ -1100,7 +1229,7 @@ window.doChangeName=async function(){
   render();
 };
 
-function setFabs(show){const l=document.getElementById('fab-left'),r=document.getElementById('fab-right');if(l)l.style.display=show?'flex':'none';if(r)r.style.display=show?'flex':'none';}
+function setFabs(v){const l=document.getElementById('fab-left'),r=document.getElementById('fab-right');if(l)l.style.display=v?'flex':'none';if(r)r.style.display=v?'flex':'none';}
 
 // ─── RENDER ───────────────────────────────────────────────
 function render(){
@@ -1636,7 +1765,7 @@ window.deleteUser=async function(uid,name){
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
-window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};renderLogin();};
+window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
 window.goToLobby=function(){
   // Detach listeners
   if(currentPollaId){
