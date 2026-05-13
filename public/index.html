@@ -158,31 +158,56 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <p>Pronostica los resultados del Mundial USA · México · Canadá 2026 y acumula puntos. Gana quien más puntos tenga al final del torneo.</p>
     </div>
     <div class="rules-section">
-      <h3>🎯 PRONÓSTICOS DE PARTIDOS</h3>
-      <p>Por cada partido pronosticas el marcador exacto. Se bloquean automáticamente cuando empieza cada partido.</p>
-      <ul><li><strong style="color:#22c55e">3 pts</strong> — marcador exacto</li><li><strong style="color:#facc15">1 pt</strong> — acertaste el ganador o el empate</li></ul>
+      <h3>🟢 FASE DE GRUPOS — PARTIDOS</h3>
+      <p>Pronostica el marcador exacto de cada partido. Se bloquean automáticamente cuando empieza cada partido.</p>
+      <ul>
+        <li><strong style="color:#22c55e">3 pts</strong> — resultado exacto</li>
+        <li><strong style="color:#facc15">2 pts</strong> — acertaste ganador y diferencia de goles</li>
+        <li><strong style="color:#facc15">1 pt</strong> — solo acertaste el ganador (o empate)</li>
+        <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
+      </ul>
     </div>
     <div class="rules-section">
-      <h3>🏟️ FASE DE GRUPOS</h3>
+      <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
       <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
       <ul><li><strong style="color:#22c55e">2 pts</strong> — por cada equipo en la posición exacta</li></ul>
     </div>
     <div class="rules-section">
-      <h3>🔥 PRONÓSTICO ELIMINATORIAS</h3>
-      <p>Pronostica el marcador de cada partido eliminatorio. Se desbloquea ronda por ronda. No hay empate — solo se premia al ganador del partido.</p>
-      <ul><li><strong style="color:#22c55e">3 pts</strong> — marcador exacto</li><li><strong style="color:#facc15">2 pts</strong> — acertaste el equipo que avanza</li></ul>
+      <h3>🔥 FASE ELIMINATORIA</h3>
+      <p>El resultado apostado es <strong>siempre el de los 90 minutos</strong>. Prórroga/penales solo cuentan para el clasificado.</p>
+      <p style="margin-top:6px">Formato: Argentina 1-1 Francia <em>(clasifica: Argentina)</em></p>
+      <ul>
+        <li><strong style="color:#22c55e">3 pts</strong> — resultado exacto + clasificado correcto</li>
+        <li><strong style="color:#facc15">2 pts</strong> — resultado exacto, clasificado incorrecto</li>
+        <li><strong style="color:#facc15">1 pt</strong> — solo acertaste el clasificado</li>
+        <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
+      </ul>
+      <p style="margin-top:6px;font-size:12px;color:#64748b">⚠️ Si pones victoria (ej: 2-1) pero en 90 min hay empate (ej: 1-1) y pasa ese equipo: 0 pts por resultado, 1 pt si acertaste el clasificado.</p>
     </div>
     <div class="rules-section">
       <h3>⭐ ESPECIALES</h3>
-      <p>Pronostica campeón, subcampeón, tercer puesto, bota de oro y jugador del torneo. Se bloquean el 11 de junio.</p>
-      <ul><li><strong style="color:#22c55e">3 pts</strong> — por cada predicción exacta</li></ul>
+      <p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
+      <ul>
+        <li><strong style="color:#22c55e">10 pts</strong> — Campeón 🏆</li>
+        <li><strong style="color:#facc15">5 pts</strong> — Bota de Oro ⚽</li>
+        <li><strong style="color:#facc15">5 pts</strong> — Guante de Oro 🧤</li>
+        <li><strong style="color:#facc15">5 pts</strong> — Mejor Jugador ⭐</li>
+      </ul>
+    </div>
+    <div class="rules-section">
+      <h3>💸 PREMIOS</h3>
+      <ul>
+        <li>🥇 1º — 60%</li>
+        <li>🥈 2º — 30%</li>
+        <li>🥉 3º — 10%</li>
+      </ul>
     </div>
     <div class="rules-section">
       <h3>⚠️ REGLAS GENERALES</h3>
       <ul>
         <li>Un solo nombre por dispositivo</li>
         <li>Los pronósticos bloqueados no se pueden editar</li>
-        <li>Los resultados se actualizan automáticamente vía API oficial</li>
+        <li>Los resultados se actualizan automáticamente</li>
         <li>En caso de empate en el ranking, gana quien acertó más marcadores exactos</li>
       </ul>
     </div>
@@ -230,29 +255,28 @@ const TOURNAMENT_LOCKOUT="2026-06-11T19:00:00Z";
 const TOURNAMENT_END="2026-07-19T23:00:00Z";
 
 const ESPECIALES_FIELDS=[
-  {id:"campeon",label:"🏆 Campeón",placeholder:"Ej: Argentina"},
-  {id:"subcampeon",label:"🥈 Subcampeón",placeholder:"Ej: Francia"},
-  {id:"tercero",label:"🥉 Tercer Puesto",placeholder:"Ej: Brasil"},
-  {id:"botaOro",label:"👟 Bota de Oro",placeholder:"Ej: Mbappé"},
-  {id:"jugador",label:"⭐ Jugador del Torneo",placeholder:"Ej: Messi"},
+  {id:"campeon",label:"🏆 Campeón",placeholder:"Ej: Argentina",pts:10},
+  {id:"botaOro",label:"⚽ Bota de Oro",placeholder:"Ej: Mbappé",pts:5},
+  {id:"guanteOro",label:"🧤 Guante de Oro",placeholder:"Ej: Courtois",pts:5},
+  {id:"mejorJugador",label:"⭐ Mejor Jugador",placeholder:"Ej: Messi",pts:5},
 ];
 
 const GROUPS={
   A:["México","Sudáfrica","Corea del Sur","Rep. Checa"],
   B:["Canadá","Qatar","Suiza","Bosnia"],
   C:["Brasil","Marruecos","Haití","Escocia"],
-  D:["Estados Unidos","Paraguay","Australia","Serbia"],
+  D:["Estados Unidos","Paraguay","Australia","Turquía"],
   E:["Alemania","Costa de Marfil","Ecuador","Curazao"],
-  F:["Países Bajos","Japón","Túnez","Croacia"],
+  F:["Países Bajos","Japón","Túnez","Suecia"],
   G:["Bélgica","Egipto","Irán","Nueva Zelanda"],
   H:["España","Cabo Verde","Arabia Saudita","Uruguay"],
-  I:["Francia","Senegal","Noruega","Repechaje 2"],
+  I:["Francia","Senegal","Noruega","Irak"],
   J:["Argentina","Argelia","Austria","Jordania"],
-  K:["Portugal","Uzbekistán","Colombia","Repechaje 1"],
+  K:["Portugal","Uzbekistán","Colombia","RD Congo"],
   L:["Inglaterra","Croacia","Ghana","Panamá"],
 };
 const GROUP_COLORS={A:"#ef4444",B:"#f97316",C:"#eab308",D:"#22c55e",E:"#14b8a6",F:"#3b82f6",G:"#8b5cf6",H:"#ec4899",I:"#f43f5e",J:"#10b981",K:"#6366f1",L:"#0ea5e9"};
-const FLAGS={"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Canadá":"🇨🇦","Qatar":"🇶🇦","Suiza":"🇨🇭","Bosnia":"🇧🇦","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Serbia":"🇷🇸","Alemania":"🇩🇪","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Croacia":"🇭🇷","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Repechaje 2":"🏳️","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","Repechaje 1":"🏳️","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Ghana":"🇬🇭","Panamá":"🇵🇦"};
+const FLAGS={"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Canadá":"🇨🇦","Qatar":"🇶🇦","Suiza":"🇨🇭","Bosnia":"🇧🇦","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Suecia":"🇸🇪","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Irak":"🇮🇶","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","RD Congo":"🇨🇩","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Ghana":"🇬🇭","Panamá":"🇵🇦"};
 const flag=t=>FLAGS[t]||"🏳️";
 const PHASE_LABELS={groups:"Grupos",r32:"16avos",r16:"Octavos",qf:"Cuartos",sf:"Semis",third:"3er Puesto",final:"⭐ Final"};
 const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"third",label:"3er Puesto"},{id:"final",label:"Final ⭐"}];
@@ -379,14 +403,17 @@ function calcMatchPoints(pred,res){
   if(isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra))return null;
   if(res.h===""||res.a==="")return null;
   if(ph===rh&&pa===ra)return 3;
+  if(Math.sign(ph-pa)===Math.sign(rh-ra)&&(ph-pa)===(rh-ra))return 2;
   if(Math.sign(ph-pa)===Math.sign(rh-ra))return 1;
   return 0;
 }
 function calcElimPoints(pred,res){
   if(!pred||!res||!res.winner)return null;
   const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
-  if(!isNaN(ph)&&!isNaN(pa)&&!isNaN(rh)&&!isNaN(ra)&&ph===rh&&pa===ra&&pred.winner===res.winner)return 3;
-  if(pred.winner&&pred.winner===res.winner)return 2;
+  const exactScore=!isNaN(ph)&&!isNaN(pa)&&!isNaN(rh)&&!isNaN(ra)&&ph===rh&&pa===ra;
+  if(exactScore&&pred.winner===res.winner)return 3;
+  if(exactScore&&pred.winner&&pred.winner!==res.winner)return 2;
+  if(pred.winner&&pred.winner===res.winner)return 1;
   if(pred.winner)return 0;
   return null;
 }
@@ -423,7 +450,7 @@ function totalPoints(u){
   const adminEsp=allResults["especiales"]||{};
   const espPts=ESPECIALES_FIELDS.reduce((s,f)=>{
     const p=(esp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();
-    return s+(p&&r&&p===r?3:0);
+    return s+(p&&r&&p===r?f.pts:0);
   },0);
   const realGrp=allResults["groupOrder"]||{};
   const grpPts=Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(grp[g],realGrp[g]),0);
@@ -724,7 +751,7 @@ function renderMisPronos(){
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div><div style="font-size:12px;color:#94a3b8">Total puntos partidos</div>
         <div style="font-size:28px;font-weight:900;color:#3b82f6">${totalMatchPts} pts</div></div>
-      <div style="font-size:12px;color:#64748b;text-align:right">3pts exacto<br/>1pt ganador/empate</div>
+      <div style="font-size:12px;color:#64748b;text-align:right">3pts exacto · 2pts dif<br/>1pt ganador</div>
     </div>
     ${groupPills()}
     ${matches.map(m=>{
@@ -732,11 +759,11 @@ function renderMisPronos(){
       const pts=calcMatchPoints(pred,res);
       const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
       const live=isLive(m);
-      const color=hasRes?(pts===3?"#22c55e":pts===1?"#eab308":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
+      const color=hasRes?(pts===3?"#22c55e":pts===2?"#3b82f6":pts===1?"#eab308":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
       return`<div class="match-card" style="border-left:3px solid ${color}">
         <div class="match-meta">
           <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:m.date+" · "+m.time+" Lima"} · ${m.stadium}${locked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
-          ${hasRes&&pts!==null?`<span class="pts-badge pts-${pts}">${pts===3?"✓ +3":pts===1?"≈ +1":"✗ 0"}</span>`:""}
+          ${hasRes&&pts!==null?`<span class="pts-badge pts-${Math.min(pts,2)}">${pts===3?"✓ +3":pts===2?"≈ +2":pts===1?"~ +1":"✗ 0"}</span>`:""}
         </div>
         <div class="match-teams">
           <span class="team home">${flag(m.home)} ${m.home}</span>
@@ -754,7 +781,7 @@ function renderEliminatorias(){
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div><div style="font-size:12px;color:#94a3b8">Mis puntos (eliminatorias)</div>
         <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div></div>
-      <div style="font-size:12px;color:#64748b;text-align:right">3pts exacto<br/>2pts ganador</div>
+      <div style="font-size:12px;color:#64748b;text-align:right">3pts exacto+clasif<br/>2pts exacto · 1pt clasif</div>
     </div>
     ${elimPhasePills()}
     ${renderElimPhase(currentElimPhase)}`;
@@ -825,12 +852,12 @@ function renderEspeciales(){
   const myEsp=allUsers[currentUser.uid]?.especiales||{};
   const adminEsp=allResults["especiales"]||{};
   let espPts=0;
-  ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&r&&p===r)espPts+=3;});
+  ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&r&&p===r)espPts+=f.pts;});
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div><div style="font-size:12px;color:#94a3b8">Mis puntos especiales</div>
         <div style="font-size:28px;font-weight:900;color:#f59e0b">${espPts} pts</div></div>
-      <div style="font-size:12px;color:#64748b;text-align:right">3pts por cada<br/>predicción exacta</div>
+      <div style="font-size:12px;color:#64748b;text-align:right">Campeón 10pts<br/>resto 5pts c/u</div>
     </div>
     ${locked
       ?`<div style="background:#1e293b;border-radius:10px;padding:10px 14px;margin-bottom:14px;border-left:3px solid #ef4444;font-size:13px;color:#94a3b8">🔒 Predicciones cerradas — el torneo ya comenzó.</div>`
@@ -843,7 +870,7 @@ function renderEspeciales(){
       return`<div class="card" style="margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"#334155"):"#f59e0b"}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <span style="font-weight:700;font-size:14px">${f.label}</span>
-          ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?"✓ +3":"✗ 0"}</span>`:`<span style="font-size:11px;color:#64748b">3 pts</span>`}
+          ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?`✓ +${f.pts}`:"✗ 0"}</span>`:`<span style="font-size:11px;color:#64748b">${f.pts} pts</span>`}
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           ${locked
@@ -913,7 +940,7 @@ function renderRanking(){
 
   return`
     <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:#94a3b8;line-height:1.5">Partidos: 3pts exacto · 1pt ganador — Grupos: 2pts posición — Eliminatorias: 3pts exacto · 2pts ganador — Especiales: 3pts c/u</div>
+      <div style="font-size:12px;color:#94a3b8;line-height:1.5">Partidos: 3pts exacto · 2pts ganador+dif · 1pt ganador — Grupos: 2pts posición — Eliminatorias: 3pts exacto+clasificado · 2pts exacto · 1pt clasificado — Especiales: Campeón 10pts · resto 5pts c/u</div>
     </div>
     ${podioHtml}
     ${rest.length>0?`<div class="card">${restHtml}</div>`:""}
