@@ -159,6 +159,19 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <button class="fab fab-left" onclick="openHistorial()" title="Mi historial">📊</button>
 <button class="fab fab-right" onclick="openRules()" title="Reglas del juego">❓</button>
 
+<!-- MODAL INVITAR -->
+<div id="modal-invite" style="display:none" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="text-align:center">
+    <h2>🔗 Invitar a la polla</h2>
+    <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase">Código</div>
+    <div id="invite-code" style="font-size:36px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:16px"></div>
+    <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;margin-bottom:6px;text-transform:uppercase">Link</div>
+    <div id="invite-link" style="font-size:11px;color:#64748b;word-break:break-all;margin-bottom:10px;background:#0f172a;padding:8px;border-radius:8px"></div>
+    <button id="invite-link-copy" class="btn" style="margin-bottom:10px">Copiar link 📋</button>
+    <button class="modal-close" onclick="document.getElementById('modal-invite').style.display='none'" style="background:#334155">Cerrar</button>
+  </div>
+</div>
+
 <!-- MODAL CAMBIAR NOMBRE -->
 <div id="modal-changename" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeChangeName()">
   <div class="modal-box">
@@ -416,6 +429,7 @@ const MATCHES=[
 let db,auth,currentUser=null,currentTab="grupos",currentGroup="A",currentElimPhase="r32";
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
 let isAdmin=false,prevRanking={};
+let currentPollaId=null,currentPolla=null,myPollas={};
 
 // ─── UTILS ────────────────────────────────────────────────
 function calcMatchPoints(pred,res){
@@ -466,17 +480,46 @@ function avatarColor(name){
 function avatarInitial(name){return name.charAt(0).toUpperCase();}
 
 function totalPoints(u){
+  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
   const preds=u.predictions||{},esp=u.especiales||{},grp=u.groupPredictions||{},elim=u.elimPredictions||{};
-  const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPoints(preds[m.id],allResults[m.id])||0),0);
+  const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPointsR(preds[m.id],allResults[m.id],r)||0),0);
   const adminEsp=allResults["especiales"]||{};
-  const espPts=ESPECIALES_FIELDS.reduce((s,f)=>{
-    const p=(esp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();
-    return s+(p&&r&&p===r?f.pts:0);
-  },0);
+  const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
+    const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
+    const pts=r[ruleKey]??f.pts;
+    const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
+    return s+(p&&rv&&p===rv?pts:0);
+  },0):0;
   const realGrp=allResults["groupOrder"]||{};
-  const grpPts=Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(grp[g],realGrp[g]),0);
-  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints(elim[m.id],allResults[m.id])||0),0);
+  const grpPts=Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0);
+  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
   return matchPts+espPts+grpPts+elimPts;
+}
+function calcMatchPointsR(pred,res,r){
+  if(!pred||!res)return null;
+  const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
+  if(isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra))return null;
+  if(res.h===""||res.a==="")return null;
+  if(ph===rh&&pa===ra)return r.ptsExactoGrupos??3;
+  if(Math.sign(ph-pa)===Math.sign(rh-ra)&&(ph-pa)===(rh-ra))return r.ptsGanadorDifGrupos??2;
+  if(Math.sign(ph-pa)===Math.sign(rh-ra))return r.ptsSoloGanadorGrupos??1;
+  return 0;
+}
+function calcElimPointsR(pred,res,r){
+  if(!pred||!res||!res.winner)return null;
+  const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
+  const exactScore=!isNaN(ph)&&!isNaN(pa)&&!isNaN(rh)&&!isNaN(ra)&&ph===rh&&pa===ra;
+  if(exactScore&&pred.winner===res.winner)return r.ptsExactoElim??3;
+  if(exactScore&&pred.winner&&pred.winner!==res.winner)return r.ptsExactoSinClasif??2;
+  if(pred.winner&&pred.winner===res.winner)return r.ptsSoloClasif??1;
+  if(pred.winner)return 0;
+  return null;
+}
+function calcGroupPredPointsR(userOrder,realOrder,r){
+  if(!userOrder||!realOrder)return 0;
+  let pts=0;
+  for(let i=0;i<4;i++){if(userOrder[i]&&realOrder[i]&&userOrder[i]===realOrder[i])pts+=(r.ptsPosGrupo??2);}
+  return pts;
 }
 
 function getRankedUsers(){
@@ -522,6 +565,10 @@ function localMatchDate(kickoff){
 function initFirebase(){
   firebase.initializeApp(FIREBASE_CONFIG);
   db=firebase.database();auth=firebase.auth();
+  // Check for invite link
+  const urlParams=new URLSearchParams(window.location.search);
+  const inviteCode=urlParams.get("polla");
+  if(inviteCode)sessionStorage.setItem("pendingPolla",inviteCode);
   auth.onAuthStateChanged(async user=>{
     if(user){
       try{
@@ -530,16 +577,41 @@ function initFirebase(){
           const u=snap.val();
           currentUser={uid:user.uid,name:u.name,email:user.email};
           isAdmin=u.name.toUpperCase()===ADMIN_NAME.toUpperCase();
-          loadData();return;
+          await loadPollas();return;
         }
       }catch(e){}
     }
     renderLogin();
   });
 }
+
+async function loadPollas(){
+  // Get all pollas where user is a participant
+  const snap=await db.ref("pollas").get();
+  const allPollas=snap.val()||{};
+  myPollas={};
+  Object.entries(allPollas).forEach(([id,p])=>{
+    if(p.participantes&&p.participantes[currentUser.uid])myPollas[id]=p;
+  });
+  // Handle pending invite
+  const pending=sessionStorage.getItem("pendingPolla");
+  if(pending){
+    sessionStorage.removeItem("pendingPolla");
+    // Clean URL
+    window.history.replaceState({},"",window.location.pathname);
+    await joinPollaByCode(pending,true);return;
+  }
+  const ids=Object.keys(myPollas);
+  if(ids.length===0){renderPollaLobby();return;}
+  if(ids.length===1&&!currentPollaId){currentPollaId=ids[0];currentPolla=myPollas[ids[0]];}
+  if(currentPollaId&&myPollas[currentPollaId]){currentPolla=myPollas[currentPollaId];loadData();return;}
+  renderPollaLobby();
+}
+
 function loadData(){
-  db.ref("users").on("value",snap=>{
-    // Save prev ranking before update
+  if(!currentPollaId){renderPollaLobby();return;}
+  const base=`pollas/${currentPollaId}`;
+  db.ref(`${base}/participantes`).on("value",snap=>{
     const oldRanked=getRankedUsers();
     oldRanked.forEach((r,i)=>{prevRanking[r.uid]=i+1;});
     allUsers=snap.val()||{};
@@ -548,16 +620,229 @@ function loadData(){
     myGroupPreds=me.groupPredictions||{};
     myElimPreds=me.elimPredictions||{};
     render();
-    // Check if tournament ended → show carta
     if(tournamentEnded()&&!sessionStorage.getItem("cartaShown")){
       const ranked=getRankedUsers();
       if(ranked.length>0){sessionStorage.setItem("cartaShown","1");setTimeout(()=>openCarta(ranked[0].name),1200);}
     }
   });
-  db.ref("results").on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
+  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
   fetchLiveResults();
   setInterval(fetchLiveResults,120000);
   setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
+}
+
+// ─── POLLA LOBBY ──────────────────────────────────────────
+function renderPollaLobby(){
+  const pollaIds=Object.keys(myPollas);
+  document.getElementById("root").innerHTML=`
+    <div style="max-width:480px;margin:0 auto;padding:24px 16px;position:relative;z-index:1;min-height:100vh">
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-size:44px;margin-bottom:8px">⚽</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#475569;margin-bottom:4px">MUNDIAL 2026</div>
+        <div style="font-size:18px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px">RICA POLLA MUNDIALERA</div>
+        <div style="font-size:12px;color:#475569;margin-top:4px">Hola, <strong style="color:#94a3b8">${currentUser.name}</strong>
+          <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:4px">✏️</button>
+          <button onclick="logout()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;margin-left:4px">salir</button>
+        </div>
+      </div>
+      ${pollaIds.length>0?`
+        <div style="margin-bottom:20px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#475569;margin-bottom:10px;text-transform:uppercase">Mis Pollas</div>
+          ${pollaIds.map(id=>{
+            const p=myPollas[id];
+            const isCreator=p.creadorUid===currentUser.uid;
+            const numParticipantes=Object.keys(p.participantes||{}).length;
+            return`<div style="background:#1e293b;border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:1px solid #334155" onclick="enterPolla('${id}')">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:#f1f5f9">${p.nombre||"Polla sin nombre"}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px">${numParticipantes} participante${numParticipantes!==1?"s":""} ${isCreator?"· <span style='color:#7c3aed'>creador</span>":""}</div>
+              </div>
+              <div style="color:#3b82f6;font-size:20px">›</div>
+            </div>`;
+          }).join("")}
+        </div>
+      `:`<div style="text-align:center;padding:20px 0 28px;color:#475569;font-size:13px">Aún no estás en ninguna polla</div>`}
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn" onclick="renderCrearPolla()">✨ Crear una polla</button>
+        <button class="btn-secondary" onclick="renderUnirse()">🔗 Unirme a una polla</button>
+      </div>
+    </div>`;
+}
+
+window.enterPolla=function(id){
+  currentPollaId=id;currentPolla=myPollas[id];
+  currentTab="grupos";currentGroup="A";currentElimPhase="r32";
+  allUsers={};allResults={};myPredictions={};myGroupPreds={};myElimPreds={};
+  loadData();
+};
+
+// ─── CREAR POLLA ──────────────────────────────────────────
+const DEFAULT_RULES={
+  ptsExactoGrupos:3,ptsGanadorDifGrupos:2,ptsSoloGanadorGrupos:1,
+  ptsExactoElim:3,ptsExactoSinClasif:2,ptsSoloClasif:1,
+  ptsPosGrupo:2,
+  espCampeon:10,espBotaOro:5,espGuanteOro:5,espMejorJugador:5,
+  incluirEspeciales:true
+};
+
+function renderCrearPolla(){
+  const r=DEFAULT_RULES;
+  document.getElementById("root").innerHTML=`
+    <div style="max-width:480px;margin:0 auto;padding:24px 16px;position:relative;z-index:1">
+      <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;margin-bottom:16px;font-family:'Inter',sans-serif">← Volver</button>
+      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">✨ Crear polla</h2>
+      <p style="font-size:12px;color:#64748b;margin-bottom:20px">Configura las reglas y comparte el link con tus amigos</p>
+
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Nombre de la polla</div>
+        <input class="input" id="pollaName" type="text" placeholder="Ej: La polla de la oficina" maxlength="40" style="margin-bottom:0"/>
+      </div>
+
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">🟢 Fase de Grupos — Partidos</div>
+        ${ruleInput("ptsExactoGrupos","Resultado exacto",r.ptsExactoGrupos)}
+        ${ruleInput("ptsGanadorDifGrupos","Ganador + diferencia",r.ptsGanadorDifGrupos)}
+        ${ruleInput("ptsSoloGanadorGrupos","Solo ganador/empate",r.ptsSoloGanadorGrupos)}
+      </div>
+
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">🏟️ Clasificación de Grupos</div>
+        ${ruleInput("ptsPosGrupo","Por posición exacta",r.ptsPosGrupo)}
+      </div>
+
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
+        ${ruleInput("ptsExactoElim","Resultado exacto + clasificado",r.ptsExactoElim)}
+        ${ruleInput("ptsExactoSinClasif","Resultado exacto sin clasificado",r.ptsExactoSinClasif)}
+        ${ruleInput("ptsSoloClasif","Solo clasificado",r.ptsSoloClasif)}
+      </div>
+
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+            <span style="font-size:12px;color:#94a3b8">Incluir</span>
+          </label>
+        </div>
+        ${ruleInput("espCampeon","Campeón 🏆",r.espCampeon)}
+        ${ruleInput("espBotaOro","Bota de Oro ⚽",r.espBotaOro)}
+        ${ruleInput("espGuanteOro","Guante de Oro 🧤",r.espGuanteOro)}
+        ${ruleInput("espMejorJugador","Mejor Jugador ⭐",r.espMejorJugador)}
+      </div>
+
+      <div class="error" id="crearError"></div>
+      <button class="btn" onclick="doCrearPolla()">Crear polla 🚀</button>
+    </div>`;
+}
+
+function ruleInput(id,label,defaultVal){
+  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <span style="font-size:13px;color:#94a3b8">${label}</span>
+    <input type="number" id="rule_${id}" value="${defaultVal}" min="0" max="20" style="width:52px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+  </div>`;
+}
+
+function generateCode(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
+}
+
+window.doCrearPolla=async function(){
+  const nombre=(document.getElementById("pollaName").value||"").trim();
+  const errEl=document.getElementById("crearError");
+  if(!nombre||nombre.length<2){errEl.textContent="Escribe un nombre para la polla.";return;}
+  const getRuleVal=id=>{const v=parseInt(document.getElementById(`rule_${id}`)?.value);return isNaN(v)?DEFAULT_RULES[id]:v;};
+  const rules={
+    ptsExactoGrupos:getRuleVal("ptsExactoGrupos"),
+    ptsGanadorDifGrupos:getRuleVal("ptsGanadorDifGrupos"),
+    ptsSoloGanadorGrupos:getRuleVal("ptsSoloGanadorGrupos"),
+    ptsExactoElim:getRuleVal("ptsExactoElim"),
+    ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),
+    ptsSoloClasif:getRuleVal("ptsSoloClasif"),
+    ptsPosGrupo:getRuleVal("ptsPosGrupo"),
+    espCampeon:getRuleVal("espCampeon"),
+    espBotaOro:getRuleVal("espBotaOro"),
+    espGuanteOro:getRuleVal("espGuanteOro"),
+    espMejorJugador:getRuleVal("espMejorJugador"),
+    incluirEspeciales:document.getElementById("incluirEspeciales").checked,
+  };
+  const code=generateCode();
+  const pollaId=db.ref("pollas").push().key;
+  const pollaData={
+    nombre,rules,code,creadorUid:currentUser.uid,
+    creadaEn:Date.now(),
+    participantes:{[currentUser.uid]:{name:currentUser.name,joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}}},
+  };
+  await db.ref(`pollas/${pollaId}`).set(pollaData);
+  currentPollaId=pollaId;currentPolla=pollaData;
+  myPollas[pollaId]=pollaData;
+  // Show invite screen
+  renderInvite(pollaId,nombre,code);
+};
+
+function renderInvite(pollaId,nombre,code){
+  const link=`${window.location.origin}${window.location.pathname}?polla=${code}`;
+  document.getElementById("root").innerHTML=`
+    <div style="max-width:480px;margin:0 auto;padding:24px 16px;text-align:center;position:relative;z-index:1">
+      <div style="font-size:52px;margin-bottom:12px">🎉</div>
+      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">¡Polla creada!</h2>
+      <p style="font-size:13px;color:#64748b;margin-bottom:24px">${nombre}</p>
+
+      <div style="background:#1e293b;border-radius:12px;padding:20px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase">Código de invitación</div>
+        <div style="font-size:36px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif">${code}</div>
+      </div>
+
+      <div style="background:#1e293b;border-radius:12px;padding:14px;margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase">Link de invitación</div>
+        <div style="font-size:11px;color:#94a3b8;word-break:break-all;margin-bottom:10px">${link}</div>
+        <button class="btn" onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copiado ✓'))">Copiar link 📋</button>
+      </div>
+
+      <button class="btn-secondary" onclick="enterPolla('${pollaId}')">Entrar a la polla →</button>
+    </div>`;
+}
+
+// ─── UNIRSE A POLLA ───────────────────────────────────────
+function renderUnirse(){
+  document.getElementById("root").innerHTML=`
+    <div style="max-width:480px;margin:0 auto;padding:24px 16px;position:relative;z-index:1">
+      <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;margin-bottom:16px;font-family:'Inter',sans-serif">← Volver</button>
+      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">🔗 Unirme a una polla</h2>
+      <p style="font-size:12px;color:#64748b;margin-bottom:24px">Escribe el código que te pasaron</p>
+      <input class="input" id="joinCode" type="text" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:20px;font-weight:700;text-align:center"/>
+      <div class="error" id="joinError"></div>
+      <button class="btn" onclick="doJoinPolla()">Unirme 🚀</button>
+    </div>`;
+  document.getElementById("joinCode").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase();});
+}
+
+window.doJoinPolla=async function(){
+  const code=(document.getElementById("joinCode").value||"").trim().toUpperCase();
+  const errEl=document.getElementById("joinError");
+  if(code.length<4){errEl.textContent="Escribe el código completo.";return;}
+  await joinPollaByCode(code);
+};
+
+async function joinPollaByCode(code,silent=false){
+  const snap=await db.ref("pollas").orderByChild("code").equalTo(code).get();
+  if(!snap.exists()){
+    if(!silent)document.getElementById("joinError").textContent="Código no encontrado. Verifica e intenta de nuevo.";
+    else{showToast("Código de invitación no encontrado","#ef4444");renderPollaLobby();}
+    return;
+  }
+  const [pollaId,pollaData]=Object.entries(snap.val())[0];
+  if(pollaData.participantes&&pollaData.participantes[currentUser.uid]){
+    // Already in, just enter
+    currentPollaId=pollaId;currentPolla=pollaData;myPollas[pollaId]=pollaData;
+    loadData();return;
+  }
+  await db.ref(`pollas/${pollaId}/participantes/${currentUser.uid}`).set({name:currentUser.name,joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}});
+  currentPollaId=pollaId;currentPolla=pollaData;
+  myPollas[pollaId]=pollaData;
+  showToast(`✓ Te uniste a "${pollaData.nombre}"`);
+  loadData();
 }
 async function fetchLiveResults(){
   try{
@@ -568,13 +853,13 @@ async function fetchLiveResults(){
       if(m.status!=="completed"&&m.status!=="in_progress")continue;
       if(m.home_score==null||m.away_score==null)continue;
       const match=MATCHES.find(x=>x.home.toLowerCase().includes((m.home_team?.name||"").toLowerCase().split(" ")[0]));
-      if(match)await db.ref(`results/${match.id}`).set({h:String(m.home_score),a:String(m.away_score)});
+      if(match)await db.ref(`${pollaBase()}/results/${match.id}`).set({h:String(m.home_score),a:String(m.away_score)});
     }
   }catch(e){console.log("API error:",e);}
 }
 
 // ─── LOGIN ────────────────────────────────────────────────
-function renderLogin(mode="login"){
+function renderLogin(mode="register"){
   const isReg=mode==="register";
   const isForgot=mode==="forgot";
   document.getElementById("root").innerHTML=`
@@ -592,19 +877,25 @@ function renderLogin(mode="login"){
       `:isReg?`
         <input class="input" id="regName" type="text" placeholder="Nombre de usuario" maxlength="20" autocomplete="username"/>
         <input class="input" id="regEmail" type="email" placeholder="Email" autocomplete="email"/>
-        <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password"/>
+        <div style="position:relative;width:100%;max-width:340px">
+          <input class="input" id="regPass" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
+          <button type="button" onclick="togglePass('regPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-60%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
+        </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
         <button class="btn" id="loginBtn" onclick="doRegister()">Crear cuenta 🚀</button>
         <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿Ya tienes cuenta? <button class="link-btn" onclick="renderLogin('login')">Inicia sesión</button></div>
       `:`
         <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email"/>
-        <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password"/>
+        <div style="position:relative;width:100%;max-width:340px">
+          <input class="input" id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding-right:44px;margin-bottom:12px"/>
+          <button type="button" onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-60%);background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0">👁</button>
+        </div>
         <label class="remember-row"><input type="checkbox" id="rememberMe" checked/><span>Recordarme en este dispositivo</span></label>
         <div class="error" id="loginError"></div>
         <button class="btn" id="loginBtn" onclick="doLogin()">Entrar 🚀</button>
         <div style="margin-top:10px"><button class="link-btn" onclick="renderLogin('forgot')">¿Olvidaste tu contraseña?</button></div>
-        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate</button></div>
+        <div style="margin-top:14px;font-size:13px;color:#64748b;font-family:'Inter',sans-serif">¿No tienes cuenta? <button class="link-btn" onclick="renderLogin('register')">Regístrate gratis</button></div>
       `}
     </div>`;
 }
@@ -625,8 +916,8 @@ window.doLogin=async function(){
     if(!snap.exists()){errEl.textContent="Cuenta no encontrada.";btn.disabled=false;btn.textContent="Entrar 🚀";return;}
     const u=snap.val();
     currentUser={uid,name:u.name,email};
-    isAdmin=u.name.toUpperCase()===ADMIN_NAME.toUpperCase();
-    loadData();
+    isAdmin=false;
+    await loadPollas();
   }catch(e){
     errEl.textContent=e.code==="auth/wrong-password"||e.code==="auth/user-not-found"?"Email o contraseña incorrectos.":"Error al conectar. Intenta de nuevo.";
     btn.disabled=false;btn.textContent="Entrar 🚀";
@@ -651,10 +942,10 @@ window.doRegister=async function(){
     await auth.setPersistence(persistence);
     const cred=await auth.createUserWithEmailAndPassword(email,pass);
     const uid=cred.user.uid;
-    await db.ref(`users/${uid}`).set({name,email,predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}});
+    await db.ref(`users/${uid}`).set({name,email});
     currentUser={uid,name,email};
-    isAdmin=name.toUpperCase()===ADMIN_NAME.toUpperCase();
-    loadData();
+    isAdmin=false;
+    await loadPollas();
   }catch(e){
     errEl.textContent=e.code==="auth/email-already-in-use"?"Ese email ya tiene cuenta. Inicia sesión.":"Error al crear la cuenta. Intenta de nuevo.";
     btn.disabled=false;btn.textContent="Crear cuenta 🚀";
@@ -683,12 +974,14 @@ window.doChangeName=async function(){
   const newName=(document.getElementById("changeNameInput").value||"").trim();
   const errEl=document.getElementById("changeNameError");
   if(!newName||newName.length<2){errEl.textContent="Mínimo 2 caracteres.";return;}
-  // Check not taken
+  // Check not taken in global users
   const snap=await db.ref("users").orderByChild("name").equalTo(newName).get();
   if(snap.exists()&&!Object.keys(snap.val()).includes(currentUser.uid)){errEl.textContent="Ese nombre ya está en uso.";return;}
   await db.ref(`users/${currentUser.uid}/name`).set(newName);
+  // Also update in current polla if inside one
+  if(currentPollaId)await db.ref(`pollas/${currentPollaId}/participantes/${currentUser.uid}/name`).set(newName);
   currentUser.name=newName;
-  allUsers[currentUser.uid].name=newName;
+  if(allUsers[currentUser.uid])allUsers[currentUser.uid].name=newName;
   closeChangeName();
   showToast("Nombre actualizado ✓");
   render();
@@ -698,17 +991,22 @@ window.doChangeName=async function(){
 function render(){
   if(!currentUser){renderLogin();return;}
   const countdown=getCountdown();
-  const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],["especiales","⭐ Especiales"],["ranking","🏆 Ranking"],...(isAdmin?[["admin","⚙️ Admin"]]:[])]
-  // Save tab scroll position
+  const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
+  isAdmin=isCreator;
+  const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales","⭐ Especiales"]]:[]),["ranking","🏆 Ranking"],...(isCreator?[["admin","⚙️ Admin"]]:[])];
   const tabsEl=document.querySelector(".tabs");
   const savedScroll=tabsEl?tabsEl.scrollLeft:0;
   document.getElementById("root").innerHTML=`
     <div class="app">
       <div class="header">
         <div class="header-bg"></div>
-        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:4px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">⚽ Mundial 2026</div>
+        <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button onclick="goToLobby()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
+          ${isCreator?`<button onclick="showInvite()" style="background:rgba(30,64,175,0.3);border:1px solid #1e40af;color:#60a5fa;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;border-radius:6px;padding:3px 8px">🔗 Invitar</button>`:`<div></div>`}
+        </div>
+        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:4px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">⚽ ${currentPolla?.nombre||"Mundial 2026"}</div>
         <h1>RICA POLLA MUNDIALERA</h1>
-        <p class="header-sub">USA · México · Canadá 2026${isAdmin?`<span class="admin-badge">ADMIN</span>`:""}</p>
+        <p class="header-sub">USA · México · Canadá 2026</p>
         <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative;font-family:'Inter',sans-serif">
           Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
           <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:6px;font-family:'Inter',sans-serif">✏️</button>
@@ -719,7 +1017,6 @@ function render(){
       </div>
       <div class="content" id="tab-content"></div>
     </div>`;
-  // Restore tab scroll position
   const newTabs=document.getElementById("main-tabs");
   if(newTabs&&savedScroll)newTabs.scrollLeft=savedScroll;
   renderTab();
@@ -1173,35 +1470,36 @@ Reglas ESTRICTAS:
 window.closeCarta=function(){document.getElementById("carta-overlay").style.display="none";};
 
 // ─── ACCIONES ─────────────────────────────────────────────
+const pollaBase=()=>`pollas/${currentPollaId}`;
 window.savePred=async function(matchId,side,val){
   if(isLocked(MATCHES.find(m=>m.id===matchId)))return;
   myPredictions[matchId]={...(myPredictions[matchId]||{}),[side]:val};
-  await db.ref(`users/${currentUser.uid}/predictions/${matchId}`).update({[side]:val});
+  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val});
 };
 window.saveGroupPred=async function(group,order){
   if(new Date()>=new Date(TOURNAMENT_LOCKOUT))return;
   myGroupPreds[group]=order;
-  await db.ref(`users/${currentUser.uid}/groupPredictions/${group}`).set(order);
+  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/groupPredictions/${group}`).set(order);
   showToast("Guardado ✓");
 };
 window.saveElimPred=async function(matchId,side,val){
   const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
   myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
-  await db.ref(`users/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val});
+  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val});
 };
 window.saveElimWinner=async function(matchId,winner){
   const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
   myElimPreds[matchId]={...(myElimPreds[matchId]||{}),winner};
-  await db.ref(`users/${currentUser.uid}/elimPredictions/${matchId}`).update({winner});
+  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({winner});
   showToast("Guardado ✓");
 };
 window.saveEspecial=async function(field,val){
   if(new Date()>=new Date(TOURNAMENT_LOCKOUT))return;
-  await db.ref(`users/${currentUser.uid}/especiales/${field}`).set(val);
+  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/especiales/${field}`).set(val);
 };
 window.saveEspecialResult=async function(field,val){
   if(!isAdmin)return;
-  await db.ref(`results/especiales/${field}`).set(val);showToast("Guardado ✓");
+  await db.ref(`${pollaBase()}/results/especiales/${field}`).set(val);showToast("Guardado ✓");
 };
 window.saveRealGroupPos=async function(group,team,pos){
   if(!isAdmin||!pos)return;
@@ -1209,20 +1507,38 @@ window.saveRealGroupPos=async function(group,team,pos){
   let arr=realGrp[group]||new Array(4).fill(null);
   arr=arr.map(t=>t===team?null:t);
   arr[parseInt(pos)-1]=team;
-  await db.ref(`results/groupOrder/${group}`).set(arr);
+  await db.ref(`${pollaBase()}/results/groupOrder/${group}`).set(arr);
   showToast(`${team} → ${pos}° en Grupo ${group} ✓`);
 };
-window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`results/phase_locks/${phase}`).set(true);showToast("Fase desbloqueada ✓");};
-window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`results/phase_locks/${phase}`).remove();showToast("Fase bloqueada ✓");};
+window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).set(true);showToast("Fase desbloqueada ✓");};
+window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).remove();showToast("Fase bloqueada ✓");};
 window.deleteUser=async function(uid,name){
   if(!isAdmin)return;
   if(!confirm(`¿Eliminar a "${name}" y todos sus pronósticos?`))return;
-  await db.ref(`users/${uid}`).remove();showToast(`${name} eliminado ✓`);
+  await db.ref(`${pollaBase()}/participantes/${uid}`).remove();showToast(`${name} eliminado ✓`);
 };
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
-window.logout=async function(){await auth.signOut();currentUser=null;renderLogin();};
+window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};renderLogin();};
+window.goToLobby=function(){
+  // Detach listeners
+  if(currentPollaId){
+    db.ref(`pollas/${currentPollaId}/participantes`).off();
+    db.ref(`pollas/${currentPollaId}/results`).off();
+  }
+  currentPollaId=null;currentPolla=null;allUsers={};allResults={};
+  loadPollas();
+};
+window.showInvite=function(){
+  if(!currentPolla||!currentPollaId)return;
+  const code=currentPolla.code;
+  const link=`${window.location.origin}${window.location.pathname}?polla=${code}`;
+  document.getElementById("modal-invite").style.display="flex";
+  document.getElementById("invite-code").textContent=code;
+  document.getElementById("invite-link").textContent=link;
+  document.getElementById("invite-link-copy").onclick=()=>navigator.clipboard.writeText(link).then(()=>showToast("Link copiado ✓"));
+};
 window.openRules=function(){document.getElementById("modal-rules").style.display="flex";};
 window.closeRules=function(){document.getElementById("modal-rules").style.display="none";};
 
