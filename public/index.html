@@ -156,8 +156,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <body>
 <div id="root"><div class="spinner"><span class="spin">⚽</span> Cargando...</div></div>
 <div class="toast" id="toast"></div>
-<button class="fab fab-left" onclick="openHistorial()" title="Mi historial">📊</button>
-<button class="fab fab-right" onclick="openRules()" title="Reglas del juego">❓</button>
+<button id="fab-left" class="fab fab-left" onclick="openHistorial()" title="Mi historial" style="display:none">📊</button>
+<button id="fab-right" class="fab fab-right" onclick="openRules()" title="Reglas del juego" style="display:none">❓</button>
 
 <!-- MODAL INVITAR -->
 <div id="modal-invite" style="display:none" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
@@ -491,7 +491,7 @@ function totalPoints(u){
     return s+(p&&rv&&p===rv?pts:0);
   },0):0;
   const realGrp=allResults["groupOrder"]||{};
-  const grpPts=Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0);
+  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0):0;
   const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
   return matchPts+espPts+grpPts+elimPts;
 }
@@ -633,9 +633,10 @@ function loadData(){
 
 // ─── POLLA LOBBY ──────────────────────────────────────────
 function renderPollaLobby(){
+  setFabs(false);
   const pollaIds=Object.keys(myPollas);
   document.getElementById("root").innerHTML=`
-    <div style="max-width:480px;margin:0 auto;padding:24px 16px;position:relative;z-index:1;min-height:100vh">
+    <div style="max-width:480px;margin:0 auto;padding:24px 16px;position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;justify-content:center">
       <div style="text-align:center;margin-bottom:32px">
         <div style="font-size:44px;margin-bottom:8px">⚽</div>
         <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#475569;margin-bottom:4px">MUNDIAL 2026</div>
@@ -685,62 +686,113 @@ const DEFAULT_RULES={
   incluirEspeciales:true
 };
 
+function ruleRow(id,label,defaultVal){
+  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #0f172a">
+    <span style="font-size:13px;color:#cbd5e1">${label}</span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <input type="number" id="rule_${id}" value="${defaultVal}" min="0" max="20" style="width:52px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+      <span style="font-size:11px;color:#475569;width:22px">pts</span>
+    </div>
+  </div>`;
+}
+function exBox(lines){
+  return`<div style="background:#0a0f1e;border-radius:8px;padding:9px 12px;margin:8px 0 4px;font-size:12px;color:#64748b;line-height:1.8">${lines}</div>`;
+}
+function secTitle(icon,title,desc){
+  return`<div style="margin-bottom:12px">
+    <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${icon} ${title}</div>
+    ${desc?`<div style="font-size:12px;color:#475569">${desc}</div>`:''}
+  </div>`;
+}
 function renderCrearPolla(){
   const r=DEFAULT_RULES;
+  setFabs(false);
   document.getElementById("root").innerHTML=`
-    <div style="max-width:480px;margin:0 auto;padding:24px 16px;position:relative;z-index:1">
+    <div style="max-width:480px;margin:0 auto;padding:24px 16px 40px;position:relative;z-index:1">
       <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;margin-bottom:16px;font-family:'Inter',sans-serif">← Volver</button>
-      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">✨ Crear polla</h2>
-      <p style="font-size:12px;color:#64748b;margin-bottom:20px">Configura las reglas y comparte el link con tus amigos</p>
+      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:4px">✨ Crear polla</h2>
+      <p style="font-size:12px;color:#64748b;margin-bottom:20px">Define cuántos puntos vale cada acierto y comparte con tus amigos.</p>
 
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
+      <!-- NOMBRE -->
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
         <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">Nombre de la polla</div>
         <input class="input" id="pollaName" type="text" placeholder="Ej: La polla de la oficina" maxlength="40" style="margin-bottom:0"/>
       </div>
 
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">🟢 Fase de Grupos — Partidos</div>
-        ${ruleInput("ptsExactoGrupos","Resultado exacto",r.ptsExactoGrupos)}
-        ${ruleInput("ptsGanadorDifGrupos","Ganador + diferencia",r.ptsGanadorDifGrupos)}
-        ${ruleInput("ptsSoloGanadorGrupos","Solo ganador/empate",r.ptsSoloGanadorGrupos)}
+      <!-- GRUPOS PARTIDOS -->
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+        ${secTitle("🟢","Fase de Grupos — Partidos","Pronosticas el marcador exacto de cada partido de grupos.")}
+        ${exBox(`
+          <span style="color:#94a3b8">Pronóstico:</span> Argentina <strong style="color:#f1f5f9">2–1</strong> Brasil &nbsp;·&nbsp; <span style="color:#94a3b8">Real:</span> Argentina <strong style="color:#22c55e">2–1</strong> Brasil<br>
+          → <strong style="color:#22c55e">Resultado exacto</strong> ✓ (marcador y ganador correctos)<br><br>
+          <span style="color:#94a3b8">Pronóstico:</span> Argentina <strong style="color:#f1f5f9">3–1</strong> Brasil &nbsp;·&nbsp; <span style="color:#94a3b8">Real:</span> Argentina <strong style="color:#22c55e">2–0</strong> Brasil<br>
+          → <strong style="color:#facc15">Ganador + diferencia</strong> ✓ (ganó Argentina por 2 en ambos)<br><br>
+          <span style="color:#94a3b8">Pronóstico:</span> Argentina <strong style="color:#f1f5f9">1–0</strong> Brasil &nbsp;·&nbsp; <span style="color:#94a3b8">Real:</span> Argentina <strong style="color:#22c55e">3–1</strong> Brasil<br>
+          → <strong style="color:#facc15">Solo ganador</strong> ✓ (acertaste quién gana, nada más)
+        `)}
+        ${ruleRow("ptsExactoGrupos","Resultado exacto",r.ptsExactoGrupos)}
+        ${ruleRow("ptsGanadorDifGrupos","Ganador + diferencia de goles",r.ptsGanadorDifGrupos)}
+        ${ruleRow("ptsSoloGanadorGrupos","Solo ganador o empate",r.ptsSoloGanadorGrupos)}
       </div>
 
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">🏟️ Clasificación de Grupos</div>
-        ${ruleInput("ptsPosGrupo","Por posición exacta",r.ptsPosGrupo)}
-      </div>
-
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
-        ${ruleInput("ptsExactoElim","Resultado exacto + clasificado",r.ptsExactoElim)}
-        ${ruleInput("ptsExactoSinClasif","Resultado exacto sin clasificado",r.ptsExactoSinClasif)}
-        ${ruleInput("ptsSoloClasif","Solo clasificado",r.ptsSoloClasif)}
-      </div>
-
-      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-            <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-            <span style="font-size:12px;color:#94a3b8">Incluir</span>
+      <!-- CLASIFICACIÓN DE GRUPOS -->
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🏟️ Clasificación de Grupos</div>
+            <div style="font-size:12px;color:#475569;margin-top:2px">Antes del torneo ordenas los 4 equipos de cada grupo según crees que terminarán.</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:10px;margin-top:2px">
+            <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+            <span style="font-size:12px;color:#94a3b8;white-space:nowrap">Incluir</span>
           </label>
         </div>
-        ${ruleInput("espCampeon","Campeón 🏆",r.espCampeon)}
-        ${ruleInput("espBotaOro","Bota de Oro ⚽",r.espBotaOro)}
-        ${ruleInput("espGuanteOro","Guante de Oro 🧤",r.espGuanteOro)}
-        ${ruleInput("espMejorJugador","Mejor Jugador ⭐",r.espMejorJugador)}
+        ${exBox(`
+          <span style="color:#94a3b8">Pronóstico Grupo A:</span> 🥇 México · 🥈 Sudáfrica · 🥉 Corea · 4° Rep. Checa<br>
+          <span style="color:#94a3b8">Real:</span> 🥇 México · 🥈 <strong style="color:#22c55e">Sudáfrica</strong> · 🥉 Rep. Checa · 4° Corea<br>
+          → México ✓ y Sudáfrica ✓ = <strong style="color:#22c55e">2 aciertos</strong> · los otros dos no coinciden
+        `)}
+        ${ruleRow("ptsPosGrupo","Puntos por cada equipo en posición exacta",r.ptsPosGrupo)}
+      </div>
+
+      <!-- ELIMINATORIA -->
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+        ${secTitle("🔥","Fase Eliminatoria","El resultado es siempre el de los 90 min. Si hay prórroga o penales, solo cuenta quién pasa.")}
+        ${exBox(`
+          <span style="color:#94a3b8">Pronóstico:</span> Francia <strong style="color:#f1f5f9">1–1</strong> España, pasa <strong style="color:#f1f5f9">Francia</strong><br>
+          <span style="color:#94a3b8">Real:</span> Francia <strong style="color:#22c55e">1–1</strong> España, pasa <strong style="color:#22c55e">Francia</strong> (pen)<br>
+          → <strong style="color:#22c55e">Exacto + clasificado</strong> ✓ (marcador 90 min y quién pasa)<br><br>
+          <span style="color:#94a3b8">Pronóstico:</span> Francia <strong style="color:#f1f5f9">2–0</strong> España, pasa <strong style="color:#f1f5f9">Francia</strong><br>
+          <span style="color:#94a3b8">Real:</span> Francia <strong style="color:#22c55e">1–1</strong> España, pasa <strong style="color:#22c55e">Francia</strong> (pen)<br>
+          → <strong style="color:#facc15">Solo clasificado</strong> ✓ (el marcador no coincide, pero acertaste quién pasa)
+        `)}
+        ${ruleRow("ptsExactoElim","Marcador exacto + quién clasifica",r.ptsExactoElim)}
+        ${ruleRow("ptsExactoSinClasif","Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
+        ${ruleRow("ptsSoloClasif","Solo acertaste quién clasifica",r.ptsSoloClasif)}
+      </div>
+
+      <!-- ESPECIALES -->
+      <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">⭐ Pronósticos Especiales</div>
+            <div style="font-size:12px;color:#475569;margin-top:2px">Se pronostican antes del torneo: campeón, goleador, portero y mejor jugador.</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:10px;margin-top:2px">
+            <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+            <span style="font-size:12px;color:#94a3b8;white-space:nowrap">Incluir</span>
+          </label>
+        </div>
+        ${exBox(`Si aciertas el campeón 🏆 ganas los puntos configurados. Igual para Bota de Oro ⚽, Guante de Oro 🧤 y Mejor Jugador ⭐.`)}
+        ${ruleRow("espCampeon","Campeón 🏆",r.espCampeon)}
+        ${ruleRow("espBotaOro","Bota de Oro ⚽",r.espBotaOro)}
+        ${ruleRow("espGuanteOro","Guante de Oro 🧤",r.espGuanteOro)}
+        ${ruleRow("espMejorJugador","Mejor Jugador ⭐",r.espMejorJugador)}
       </div>
 
       <div class="error" id="crearError"></div>
       <button class="btn" onclick="doCrearPolla()">Crear polla 🚀</button>
     </div>`;
-}
-
-function ruleInput(id,label,defaultVal){
-  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <span style="font-size:13px;color:#94a3b8">${label}</span>
-    <input type="number" id="rule_${id}" value="${defaultVal}" min="0" max="20" style="width:52px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
-  </div>`;
 }
 
 function generateCode(){
@@ -761,6 +813,7 @@ window.doCrearPolla=async function(){
     ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),
     ptsSoloClasif:getRuleVal("ptsSoloClasif"),
     ptsPosGrupo:getRuleVal("ptsPosGrupo"),
+    incluirClasificacion:(document.getElementById("incluirClasificacion")?.checked!==false),
     espCampeon:getRuleVal("espCampeon"),
     espBotaOro:getRuleVal("espBotaOro"),
     espGuanteOro:getRuleVal("espGuanteOro"),
@@ -859,7 +912,7 @@ async function fetchLiveResults(){
 }
 
 // ─── LOGIN ────────────────────────────────────────────────
-function renderLogin(mode="register"){
+function renderLogin(mode="register"){setFabs(false);
   const isReg=mode==="register";
   const isForgot=mode==="forgot";
   document.getElementById("root").innerHTML=`
@@ -1047,9 +1100,12 @@ window.doChangeName=async function(){
   render();
 };
 
+function setFabs(show){const l=document.getElementById('fab-left'),r=document.getElementById('fab-right');if(l)l.style.display=show?'flex':'none';if(r)r.style.display=show?'flex':'none';}
+
 // ─── RENDER ───────────────────────────────────────────────
 function render(){
   if(!currentUser){renderLogin();return;}
+  setFabs(!!currentPollaId);
   const countdown=getCountdown();
   const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
   isAdmin=isCreator;
