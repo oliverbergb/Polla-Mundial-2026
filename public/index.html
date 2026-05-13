@@ -21,11 +21,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Inter',sans-serif;color:#fff}
 .header-sub{position:relative;color:#64748b;font-size:11px;margin-bottom:4px;font-family:'Inter',sans-serif}
 .countdown-bar{position:relative;background:#0f172a;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#3b82f6;border:1px solid #1e40af;font-family:'Inter',sans-serif}
-.tabs-wrap{position:relative}
-.tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,#0a0f1e);pointer-events:none;z-index:2}
-.tabs{display:flex;overflow-x:auto;gap:4px;scrollbar-width:none;position:relative}
+.tabs-wrap{position:relative;display:flex;justify-content:center}
+.tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,#0a0f1e);pointer-events:none;z-index:2}
+.tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:8px 14px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
+.tab{flex:0 0 auto;padding:8px 12px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
 .tab.active{background:#1e40af;color:#fff;border-bottom:2px solid #3b82f6}
 .tab:not(.active){background:transparent;color:#94a3b8;border-bottom:2px solid transparent}
 
@@ -144,6 +144,26 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .carta-firma{margin-top:14px;text-align:right;font-size:11px;color:#475569;font-style:italic}
 .carta-close{margin-top:18px;width:100%;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer}
 
+/* ── CHAT ── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:320px}
+.chat-messages{flex:1;overflow-y:auto;padding:4px 0 8px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:#1e293b transparent}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-track{background:transparent}
+.chat-messages::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+.chat-msg{display:flex;flex-direction:column;max-width:82%;gap:2px}
+.chat-msg.mine{align-self:flex-end;align-items:flex-end}
+.chat-msg.theirs{align-self:flex-start;align-items:flex-start}
+.chat-bubble{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word}
+.chat-msg.mine .chat-bubble{background:#1e40af;color:#fff;border-bottom-right-radius:4px}
+.chat-msg.theirs .chat-bubble{background:#1e293b;color:#f1f5f9;border-bottom-left-radius:4px}
+.chat-meta{font-size:10px;color:#475569;padding:0 4px}
+.chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid #1e293b;margin-top:6px}
+.chat-input{flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:10px 14px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;min-height:42px;max-height:80px}
+.chat-input:focus{border-color:#3b82f6}
+.chat-send{background:#1e40af;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
+.chat-send:hover{background:#2563eb}
+.chat-empty{text-align:center;padding:40px 20px;color:#475569;font-size:13px}
+
 /* ── HISTORIAL ── */
 .hist-chart{padding:8px 0}
 .hist-line{display:flex;align-items:center;gap:8px;margin-bottom:6px}
@@ -187,65 +207,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <!-- MODAL REGLAS -->
 <div id="modal-rules" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeRules()">
   <div class="modal-box">
-    <h2>🏆 Reglas del Juego</h2>
-    <div class="rules-section">
-      <h3>¿CÓMO FUNCIONA?</h3>
-      <p>Pronostica los resultados del Mundial USA · México · Canadá 2026 y acumula puntos. Gana quien más puntos tenga al final del torneo.</p>
-    </div>
-    <div class="rules-section">
-      <h3>🟢 FASE DE GRUPOS — PARTIDOS</h3>
-      <p>Pronostica el marcador exacto de cada partido. Se bloquean automáticamente cuando empieza cada partido.</p>
-      <ul>
-        <li><strong style="color:#22c55e">3 pts</strong> — resultado exacto</li>
-        <li><strong style="color:#facc15">2 pts</strong> — acertaste ganador y diferencia de goles</li>
-        <li><strong style="color:#facc15">1 pt</strong> — solo acertaste el ganador (o empate)</li>
-        <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
-      </ul>
-    </div>
-    <div class="rules-section">
-      <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
-      <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
-      <ul><li><strong style="color:#22c55e">2 pts</strong> — por cada equipo en la posición exacta</li></ul>
-    </div>
-    <div class="rules-section">
-      <h3>🔥 FASE ELIMINATORIA</h3>
-      <p>El resultado apostado es <strong>siempre el de los 90 minutos</strong>. Prórroga/penales solo cuentan para el clasificado.</p>
-      <p style="margin-top:6px">Formato: Argentina 1-1 Francia <em>(clasifica: Argentina)</em></p>
-      <ul>
-        <li><strong style="color:#22c55e">3 pts</strong> — resultado exacto + clasificado correcto</li>
-        <li><strong style="color:#facc15">2 pts</strong> — resultado exacto, clasificado incorrecto</li>
-        <li><strong style="color:#facc15">1 pt</strong> — solo acertaste el clasificado</li>
-        <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
-      </ul>
-      <p style="margin-top:6px;font-size:12px;color:#64748b">⚠️ Si pones victoria (ej: 2-1) pero en 90 min hay empate (ej: 1-1) y pasa ese equipo: 0 pts por resultado, 1 pt si acertaste el clasificado.</p>
-    </div>
-    <div class="rules-section">
-      <h3>⭐ ESPECIALES</h3>
-      <p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
-      <ul>
-        <li><strong style="color:#22c55e">10 pts</strong> — Campeón 🏆</li>
-        <li><strong style="color:#facc15">5 pts</strong> — Bota de Oro ⚽</li>
-        <li><strong style="color:#facc15">5 pts</strong> — Guante de Oro 🧤</li>
-        <li><strong style="color:#facc15">5 pts</strong> — Mejor Jugador ⭐</li>
-      </ul>
-    </div>
-    <div class="rules-section">
-      <h3>💸 PREMIOS</h3>
-      <ul>
-        <li>🥇 1º — 60%</li>
-        <li>🥈 2º — 30%</li>
-        <li>🥉 3º — 10%</li>
-      </ul>
-    </div>
-    <div class="rules-section">
-      <h3>⚠️ REGLAS GENERALES</h3>
-      <ul>
-        <li>Un solo nombre por dispositivo</li>
-        <li>Los pronósticos bloqueados no se pueden editar</li>
-        <li>Los resultados se actualizan automáticamente</li>
-        <li>En caso de empate en el ranking, gana quien acertó más marcadores exactos</li>
-      </ul>
-    </div>
+    <h2>📋 Reglas de esta Polla</h2>
+    <div id="modal-rules-body"></div>
     <button class="modal-close" onclick="closeRules()">Entendido ✓</button>
   </div>
 </div>
@@ -1154,7 +1117,7 @@ function render(){
   const countdown=getCountdown();
   const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
   isAdmin=isCreator;
-  const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales","⭐ Especiales"]]:[]),["ranking","🏆 Ranking"]];
+  const tabs=[["grupos","👥 Grupos"],["mis_pronos","🎯 Mis Pronósticos"],["eliminatorias","🔥 Eliminatorias"],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales","⭐ Especiales"]]:[]),["ranking","🏆 Ranking"],["chat","💬 Chat"]];
   const tabsEl=document.querySelector(".tabs");
   const savedScroll=tabsEl?tabsEl.scrollLeft:0;
   document.getElementById("root").innerHTML=`
@@ -1165,15 +1128,16 @@ function render(){
           <button onclick="goToLobby()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
           ${isCreator?`<button onclick="showInvite()" style="background:rgba(30,64,175,0.3);border:1px solid #1e40af;color:#60a5fa;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;border-radius:6px;padding:3px 8px">🔗 Invitar</button>`:`<div></div>`}
         </div>
-        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:3px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase">TU POLLA · MUNDIAL 2026</div>
+        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:3px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase;text-align:center">TU POLLA · MUNDIAL 2026</div>
         <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
         <p class="header-sub">USA · México · Canadá 2026</p>
-        <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative;font-family:'Inter',sans-serif">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative;font-family:'Inter',sans-serif;text-align:center">
           Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
           <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:6px;font-family:'Inter',sans-serif">✏️</button>
-
         </div>
+        <div style="display:flex;justify-content:center;margin-bottom:4px">
         ${countdown?`<div class="countdown-bar" style="position:relative">⏱ <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e">⚽ ¡El Mundial está en curso!</div>`}
+        </div>
         <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}</div></div>
       </div>
       <div class="content" id="tab-content"></div>
@@ -1184,9 +1148,10 @@ function render(){
 }
 function renderTab(){
   const c=document.getElementById("tab-content");if(!c)return;
-  const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking};
+  const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking,chat:renderChat};
   c.innerHTML=(fns[currentTab]||renderGrupos)();
   if(currentTab==="grupos")initDragDrop();
+  if(currentTab==="chat")initChat();
 }
 
 // ─── PILLS ────────────────────────────────────────────────
@@ -1530,6 +1495,59 @@ function renderRanking(){
     ${tournamentEnded()&&rows.length>0?`<button onclick="openCarta('${rows[0].name}')" style="width:100%;background:linear-gradient(135deg,#854d0e,#ca8a04);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-top:8px">🏆 Ver carta al campeón</button>`:""}`;
 }
 
+// ─── TAB: CHAT ────────────────────────────────────────────
+let chatListener=null;
+function renderChat(){
+  return`<div class="chat-wrap">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty">💬 Cargando mensajes...</div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="280" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+      <button class="chat-send" onclick="sendChat()">↑</button>
+    </div>
+  </div>`;
+}
+
+function initChat(){
+  if(!currentPollaId)return;
+  // Detach previous listener
+  if(chatListener){
+    db.ref(`pollas/${currentPollaId}/chat`).off("value",chatListener);
+    chatListener=null;
+  }
+  chatListener=db.ref(`pollas/${currentPollaId}/chat`).limitToLast(80).on("value",snap=>{
+    const el=document.getElementById("chat-messages");
+    if(!el)return;
+    const data=snap.val()||{};
+    const msgs=Object.entries(data).sort((a,b)=>a[1].ts-b[1].ts);
+    if(!msgs.length){el.innerHTML=`<div class="chat-empty">🏈 Sé el primero en escribir algo!</div>`;return;}
+    const atBottom=el.scrollHeight-el.scrollTop-el.clientHeight<60;
+    el.innerHTML=msgs.map(([id,m])=>{
+      const mine=m.uid===currentUser.uid;
+      const time=new Date(m.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",hour12:false});
+      return`<div class="chat-msg ${mine?"mine":"theirs"}">
+        ${!mine?`<div class="chat-meta" style="color:${avatarColor(m.name)};font-weight:700">${m.name}</div>`:""}
+        <div class="chat-bubble">${escHtml(m.text)}</div>
+        <div class="chat-meta">${time}</div>
+      </div>`;
+    }).join("");
+    if(atBottom||msgs[msgs.length-1]?.[1]?.uid===currentUser.uid)el.scrollTop=el.scrollHeight;
+  });
+}
+
+function escHtml(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+window.sendChat=async function(){
+  const inp=document.getElementById("chat-input");
+  const text=(inp?.value||"").trim();
+  if(!text||!currentPollaId||!currentUser)return;
+  inp.value="";inp.style.height="auto";
+  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:currentUser.uid,name:currentUser.name,text,ts:Date.now()});
+};
+
 // ─── TAB: ADMIN ───────────────────────────────────────────
 function renderAdmin(){
   if(!isAdmin)return`<div class="card"><p style="color:#ef4444">Acceso denegado.</p></div>`;
@@ -1687,6 +1705,7 @@ window.goToLobby=function(){
   if(currentPollaId){
     db.ref(`pollas/${currentPollaId}/participantes`).off();
     db.ref(`pollas/${currentPollaId}/results`).off();
+    if(chatListener){db.ref(`pollas/${currentPollaId}/chat`).off("value",chatListener);chatListener=null;}
   }
   currentPollaId=null;currentPolla=null;allUsers={};allResults={};
   loadPollas();
@@ -1700,7 +1719,63 @@ window.showInvite=function(){
   document.getElementById("invite-link").textContent=link;
   document.getElementById("invite-link-copy").onclick=()=>navigator.clipboard.writeText(link).then(()=>showToast("Link copiado ✓"));
 };
-window.openRules=function(){document.getElementById("modal-rules").style.display="flex";};
+window.openRules=function(){
+  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+  const incEsp=r.incluirEspeciales!==false;
+  const incClasif=r.incluirClasificacion!==false;
+  const modal=document.getElementById("modal-rules");
+  document.getElementById("modal-rules-body").innerHTML=`
+    <div class="rules-section">
+      <h3>¿CÓMO FUNCIONA?</h3>
+      <p>Pronostica los resultados del Mundial USA · México · Canadá 2026 y acumula puntos. Gana quien más puntos tenga al final del torneo.</p>
+    </div>
+    <div class="rules-section">
+      <h3>🟢 FASE DE GRUPOS — PARTIDOS</h3>
+      <p>Pronostica el marcador exacto de cada partido. Se bloquean automáticamente cuando empieza cada partido.</p>
+      <ul>
+        <li><strong style="color:#22c55e">${r.ptsExactoGrupos??3} pts</strong> — resultado exacto</li>
+        <li><strong style="color:#facc15">${r.ptsGanadorDifGrupos??2} pts</strong> — acertaste ganador y diferencia de goles</li>
+        <li><strong style="color:#facc15">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
+        <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
+      </ul>
+    </div>
+    ${incClasif?`<div class="rules-section">
+      <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
+      <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
+      <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
+    </div>`:""}
+    <div class="rules-section">
+      <h3>🔥 FASE ELIMINATORIA</h3>
+      <p>El resultado apostado es <strong>siempre el de los 90 minutos</strong>. Prórroga/penales solo cuentan para el clasificado.</p>
+      <p style="margin-top:6px">Formato: Argentina 1-1 Francia <em>(clasifica: Argentina)</em></p>
+      <ul>
+        <li><strong style="color:#22c55e">${r.ptsExactoElim??3} pts</strong> — resultado exacto + clasificado correcto</li>
+        <li><strong style="color:#facc15">${r.ptsExactoSinClasif??2} pts</strong> — resultado exacto, clasificado incorrecto</li>
+        <li><strong style="color:#facc15">${r.ptsSoloClasif??1} pt</strong> — solo acertaste el clasificado</li>
+        <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
+      </ul>
+    </div>
+    ${incEsp?`<div class="rules-section">
+      <h3>⭐ ESPECIALES</h3>
+      <p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
+      <ul>
+        <li><strong style="color:#22c55e">${r.espCampeon??10} pts</strong> — Campeón 🏆</li>
+        <li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro ⚽</li>
+        <li><strong style="color:#facc15">${r.espGuanteOro??5} pts</strong> — Guante de Oro 🧤</li>
+        <li><strong style="color:#facc15">${r.espMejorJugador??5} pts</strong> — Mejor Jugador ⭐</li>
+      </ul>
+    </div>`:""}
+    <div class="rules-section">
+      <h3>⚠️ REGLAS GENERALES</h3>
+      <ul>
+        <li>Un solo nombre por dispositivo</li>
+        <li>Los pronósticos bloqueados no se pueden editar</li>
+        <li>Los resultados se actualizan automáticamente</li>
+        <li>En caso de empate en el ranking, gana quien acertó más marcadores exactos</li>
+      </ul>
+    </div>`;
+  modal.style.display="flex";
+};
 window.closeRules=function(){document.getElementById("modal-rules").style.display="none";};
 
 window.addEventListener("load",initFirebase);
