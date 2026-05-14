@@ -1037,7 +1037,7 @@ window.togglePollaMenu=function(id,nombre,btn){
     const safeName=nombre.replace(/'/g,"\\'");
     const btnStyle='width:100%;background:none;border:none;color:#fca5a5;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:\'Inter\',sans-serif';
     const items=[];
-    if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">🗑️ Eliminar polla</button>`);
+    if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
     if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">🚪 Salirse</button>`);
     m.innerHTML=items.join('');
     document.body.appendChild(m);
@@ -1057,7 +1057,9 @@ document.addEventListener('click',()=>closePollaMenus());
 let _confirmCb=null;
 function showConfirmModal(icon,title,body,btnLabel,btnColor,onConfirm){
   _confirmCb=onConfirm;
-  document.getElementById("modal-confirm-icon").textContent=icon;
+  const iconEl=document.getElementById("modal-confirm-icon");
+  iconEl.textContent=icon;
+  iconEl.style.display=icon?"block":"none";
   document.getElementById("modal-confirm-title").textContent=title;
   document.getElementById("modal-confirm-body").textContent=body;
   const btn=document.getElementById("modal-confirm-ok");
@@ -1081,7 +1083,7 @@ window.deletePolla=async function(pollaId,nombre){
     showToast("Solo el creador puede eliminar la polla","#ef4444");return;
   }
   showConfirmModal(
-    "🗑️",
+    "",
     `Eliminar "${nombre}"`,
     "Esto borrará los pronósticos de todos los participantes. No se puede deshacer.",
     "Sí, eliminar","#ef4444",
@@ -1347,14 +1349,19 @@ function renderInvite(pollaId,nombre,code){
 // ─── UNIRSE A POLLA ───────────────────────────────────────
 function renderUnirse(){
   document.getElementById("root").innerHTML=`
-    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;position:relative;z-index:1">
-      <button onclick="renderPollaLobby()" style="position:absolute;top:20px;left:20px;background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif">← Volver</button>
-      <div style="width:100%;max-width:400px">
-        <h2 style="font-size:24px;font-weight:900;color:#f1f5f9;margin-bottom:6px">🔗 Unirme a una polla</h2>
-        <p style="font-size:13px;color:#64748b;margin-bottom:24px">Escribe el código que te pasaron</p>
-        <input class="input" id="joinCode" type="text" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:22px;font-weight:700;text-align:center;width:100%;box-sizing:border-box"/>
-        <div class="error" id="joinError"></div>
-        <button class="btn" onclick="doJoinPolla()" style="width:100%">Unirme 🚀</button>
+    <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
+      <div style="background:#0a0f1e;border-bottom:1px solid #1e293b;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
+        <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
+        <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#f1f5f9">🔗 Unirme a una polla</div>
+        <div style="width:32px"></div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">
+        <div style="width:100%;max-width:340px">
+          <p style="font-size:13px;color:#64748b;margin-bottom:20px;text-align:center">Escribe el código que te pasaron</p>
+          <input class="input" id="joinCode" type="text" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:22px;font-weight:700;text-align:center;width:100%;box-sizing:border-box"/>
+          <div class="error" id="joinError"></div>
+          <button class="btn" onclick="doJoinPolla()" style="width:100%">Unirme 🚀</button>
+        </div>
       </div>
     </div>`;
   document.getElementById("joinCode").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase();});
@@ -2005,10 +2012,10 @@ function renderRanking(){
         const prevPos=prevRanking[r.uid];
         const curPos=realIdx+1;
         const arrow=prevPos&&prevPos!==curPos?(prevPos>curPos?`<span style="color:#22c55e;font-size:11px">↑</span>`:`<span style="color:#ef4444;font-size:11px">↓</span>`):"";
-        return`<div class="podio-card ${pClass}">
+        return`<div class="podio-card ${pClass}" style="${r.uid===currentUser.uid?"border-color:#3b82f6;":""}">
           <div class="podio-medal">${medals[realIdx]}</div>
           <div class="podio-avatar" style="background:${avatarColor(r.name)}">${avatarInitial(r.name)}</div>
-          <div class="podio-name">${r.name}${r.uid===currentUser.uid?" 👈":""}</div>
+          <div class="podio-name">${r.name}</div>
           <div class="podio-pts" style="color:${podioColors[realIdx]}">${r.pts}</div>
           <div style="font-size:10px;color:#64748b">pts ${arrow}${streak>=5?` 🔥×${streak}`:""}</div>
         </div>`;
@@ -2021,10 +2028,10 @@ function renderRanking(){
     const prevPos=prevRanking[r.uid];
     const arrow=prevPos&&prevPos!==pos?(prevPos>pos?`<span style="color:#22c55e;font-weight:700">↑</span>`:`<span style="color:#ef4444;font-weight:700">↓</span>`):"";
     const streak=getStreak(r.uid);
-    return`<div class="rank-row">
+    return`<div class="rank-row" style="${r.uid===currentUser.uid?"border-left:3px solid #3b82f6;padding-left:9px;margin-left:-12px;":""}">
       <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:#1e293b;color:#64748b;flex-shrink:0">${pos}</div>
       <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:${avatarColor(r.name)};color:#fff;flex-shrink:0">${avatarInitial(r.name)}</div>
-      <span style="flex:1;font-weight:700">${r.name}${r.uid===currentUser.uid?` <span style="font-size:10px;color:#3b82f6">(tú)</span>`:""}</span>
+      <span style="flex:1;font-weight:700;color:${r.uid===currentUser.uid?"#93c5fd":"#f1f5f9"}">${r.name}</span>
       ${streak>=5?`<span style="font-size:11px">🔥×${streak}</span>`:""}
       ${arrow}
       <span style="font-size:18px;font-weight:900;color:#f1f5f9">${r.pts}</span>
@@ -2042,9 +2049,7 @@ function renderRanking(){
 let chatListener=null;
 function renderChat(){
   return`<div class="chat-wrap">
-    <div class="chat-messages" id="chat-messages">
-      <div class="chat-empty">💬 Cargando mensajes...</div>
-    </div>
+    <div class="chat-messages" id="chat-messages"><div class="chat-empty">¡Abre la conversación!</div></div>
     <div class="chat-input-row">
       <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="280" rows="1"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
@@ -2066,7 +2071,7 @@ function initChat(){
     if(!el)return;
     const data=snap.val()||{};
     const msgs=Object.entries(data).sort((a,b)=>a[1].ts-b[1].ts);
-    if(!msgs.length){el.innerHTML=`<div class="chat-empty">💬 Sé el primero en escribir algo!</div>`;return;}
+    if(!msgs.length){el.innerHTML=`<div class="chat-empty">¡Abre la conversación!</div>`;return;}
     const atBottom=el.scrollHeight-el.scrollTop-el.clientHeight<60;
     el.innerHTML=msgs.map(([id,m])=>{
       const mine=m.uid===currentUser.uid;
@@ -2299,7 +2304,7 @@ window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaB
 window.deleteUser=async function(uid,name){
   if(!isAdmin)return;
   showConfirmModal(
-    "⚠️",`Eliminar a "${name}"`,
+    "",`Eliminar a "${name}"`,
     "Se borrarán todos sus pronósticos en esta polla. Esta acción no se puede deshacer.",
     "Sí, eliminar","#ef4444",
     async()=>{await db.ref(`${pollaBase()}/participantes/${uid}`).remove();showToast(`${name} eliminado ✓`);}
@@ -2382,7 +2387,7 @@ window.openRules=function(){
   document.getElementById("modal-rules-body").innerHTML=`
     <div class="rules-section">
       <h3>¿CÓMO FUNCIONA?</h3>
-      <p>Pronostica los resultados del Mundial USA · México · Canadá 2026 y acumula puntos. Gana quien más puntos tenga al final del torneo.</p>
+      <p>Pronostica los resultados del Mundial USA · México · Canadá 2026 y acumula puntos. Gana quien tenga más puntos al final del torneo.</p>
     </div>
     <div class="rules-section">
       <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
