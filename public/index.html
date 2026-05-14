@@ -18,16 +18,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:#fff8e6;border-radius:16px 16px 18px 18px;margin:8px 8px 4px;font-family:'Inter',sans-serif}
 .header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#b8860b,#d4a017,#f0c040,#d4a017,#b8860b);z-index:1;border-radius:16px 16px 0 0}
 .header-bg{display:none}
-.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Inter',sans-serif;color:#fff}
+.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Inter',sans-serif;color:#1c1207}
 .header-sub{position:relative;color:#7a6030;font-size:11px;margin-bottom:4px;font-family:'Inter',sans-serif}
-.countdown-bar{position:relative;background:#fef9f0;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#b8860b;border:1px solid #b8860b;font-family:'Inter',sans-serif}
+.countdown-bar{position:relative;background:#fef9f0;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#8a6508;border:1px solid #b8860b;font-family:'Inter',sans-serif}
 .tabs-wrap{position:relative;display:flex;justify-content:center}
 .tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,#fff8e6);pointer-events:none;z-index:2}
 .tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:8px 12px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
 .tab.active{background:#b8860b;color:#fff;border-bottom:2px solid #b8860b}
-.tab:not(.active){background:transparent;color:#b8a060;border-bottom:2px solid transparent}
+.tab:not(.active){background:transparent;color:#7a6030;border-bottom:2px solid transparent}
 
 /* ── CONTENT ── */
 .content{padding:16px 12px}
@@ -37,7 +37,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .match-teams{display:flex;align-items:center;gap:8px}
 .team{flex:1;font-weight:700;font-size:13px}
 .team.home{text-align:right}
-.score-input{width:36px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:4px;font-size:14px;font-weight:700}
+.score-input{width:36px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#1c1207;padding:4px;font-size:14px;font-weight:700}
 .score-input:focus{outline:none;border-color:#b8860b}
 .score-sep{color:#7a6030;font-weight:700;flex-shrink:0}
 .group-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -48,18 +48,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 /* ── LOGIN ── */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;background:transparent}
 .login-screen h1{font-size:26px;font-weight:900;margin:12px 0 4px;font-family:'Inter',sans-serif;letter-spacing:-0.5px}
-.input{width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
+.input{width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#1c1207;padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
 .input:focus{border-color:#b8860b}
 .btn{width:100%;max-width:340px;background:#b8860b;color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .btn:disabled{background:#e8d99a;cursor:not-allowed}
-.btn-secondary{width:100%;max-width:340px;background:transparent;color:#b8a060;border:1px solid #e8d99a;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px}
+.btn-secondary{width:100%;max-width:340px;background:transparent;color:#7a6030;border:1px solid #e8d99a;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px}
 .btn-secondary:hover{border-color:#b8860b;color:#1c1207}
-.link-btn{background:none;border:none;color:#b8860b;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;padding:0}
+.link-btn{background:none;border:none;color:#8a6508;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;padding:0}
 .remember-row{display:flex;align-items:center;gap:8px;max-width:340px;width:100%;margin-bottom:12px;cursor:pointer}
 .remember-row input[type=checkbox]{width:16px;height:16px;accent-color:#b8860b;cursor:pointer}
-.remember-row span{font-size:13px;color:#b8a060;font-family:'Inter',sans-serif}
-.error{color:#ef4444;font-size:13px;margin-bottom:10px;max-width:340px}
-.lock-badge{font-size:10px;background:#e8d99a;color:#b8a060;padding:2px 6px;border-radius:10px;margin-left:4px}
+.remember-row span{font-size:13px;color:#7a6030;font-family:'Inter',sans-serif}
+.error{color:#dc2626;font-size:13px;margin-bottom:10px;max-width:340px}
+.lock-badge{font-size:10px;background:#e8d99a;color:#5c4708;padding:2px 6px;border-radius:10px;margin-left:4px}
 .admin-badge{background:#7c3aed;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px}
 
 /* ── TOAST ── */
@@ -71,8 +71,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 /* ── SCORES ── */
 .score-box{background:#fef9f0;padding:4px 8px;border-radius:6px;font-size:14px;font-weight:700;min-width:28px;text-align:center}
-.score-box.pred{color:#b8a060;border:1px solid #e8d99a}
-.score-box.result{color:#22c55e;border:1px solid #22c55e}
+.score-box.pred{color:#7a6030;border:1px solid #e8d99a}
+.score-box.result{color:#15803d;border:1px solid #22c55e}
 .vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:90px}
 .pred-row{display:flex;align-items:center;gap:4px}
 .pts-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
@@ -97,7 +97,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 /* ── RANKING PODIO ── */
 .podio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;align-items:end}
-.podio-card{border-radius:10px;padding:12px 8px;text-align:center;border:1px solid #ffffff}
+.podio-card{border-radius:10px;padding:12px 8px;text-align:center;border:1px solid #e8d99a}
 .podio-card.p1{background:linear-gradient(180deg,#fefce8 0%,#ffffff 100%);border-color:#b8860b;order:2}
 .podio-card.p2{background:#ffffff;order:1}
 .podio-card.p3{background:#ffffff;order:3}
@@ -112,7 +112,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .podio-card.p3{animation-delay:.2s}
 
 /* ── FABS ── */
-.fab{position:fixed;bottom:20px;width:42px;height:42px;border-radius:50%;color:#b8a060;border:1px solid #e8d99a;font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:#ffffff}
+.fab{position:fixed;bottom:20px;width:42px;height:42px;border-radius:50%;color:#7a6030;border:1px solid #e8d99a;font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:#ffffff}
 .fab:hover{background:#e8d99a;color:#1c1207}
 .fab-right{right:20px}
 .fab-left{left:20px}
@@ -123,8 +123,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .modal-box h2{font-size:18px;font-weight:900;margin-bottom:16px;text-align:center}
 .rules-section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #e8d99a}
 .rules-section:last-of-type{border-bottom:none}
-.rules-section h3{font-size:12px;font-weight:700;color:#b8860b;margin-bottom:6px;letter-spacing:.5px}
-.rules-section p,.rules-section li{font-size:13px;color:#b8a060;line-height:1.65;margin-bottom:3px}
+.rules-section h3{font-size:12px;font-weight:700;color:#8a6508;margin-bottom:6px;letter-spacing:.5px}
+.rules-section p,.rules-section li{font-size:13px;color:#7a6030;line-height:1.65;margin-bottom:3px}
 .rules-section ul{padding-left:16px}
 .modal-close{width:100%;background:#b8860b;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px}
 
@@ -136,8 +136,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 @keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .carta-crown{font-size:11px;font-weight:700;letter-spacing:2px;color:#7a6030;text-transform:uppercase;margin-bottom:4px}
 .carta-name{font-size:24px;font-weight:900;color:#1c1207;margin-bottom:12px}
-.carta-divider{border:none;border-top:1px solid #ffffff;margin:14px 0}
-.carta-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#b8860b;text-transform:uppercase;margin-bottom:10px}
+.carta-divider{border:none;border-top:1px solid #e8d99a;margin:14px 0}
+.carta-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#8a6508;text-transform:uppercase;margin-bottom:10px}
 .carta-text{font-size:13px;color:#3a2810;line-height:1.8;text-align:left}
 .carta-text p{margin-bottom:10px}
 .carta-text p:last-child{margin-bottom:0}
@@ -157,18 +157,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .chat-msg.mine .chat-bubble{background:#b8860b;color:#fff;border-bottom-right-radius:4px}
 .chat-msg.theirs .chat-bubble{background:#f5e8b8;color:#1c1207;border-bottom-left-radius:4px}
 .chat-meta{font-size:10px;color:#8a7040;padding:0 4px}
-.chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid #ffffff;margin-top:6px}
-.chat-input{flex:1;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:10px 14px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;min-height:42px;max-height:80px}
+.chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid #e8d99a;margin-top:6px}
+.chat-input{flex:1;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#1c1207;padding:10px 14px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;min-height:42px;max-height:80px}
 .chat-input:focus{border-color:#b8860b}
 .chat-send{background:#b8860b;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
 .chat-send:hover{background:#d4a017}
 .chat-empty{text-align:center;padding:40px 20px;color:#8a7040;font-size:13px}
 
 /* ── H2H HISTORY ── */
-.h2h-block{padding:8px 0 2px;border-top:1px solid #ffffff;margin-top:8px}
+.h2h-block{padding:8px 0 2px;border-top:1px solid #e8d99a;margin-top:8px}
 .h2h-title{font-size:10px;font-weight:700;letter-spacing:1px;color:#8a7040;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
 .h2h-rows{display:none}
-.h2h-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#b8a060;padding:4px 0;border-bottom:1px solid #e8d99a}
+.h2h-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#7a6030;padding:4px 0;border-bottom:1px solid #e8d99a}
 .h2h-row:last-child{border-bottom:none}
 .h2h-score{font-weight:700;color:#1c1207;font-size:12px}
 .h2h-comp{font-size:10px;color:#8a7040;text-align:right;min-width:64px}
@@ -211,7 +211,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
           title="Toca para copiar"></div>
         <div style="font-size:10px;color:#8a7040;margin-bottom:14px">toca para copiar</div>
       </div>
-      <div style="border-top:1px solid #ffffff;padding:12px 18px">
+      <div style="border-top:1px solid #e8d99a;padding:12px 18px">
         <div id="invite-link" style="font-size:11px;color:#8a7040;word-break:break-all;margin-bottom:10px"></div>
         <button id="invite-link-copy" class="btn-secondary" style="width:100%">Copiar link 🔗</button>
       </div>
@@ -253,7 +253,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
   <div class="modal-box" style="text-align:center;max-width:360px">
     <div id="modal-confirm-icon" style="font-size:40px;margin-bottom:12px">⚠️</div>
     <h2 id="modal-confirm-title" style="margin-bottom:8px;font-size:17px"></h2>
-    <p id="modal-confirm-body" style="font-size:13px;color:#b8a060;margin-bottom:22px;line-height:1.65"></p>
+    <p id="modal-confirm-body" style="font-size:13px;color:#7a6030;margin-bottom:22px;line-height:1.65"></p>
     <button id="modal-confirm-ok" onclick="doConfirmModal()" class="btn" style="margin-bottom:10px;background:#ef4444"></button>
     <button class="modal-close" onclick="closeConfirmModal()" style="background:#e8d99a">Cancelar</button>
   </div>
@@ -781,7 +781,7 @@ function renderAuthScreen(name){
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
       ${name?`<div style="font-size:18px;font-weight:900;color:#1c1207;margin-bottom:4px">Hola, ${name} 👋</div><div style="font-size:13px;color:#8a7040;margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:18px;font-weight:900;color:#1c1207;margin-bottom:24px">Bienvenido de vuelta</div>`}
 
-      <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#ffffff;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
+      <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         Continuar con Google
       </button>
@@ -793,10 +793,10 @@ function renderAuthScreen(name){
       </div>
 
       <input id="authEmail" type="email" placeholder="Email" autocomplete="email"
-        style="width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"/>
+        style="width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#1c1207;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"/>
       <div style="position:relative;width:100%;max-width:340px;margin-bottom:10px">
         <input id="authPass" type="password" placeholder="Contraseña" autocomplete="current-password"
-          style="width:100%;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
+          style="width:100%;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#1c1207;padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
           onkeydown="if(event.key==='Enter')doEmailAuth()"/>
         <button type="button" onclick="togglePass('authPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#7a6030;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
       </div>
@@ -878,7 +878,7 @@ function renderForgot(){
       <div style="font-size:20px;font-weight:900;color:#1c1207;margin-bottom:6px">Recuperar contraseña</div>
       <div style="font-size:13px;color:#8a7040;margin-bottom:24px">Te enviaremos un link por email</div>
       <input id="forgotEmail" type="email" placeholder="Tu email" autocomplete="email"
-        style="width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
+        style="width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#1c1207;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
         onkeydown="if(event.key==='Enter')doForgot()"/>
       <div id="forgotMsg" style="font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px"></div>
       <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:#b8860b;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">Enviar link 📧</button>
@@ -927,7 +927,7 @@ function renderPollaLobby(){
       <!-- HERO -->
       <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 24px">
         <div style="font-size:22px;font-weight:900;color:#1c1207;letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
-        <button onclick="openChangeName()" style="background:none;border:none;color:#b8860b;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
+        <button onclick="openChangeName()" style="background:none;border:none;color:#8a6508;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
         <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-top:8px">
           <div style="width:44px;height:44px;border-radius:12px;background:#b8860b;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🐔</div>
           <div>
@@ -941,7 +941,7 @@ function renderPollaLobby(){
       <div style="flex:1;padding:0 20px 32px;max-width:680px;width:100%;margin:0 auto;box-sizing:border-box">
         ${pollaIds.length>0?`
           <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#e8d99a;margin-bottom:10px;text-transform:uppercase;padding:0 4px">Mis Pollas</div>
-          <div style="background:#ffffff;border-radius:16px;margin-bottom:20px;border:1px solid #ffffff">
+          <div style="background:#ffffff;border-radius:16px;margin-bottom:20px;border:1px solid #e8d99a">
             ${pollaIds.map((id,i)=>{
               const p=myPollas[id];
               const isCreator=p.creadorUid===currentUser.uid;
@@ -971,7 +971,7 @@ function renderPollaLobby(){
 
         <div style="display:flex;flex-direction:column;gap:10px">
           <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,#b8860b,#b8860b);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(59,130,246,0.3)">✨ Crear una polla</button>
-          <button onclick="renderUnirse()" style="width:100%;background:#ffffff;color:#b8a060;border:1px solid #ffffff;border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🔗 Unirme a una polla</button>
+          <button onclick="renderUnirse()" style="width:100%;background:#ffffff;color:#7a6030;border:1px solid #e8d99a;border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🔗 Unirme a una polla</button>
         </div>
       </div>
     </div>`;
@@ -1134,7 +1134,7 @@ function ruleRow(id,label,val){
   return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e8d99a">
     <span style="font-size:13px;color:#3a2810">${label}</span>
     <div style="display:flex;align-items:center;gap:6px">
-      <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+      <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#1c1207;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
       <span style="font-size:11px;color:#8a7040;width:20px">pts</span>
     </div>
   </div>`;
@@ -1146,7 +1146,7 @@ function renderCrearPolla(){
   const savedName=sessionStorage.getItem("pendingPollaName")||"";
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
-      <div style="background:#fff8e6;border-bottom:1px solid #ffffff;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
+      <div style="background:#fff8e6;border-bottom:1px solid #e8d99a;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
         <button onclick="${currentUser?"renderPollaLobby()":"renderLanding()"}" style="background:none;border:none;color:#7a6030;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
         <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#1c1207">✨ Crear polla</div>
         <div style="width:32px"></div>
@@ -1184,8 +1184,8 @@ function renderCrearPolla(){
                   <div id="toggle-dot-${s.id}" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;transform:translateX(18px)"></div>
                 </label>
               </div>`).join("")}
-            <div style="border-top:1px solid #ffffff;padding:10px 14px;text-align:center">
-              <button onclick="toggleRules()" style="background:none;border:none;color:#b8860b;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">✏️ Cambiar puntos</button>
+            <div style="border-top:1px solid #e8d99a;padding:10px 14px;text-align:center">
+              <button onclick="toggleRules()" style="background:none;border:none;color:#8a6508;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">✏️ Cambiar puntos</button>
             </div>
           </div>
         </div>
@@ -1202,21 +1202,21 @@ function renderCrearPolla(){
           <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
+                <div style="font-size:11px;font-weight:700;color:#8a6508;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
                 <div style="font-size:12px;color:#8a7040;margin-top:2px">Ordenas los 4 equipos de cada grupo antes del torneo.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
                 <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#b8860b;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#b8a060">Incluir</span>
+                <span style="font-size:12px;color:#7a6030">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#b8a060">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#b8a060">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × <span id="ex-ptsPosGrupo">${r.ptsPosGrupo??2}</span> pt por acierto</b>`)}
+            ${exBox(`<span style="color:#7a6030">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#7a6030">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#15803d">2 × <span id="ex-ptsPosGrupo">${r.ptsPosGrupo??2}</span> pt por acierto</b>`)}
             <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e8d99a">
               <span style="font-size:13px;color:#3a2810">Por cada equipo en posición exacta</span>
               <div style="display:flex;align-items:center;gap:6px">
                 <input type="number" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
                   oninput="document.getElementById('ex-ptsPosGrupo').textContent=this.value||'?'"
-                  style="width:48px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+                  style="width:48px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#1c1207;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
                 <span style="font-size:11px;color:#8a7040;width:20px">pts</span>
               </div>
             </div>
@@ -1224,15 +1224,15 @@ function renderCrearPolla(){
           <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">🟢 Partidos de Grupos</div>
+                <div style="font-size:11px;font-weight:700;color:#8a6508;letter-spacing:1px;text-transform:uppercase">🟢 Partidos de Grupos</div>
                 <div style="font-size:12px;color:#8a7040;margin-top:2px">Pronosticas el marcador de cada partido.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
                 <input type="checkbox" id="incluirPartidosGrupos" checked style="accent-color:#b8860b;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#b8a060">Incluir</span>
+                <span style="font-size:12px;color:#7a6030">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#b8a060">Pronosticas</span> Argentina <b style="color:#1c1207">2–1</b> Brasil<br>✅ <b style="color:#22c55e">Exacto</b> si el real es 2–1<br>🟡 <b style="color:#facc15">Ganador+dif.</b> si el real es 3–2 (Argentina gana por 1)<br>🟡 <b style="color:#facc15">Solo ganador</b> si el real es 1–0<br>❌ Sin puntos si Brasil gana o hay empate`)}
+            ${exBox(`<span style="color:#7a6030">Pronosticas</span> Argentina <b style="color:#1c1207">2–1</b> Brasil<br>✅ <b style="color:#15803d">Exacto</b> si el real es 2–1<br>🟡 <b style="color:#a16207">Ganador+dif.</b> si el real es 3–2 (Argentina gana por 1)<br>🟡 <b style="color:#a16207">Solo ganador</b> si el real es 1–0<br>❌ Sin puntos si Brasil gana o hay empate`)}
             ${ruleRow("ptsExactoGrupos","✅ Marcador exacto",r.ptsExactoGrupos)}
             ${ruleRow("ptsGanadorDifGrupos","🟡 Ganador + misma diferencia",r.ptsGanadorDifGrupos)}
             ${ruleRow("ptsSoloGanadorGrupos","🟡 Solo ganador o empate",r.ptsSoloGanadorGrupos)}
@@ -1240,15 +1240,15 @@ function renderCrearPolla(){
           <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
+                <div style="font-size:11px;font-weight:700;color:#8a6508;letter-spacing:1px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
                 <div style="font-size:12px;color:#8a7040;margin-top:2px">Como grupos, pero también dices quién clasifica si hay penales.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
                 <input type="checkbox" id="incluirEliminatoria" checked style="accent-color:#b8860b;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#b8a060">Incluir</span>
+                <span style="font-size:12px;color:#7a6030">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#b8a060">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España<br><span style="color:#7a6030;font-size:11px">⏱ El marcador cuenta solo el tiempo regular (90 min), no la prórroga.</span>`)}
+            ${exBox(`<span style="color:#7a6030">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#15803d">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#a16207">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España<br><span style="color:#7a6030;font-size:11px">⏱ El marcador cuenta solo el tiempo regular (90 min), no la prórroga.</span>`)}
             ${ruleRow("ptsExactoElim","✅ Marcador exacto + quién clasifica",r.ptsExactoElim)}
             ${ruleRow("ptsExactoSinClasif","🟡 Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
             ${ruleRow("ptsSoloClasif","🟡 Solo acertaste quién clasifica",r.ptsSoloClasif)}
@@ -1256,12 +1256,12 @@ function renderCrearPolla(){
           <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:20px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
+                <div style="font-size:11px;font-weight:700;color:#8a6508;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
                 <div style="font-size:12px;color:#8a7040;margin-top:2px">Campeón, Bota de Oro, Guante y Mejor Jugador.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
                 <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#b8860b;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#b8a060">Incluir</span>
+                <span style="font-size:12px;color:#7a6030">Incluir</span>
               </label>
             </div>
             ${ruleRow("espCampeon","🏆 Campeón",r.espCampeon)}
@@ -1350,7 +1350,7 @@ function renderInvite(pollaId,nombre,code){
 function renderUnirse(){
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
-      <div style="background:#fff8e6;border-bottom:1px solid #ffffff;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
+      <div style="background:#fff8e6;border-bottom:1px solid #e8d99a;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
         <button onclick="renderPollaLobby()" style="background:none;border:none;color:#7a6030;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
         <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#1c1207">🔗 Unirme a una polla</div>
         <div style="width:32px"></div>
@@ -1553,7 +1553,7 @@ function render(){
           Hola, <strong style="color:#1c1207">${currentUser.name}</strong>
         </div>
         <div style="display:flex;justify-content:center;margin-bottom:4px">
-        ${countdown?`<div class="countdown-bar" style="position:relative">⏱ <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e">⚽ ¡El Mundial está en curso!</div>`}
+        ${countdown?`<div class="countdown-bar" style="position:relative">⏱ <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#15803d">⚽ ¡El Mundial está en curso!</div>`}
         </div>
         <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}</div></div>
       </div>
@@ -1606,9 +1606,9 @@ function renderGrupos(){
 
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#b8a060">Pronóstico grupos</div>
+      <div><div style="font-size:12px;color:#7a6030">Pronóstico grupos</div>
         <div style="font-size:28px;font-weight:900;color:#14b8a6">${myTotalPts} pts</div></div>
-      <div style="font-size:11px;color:#7a6030;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
+      <div style="font-size:11px;color:#7a6030;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#15803d">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
     </div>
     ${groupPills()}
     <div style="background:#ffffff;border-radius:10px;margin-bottom:12px;overflow:hidden">
@@ -1628,10 +1628,10 @@ function renderGrupos(){
           <tr style="border-bottom:${i<table.length-1?"1px solid #e8d99a":"none"}">
             <td style="padding:8px 6px"><div style="width:5px;height:24px;background:${posColors[i]};border-radius:0"></div></td>
             <td style="padding:8px 4px;font-weight:700;white-space:nowrap">${flag(r.team)} ${r.team}</td>
-            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pj}</td>
-            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pg}</td>
-            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pe}</td>
-            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pp}</td>
+            <td style="padding:8px 0;text-align:center;color:#7a6030;width:32px;min-width:32px">${r.pj}</td>
+            <td style="padding:8px 0;text-align:center;color:#7a6030;width:32px;min-width:32px">${r.pg}</td>
+            <td style="padding:8px 0;text-align:center;color:#7a6030;width:32px;min-width:32px">${r.pe}</td>
+            <td style="padding:8px 0;text-align:center;color:#7a6030;width:32px;min-width:32px">${r.pp}</td>
             <td style="padding:8px 0;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"#b8a060"};width:36px;min-width:36px">${r.dif>0?"+":""}${r.dif}</td>
             <td style="padding:8px 0;text-align:center;font-weight:900;font-size:14px;color:${GROUP_COLORS[currentGroup]};width:36px;min-width:36px">${r.pts}</td>
           </tr>`).join("")}
@@ -1646,7 +1646,7 @@ function renderGrupos(){
       ${locked
         ?userOrder.map((t,i)=>{
             const correct=realOrder&&realOrder[i]===t;
-            return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"#ffffff"}">
+            return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"#e8d99a"}">
               <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
               <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
               ${realOrder?`<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"#7a6030"}">${correct?"✓ +2":"✗ 0"}</span>`:""}
@@ -1854,8 +1854,8 @@ function renderMisPronos(){
   const totalMatchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPoints(myPredictions[m.id],allResults[m.id])||0),0);
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#b8a060">Total puntos partidos</div>
-        <div style="font-size:28px;font-weight:900;color:#b8860b">${totalMatchPts} pts</div></div>
+      <div><div style="font-size:12px;color:#7a6030">Total puntos partidos</div>
+        <div style="font-size:28px;font-weight:900;color:#8a6508">${totalMatchPts} pts</div></div>
     </div>
     ${groupPills()}
     ${matches.map(m=>{
@@ -1885,7 +1885,7 @@ function renderEliminatorias(){
   const myPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints((myElimPreds||{})[m.id],allResults[m.id])||0),0);
   return`
     <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:#b8a060">Mis puntos (eliminatorias)</div>
+      <div style="font-size:12px;color:#7a6030">Mis puntos (eliminatorias)</div>
       <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div>
     </div>
     ${elimPhasePills()}
@@ -1929,7 +1929,7 @@ function renderElimPhase(phaseId){
           <span class="score-sep">:</span>
           <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)"/>
         </div>
-        <select onchange="saveElimWinner(${m.id},this.value)" style="background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:3px 6px;font-size:11px;width:100%;max-width:130px">
+        <select onchange="saveElimWinner(${m.id},this.value)" style="background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#1c1207;padding:3px 6px;font-size:11px;width:100%;max-width:130px">
           <option value="">¿Quién avanza?</option>
           <option value="${m.home}" ${pred.winner===m.home?"selected":""}>${flag(m.home)} ${m.home}</option>
           <option value="${m.away}" ${pred.winner===m.away?"selected":""}>${flag(m.away)} ${m.away}</option>
@@ -1946,7 +1946,7 @@ function renderElimPhase(phaseId){
         ${scoreBlock}
         <span class="team">${m.away} ${flag(m.away)}</span>
       </div>
-      ${hasRes&&res.winner?`<div style="margin-top:6px;font-size:11px;color:#7a6030;text-align:center">Avanza: <strong style="color:#22c55e">${flag(res.winner)} ${res.winner}</strong></div>`:""}
+      ${hasRes&&res.winner?`<div style="margin-top:6px;font-size:11px;color:#7a6030;text-align:center">Avanza: <strong style="color:#15803d">${flag(res.winner)} ${res.winner}</strong></div>`:""}
     </div>`;
   }).join("");
 }
@@ -1960,9 +1960,9 @@ function renderEspeciales(){
   ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&r&&p===r)espPts+=f.pts;});
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#b8a060">Mis puntos especiales</div>
+      <div><div style="font-size:12px;color:#7a6030">Mis puntos especiales</div>
         <div style="font-size:28px;font-weight:900;color:#f59e0b">${espPts} pts</div></div>
-      <div style="font-size:11px;color:#7a6030;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
+      <div style="font-size:11px;color:#7a6030;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#15803d">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
     </div>
     ${ESPECIALES_FIELDS.map(f=>{
       const pred=myEsp[f.id]||"",real=(adminEsp[f.id]||"").trim();
@@ -1976,7 +1976,7 @@ function renderEspeciales(){
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           ${locked
             ?`<div style="background:#fef9f0;border-radius:8px;padding:8px 12px;font-size:14px;flex:1;color:${pred?"#1c1207":"#8a7040"}">${pred||"No ingresaste predicción"}</div>`
-            :`<input type="text" placeholder="${f.placeholder}" value="${pred}" style="flex:1;background:#fef9f0;border:1px solid #e8d99a;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecial('${f.id}',this.value)"/>`
+            :`<input type="text" placeholder="${f.placeholder}" value="${pred}" style="flex:1;background:#fef9f0;border:1px solid #e8d99a;border-radius:8px;color:#1c1207;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecial('${f.id}',this.value)"/>`
           }
           ${real?`<div style="font-size:12px;color:#7a6030;text-align:right;min-width:80px">Real:<br/><strong style="color:#1c1207">${real}</strong></div>`:""}
         </div>
@@ -1985,8 +1985,8 @@ function renderEspeciales(){
     ${currentUser.name.toUpperCase()===ADMIN_NAME.toUpperCase()?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
       <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">⚙️ Admin — Resultados oficiales</div>
       ${ESPECIALES_FIELDS.map(f=>`<div style="margin-bottom:10px">
-        <div style="font-size:12px;color:#b8a060;margin-bottom:4px">${f.label}</div>
-        <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}" style="width:100%;background:#fef9f0;border:1px solid #7c3aed;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecialResult('${f.id}',this.value)"/>
+        <div style="font-size:12px;color:#7a6030;margin-bottom:4px">${f.label}</div>
+        <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}" style="width:100%;background:#fef9f0;border:1px solid #7c3aed;border-radius:8px;color:#1c1207;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecialResult('${f.id}',this.value)"/>
       </div>`).join("")}
     </div>`:""}`;
 }
@@ -2119,7 +2119,7 @@ function renderAdmin(){
   return`
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;margin-bottom:4px">⚙️ Panel de Administración</div>
-      <div style="font-size:12px;color:#b8a060">${rows.length} participante${rows.length!==1?"s":""} registrado${rows.length!==1?"s":""}</div>
+      <div style="font-size:12px;color:#7a6030">${rows.length} participante${rows.length!==1?"s":""} registrado${rows.length!==1?"s":""}</div>
     </div>
     <div class="card" style="margin-bottom:14px;border-left:3px solid #7c3aed">
       <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">🔥 Fases Eliminatorias</div>
@@ -2135,7 +2135,7 @@ function renderAdmin(){
           <div style="font-size:12px;color:#7a6030;font-weight:700;margin-bottom:6px">GRUPO ${g}</div>
           ${GROUPS[g].map(t=>{const curPos=realOrder.indexOf(t);return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <span style="flex:1;font-size:12px">${flag(t)} ${t}</span>
-            <select onchange="saveRealGroupPos('${g}','${t}',this.value)" style="background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:3px 6px;font-size:11px">
+            <select onchange="saveRealGroupPos('${g}','${t}',this.value)" style="background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#1c1207;padding:3px 6px;font-size:11px">
               <option value="">-</option>
               ${[1,2,3,4].map(n=>`<option value="${n}" ${curPos===n-1?"selected":""}>${n}°</option>`).join("")}
             </select>
@@ -2144,12 +2144,12 @@ function renderAdmin(){
       }).join("")}
     </div>
     <div class="card" style="border-left:3px solid #ef4444">
-      <div style="font-weight:700;margin-bottom:10px;color:#b8a060">👥 Participantes</div>
+      <div style="font-weight:700;margin-bottom:10px;color:#7a6030">👥 Participantes</div>
       ${rows.map(([uid,u])=>`
         <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e8d99a">
           <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:${avatarColor(u.name)};color:#fff;flex-shrink:0">${avatarInitial(u.name)}</div>
           <div style="flex:1">
-            <div style="font-weight:700">${u.name}${uid===currentUser.uid?` <span style="font-size:10px;color:#b8860b">(tú)</span>`:""}</div>
+            <div style="font-weight:700">${u.name}${uid===currentUser.uid?` <span style="font-size:10px;color:#8a6508">(tú)</span>`:""}</div>
             <div style="font-size:11px;color:#7a6030">${totalPoints(u)} pts</div>
           </div>
           ${uid!==currentUser.uid?`<button onclick="deleteUser('${uid}','${u.name}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700">🗑️ Eliminar</button>`:`<span style="font-size:11px;color:#8a7040">eres tú</span>`}
@@ -2201,7 +2201,7 @@ function renderHistorial(){
   const legend=document.getElementById("hist-legend");
   datasets.forEach(ds=>{
     const el2=document.createElement("span");
-    el2.style.cssText="display:flex;align-items:center;gap:5px;font-size:12px;color:#b8a060;cursor:pointer";
+    el2.style.cssText="display:flex;align-items:center;gap:5px;font-size:12px;color:#7a6030;cursor:pointer";
     el2.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${ds.borderColor};flex-shrink:0"></span>${ds.label}`;
     legend.appendChild(el2);
   });
@@ -2392,16 +2392,16 @@ window.openRules=function(){
     <div class="rules-section">
       <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
       <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
-      <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
+      <ul><li><strong style="color:#15803d">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
       ${!incClasif?`<p style="margin-top:6px;font-size:12px;color:#7a6030;font-style:italic">No incluido en esta polla.</p>`:""}
     </div>
     <div class="rules-section">
       <h3>🟢 FASE DE GRUPOS — PARTIDOS</h3>
       <p>Pronostica el marcador exacto de cada partido. Se bloquean automáticamente cuando empieza cada partido.</p>
       <ul>
-        <li><strong style="color:#22c55e">${r.ptsExactoGrupos??3} pts</strong> — resultado exacto</li>
-        <li><strong style="color:#facc15">${r.ptsGanadorDifGrupos??2} pts</strong> — acertaste ganador y diferencia de goles</li>
-        <li><strong style="color:#facc15">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
+        <li><strong style="color:#15803d">${r.ptsExactoGrupos??3} pts</strong> — resultado exacto</li>
+        <li><strong style="color:#a16207">${r.ptsGanadorDifGrupos??2} pts</strong> — acertaste ganador y diferencia de goles</li>
+        <li><strong style="color:#a16207">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
         <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
       </ul>
       <p style="margin-top:8px;font-size:12px;color:#7a6030">Si pronosticas empate: 3 pts si aciertas el marcador exacto, 1 pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
@@ -2411,9 +2411,9 @@ window.openRules=function(){
       <p>El resultado apostado es <strong>siempre el de los 90 minutos</strong>. Prórroga/penales solo cuentan para el clasificado.</p>
       <p style="margin-top:6px">Formato: Argentina 1-1 Francia <em>(clasifica: Argentina)</em></p>
       <ul>
-        <li><strong style="color:#22c55e">${r.ptsExactoElim??3} pts</strong> — resultado exacto + clasificado correcto</li>
-        <li><strong style="color:#facc15">${r.ptsExactoSinClasif??2} pts</strong> — resultado exacto, clasificado incorrecto</li>
-        <li><strong style="color:#facc15">${r.ptsSoloClasif??1} pt</strong> — solo acertaste el clasificado</li>
+        <li><strong style="color:#15803d">${r.ptsExactoElim??3} pts</strong> — resultado exacto + clasificado correcto</li>
+        <li><strong style="color:#a16207">${r.ptsExactoSinClasif??2} pts</strong> — resultado exacto, clasificado incorrecto</li>
+        <li><strong style="color:#a16207">${r.ptsSoloClasif??1} pt</strong> — solo acertaste el clasificado</li>
         <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
       </ul>
     </div>
@@ -2421,10 +2421,10 @@ window.openRules=function(){
       <h3>⭐ ESPECIALES</h3>
       ${incEsp?`<p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
       <ul>
-        <li><strong style="color:#22c55e">${r.espCampeon??10} pts</strong> — Campeón 🏆</li>
-        <li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro ⚽</li>
-        <li><strong style="color:#facc15">${r.espGuanteOro??5} pts</strong> — Guante de Oro 🧤</li>
-        <li><strong style="color:#facc15">${r.espMejorJugador??5} pts</strong> — Mejor Jugador ⭐</li>
+        <li><strong style="color:#15803d">${r.espCampeon??10} pts</strong> — Campeón 🏆</li>
+        <li><strong style="color:#a16207">${r.espBotaOro??5} pts</strong> — Bota de Oro ⚽</li>
+        <li><strong style="color:#a16207">${r.espGuanteOro??5} pts</strong> — Guante de Oro 🧤</li>
+        <li><strong style="color:#a16207">${r.espMejorJugador??5} pts</strong> — Mejor Jugador ⭐</li>
       </ul>`:`<p style="font-size:12px;color:#7a6030;font-style:italic">No incluido en esta polla.</p>`}
     </div>
     <div class="rules-section">
