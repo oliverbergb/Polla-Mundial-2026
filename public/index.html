@@ -204,16 +204,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <div style="padding:18px 18px 14px">
         <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
         <div id="invite-code" onclick="navigator.clipboard.writeText(this.textContent).then(()=>showToast('Código copiado ✓'))"
-          style="font-size:38px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:14px;cursor:pointer;user-select:all"
+          style="font-size:38px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
           title="Toca para copiar"></div>
-        <button id="invite-code-copy" class="btn" style="width:100%;margin-bottom:0">Copiar código</button>
+        <div style="font-size:10px;color:#475569;margin-bottom:14px">toca para copiar</div>
       </div>
       <div style="border-top:1px solid #1e293b;padding:12px 18px">
         <div id="invite-link" style="font-size:11px;color:#475569;word-break:break-all;margin-bottom:10px"></div>
         <button id="invite-link-copy" class="btn-secondary" style="width:100%">Copiar link 🔗</button>
       </div>
     </div>
-    <button class="modal-close" onclick="document.getElementById('modal-invite').style.display='none'" style="background:#334155;width:100%">Cerrar</button>
   </div>
 </div>
 
@@ -1174,8 +1173,8 @@ function renderInvite(pollaId,nombre,code){
       <div style="background:#1e293b;border-radius:14px;overflow:hidden;margin-bottom:16px">
         <div style="padding:20px 20px 14px">
           <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
-          <div onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado ✓'))" style="font-size:40px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:14px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
-          <button class="btn" onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado ✓'))" style="width:100%">Copiar código</button>
+          <div onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado ✓'))" style="font-size:40px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
+          <div style="font-size:10px;color:#475569;margin-bottom:14px">toca para copiar</div>
         </div>
         <div style="border-top:1px solid #0f172a;padding:14px 20px">
           <div style="font-size:11px;color:#475569;word-break:break-all;margin-bottom:10px">${link}</div>
