@@ -985,15 +985,15 @@ function renderCrearPolla(){
               </label>
             </div>
             ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × <span id="ex-ptsPosGrupo">${r.ptsPosGrupo??2}</span> pt por acierto</b>`)}
-            ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
-          </div>
-          <script>
-            (function(){
-              const inp=document.getElementById("rule_ptsPosGrupo");
-              const ex=document.getElementById("ex-ptsPosGrupo");
-              if(inp&&ex)inp.addEventListener("input",()=>{ex.textContent=inp.value||"?";});
-            })();
-          </script>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0f172a">
+              <span style="font-size:13px;color:#cbd5e1">Por cada equipo en posición exacta</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
+                  oninput="document.getElementById('ex-ptsPosGrupo').textContent=this.value||'?'"
+                  style="width:48px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+                <span style="font-size:11px;color:#475569;width:20px">pts</span>
+              </div>
+            </div>
           </div>
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
