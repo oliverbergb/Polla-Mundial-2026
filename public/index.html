@@ -644,7 +644,7 @@ function renderLanding(){
       <div style="margin-bottom:40px">
         <div style="font-size:68px;margin-bottom:6px;display:inline-block;animation:bounce2 1.4s ease-in-out infinite">⚽</div>
         <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#475569;margin-bottom:8px">MUNDIAL 2026</div>
-        <div style="font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#ef4444 0%,#f97316 25%,#eab308 50%,#22c55e 75%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
+        <div style="font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#C8102E 0%,#003DA5 30%,#FFFFFF 50%,#006847 70%,#CE1126 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
         <div style="font-size:12px;color:#334155;margin-top:8px;font-weight:600">USA · México · Canadá</div>
       </div>
 
@@ -768,7 +768,9 @@ window.doGoogleAuth=async function(){
     const provider=new firebase.auth.GoogleAuthProvider();
     await auth.signInWithPopup(provider);
   }catch(e){
-    if(e.code!=="auth/popup-closed-by-user")showToast("Error con Google. Intenta de nuevo.","#ef4444");
+    if(e.code==="auth/popup-closed-by-user"||e.code==="auth/cancelled-popup-request")return;
+    if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
+    showToast("Error con Google: "+(e.message||e.code),"#ef4444",4000);
   }
 };
 
@@ -788,13 +790,14 @@ window.doEmailAuth=async function(){
     }
   }catch(e){
     const msg={
-      "auth/wrong-password":"Contraseña incorrecta. Inténtalo de nuevo.",
-      "auth/invalid-credential":"Contraseña incorrecta. Inténtalo de nuevo.",
-      "auth/user-not-found":"No encontramos una cuenta con ese email.",
-      "auth/invalid-email":"El email no es válido.",
+      "auth/wrong-password":"Contraseña incorrecta.",
+      "auth/invalid-credential":"Contraseña incorrecta.",
+      "auth/invalid-login-credentials":"Contraseña incorrecta.",
+      "auth/user-not-found":"Correo electrónico no registrado.",
+      "auth/invalid-email":"El correo electrónico no es válido.",
       "auth/too-many-requests":"Demasiados intentos fallidos. Espera unos minutos.",
       "auth/network-request-failed":"Sin conexión. Verifica tu red.",
-      "auth/email-already-in-use":"Ese email ya está registrado.",
+      "auth/email-already-in-use":"Ese correo ya está registrado.",
       "auth/user-disabled":"Esta cuenta ha sido deshabilitada."
     }[e.code]||`Error al iniciar sesión (${e.code}).`;
     errEl.textContent=msg;btn.disabled=false;btn.textContent="Entrar →";
@@ -859,7 +862,7 @@ function renderPollaLobby(){
       <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 24px">
         <div style="font-size:22px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
         <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
-        <div style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-top:8px;background:linear-gradient(135deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
+        <div style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-top:8px;background:linear-gradient(135deg,#C8102E,#003DA5,#FFFFFF,#006847,#CE1126);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
       </div>
 
       <!-- POLLAS LIST -->
@@ -1840,6 +1843,43 @@ window.deleteUser=async function(uid,name){
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
+
+// ─── KEYBOARD NAVIGATION ──────────────────────────────────
+let _kbFocus=null; // "tab" | "group" | "elim" | null
+document.addEventListener("keydown",function(e){
+  if(!currentPollaId)return;
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT")return;
+  if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
+  const dir=e.key==="ArrowRight"?1:-1;
+  const groupKeys=Object.keys(GROUPS);
+  const elimIds=ELIM_PHASES.map(p=>p.id);
+  const tabIds=["grupos","mis_pronos","eliminatorias",...(currentPolla?.rules?.incluirEspeciales!==false?["especiales"]:[]),"ranking","chat"];
+
+  if(_kbFocus==="group"&&(currentTab==="grupos"||currentTab==="mis_pronos")){
+    const i=groupKeys.indexOf(currentGroup);
+    const next=groupKeys[(i+dir+groupKeys.length)%groupKeys.length];
+    setGroup(next);
+  }else if(_kbFocus==="elim"&&currentTab==="eliminatorias"){
+    const i=elimIds.indexOf(currentElimPhase);
+    const next=elimIds[(i+dir+elimIds.length)%elimIds.length];
+    setElimPhase(next);
+  }else if(_kbFocus==="tab"){
+    const i=tabIds.indexOf(currentTab);
+    const next=tabIds[(i+dir+tabIds.length)%tabIds.length];
+    setTab(next);
+  }
+});
+// Set focus context on pill/tab clicks
+document.addEventListener("click",function(e){
+  if(!currentPollaId)return;
+  const pill=e.target.closest(".pill");
+  const tab=e.target.closest(".tab");
+  if(tab){_kbFocus="tab";return;}
+  if(pill){
+    if(currentTab==="eliminatorias")_kbFocus="elim";
+    else _kbFocus="group";
+  }
+});
 window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
 window.goToLobby=function(){
   // Detach listeners
