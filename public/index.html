@@ -596,6 +596,15 @@ function initFirebase(){
       }catch(e){}
     }
     renderLanding();
+    // If there's a pending invite, nudge them into the join flow automatically
+    const pendingInvite=sessionStorage.getItem("pendingPolla");
+    if(pendingInvite){
+      const code=pendingInvite;
+      renderPickName(
+        async(name)=>{pendingName=name;pendingPollaAction=async()=>{await joinPollaByCode(code);};renderAuthScreen(name);},
+        ()=>renderLanding()
+      );
+    }
   });
 }
 
@@ -1154,18 +1163,17 @@ function renderInvite(pollaId,nombre,code){
       <div style="font-size:52px;margin-bottom:12px">🎉</div>
       <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">¡Polla creada!</h2>
       <p style="font-size:13px;color:#64748b;margin-bottom:24px">${nombre}</p>
-
-      <div style="background:#1e293b;border-radius:12px;padding:20px;margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase">Código de invitación</div>
-        <div style="font-size:36px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif">${code}</div>
+      <div style="background:#1e293b;border-radius:14px;overflow:hidden;margin-bottom:16px">
+        <div style="padding:20px 20px 14px">
+          <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
+          <div style="font-size:40px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:14px">${code}</div>
+          <button class="btn" onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado ✓'))" style="width:100%">Copiar código</button>
+        </div>
+        <div style="border-top:1px solid #0f172a;padding:14px 20px">
+          <div style="font-size:11px;color:#475569;word-break:break-all;margin-bottom:10px">${link}</div>
+          <button class="btn-secondary" onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copiado ✓'))" style="width:100%">Copiar link 🔗</button>
+        </div>
       </div>
-
-      <div style="background:#1e293b;border-radius:12px;padding:14px;margin-bottom:20px">
-        <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase">Link de invitación</div>
-        <div style="font-size:11px;color:#94a3b8;word-break:break-all;margin-bottom:10px">${link}</div>
-        <button class="btn" onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copiado ✓'))">Copiar link 📋</button>
-      </div>
-
       <button class="btn-secondary" onclick="enterPolla('${pollaId}')">Entrar a la polla →</button>
     </div>`;
 }
