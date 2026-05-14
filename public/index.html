@@ -248,6 +248,17 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
   </div>
 </div>
 
+<!-- MODAL CONFIRM PELIGRO -->
+<div id="modal-confirm" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="modal-box" style="text-align:center;max-width:360px">
+    <div id="modal-confirm-icon" style="font-size:40px;margin-bottom:12px">⚠️</div>
+    <h2 id="modal-confirm-title" style="margin-bottom:8px;font-size:17px"></h2>
+    <p id="modal-confirm-body" style="font-size:13px;color:#94a3b8;margin-bottom:22px;line-height:1.65"></p>
+    <button id="modal-confirm-ok" onclick="doConfirmModal()" class="btn" style="margin-bottom:10px;background:#ef4444"></button>
+    <button class="modal-close" onclick="closeConfirmModal()" style="background:#334155">Cancelar</button>
+  </div>
+</div>
+
 <!-- CARTA CAMPEÓN -->
 <div id="carta-overlay" style="display:none" class="carta-overlay">
   <div class="carta-box">
@@ -934,10 +945,15 @@ function renderPollaLobby(){
             ${pollaIds.map((id,i)=>{
               const p=myPollas[id];
               const isCreator=p.creadorUid===currentUser.uid;
+              const canLeave=!isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
               const n=Object.keys(p.participantes||{}).length;
               const notLast=i<pollaIds.length-1;
+              const swipeAction=isCreator?`deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}')`:canLeave?`leavePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}')`:null;
+              const swipeBg=isCreator?'#ef4444':'#f97316';
+              const swipeLabel=isCreator?'Eliminar':'Salirse';
+              const showMenu=isCreator||canLeave;
               return`<div class="polla-swipe-row" style="position:relative;${notLast?"border-bottom:1px solid #0f172a":""}">
-                ${isCreator?`<div class="polla-swipe-del" onclick="event.stopPropagation();deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}');" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:#ef4444;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;color:#fff;opacity:0;pointer-events:none;border-radius:${notLast?"0":"0 0 16px 0"}">Eliminar</div>`:""}
+                ${swipeAction?`<div class="polla-swipe-del" onclick="event.stopPropagation();${swipeAction};" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:${swipeBg};display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;color:#fff;opacity:0;pointer-events:none;border-radius:${notLast?"0":"0 0 16px 0"}">${swipeLabel}</div>`:""}
                 <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#1e293b;transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='#263044'" onmouseleave="this.style.background='#1e293b'">
                   <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e40af,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">⚽</div>
                   <div style="flex:1;min-width:0">
@@ -945,7 +961,7 @@ function renderPollaLobby(){
                     <div style="font-size:11px;color:#475569;margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:4px">
-                    ${isCreator?`<button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:#475569;cursor:pointer;font-size:20px;padding:6px 8px;border-radius:6px;letter-spacing:2px;line-height:1;font-weight:900" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">···</button>`:""}
+                    ${showMenu?`<button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:#475569;cursor:pointer;font-size:20px;padding:6px 8px;border-radius:6px;letter-spacing:2px;line-height:1;font-weight:900" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">···</button>`:""}
                     <div style="color:#334155;font-size:18px;font-weight:300">›</div>
                   </div>                </div>
               </div>`;
@@ -1011,16 +1027,24 @@ window.togglePollaMenu=function(id,nombre,btn){
   closePollaMenus(id);
   let m=document.getElementById(`menu-${id}`);
   if(!m){
+    const polla=myPollas[id];
+    const isCreator=polla&&polla.creadorUid===currentUser.uid;
+    const canLeave=!isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
+    if(!isCreator&&!canLeave)return;
     m=document.createElement('div');
     m.id=`menu-${id}`;
-    m.style.cssText='position:fixed;background:#2d3748;border:1px solid #475569;border-radius:10px;min-width:150px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6)';
+    m.style.cssText='position:fixed;background:#2d3748;border:1px solid #475569;border-radius:10px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6)';
     const safeName=nombre.replace(/'/g,"\\'");
-    m.innerHTML=`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="width:100%;background:none;border:none;color:#fca5a5;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:'Inter',sans-serif" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">Eliminar</button>`;
+    const btnStyle='width:100%;background:none;border:none;color:#fca5a5;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:\'Inter\',sans-serif';
+    const items=[];
+    if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">🗑️ Eliminar polla</button>`);
+    if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">🚪 Salirse</button>`);
+    m.innerHTML=items.join('');
     document.body.appendChild(m);
   }
   const rect=btn.getBoundingClientRect();
   m.style.top=(rect.bottom+6)+'px';
-  m.style.left=Math.max(8,rect.right-150)+'px';
+  m.style.left=Math.max(8,rect.right-165)+'px';
   m.style.display=m.style.display==='block'?'none':'block';
 };
 window.closePollaMenus=function(except){
@@ -1029,12 +1053,63 @@ window.closePollaMenus=function(except){
   });
 };
 document.addEventListener('click',()=>closePollaMenus());
+// ─── MODAL CONFIRM ────────────────────────────────────────
+let _confirmCb=null;
+function showConfirmModal(icon,title,body,btnLabel,btnColor,onConfirm){
+  _confirmCb=onConfirm;
+  document.getElementById("modal-confirm-icon").textContent=icon;
+  document.getElementById("modal-confirm-title").textContent=title;
+  document.getElementById("modal-confirm-body").textContent=body;
+  const btn=document.getElementById("modal-confirm-ok");
+  btn.textContent=btnLabel;
+  btn.style.background=btnColor||"#ef4444";
+  document.getElementById("modal-confirm").style.display="flex";
+}
+window.closeConfirmModal=function(){
+  document.getElementById("modal-confirm").style.display="none";
+  _confirmCb=null;
+};
+window.doConfirmModal=function(){
+  document.getElementById("modal-confirm").style.display="none";
+  const cb=_confirmCb;_confirmCb=null;
+  if(cb)cb();
+};
+
 window.deletePolla=async function(pollaId,nombre){
-  if(!confirm(`¿Eliminar "${nombre}"?\n\nEsto borrará todos los pronósticos y no se puede deshacer.`))return;
-  await db.ref(`pollas/${pollaId}`).remove();
-  delete myPollas[pollaId];
-  showToast("Polla eliminada");
-  renderPollaLobby();
+  const polla=myPollas[pollaId];
+  if(!polla||polla.creadorUid!==currentUser.uid){
+    showToast("Solo el creador puede eliminar la polla","#ef4444");return;
+  }
+  showConfirmModal(
+    "🗑️",
+    `Eliminar "${nombre}"`,
+    "Esto borrará los pronósticos de todos los participantes. No se puede deshacer.",
+    "Sí, eliminar","#ef4444",
+    async()=>{
+      await db.ref(`pollas/${pollaId}`).remove();
+      delete myPollas[pollaId];
+      showToast("Polla eliminada");
+      renderPollaLobby();
+    }
+  );
+};
+
+window.leavePolla=async function(pollaId,nombre){
+  if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){
+    showToast("El torneo ya empezó, no puedes salirte","#ef4444");return;
+  }
+  showConfirmModal(
+    "🚪",
+    `Salirse de "${nombre}"`,
+    "Perderás todos tus pronósticos en esta polla. Esta acción no se puede deshacer.",
+    "Sí, salirme","#f97316",
+    async()=>{
+      await db.ref(`pollas/${pollaId}/participantes/${currentUser.uid}`).remove();
+      delete myPollas[pollaId];
+      showToast("Te saliste de la polla");
+      renderPollaLobby();
+    }
+  );
 };
 
 window.enterPolla=function(id){
@@ -2223,8 +2298,12 @@ window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${poll
 window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).remove();showToast("Fase bloqueada ✓");};
 window.deleteUser=async function(uid,name){
   if(!isAdmin)return;
-  if(!confirm(`¿Eliminar a "${name}" y todos sus pronósticos?`))return;
-  await db.ref(`${pollaBase()}/participantes/${uid}`).remove();showToast(`${name} eliminado ✓`);
+  showConfirmModal(
+    "⚠️",`Eliminar a "${name}"`,
+    "Se borrarán todos sus pronósticos en esta polla. Esta acción no se puede deshacer.",
+    "Sí, eliminar","#ef4444",
+    async()=>{await db.ref(`${pollaBase()}/participantes/${uid}`).remove();showToast(`${name} eliminado ✓`);}
+  );
 };
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
