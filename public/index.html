@@ -195,9 +195,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 <!-- MODAL CAMBIAR NOMBRE -->
 <div id="modal-changename" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeChangeName()">
-  <div class="modal-box">
-    <h2>✏️ Cambiar nombre de usuario</h2>
-    <input class="input" id="changeNameInput" type="text" placeholder="Nuevo nombre" maxlength="20" style="margin-bottom:8px"/>
+  <div class="modal-box" style="text-align:center">
+    <h2>✏️ Cambiar nombre</h2>
+    <input class="input" id="changeNameInput" type="text" placeholder="Nuevo nombre" maxlength="20" style="margin-bottom:8px;text-align:center"/>
     <div class="error" id="changeNameError"></div>
     <button class="btn" onclick="doChangeName()" style="margin-bottom:10px">Guardar ✓</button>
     <button class="modal-close" onclick="closeChangeName()" style="background:#334155">Cancelar</button>
@@ -829,41 +829,55 @@ function renderLogin(mode){if(mode==="forgot")renderForgot();else renderLanding(
 function renderPollaLobby(){
   setFabs(false);
   const pollaIds=Object.keys(myPollas);
+  const initials=currentUser.name.slice(0,2).toUpperCase();
+  const avatarBg=avatarColor(currentUser.name);
   document.getElementById("root").innerHTML=`
-    <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;position:relative;z-index:1">
-      <div style="width:100%;max-width:400px">
-        <div style="text-align:center;margin-bottom:32px">
-          <div style="font-size:44px;margin-bottom:8px">⚽</div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#475569;margin-bottom:4px">MUNDIAL 2026</div>
-          <div style="font-size:20px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px">TU POLLA</div>
-          <div style="font-size:12px;color:#475569;margin-top:4px">Hola, <strong style="color:#94a3b8">${currentUser.name}</strong>
-            <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:4px">✏️</button>
-            <button onclick="logout()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;margin-left:4px">salir</button>
-          </div>
-        </div>
+    <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
+
+      <!-- TOP BAR -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
+        <div style="width:40px"></div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#334155;text-transform:uppercase">MUNDIAL 2026</div>
+        <button onclick="logout()" style="background:#1e293b;border:none;border-radius:8px;color:#64748b;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Inter',sans-serif">Salir</button>
+      </div>
+
+      <!-- HERO -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 24px">
+        <div style="width:64px;height:64px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;margin-bottom:12px;box-shadow:0 4px 16px ${avatarBg}55">${initials}</div>
+        <div style="font-size:22px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
+        <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
+        <div style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-top:8px;background:linear-gradient(135deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
+      </div>
+
+      <!-- POLLAS LIST -->
+      <div style="flex:1;padding:0 20px 32px;max-width:440px;width:100%;margin:0 auto;box-sizing:border-box">
         ${pollaIds.length>0?`
-          <div style="margin-bottom:20px">
-            <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#475569;margin-bottom:10px;text-transform:uppercase">Mis Pollas</div>
-            ${pollaIds.map(id=>{
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#334155;margin-bottom:10px;text-transform:uppercase;padding:0 4px">Mis Pollas</div>
+          <div style="background:#1e293b;border-radius:16px;overflow:hidden;margin-bottom:20px;border:1px solid #1e293b">
+            ${pollaIds.map((id,i)=>{
               const p=myPollas[id];
               const isCreator=p.creadorUid===currentUser.uid;
-              const numParticipantes=Object.keys(p.participantes||{}).length;
-              return`<div style="background:#1e293b;border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:1px solid #334155" onclick="enterPolla('${id}')">
-                <div>
-                  <div style="font-size:15px;font-weight:700;color:#f1f5f9">${p.nombre||"Polla sin nombre"}</div>
-                  <div style="font-size:11px;color:#64748b;margin-top:2px">${numParticipantes} participante${numParticipantes!==1?"s":""} ${isCreator?"· <span style='color:#7c3aed'>creador</span>":""}</div>
+              const n=Object.keys(p.participantes||{}).length;
+              const notLast=i<pollaIds.length-1;
+              return`<div style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;${notLast?"border-bottom:1px solid #0f172a":""};transition:background .15s" onclick="enterPolla('${id}')" onmouseenter="this.style.background='#263044'" onmouseleave="this.style.background=''">
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e40af,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">⚽</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla sin nombre"}</div>
+                  <div style="font-size:11px;color:#475569;margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
                 </div>
-                <div style="color:#3b82f6;font-size:20px">›</div>
+                <div style="color:#334155;font-size:18px;font-weight:300">›</div>
               </div>`;
             }).join("")}
           </div>
-        `:`<div style="text-align:center;padding:20px 0 28px;color:#475569;font-size:13px">Aún no estás en ninguna polla</div>`}
-        <div style="display:flex;flex-direction:column;gap:10px;width:100%;align-items:center">
-          <button class="btn" onclick="renderCrearPolla()" style="width:100%;max-width:400px">✨ Crear una polla</button>
-          <button class="btn-secondary" onclick="renderUnirse()" style="width:100%;max-width:400px">🔗 Unirme a una polla</button>
+        `:`<div style="text-align:center;padding:32px 0 28px;color:#334155;font-size:13px">Aún no estás en ninguna polla</div>`}
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(59,130,246,0.3)">✨ Crear una polla</button>
+          <button onclick="renderUnirse()" style="width:100%;background:#1e293b;color:#94a3b8;border:1px solid #1e293b;border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🔗 Unirme a una polla</button>
         </div>
       </div>
     </div>`;
+}
 }
 
 window.enterPolla=function(id){
@@ -886,7 +900,7 @@ function ruleRow(id,label,val){
   return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0f172a">
     <span style="font-size:13px;color:#cbd5e1">${label}</span>
     <div style="display:flex;align-items:center;gap:6px">
-      <input type="number" id="rule_${id}" value="${val}" min="0" max="20" style="width:48px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+      <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
       <span style="font-size:11px;color:#475569;width:20px">pts</span>
     </div>
   </div>`;
@@ -949,7 +963,7 @@ function renderCrearPolla(){
                 <span style="font-size:12px;color:#94a3b8">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#94a3b8">Grupo A:</span> 🥇 México ✓ · 🥈 Sudáfrica ✓ · 🥉 Rep. Checa · 4° Corea<br>→ 2 aciertos = <b style="color:#22c55e">2 × pts</b>`)}
+            ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × pts por acierto</b>`)}
             ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
           </div>
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
@@ -1000,7 +1014,7 @@ window.doCrearPolla=async function(){
 };
 
 async function _doCreatePolla(nombre){
-  const getRuleVal=id=>{const v=parseInt(document.getElementById(`rule_${id}`)?.value);return isNaN(v)?DEFAULT_RULES[id]:v;};
+  const getRuleVal=id=>{const v=parseInt(document.getElementById(`rule_${id}`)?.value);return isNaN(v)||v<1?Math.max(1,DEFAULT_RULES[id]||1):v;};
   const rules={
     ptsExactoGrupos:getRuleVal("ptsExactoGrupos"),ptsGanadorDifGrupos:getRuleVal("ptsGanadorDifGrupos"),
     ptsSoloGanadorGrupos:getRuleVal("ptsSoloGanadorGrupos"),ptsExactoElim:getRuleVal("ptsExactoElim"),
@@ -1104,11 +1118,7 @@ window.doChangeName=async function(){
   const newName=(document.getElementById("changeNameInput").value||"").trim();
   const errEl=document.getElementById("changeNameError");
   if(!newName||newName.length<2){errEl.textContent="Mínimo 2 caracteres.";return;}
-  // Check not taken in global users
-  const snap=await db.ref("users").orderByChild("name").equalTo(newName).get();
-  if(snap.exists()&&!Object.keys(snap.val()).includes(currentUser.uid)){errEl.textContent="Ese nombre ya está en uso.";return;}
   await db.ref(`users/${currentUser.uid}/name`).set(newName);
-  // Also update in current polla if inside one
   if(currentPollaId)await db.ref(`pollas/${currentPollaId}/participantes/${currentUser.uid}/name`).set(newName);
   currentUser.name=newName;
   if(allUsers[currentUser.uid])allUsers[currentUser.uid].name=newName;
@@ -1140,9 +1150,8 @@ function render(){
         <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:3px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase;text-align:center">TU POLLA · MUNDIAL 2026</div>
         <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
         <p class="header-sub">USA · México · Canadá 2026</p>
-        <div style="font-size:12px;color:#64748b;margin-bottom:6px;position:relative;font-family:'Inter',sans-serif;text-align:center">
+        <div style="position:relative;font-size:12px;color:#64748b;margin-bottom:6px;font-family:'Inter',sans-serif;text-align:center">
           Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
-          <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:11px;margin-left:6px;font-family:'Inter',sans-serif">✏️</button>
         </div>
         <div style="display:flex;justify-content:center;margin-bottom:4px">
         ${countdown?`<div class="countdown-bar" style="position:relative">⏱ <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e">⚽ ¡El Mundial está en curso!</div>`}
