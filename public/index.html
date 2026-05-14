@@ -1644,7 +1644,7 @@ function renderEspeciales(){
         </div>
       </div>`;
     }).join("")}
-    ${isAdmin?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
+    ${currentUser.name.toUpperCase()===ADMIN_NAME.toUpperCase()?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
       <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">⚙️ Admin — Resultados oficiales</div>
       ${ESPECIALES_FIELDS.map(f=>`<div style="margin-bottom:10px">
         <div style="font-size:12px;color:#94a3b8;margin-bottom:4px">${f.label}</div>
@@ -1908,7 +1908,7 @@ window.deleteUser=async function(uid,name){
   if(!confirm(`¿Eliminar a "${name}" y todos sus pronósticos?`))return;
   await db.ref(`${pollaBase()}/participantes/${uid}`).remove();showToast(`${name} eliminado ✓`);
 };
-window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";window.scrollTo({top:0,behavior:"instant"});render();};
+window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
 
@@ -1934,7 +1934,6 @@ document.addEventListener("keydown",function(e){
   }else if(_kbFocus==="tab"){
     const i=tabIds.indexOf(currentTab);
     const next=tabIds[(i+dir+tabIds.length)%tabIds.length];
-    window.scrollTo({top:0,behavior:"instant"});
     setTab(next);
   }
 });
@@ -1988,6 +1987,7 @@ window.openRules=function(){
         <li><strong style="color:#facc15">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
         <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
       </ul>
+      <p style="margin-top:8px;font-size:12px;color:#64748b">Si pronosticas empate: 3 pts si aciertas el marcador exacto, 1 pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
     </div>
     ${incClasif?`<div class="rules-section">
       <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
