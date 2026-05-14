@@ -974,8 +974,16 @@ function renderCrearPolla(){
           </div>
           <div style="font-size:12px;color:#475569;text-align:center;margin-bottom:16px;line-height:1.6">Las reglas estándar ya están listas. Solo cambia lo que quieras.</div>
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">🟢 Partidos de Grupos</div>
-            <div style="font-size:12px;color:#475569;margin-bottom:10px">Pronosticas el marcador de cada partido.</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🟢 Partidos de Grupos</div>
+                <div style="font-size:12px;color:#475569;margin-top:2px">Pronosticas el marcador de cada partido.</div>
+              </div>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
+                <input type="checkbox" id="incluirPartidosGrupos" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+              </label>
+            </div>
             ${exBox(`<span style="color:#94a3b8">Pronosticas</span> Argentina <b style="color:#f1f5f9">2–1</b> Brasil<br>✅ <b style="color:#22c55e">Exacto</b> si el real es 2–1<br>🟡 <b style="color:#facc15">Ganador+dif.</b> si el real es 3–2 (Argentina gana por 1)<br>🟡 <b style="color:#facc15">Solo ganador</b> si el real es 1–0<br>❌ Sin puntos si Brasil gana o hay empate`)}
             ${ruleRow("ptsExactoGrupos","✅ Marcador exacto",r.ptsExactoGrupos)}
             ${ruleRow("ptsGanadorDifGrupos","🟡 Ganador + misma diferencia",r.ptsGanadorDifGrupos)}
@@ -996,8 +1004,16 @@ function renderCrearPolla(){
             ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
           </div>
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">🔥 Fase Eliminatoria</div>
-            <div style="font-size:12px;color:#475569;margin-bottom:10px">Como grupos, pero también dices quién clasifica si hay penales.</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
+                <div style="font-size:12px;color:#475569;margin-top:2px">Como grupos, pero también dices quién clasifica si hay penales.</div>
+              </div>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
+                <input type="checkbox" id="incluirEliminatoria" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+              </label>
+            </div>
             ${exBox(`<span style="color:#94a3b8">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España`)}
             ${ruleRow("ptsExactoElim","✅ Marcador exacto + quién clasifica",r.ptsExactoElim)}
             ${ruleRow("ptsExactoSinClasif","🟡 Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
@@ -1057,7 +1073,9 @@ async function _doCreatePolla(nombre){
     ptsSoloGanadorGrupos:getRuleVal("ptsSoloGanadorGrupos"),ptsExactoElim:getRuleVal("ptsExactoElim"),
     ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),ptsSoloClasif:getRuleVal("ptsSoloClasif"),
     ptsPosGrupo:getRuleVal("ptsPosGrupo"),
+    incluirPartidosGrupos:document.getElementById("incluirPartidosGrupos")?.checked!==false,
     incluirClasificacion:document.getElementById("incluirClasificacion")?.checked!==false,
+    incluirEliminatoria:document.getElementById("incluirEliminatoria")?.checked!==false,
     espCampeon:getRuleVal("espCampeon"),espBotaOro:getRuleVal("espBotaOro"),
     espGuanteOro:getRuleVal("espGuanteOro"),espMejorJugador:getRuleVal("espMejorJugador"),
     incluirEspeciales:document.getElementById("incluirEspeciales")?.checked!==false,
@@ -1989,11 +2007,12 @@ window.openRules=function(){
       </ul>
       <p style="margin-top:8px;font-size:12px;color:#64748b">Si pronosticas empate: 3 pts si aciertas el marcador exacto, 1 pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
     </div>
-    ${incClasif?`<div class="rules-section">
+    <div class="rules-section">
       <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
       <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
       <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
-    </div>`:""}
+      ${!incClasif?`<p style="margin-top:6px;font-size:12px;color:#64748b;font-style:italic">No incluido en esta polla.</p>`:""}
+    </div>
     <div class="rules-section">
       <h3>🔥 FASE ELIMINATORIA</h3>
       <p>El resultado apostado es <strong>siempre el de los 90 minutos</strong>. Prórroga/penales solo cuentan para el clasificado.</p>
@@ -2005,16 +2024,16 @@ window.openRules=function(){
         <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
       </ul>
     </div>
-    ${incEsp?`<div class="rules-section">
+    <div class="rules-section">
       <h3>⭐ ESPECIALES</h3>
-      <p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
+      ${incEsp?`<p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
       <ul>
         <li><strong style="color:#22c55e">${r.espCampeon??10} pts</strong> — Campeón 🏆</li>
         <li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro ⚽</li>
         <li><strong style="color:#facc15">${r.espGuanteOro??5} pts</strong> — Guante de Oro 🧤</li>
         <li><strong style="color:#facc15">${r.espMejorJugador??5} pts</strong> — Mejor Jugador ⭐</li>
-      </ul>
-    </div>`:""}
+      </ul>`:`<p style="font-size:12px;color:#64748b;font-style:italic">No incluido en esta polla.</p>`}
+    </div>
     <div class="rules-section">
       <h3>⚠️ REGLAS GENERALES</h3>
       <ul>
