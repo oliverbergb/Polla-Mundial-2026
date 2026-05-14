@@ -944,7 +944,12 @@ function renderPollaLobby(){
                     <div style="font-size:11px;color:#475569;margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:4px">
-                    ${isCreator?`<button class="polla-dots-btn" onclick="event.stopPropagation();deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}');" style="background:none;border:none;color:#475569;cursor:pointer;font-size:18px;padding:6px;border-radius:6px;letter-spacing:1px;line-height:1" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#475569'">···</button>`:""}
+                    ${isCreator?`<div style="position:relative">
+                      <button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:18px;padding:6px;border-radius:6px;letter-spacing:1px;line-height:1" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">···</button>
+                      <div id="menu-${id}" style="display:none;position:absolute;right:0;top:100%;background:#1e293b;border:1px solid #334155;border-radius:10px;min-width:130px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden">
+                        <button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}');" style="width:100%;background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;font-weight:600;padding:11px 16px;text-align:left;font-family:'Inter',sans-serif" onmouseenter="this.style.background='#0f172a'" onmouseleave="this.style.background='none'">🗑️ Eliminar polla</button>
+                      </div>
+                    </div>`:""}
                     <div style="color:#334155;font-size:18px;font-weight:300">›</div>
                   </div>
                 </div>
@@ -962,39 +967,62 @@ function renderPollaLobby(){
   // Swipe to delete on mobile
   setTimeout(()=>{
     document.querySelectorAll('.polla-swipe-row').forEach(row=>{
-      let startX=0,startY=0,dragging=false;
+      let startX=0,startY=0,startOffset=0,moved=false,isHoriz=null;
       const inner=row.querySelector('.polla-swipe-inner');
       const del=row.querySelector('.polla-swipe-del');
       if(!inner||!del)return;
-      row.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragging=false;},{passive:true});
+      const getOffset=()=>new DOMMatrix(getComputedStyle(inner).transform).m41;
+      const close=()=>{inner.style.transition='transform .2s';inner.style.transform='translateX(0)';del.style.opacity='0';del.style.pointerEvents='none';};
+      const open=()=>{inner.style.transition='transform .2s';inner.style.transform='translateX(-80px)';del.style.opacity='1';del.style.pointerEvents='auto';};
+      row.addEventListener('touchstart',e=>{
+        startX=e.touches[0].clientX;startY=e.touches[0].clientY;
+        startOffset=getOffset();moved=false;isHoriz=null;
+      },{passive:true});
       row.addEventListener('touchmove',e=>{
         const dx=e.touches[0].clientX-startX;
-        const dy=Math.abs(e.touches[0].clientY-startY);
-        if(!dragging&&dy>10)return;
-        if(dx>0)return;
-        dragging=true;
-        const x=Math.max(-80,dx);
-        inner.style.transform=`translateX(${x}px)`;
-        inner.style.transition='none';
-        del.style.opacity='1';
-        del.style.pointerEvents='auto';
-      },{passive:true});
-      row.addEventListener('touchend',()=>{
-        if(!dragging)return;
-        const cur=new DOMMatrix(getComputedStyle(inner).transform).m41;
-        inner.style.transition='transform .2s';
-        if(cur<-40){
-          inner.style.transform='translateX(-80px)';
-        }else{
-          inner.style.transform='translateX(0)';
-          del.style.opacity='0';
-          del.style.pointerEvents='none';
+        const dy=e.touches[0].clientY-startY;
+        if(isHoriz===null){
+          if(Math.abs(dx)<5&&Math.abs(dy)<5)return;
+          isHoriz=Math.abs(dx)>Math.abs(dy);
         }
+        if(!isHoriz)return;
+        e.preventDefault();
+        moved=true;
+        const offset=Math.max(-80,Math.min(0,startOffset+dx));
+        inner.style.transition='none';
+        inner.style.transform=`translateX(${offset}px)`;
+        del.style.opacity=offset<0?'1':'0';
+        del.style.pointerEvents=offset<0?'auto':'none';
+      },{passive:false});
+      row.addEventListener('touchend',()=>{
+        if(!moved)return;
+        getOffset()<-40?open():close();
       });
     });
+    document.addEventListener('touchstart',e=>{
+      if(!e.target.closest('.polla-swipe-row')){
+        document.querySelectorAll('.polla-swipe-row').forEach(row=>{
+          const inner=row.querySelector('.polla-swipe-inner');
+          const del=row.querySelector('.polla-swipe-del');
+          if(inner){inner.style.transition='transform .2s';inner.style.transform='translateX(0)';}
+          if(del){del.style.opacity='0';del.style.pointerEvents='none';}
+        });
+      }
+    },{passive:true});
   },50);
 }
 
+window.togglePollaMenu=function(id){
+  closePollaMenus(id);
+  const m=document.getElementById(`menu-${id}`);
+  if(m)m.style.display=m.style.display==='none'?'block':'none';
+};
+window.closePollaMenus=function(except){
+  document.querySelectorAll('[id^="menu-"]').forEach(m=>{
+    if(m.id!==`menu-${except}`)m.style.display='none';
+  });
+};
+document.addEventListener('click',()=>closePollaMenus());
 window.deletePolla=async function(pollaId,nombre){
   if(!confirm(`¿Eliminar "${nombre}"?\n\nEsto borrará todos los pronósticos y no se puede deshacer.`))return;
   await db.ref(`pollas/${pollaId}`).remove();
