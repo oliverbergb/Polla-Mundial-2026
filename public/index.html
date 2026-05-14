@@ -1444,7 +1444,7 @@ window.doChangeName=async function(){
   if(!currentPollaId)renderPollaLobby();
 };
 
-function setFabs(v){const l=document.getElementById('fab-left'),r=document.getElementById('fab-right');if(l)l.style.display=v?'flex':'none';if(r)r.style.display=v?'flex':'none';}
+function setFabs(v){const l=document.getElementById('fab-left'),r=document.getElementById('fab-right');const show=v&&currentTab!=='chat';if(l)l.style.display=show?'flex':'none';if(r)r.style.display=show?'flex':'none';}
 
 // ─── RENDER ───────────────────────────────────────────────
 function render(){
@@ -2004,6 +2004,21 @@ function initChat(){
     }).join("");
     if(atBottom||msgs[msgs.length-1]?.[1]?.uid===currentUser.uid)el.scrollTop=el.scrollHeight;
   });
+
+  // Ajustar altura cuando el teclado abre en iOS
+  if(window.visualViewport){
+    const ajustarAltura=()=>{
+      const wrap=document.querySelector('.chat-wrap');
+      if(!wrap)return;
+      const headerH=document.querySelector('.header')?.offsetHeight||0;
+      const disponible=window.visualViewport.height-headerH-32;
+      wrap.style.height=Math.max(disponible,200)+'px';
+      const msgs=document.getElementById('chat-messages');
+      if(msgs)msgs.scrollTop=msgs.scrollHeight;
+    };
+    window.visualViewport.addEventListener('resize',ajustarAltura);
+    ajustarAltura();
+  }
 }
 
 function escHtml(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
