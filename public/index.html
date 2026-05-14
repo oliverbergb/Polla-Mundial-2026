@@ -929,30 +929,24 @@ function renderPollaLobby(){
       <div style="flex:1;padding:0 20px 32px;max-width:680px;width:100%;margin:0 auto;box-sizing:border-box">
         ${pollaIds.length>0?`
           <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#334155;margin-bottom:10px;text-transform:uppercase;padding:0 4px">Mis Pollas</div>
-          <div style="background:#1e293b;border-radius:16px;overflow:hidden;margin-bottom:20px;border:1px solid #1e293b">
+          <div style="background:#1e293b;border-radius:16px;margin-bottom:20px;border:1px solid #1e293b">
             ${pollaIds.map((id,i)=>{
               const p=myPollas[id];
               const isCreator=p.creadorUid===currentUser.uid;
               const n=Object.keys(p.participantes||{}).length;
               const notLast=i<pollaIds.length-1;
-              return`<div class="polla-swipe-row" style="position:relative;overflow:hidden;${notLast?"border-bottom:1px solid #0f172a":""}">
-                ${isCreator?`<div class="polla-swipe-del" onclick="event.stopPropagation();deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}');" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:#ef4444;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;color:#fff;opacity:0;pointer-events:none">Eliminar</div>`:""}
-                <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#1e293b;transition:background .15s,transform .2s" onclick="enterPolla('${id}')" onmouseenter="this.style.background='#263044'" onmouseleave="this.style.background='#1e293b'">
+              return`<div class="polla-swipe-row" style="position:relative;${notLast?"border-bottom:1px solid #0f172a":""}">
+                ${isCreator?`<div class="polla-swipe-del" onclick="event.stopPropagation();deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}');" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:#ef4444;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;color:#fff;opacity:0;pointer-events:none;border-radius:${notLast?"0":"0 0 16px 0"}">Eliminar</div>`:""}
+                <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#1e293b;transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='#263044'" onmouseleave="this.style.background='#1e293b'">
                   <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e40af,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">⚽</div>
                   <div style="flex:1;min-width:0">
                     <div style="font-size:15px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla sin nombre"}</div>
                     <div style="font-size:11px;color:#475569;margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:4px">
-                    ${isCreator?`<div style="position:relative">
-                      <button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}')" style="background:none;border:none;color:#475569;cursor:pointer;font-size:18px;padding:6px;border-radius:6px;letter-spacing:1px;line-height:1" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">···</button>
-                      <div id="menu-${id}" style="display:none;position:absolute;right:0;top:100%;background:#1e293b;border:1px solid #334155;border-radius:10px;min-width:130px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden">
-                        <button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}');" style="width:100%;background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;font-weight:600;padding:11px 16px;text-align:left;font-family:'Inter',sans-serif" onmouseenter="this.style.background='#0f172a'" onmouseleave="this.style.background='none'">🗑️ Eliminar polla</button>
-                      </div>
-                    </div>`:""}
+                    ${isCreator?`<button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:#475569;cursor:pointer;font-size:20px;padding:6px 8px;border-radius:6px;letter-spacing:2px;line-height:1;font-weight:900" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">···</button>`:""}
                     <div style="color:#334155;font-size:18px;font-weight:300">›</div>
-                  </div>
-                </div>
+                  </div>                </div>
               </div>`;
             }).join("")}
           </div>
@@ -1012,10 +1006,21 @@ function renderPollaLobby(){
   },50);
 }
 
-window.togglePollaMenu=function(id){
+window.togglePollaMenu=function(id,nombre,btn){
   closePollaMenus(id);
-  const m=document.getElementById(`menu-${id}`);
-  if(m)m.style.display=m.style.display==='none'?'block':'none';
+  let m=document.getElementById(`menu-${id}`);
+  if(!m){
+    m=document.createElement('div');
+    m.id=`menu-${id}`;
+    m.style.cssText='position:fixed;background:#2d3748;border:1px solid #475569;border-radius:10px;min-width:150px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6)';
+    const safeName=nombre.replace(/'/g,"\\'");
+    m.innerHTML=`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="width:100%;background:none;border:none;color:#fca5a5;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:'Inter',sans-serif" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">Eliminar</button>`;
+    document.body.appendChild(m);
+  }
+  const rect=btn.getBoundingClientRect();
+  m.style.top=(rect.bottom+6)+'px';
+  m.style.left=Math.max(8,rect.right-150)+'px';
+  m.style.display=m.style.display==='block'?'none':'block';
 };
 window.closePollaMenus=function(except){
   document.querySelectorAll('[id^="menu-"]').forEach(m=>{
