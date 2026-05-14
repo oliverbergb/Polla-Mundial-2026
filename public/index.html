@@ -184,6 +184,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 @media(hover:none)and(pointer:coarse){.polla-dots-btn{display:none!important}}
 @media(max-width:768px){.polla-dots-btn{display:none!important}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 <div id="root"><div class="spinner"><span class="spin">⚽</span> Cargando...</div></div>
@@ -1692,6 +1693,44 @@ function matchScoreBlock(m,pred,res){
     <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="savePred(${m.id},'a',this.value)"/>
   </div>`;
 }
+function spectatorBlock(m, res){
+  const others = Object.entries(allUsers).filter(([uid])=>uid!==currentUser.uid);
+  if(!others.length) return '';
+  const hasRes = res?.h!==undefined && res?.h!=='';
+
+  function badge(pts){
+    if(pts===null||pts===undefined) return '';
+    if(pts===3) return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#166534;color:#4ade80">exacto</span>`;
+    if(pts>=1)  return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#1e3a5f;color:#60a5fa">ganador</span>`;
+    return        `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#450a0a;color:#f87171">sin puntos</span>`;
+  }
+  function scoreColor(pts){
+    if(pts===3) return '#4ade80';
+    if(pts>=1)  return '#60a5fa';
+    if(pts===0) return '#f87171';
+    return '#64748b';
+  }
+
+  const rows = others.map(([uid,user])=>{
+    const pred = (user.predictions||{})[m.id];
+    if(!pred||pred.h===undefined||pred.h==='') return '';
+    const pts = hasRes ? calcMatchPoints(pred, res) : null;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #0f172a">
+      <span style="font-size:12px;font-weight:700;color:#f1f5f9">${user.name||'?'}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)}">${pred.h} — ${pred.a}</span>
+        ${badge(pts)}
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  if(!rows) return '';
+  return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #0f172a">
+    <div style="font-size:10px;font-weight:700;color:#475569;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos de todos</div>
+    ${rows}
+  </div>`;
+}
+
 function renderMisPronos(){
   const matches=MATCHES.filter(m=>m.group===currentGroup);
   const totalMatchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPoints(myPredictions[m.id],allResults[m.id])||0),0);
@@ -1718,6 +1757,7 @@ function renderMisPronos(){
           <span class="team">${m.away} ${flag(m.away)}</span>
         </div>
         ${h2hHTML(m.id,m.home,m.away)}
+        ${locked?spectatorBlock(m,res):''}
       </div>`;
     }).join("")}`;
 }
@@ -1994,26 +2034,73 @@ window.openHistorial=function(){
 window.closeHistorial=function(){document.getElementById("modal-historial").style.display="none";};
 function renderHistorial(){
   const snap=allResults["rankingHistory"]||{};
-  const myHistory=Object.entries(snap).sort((a,b)=>a[0].localeCompare(b[0]));
-  const totalUsers=Object.keys(allUsers).length;
+  const history=Object.entries(snap).sort((a,b)=>a[0].localeCompare(b[0]));
   const el=document.getElementById("historial-content");
-  if(!myHistory.length){
+  if(!history.length){
     el.innerHTML=`<p style="color:#64748b;text-align:center;padding:20px;font-size:13px">El historial estará disponible una vez que empiecen los partidos.</p>`;
     return;
   }
-  const mySnaps=myHistory.map(([date,data])=>({date,pos:data[currentUser.uid]||null})).filter(s=>s.pos);
-  if(!mySnaps.length){el.innerHTML=`<p style="color:#64748b;text-align:center;padding:20px;font-size:13px">No hay datos de historial aún.</p>`;return;}
-  const maxPos=totalUsers||mySnaps.reduce((m,s)=>Math.max(m,s.pos),1);
-  el.innerHTML=`<div class="hist-chart">${mySnaps.map(s=>{
-    const pct=Math.round(((maxPos-s.pos+1)/maxPos)*100);
-    const color=s.pos===1?"#eab308":s.pos<=3?"#94a3b8":"#1e40af";
-    return`<div class="hist-line">
-      <div class="hist-label">${s.date}</div>
-      <div class="hist-bar-wrap"><div class="hist-bar" style="width:${pct}%;background:${color}"><span class="hist-bar-val">${s.pos}°</span></div></div>
-    </div>`;
-  }).join("")}
-  <div style="margin-top:12px;font-size:12px;color:#64748b;text-align:center">Tu mejor posición: <strong style="color:#eab308">${Math.min(...mySnaps.map(s=>s.pos))}°</strong></div>
-  </div>`;
+
+  const labels=history.map(([date])=>date);
+  const uids=Object.keys(allUsers);
+  const COLORS=['#E8002D','#3b82f6','#F5C518','#a78bfa','#22d3ee','#f97316','#22c55e','#ec4899','#64748b','#ef4444'];
+
+  const datasets=uids.map((uid,i)=>{
+    const user=allUsers[uid];
+    const data=history.map(([,d])=>d[uid]||null);
+    return{
+      label:user?.name||'?',
+      data,
+      borderColor:COLORS[i%COLORS.length],
+      backgroundColor:COLORS[i%COLORS.length]+'33',
+      borderWidth:uid===currentUser.uid?3:2,
+      pointRadius:uid===currentUser.uid?5:3,
+      pointHoverRadius:6,
+      tension:0.35,
+      fill:false,
+      spanGaps:true,
+    };
+  });
+
+  const totalUsers=uids.length;
+  el.innerHTML=`
+    <div id="hist-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding:0 4px"></div>
+    <div style="position:relative;width:100%;height:260px"><canvas id="hist-chart" role="img" aria-label="Historial de posiciones en el ranking"></canvas></div>`;
+
+  const legend=document.getElementById("hist-legend");
+  datasets.forEach(ds=>{
+    const el2=document.createElement("span");
+    el2.style.cssText="display:flex;align-items:center;gap:5px;font-size:12px;color:#94a3b8;cursor:pointer";
+    el2.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${ds.borderColor};flex-shrink:0"></span>${ds.label}`;
+    legend.appendChild(el2);
+  });
+
+  if(window._histChart) window._histChart.destroy();
+  window._histChart=new Chart(document.getElementById("hist-chart"),{
+    type:"line",
+    data:{labels,datasets},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}°`}}
+      },
+      scales:{
+        y:{
+          reverse:true,
+          min:1,
+          max:Math.max(totalUsers,2),
+          ticks:{stepSize:1,callback:v=>v+"°",color:"#64748b",font:{size:11}},
+          grid:{color:"rgba(100,116,139,0.15)"}
+        },
+        x:{
+          ticks:{color:"#64748b",font:{size:10},autoSkip:true,maxRotation:45},
+          grid:{color:"rgba(100,116,139,0.1)"}
+        }
+      }
+    }
+  });
 }
 
 // ─── CARTA CAMPEÓN ────────────────────────────────────────
