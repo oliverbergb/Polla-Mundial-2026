@@ -708,6 +708,7 @@ function renderPickName(onDone, onBack){
   setFabs(false);
   _pickNameCallback=onDone;
   _pickNameBack=onBack||null;
+  const savedName=pendingName||"";
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
       <div style="font-size:52px;margin-bottom:16px">🎮</div>
@@ -715,8 +716,10 @@ function renderPickName(onDone, onBack){
       <div style="font-size:13px;color:#475569;margin-bottom:28px">Puedes cambiarlo después cuando quieras</div>
       <input id="pickNameInput" type="text" placeholder="Tu nombre en la polla"
         maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false"
+        value="${savedName}"
         style="width:100%;max-width:340px;background:#1e293b;border:2px solid #3b82f6;border-radius:14px;color:#f1f5f9;padding:16px 18px;font-size:22px;font-weight:700;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
         onkeydown="if(event.key==='Enter')doPickName()"
+        oninput="pendingName=this.value.trim()"
       />
       <div id="pickNameError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:12px"></div>
       <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif">
@@ -724,7 +727,7 @@ function renderPickName(onDone, onBack){
       </button>
       <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">← Volver</button>
     </div>`;
-  setTimeout(()=>document.getElementById("pickNameInput")?.focus(),100);
+  setTimeout(()=>{const el=document.getElementById("pickNameInput");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},100);
 }
 
 window.doPickName=async function(){
@@ -979,8 +982,31 @@ function renderCrearPolla(){
             onkeydown="if(event.key==='Enter')doCrearPolla()"
             oninput="sessionStorage.setItem('pendingPollaName',this.value)"/>
           <div class="error" id="crearError" style="text-align:center;margin-bottom:12px;width:100%"></div>
-          <button class="btn" onclick="doCrearPolla()" style="margin-bottom:24px;width:100%">Crear polla 🚀</button>
-          <button onclick="toggleRules()" style="background:#1e293b;border:1px solid #334155;border-radius:10px;color:#94a3b8;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;padding:10px 20px">⚙️ Ajustar puntos y reglas</button>
+          <button class="btn" onclick="doCrearPolla()" style="margin-bottom:20px;width:100%">Crear polla 🚀</button>
+          <div onclick="toggleRules()" style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:14px;padding:14px 16px;cursor:pointer;text-align:left;transition:border-color .2s" onmouseenter="this.style.borderColor='#3b82f6'" onmouseleave="this.style.borderColor='#334155'">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase">⚙️ Reglas de puntuación</div>
+              <div style="font-size:11px;color:#3b82f6;font-weight:600">Personalizar →</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="background:#0f172a;border-radius:8px;padding:8px 10px">
+                <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">🏟️ Clasificación</div>
+                <div style="font-size:13px;font-weight:700;color:#f1f5f9">${DEFAULT_RULES.ptsPosGrupo} pts <span style="font-size:10px;color:#64748b">por posición</span></div>
+              </div>
+              <div style="background:#0f172a;border-radius:8px;padding:8px 10px">
+                <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">🟢 Partidos</div>
+                <div style="font-size:13px;font-weight:700;color:#f1f5f9">${DEFAULT_RULES.ptsExactoGrupos} / ${DEFAULT_RULES.ptsGanadorDifGrupos} / ${DEFAULT_RULES.ptsSoloGanadorGrupos} pts</div>
+              </div>
+              <div style="background:#0f172a;border-radius:8px;padding:8px 10px">
+                <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">🔥 Eliminatoria</div>
+                <div style="font-size:13px;font-weight:700;color:#f1f5f9">${DEFAULT_RULES.ptsExactoElim} / ${DEFAULT_RULES.ptsSoloClasif} pts</div>
+              </div>
+              <div style="background:#0f172a;border-radius:8px;padding:8px 10px">
+                <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">⭐ Especiales</div>
+                <div style="font-size:13px;font-weight:700;color:#f1f5f9">${DEFAULT_RULES.espCampeon} pts <span style="font-size:10px;color:#64748b">campeón</span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
