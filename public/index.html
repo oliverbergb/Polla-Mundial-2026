@@ -87,7 +87,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 /* ── DRAG & DROP ── */
 .sortable-list{list-style:none}
-.sortable-item{display:flex;align-items:center;gap:10px;background:#0f172a;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;border:1px solid #1e293b;transition:border-color .2s;user-select:none}
+.sortable-item{display:flex;align-items:center;gap:10px;background:#0f172a;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;border:1px solid #1e293b;transition:border-color .2s;user-select:none;touch-action:none}
 .sortable-item.dragging{opacity:.4;cursor:grabbing}
 .sortable-item.drag-over{border-color:#3b82f6}
 .pos-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
@@ -793,10 +793,27 @@ window.doEmailAuth=async function(){
   if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
   btn.disabled=true;btn.textContent="Entrando...";
   try{
+    // First try sign in
     try{await auth.signInWithEmailAndPassword(email,pass);}
     catch(le){
-      if(le.code==="auth/user-not-found"||le.code==="auth/invalid-credential"){
-        await auth.createUserWithEmailAndPassword(email,pass);
+      // If account doesn't exist or credentials invalid, try creating account
+      const shouldTryCreate=[
+        "auth/user-not-found",
+        "auth/invalid-credential",
+        "auth/invalid-login-credentials"
+      ].includes(le.code);
+      if(shouldTryCreate){
+        try{
+          await auth.createUserWithEmailAndPassword(email,pass);
+        }catch(ce){
+          // If create fails with email-already-in-use, the password was just wrong
+          if(ce.code==="auth/email-already-in-use"){
+            errEl.textContent="Contraseña incorrecta.";
+            btn.disabled=false;btn.textContent="Entrar →";
+            return;
+          }
+          throw ce;
+        }
       }else{throw le;}
     }
   }catch(e){
@@ -946,22 +963,24 @@ function exBox(html){return`<div style="background:#0a0f1e;border-radius:8px;pad
 function renderCrearPolla(){
   const r=DEFAULT_RULES;
   setFabs(false);
+  const savedName=sessionStorage.getItem("pendingPollaName")||"";
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
       <div style="background:#0a0f1e;border-bottom:1px solid #1e293b;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
-        <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
+        <button onclick="${currentUser?"renderPollaLobby()":"renderLanding()"}" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
         <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#f1f5f9">✨ Crear polla</div>
         <div style="width:32px"></div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">
         <div style="width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center">
           <input class="input" id="pollaName" type="text" placeholder="Nombre de tu polla"
-            maxlength="40" autocorrect="off"
+            maxlength="40" autocorrect="off" value="${savedName}"
             style="width:100%;font-size:20px;font-weight:700;padding:16px;margin-bottom:8px;text-align:center"
-            onkeydown="if(event.key==='Enter')doCrearPolla()"/>
+            onkeydown="if(event.key==='Enter')doCrearPolla()"
+            oninput="sessionStorage.setItem('pendingPollaName',this.value)"/>
           <div class="error" id="crearError" style="text-align:center;margin-bottom:12px;width:100%"></div>
           <button class="btn" onclick="doCrearPolla()" style="margin-bottom:24px;width:100%">Crear polla 🚀</button>
-          <button onclick="toggleRules()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;text-decoration-style:dotted">⚙️ Ajustar puntos y reglas</button>
+          <button onclick="toggleRules()" style="background:#1e293b;border:1px solid #334155;border-radius:10px;color:#94a3b8;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;padding:10px 20px">⚙️ Ajustar puntos y reglas</button>
         </div>
       </div>
 
@@ -1075,6 +1094,7 @@ window.doCrearPolla=async function(){
 };
 
 async function _doCreatePolla(nombre){
+  sessionStorage.removeItem("pendingPollaName");
   const getRuleVal=id=>{const v=parseInt(document.getElementById(`rule_${id}`)?.value);return isNaN(v)||v<1?Math.max(1,DEFAULT_RULES[id]||1):v;};
   const rules={
     ptsExactoGrupos:getRuleVal("ptsExactoGrupos"),ptsGanadorDifGrupos:getRuleVal("ptsGanadorDifGrupos"),
@@ -1419,6 +1439,7 @@ function initDragDrop(){
     tEl=item;tActive=false;
     tTimer=setTimeout(()=>{
       tActive=true;
+      document.body.style.overflow="hidden";
       // Haptic feedback if available
       if(navigator.vibrate)navigator.vibrate(40);
       tEl.style.transform="scale(1.03)";tEl.style.opacity="0.9";
@@ -1441,6 +1462,7 @@ function initDragDrop(){
   },{passive:false});
   list.addEventListener("touchend",()=>{
     clearTimeout(tTimer);
+    document.body.style.overflow="";
     if(tClone){tClone.remove();tClone=null;}
     if(tEl){tEl.style.transform="";tEl.style.opacity="";tEl.style.boxShadow="";}
     if(tActive){updateBadges();saveOrder();}
@@ -1448,6 +1470,7 @@ function initDragDrop(){
   });
   list.addEventListener("touchcancel",()=>{
     clearTimeout(tTimer);
+    document.body.style.overflow="";
     if(tClone){tClone.remove();tClone=null;}
     if(tEl){tEl.style.transform="";tEl.style.opacity="";tEl.style.boxShadow="";}
     tEl=null;tActive=false;
