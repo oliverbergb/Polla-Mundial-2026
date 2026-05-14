@@ -63,8 +63,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .admin-badge{background:#7c3aed;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:#22c55e;color:#fff;padding:11px 20px 11px 16px;border-radius:14px;font-weight:700;font-size:14px;z-index:999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.35);display:flex;align-items:center;gap:8px;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .spinner{text-align:center;padding:60px;color:#64748b;font-size:14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;animation:spin 1s linear infinite}
@@ -186,6 +186,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <body>
 <div id="root"><div class="spinner"><span class="spin">⚽</span> Cargando...</div></div>
 <div class="toast" id="toast"></div>
+<div id="goal-notif" style="position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:#1e3a5f;border-bottom:1px solid #3b82f644;transform:translateY(-100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none">
+  <div id="gn-icon" style="font-size:20px;flex-shrink:0">⚽</div>
+  <div style="flex:1;min-width:0">
+    <div id="gn-score" style="font-size:13px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+    <div id="gn-pts" style="font-size:11px;margin-top:2px;color:#93c5fd"></div>
+  </div>
+</div>
 <button id="fab-left" class="fab fab-left" onclick="openHistorial()" title="Mi historial" style="display:none">📊</button>
 <button id="fab-right" class="fab fab-right" onclick="openRules()" title="Reglas del juego" style="display:none">❓</button>
 
@@ -458,10 +465,14 @@ function isPhaseLocked(phase){
   return new Date()>=new Date(unlockTime);
 }
 function tournamentEnded(){return new Date()>=new Date(TOURNAMENT_END);}
-function showToast(msg,color){
+function showToast(msg,color,duration){
   const t=document.getElementById("toast");
-  t.textContent=msg;t.style.background=color||"#22c55e";
-  t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);
+  t.textContent=msg;
+  t.style.background=color||"#22c55e";
+  t.style.borderLeft="4px solid "+(color?"rgba(255,255,255,0.4)":"rgba(255,255,255,0.5)");
+  clearTimeout(t._timer);
+  t.classList.add("show");
+  t._timer=setTimeout(()=>t.classList.remove("show"),duration||2800);
 }
 function avatarColor(name){
   let h=0;for(let c of name)h=(h*31+c.charCodeAt(0))%AVATAR_COLORS.length;
@@ -524,7 +535,7 @@ function getStreak(uid){
   let streak=0;
   for(let i=played.length-1;i>=0;i--){
     const pts=calcMatchPoints(preds[played[i].id],allResults[played[i].id]);
-    if(pts===3)streak++;else break;
+    if(pts>=1)streak++;else break;
   }
   return streak;
 }
@@ -644,7 +655,7 @@ function renderLanding(){
       <div style="margin-bottom:40px">
         <div style="font-size:68px;margin-bottom:6px;display:inline-block;animation:bounce2 1.4s ease-in-out infinite">⚽</div>
         <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#475569;margin-bottom:8px">MUNDIAL 2026</div>
-        <div style="font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#C8102E 0%,#003DA5 30%,#FFFFFF 50%,#006847 70%,#CE1126 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
+        <div style="font-size:42px;font-weight:900;letter-spacing:-1px;line-height:1.1;background:linear-gradient(135deg,#E8002D 0%,#6A0DAD 35%,#E8002D 65%,#B8D300 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
         <div style="font-size:12px;color:#334155;margin-top:8px;font-weight:600">USA · México · Canadá</div>
       </div>
 
@@ -862,7 +873,7 @@ function renderPollaLobby(){
       <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 24px">
         <div style="font-size:22px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
         <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
-        <div style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-top:8px;background:linear-gradient(135deg,#C8102E,#003DA5,#FFFFFF,#006847,#CE1126);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
+        <div style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-top:8px;background:linear-gradient(135deg,#E8002D,#6A0DAD,#E8002D,#B8D300);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">TU POLLA</div>
       </div>
 
       <!-- POLLAS LIST -->
@@ -1123,6 +1134,55 @@ async function joinPollaByCode(code,silent=false){
   showToast(`✓ Te uniste a "${pollaData.nombre}"`);
   loadData();
 }
+// ─── GOAL NOTIFICATION ────────────────────────────────────
+const _prevScores={};
+let _gnTimer=null;
+
+function showGoalNotif(match,newH,newA){
+  const pred=myPredictions[match.id];
+  const hasPred=pred&&pred.h!==undefined&&pred.h!==""&&pred.a!==undefined&&pred.a!=="";
+
+  // calc points with new score
+  const pts=hasPred?calcMatchPoints(pred,{h:String(newH),a:String(newA)}):null;
+  const isExact=pts===3;
+
+  const bar=document.getElementById("goal-notif");
+  const home=match.home,away=match.away;
+  document.getElementById("gn-icon").textContent=isExact?"🎯":"⚽";
+  document.getElementById("gn-score").textContent=`${home} ${newH} — ${newA} ${away}`;
+
+  const ptsEl=document.getElementById("gn-pts");
+  if(hasPred){
+    if(isExact){
+      ptsEl.textContent=`¡Pronosticaste ${pred.h}-${pred.a} · 3 puntos asegurados!`;
+      ptsEl.style.color="#4ade80";
+      bar.style.background="#1a3a1a";
+      bar.style.borderBottomColor="#22c55e66";
+      // shake after slide in
+      setTimeout(()=>{
+        bar.style.transform="translateY(0) translateX(-4px)";
+        setTimeout(()=>{bar.style.transform="translateY(0) translateX(4px)";
+          setTimeout(()=>{bar.style.transform="translateY(0)";},80);},80);
+      },380);
+    } else {
+      ptsEl.textContent=`Pronosticaste ${pred.h}-${pred.a} · ahora tendrías ${pts} pt${pts!==1?"s":""}`;
+      ptsEl.style.color="#93c5fd";
+      bar.style.background="#1e3a5f";
+      bar.style.borderBottomColor="#3b82f644";
+    }
+  } else {
+    ptsEl.textContent="";
+    bar.style.background="#1e3a5f";
+    bar.style.borderBottomColor="#3b82f644";
+  }
+
+  clearTimeout(_gnTimer);
+  bar.style.transform="translateY(-100%)";
+  void bar.offsetWidth;
+  bar.style.transform="translateY(0)";
+  _gnTimer=setTimeout(()=>{bar.style.transform="translateY(-100%)";},isExact?5000:4000);
+}
+
 async function fetchLiveResults(){
   try{
     const res=await fetch("https://api.balldontlie.io/fifa/worldcup/v1/matches?seasons[]=2026&per_page=200",{headers:{Authorization:BALLDONTLIE_KEY}});
@@ -1132,7 +1192,15 @@ async function fetchLiveResults(){
       if(m.status!=="completed"&&m.status!=="in_progress")continue;
       if(m.home_score==null||m.away_score==null)continue;
       const match=MATCHES.find(x=>x.home.toLowerCase().includes((m.home_team?.name||"").toLowerCase().split(" ")[0]));
-      if(match)await db.ref(`${pollaBase()}/results/${match.id}`).set({h:String(m.home_score),a:String(m.away_score)});
+      if(!match)continue;
+      const newH=m.home_score,newA=m.away_score;
+      const prev=_prevScores[match.id];
+      // detect goal: score changed
+      if(prev!==undefined&&(prev.h!==newH||prev.a!==newA)){
+        showGoalNotif(match,newH,newA);
+      }
+      _prevScores[match.id]={h:newH,a:newA};
+      await db.ref(`${pollaBase()}/results/${match.id}`).set({h:String(newH),a:String(newA)});
     }
   }catch(e){console.log("API error:",e);}
 }
@@ -1611,7 +1679,7 @@ function renderRanking(){
           <div class="podio-avatar" style="background:${avatarColor(r.name)}">${avatarInitial(r.name)}</div>
           <div class="podio-name">${r.name}${r.uid===currentUser.uid?" 👈":""}</div>
           <div class="podio-pts" style="color:${podioColors[realIdx]}">${r.pts}</div>
-          <div style="font-size:10px;color:#64748b">pts ${arrow}${streak>=3?` 🔥×${streak}`:""}</div>
+          <div style="font-size:10px;color:#64748b">pts ${arrow}${streak>=5?` 🔥×${streak}`:""}</div>
         </div>`;
       }).join("")}
     </div>`;
@@ -1626,7 +1694,7 @@ function renderRanking(){
       <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:#1e293b;color:#64748b;flex-shrink:0">${pos}</div>
       <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:${avatarColor(r.name)};color:#fff;flex-shrink:0">${avatarInitial(r.name)}</div>
       <span style="flex:1;font-weight:700">${r.name}${r.uid===currentUser.uid?` <span style="font-size:10px;color:#3b82f6">(tú)</span>`:""}</span>
-      ${streak>=3?`<span style="font-size:11px">🔥×${streak}</span>`:""}
+      ${streak>=5?`<span style="font-size:11px">🔥×${streak}</span>`:""}
       ${arrow}
       <span style="font-size:18px;font-weight:900;color:#f1f5f9">${r.pts}</span>
       <span style="font-size:11px;color:#64748b">pts</span>
