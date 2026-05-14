@@ -145,7 +145,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .carta-close{margin-top:18px;width:100%;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer}
 
 /* ── CHAT ── */
-.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:320px}
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:280px}
 .chat-messages{flex:1;overflow-y:auto;padding:4px 0 8px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:#1e293b transparent}
 .chat-messages::-webkit-scrollbar{width:4px}
 .chat-messages::-webkit-scrollbar-track{background:transparent}
@@ -163,6 +163,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .chat-send{background:#1e40af;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
 .chat-send:hover{background:#2563eb}
 .chat-empty{text-align:center;padding:40px 20px;color:#475569;font-size:13px}
+
+/* ── H2H HISTORY ── */
+.h2h-block{padding:8px 0 2px;border-top:1px solid #1e293b;margin-top:8px}
+.h2h-title{font-size:10px;font-weight:700;letter-spacing:1px;color:#475569;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
+.h2h-rows{display:none}
+.h2h-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#94a3b8;padding:4px 0;border-bottom:1px solid #0f172a}
+.h2h-row:last-child{border-bottom:none}
+.h2h-score{font-weight:700;color:#f1f5f9;font-size:12px}
+.h2h-comp{font-size:10px;color:#475569;text-align:right;min-width:64px}
 
 /* ── HISTORIAL ── */
 .hist-chart{padding:8px 0}
@@ -395,6 +404,7 @@ let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},ph
 let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,prevRanking={};
 let currentPollaId=null,currentPolla=null,myPollas={};
+const h2hCache={}; // key: "Home_Away" → array of match objects or null
 
 // ─── UTILS ────────────────────────────────────────────────
 function calcMatchPoints(pred,res){
@@ -438,11 +448,14 @@ const PHASE_UNLOCK_TIMES={
   final:"2026-07-19T18:00:00Z", // final (approx)
 };
 function isPhaseLocked(phase){
+  // "locked" here means: predictions for this phase are now OPEN (teams known)
   if(phase==="groups")return new Date()>=new Date(TOURNAMENT_LOCKOUT);
-  // Auto-unlock when the phase's first match kicks off
+  // Manual admin unlock takes priority
+  if(phaseLocks[phase])return true;
+  // Auto-unlock only when the real kickoff time arrives
   const unlockTime=PHASE_UNLOCK_TIMES[phase];
-  if(unlockTime&&new Date()>=new Date(unlockTime))return true;
-  return !!phaseLocks[phase];
+  if(!unlockTime)return false;
+  return new Date()>=new Date(unlockTime);
 }
 function tournamentEnded(){return new Date()>=new Date(TOURNAMENT_END);}
 function showToast(msg,color){
@@ -618,6 +631,7 @@ function loadData(){
   });
   db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
   fetchLiveResults();
+  prefetchH2H();
   setInterval(fetchLiveResults,120000);
   setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
 }
@@ -1300,10 +1314,109 @@ function initDragDrop(){
   list.addEventListener("dragover",e=>{e.preventDefault();const over=e.target.closest(".sortable-item");if(!over||over===dragEl)return;[...list.children].forEach(c=>c.classList.remove("drag-over"));over.classList.add("drag-over");const rect=over.getBoundingClientRect();list.insertBefore(dragEl,e.clientY>rect.top+rect.height/2?over.nextSibling:over);});
   list.addEventListener("dragleave",e=>{const o=e.target.closest(".sortable-item");if(o)o.classList.remove("drag-over");});
   list.addEventListener("drop",e=>{e.preventDefault();[...list.children].forEach(c=>c.classList.remove("drag-over"));});
-  let tEl=null,tClone=null;
-  list.addEventListener("touchstart",e=>{tEl=e.target.closest(".sortable-item");if(!tEl)return;tClone=tEl.cloneNode(true);tClone.style.cssText=`position:fixed;opacity:.7;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:#334155;border-radius:8px;`;document.body.appendChild(tClone);},{passive:true});
-  list.addEventListener("touchmove",e=>{if(!tEl||!tClone)return;e.preventDefault();const t=e.touches[0];tClone.style.left=(t.clientX-tEl.offsetWidth/2)+"px";tClone.style.top=(t.clientY-24)+"px";const els=document.elementsFromPoint(t.clientX,t.clientY);const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl);if(over){const rect=over.getBoundingClientRect();list.insertBefore(tEl,t.clientY>rect.top+rect.height/2?over.nextSibling:over);updateBadges();}},{passive:false});
-  list.addEventListener("touchend",()=>{if(tClone){tClone.remove();tClone=null;}if(!tEl)return;tEl=null;updateBadges();saveOrder();});
+
+  // Touch: long-press (300ms) to activate drag
+  let tEl=null,tClone=null,tTimer=null,tActive=false;
+  list.addEventListener("touchstart",e=>{
+    const item=e.target.closest(".sortable-item");
+    if(!item)return;
+    tEl=item;tActive=false;
+    tTimer=setTimeout(()=>{
+      tActive=true;
+      // Haptic feedback if available
+      if(navigator.vibrate)navigator.vibrate(40);
+      tEl.style.transform="scale(1.03)";tEl.style.opacity="0.9";
+      tEl.style.boxShadow="0 4px 16px rgba(0,0,0,0.4)";
+      tClone=tEl.cloneNode(true);
+      tClone.style.cssText=`position:fixed;opacity:.75;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:#334155;border-radius:8px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,0.4);`;
+      document.body.appendChild(tClone);
+    },300);
+  },{passive:true});
+  list.addEventListener("touchmove",e=>{
+    if(!tEl){clearTimeout(tTimer);return;}
+    if(!tActive){clearTimeout(tTimer);tEl=null;return;} // cancelled — user is scrolling
+    e.preventDefault();
+    const t=e.touches[0];
+    tClone.style.left=(t.clientX-tEl.offsetWidth/2)+"px";
+    tClone.style.top=(t.clientY-24)+"px";
+    const els=document.elementsFromPoint(t.clientX,t.clientY);
+    const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl);
+    if(over){const rect=over.getBoundingClientRect();list.insertBefore(tEl,t.clientY>rect.top+rect.height/2?over.nextSibling:over);updateBadges();}
+  },{passive:false});
+  list.addEventListener("touchend",()=>{
+    clearTimeout(tTimer);
+    if(tClone){tClone.remove();tClone=null;}
+    if(tEl){tEl.style.transform="";tEl.style.opacity="";tEl.style.boxShadow="";}
+    if(tActive){updateBadges();saveOrder();}
+    tEl=null;tActive=false;
+  });
+  list.addEventListener("touchcancel",()=>{
+    clearTimeout(tTimer);
+    if(tClone){tClone.remove();tClone=null;}
+    if(tEl){tEl.style.transform="";tEl.style.opacity="";tEl.style.boxShadow="";}
+    tEl=null;tActive=false;
+  });
+}
+
+// ─── H2H HISTORY ──────────────────────────────────────────
+async function fetchH2H(home,away){
+  const key=`${home}_${away}`;
+  if(key in h2hCache)return h2hCache[key];
+  try{
+    const q=encodeURIComponent(`${home} ${away}`);
+    const res=await fetch(`https://api.balldontlie.io/fifa/worldcup/v1/matches?per_page=10`,{headers:{Authorization:BALLDONTLIE_KEY}});
+    if(!res.ok){h2hCache[key]=null;return null;}
+    const data=await res.json();
+    if(!data.data){h2hCache[key]=null;return null;}
+    const hn=home.toLowerCase(),an=away.toLowerCase();
+    const matches=data.data.filter(m=>{
+      const ht=(m.home_team?.name||"").toLowerCase(),at=(m.away_team?.name||"").toLowerCase();
+      return(ht.includes(hn.split(" ")[0])||hn.includes(ht.split(" ")[0]))&&
+             (at.includes(an.split(" ")[0])||an.includes(at.split(" ")[0]));
+    }).slice(0,3);
+    h2hCache[key]=matches.length?matches:null;
+    return h2hCache[key];
+  }catch(e){h2hCache[key]=null;return null;}
+}
+
+function h2hHTML(matchId,home,away){
+  const key=`${home}_${away}`;
+  const matches=h2hCache[key];
+  if(!matches||!matches.length)return"";
+  const rows=matches.map(m=>{
+    const ht=m.home_team?.name||home,at=m.away_team?.name||away;
+    const hs=m.home_score??"-",as=m.away_score??"-";
+    const date=m.date?new Date(m.date).toLocaleDateString([],{month:"short",year:"numeric"}):"";
+    const comp=m.competition||"";
+    return`<div class="h2h-row">
+      <span style="min-width:52px;font-size:10px;color:#475569">${date}</span>
+      <span class="h2h-score">${ht} ${hs}–${as} ${at}</span>
+      <span class="h2h-comp">${comp}</span>
+    </div>`;
+  }).join("");
+  return`<div class="h2h-block">
+    <div class="h2h-title" onclick="toggleH2H(${matchId},this)">
+      <span>Últimos enfrentamientos</span>
+      <span style="font-size:10px;color:#475569">▼ ver</span>
+    </div>
+    <div class="h2h-rows" id="h2h-${matchId}">${rows}</div>
+  </div>`;
+}
+
+window.toggleH2H=function(matchId,titleEl){
+  const rows=document.getElementById(`h2h-${matchId}`);
+  if(!rows)return;
+  const open=rows.style.display==="block";
+  rows.style.display=open?"none":"block";
+  titleEl.querySelector("span:last-child").textContent=open?"▼ ver":"▲ ocultar";
+};
+
+// Prefetch h2h for all group matches in background
+async function prefetchH2H(){
+  for(const m of MATCHES.filter(x=>x.phase==="groups")){
+    if(!(`${m.home}_${m.away}` in h2hCache))
+      await fetchH2H(m.home,m.away);
+  }
 }
 
 // ─── TAB: MIS PRONÓSTICOS ─────────────────────────────────
@@ -1354,6 +1467,7 @@ function renderMisPronos(){
           ${matchScoreBlock(m,pred,res)}
           <span class="team">${m.away} ${flag(m.away)}</span>
         </div>
+        ${h2hHTML(m.id,m.home,m.away)}
       </div>`;
     }).join("")}`;
 }
