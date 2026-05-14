@@ -660,9 +660,8 @@ function loadData(){
     }
   });
   db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
-  fetchLiveResults();
   prefetchH2H();
-  setInterval(fetchLiveResults,120000);
+  iniciarMasterPolling();
   setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
 }
 
@@ -1361,11 +1360,47 @@ function showGoalNotif(match,newH,newA){
   _gnTimer=setTimeout(()=>{bar.style.transform="translateY(-100%)";},isExact?5000:4000);
 }
 
+// ─── MASTER POLLING ───────────────────────────────────────
+function iniciarMasterPolling(){
+  // Escuchar scores globales en tiempo real — todos los clientes
+  db.ref("liveScores").on("value",snap=>{
+    const live=snap.val()||{};
+    Object.entries(live).forEach(([id,score])=>{
+      if(id==="_lastUpdated")return;
+      const numId=parseInt(id);
+      if(!allResults[numId])allResults[numId]={};
+      allResults[numId].h=score.h;
+      allResults[numId].a=score.a;
+    });
+    render();
+  });
+
+  // Solo un cliente hace polling a BallDontLie
+  async function turnoMaster(){
+    const masterRef=db.ref("pollingMaster");
+    try{
+      const snap=await masterRef.get();
+      const master=snap.val();
+      const now=Date.now();
+      const sinMaster=!master||(now-master.lastSeen)>180000;
+      const soyCandidato=sinMaster||master.uid===currentUser.uid;
+      if(soyCandidato){
+        await masterRef.set({uid:currentUser.uid,lastSeen:now});
+        await fetchLiveResults();
+      }
+    }catch(e){console.log("Master check error:",e);}
+  }
+
+  turnoMaster();
+  setInterval(turnoMaster,120000);
+}
+
 async function fetchLiveResults(){
   try{
     const res=await fetch("https://api.balldontlie.io/fifa/worldcup/v1/matches?seasons[]=2026&per_page=200",{headers:{Authorization:BALLDONTLIE_KEY}});
     const data=await res.json();
     if(!data.data)return;
+    const updates={};
     for(const m of data.data){
       if(m.status!=="completed"&&m.status!=="in_progress")continue;
       if(m.home_score==null||m.away_score==null)continue;
@@ -1373,13 +1408,14 @@ async function fetchLiveResults(){
       if(!match)continue;
       const newH=m.home_score,newA=m.away_score;
       const prev=_prevScores[match.id];
-      // detect goal: score changed
       if(prev!==undefined&&(prev.h!==newH||prev.a!==newA)){
         showGoalNotif(match,newH,newA);
       }
       _prevScores[match.id]={h:newH,a:newA};
-      await db.ref(`${pollaBase()}/results/${match.id}`).set({h:String(newH),a:String(newA)});
+      updates[`liveScores/${match.id}`]={h:String(newH),a:String(newA)};
     }
+    updates["liveScores/_lastUpdated"]=Date.now();
+    if(Object.keys(updates).length>1)await db.ref().update(updates);
   }catch(e){console.log("API error:",e);}
 }
 
