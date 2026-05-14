@@ -976,6 +976,20 @@ function renderCrearPolla(){
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
+                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
+                <div style="font-size:12px;color:#475569;margin-top:2px">Ordenas los 4 equipos de cada grupo antes del torneo.</div>
+              </div>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
+                <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+              </label>
+            </div>
+            ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × pts por acierto</b>`)}
+            ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
+          </div>
+          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <div>
                 <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🟢 Partidos de Grupos</div>
                 <div style="font-size:12px;color:#475569;margin-top:2px">Pronosticas el marcador de cada partido.</div>
               </div>
@@ -988,20 +1002,6 @@ function renderCrearPolla(){
             ${ruleRow("ptsExactoGrupos","✅ Marcador exacto",r.ptsExactoGrupos)}
             ${ruleRow("ptsGanadorDifGrupos","🟡 Ganador + misma diferencia",r.ptsGanadorDifGrupos)}
             ${ruleRow("ptsSoloGanadorGrupos","🟡 Solo ganador o empate",r.ptsSoloGanadorGrupos)}
-          </div>
-          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-              <div>
-                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
-                <div style="font-size:12px;color:#475569;margin-top:2px">Ordenas los 4 equipos de cada grupo antes del torneo.</div>
-              </div>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
-                <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#94a3b8">Incluir</span>
-              </label>
-            </div>
-            ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × pts por acierto</b>`)}
-            ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
           </div>
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
@@ -1975,7 +1975,15 @@ window.goToLobby=function(){
     if(chatListener){db.ref(`pollas/${currentPollaId}/chat`).off("value",chatListener);chatListener=null;}
   }
   currentPollaId=null;currentPolla=null;allUsers={};allResults={};
-  loadPollas();
+  // Reload pollas but always show lobby, don't auto-enter
+  db.ref("pollas").get().then(snap=>{
+    const allPollas=snap.val()||{};
+    myPollas={};
+    Object.entries(allPollas).forEach(([id,p])=>{
+      if(p.participantes&&p.participantes[currentUser.uid])myPollas[id]=p;
+    });
+    renderPollaLobby();
+  });
 };
 window.showInvite=function(){
   if(!currentPolla||!currentPollaId)return;
@@ -1997,6 +2005,12 @@ window.openRules=function(){
       <p>Pronostica los resultados del Mundial USA · México · Canadá 2026 y acumula puntos. Gana quien más puntos tenga al final del torneo.</p>
     </div>
     <div class="rules-section">
+      <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
+      <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
+      <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
+      ${!incClasif?`<p style="margin-top:6px;font-size:12px;color:#64748b;font-style:italic">No incluido en esta polla.</p>`:""}
+    </div>
+    <div class="rules-section">
       <h3>🟢 FASE DE GRUPOS — PARTIDOS</h3>
       <p>Pronostica el marcador exacto de cada partido. Se bloquean automáticamente cuando empieza cada partido.</p>
       <ul>
@@ -2006,12 +2020,6 @@ window.openRules=function(){
         <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
       </ul>
       <p style="margin-top:8px;font-size:12px;color:#64748b">Si pronosticas empate: 3 pts si aciertas el marcador exacto, 1 pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
-    </div>
-    <div class="rules-section">
-      <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
-      <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
-      <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
-      ${!incClasif?`<p style="margin-top:6px;font-size:12px;color:#64748b;font-style:italic">No incluido en esta polla.</p>`:""}
     </div>
     <div class="rules-section">
       <h3>🔥 FASE ELIMINATORIA</h3>
