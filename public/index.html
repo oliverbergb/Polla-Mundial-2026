@@ -41,7 +41,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .score-input:focus{outline:none;border-color:#3b82f6}
 .score-sep{color:#64748b;font-weight:700;flex-shrink:0}
 .group-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.pill{padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:opacity .15s}
+.pill{width:32px;text-align:center;padding:5px 0;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:opacity .15s}
 .rank-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0f172a}
 .rank-row:last-child{border-bottom:none}
 
@@ -1359,20 +1359,45 @@ function initDragDrop(){
 }
 
 // ─── H2H HISTORY ──────────────────────────────────────────
+// TheSportsDB team name mappings (their names differ from ours)
+const TSDB_NAMES={
+  "México":"Mexico","Rep. Checa":"Czech Republic","Países Bajos":"Netherlands",
+  "Bélgica":"Belgium","Argelia":"Algeria","Jordania":"Jordan","Uzbekistán":"Uzbekistan",
+  "Japón":"Japan","Túnez":"Tunisia","Suecia":"Sweden","Senegal":"Senegal",
+  "Marruecos":"Morocco","Escocia":"Scotland","Haití":"Haiti","Bosnia":"Bosnia and Herzegovina",
+  "Turquía":"Turkey","Curazao":"Curacao","Nueva Zelanda":"New Zealand",
+  "Cabo Verde":"Cape Verde","Arabia Saudita":"Saudi Arabia","RD Congo":"DR Congo",
+  "Noruega":"Norway","Irak":"Iraq","Argelia":"Algeria","Croacia":"Croatia",
+  "Panamá":"Panama","Ghana":"Ghana","Ecuador":"Ecuador","Egipto":"Egypt",
+  "Irán":"Iran","Costa de Marfil":"Ivory Coast","Uruguay":"Uruguay",
+  "Australia":"Australia","Paraguay":"Paraguay","Colombia":"Colombia",
+  "Portugal":"Portugal","Inglaterra":"England","Argentina":"Argentina",
+  "España":"Spain","Francia":"France","Alemania":"Germany","Brasil":"Brazil",
+  "Canadá":"Canada","Estados Unidos":"USA","Austria":"Austria",
+};
+function tsdbName(n){return TSDB_NAMES[n]||n;}
+
 async function fetchH2H(home,away){
   const key=`${home}_${away}`;
   if(key in h2hCache)return h2hCache[key];
   try{
-    const q=encodeURIComponent(`${home} ${away}`);
-    const res=await fetch(`https://api.balldontlie.io/fifa/worldcup/v1/matches?per_page=10`,{headers:{Authorization:BALLDONTLIE_KEY}});
-    if(!res.ok){h2hCache[key]=null;return null;}
+    const hn=encodeURIComponent(tsdbName(home));
+    const an=encodeURIComponent(tsdbName(away));
+    // Search both team IDs first, then get last events
+    const [rh,ra]=await Promise.all([
+      fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${hn}`).then(r=>r.json()),
+      fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${an}`).then(r=>r.json()),
+    ]);
+    const tid1=rh?.teams?.[0]?.idTeam;
+    const tid2=ra?.teams?.[0]?.idTeam;
+    if(!tid1||!tid2){h2hCache[key]=null;return null;}
+    const res=await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${tid1}`);
     const data=await res.json();
-    if(!data.data){h2hCache[key]=null;return null;}
-    const hn=home.toLowerCase(),an=away.toLowerCase();
-    const matches=data.data.filter(m=>{
-      const ht=(m.home_team?.name||"").toLowerCase(),at=(m.away_team?.name||"").toLowerCase();
-      return(ht.includes(hn.split(" ")[0])||hn.includes(ht.split(" ")[0]))&&
-             (at.includes(an.split(" ")[0])||an.includes(at.split(" ")[0]));
+    if(!data?.results){h2hCache[key]=null;return null;}
+    const awayLow=tsdbName(away).toLowerCase();
+    const matches=data.results.filter(e=>{
+      const ht=(e.strHomeTeam||"").toLowerCase(),at=(e.strAwayTeam||"").toLowerCase();
+      return ht.includes(awayLow.split(" ")[0])||at.includes(awayLow.split(" ")[0]);
     }).slice(0,3);
     h2hCache[key]=matches.length?matches:null;
     return h2hCache[key];
@@ -1384,10 +1409,10 @@ function h2hHTML(matchId,home,away){
   const matches=h2hCache[key];
   if(!matches||!matches.length)return"";
   const rows=matches.map(m=>{
-    const ht=m.home_team?.name||home,at=m.away_team?.name||away;
-    const hs=m.home_score??"-",as=m.away_score??"-";
-    const date=m.date?new Date(m.date).toLocaleDateString([],{month:"short",year:"numeric"}):"";
-    const comp=m.competition||"";
+    const ht=m.strHomeTeam||"",at=m.strAwayTeam||"";
+    const hs=m.intHomeScore??"-",as=m.intAwayScore??"-";
+    const date=m.dateEvent?new Date(m.dateEvent).toLocaleDateString([],{month:"short",year:"numeric"}):"";
+    const comp=(m.strLeague||"").replace("FIFA","").trim();
     return`<div class="h2h-row">
       <span style="min-width:52px;font-size:10px;color:#475569">${date}</span>
       <span class="h2h-score">${ht} ${hs}–${as} ${at}</span>
@@ -1411,11 +1436,18 @@ window.toggleH2H=function(matchId,titleEl){
   titleEl.querySelector("span:last-child").textContent=open?"▼ ver":"▲ ocultar";
 };
 
-// Prefetch h2h for all group matches in background
+// Prefetch h2h for all group matches in background, re-render when done
 async function prefetchH2H(){
-  for(const m of MATCHES.filter(x=>x.phase==="groups")){
-    if(!(`${m.home}_${m.away}` in h2hCache))
+  const groupMatches=MATCHES.filter(x=>x.phase==="groups");
+  for(const m of groupMatches){
+    if(!(`${m.home}_${m.away}` in h2hCache)){
       await fetchH2H(m.home,m.away);
+      // After each fetch, if user is on mis_pronos tab, refresh so data shows
+      if(currentTab==="mis_pronos"){
+        const c=document.getElementById("tab-content");
+        if(c)c.innerHTML=(()=>renderMisPronos())();
+      }
+    }
   }
 }
 
