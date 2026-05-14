@@ -10,76 +10,76 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d1b2a;color:#f1f5f9;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23D42B2B' opacity='0.18'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%231565C0' opacity='0.18'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%235BA830' opacity='0.15'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%237B52AB' opacity='0.15'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
+body{background:#fffbf0;color:#1c1207;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpolygon points='0,0 38%25,0 0,55%25' fill='%23b8860b' opacity='0.07'/%3E%3Cpolygon points='100%25,0 62%25,0 100%25,55%25' fill='%23b8860b' opacity='0.07'/%3E%3Cpolygon points='0,100%25 38%25,100%25 0,45%25' fill='%23b8860b' opacity='0.06'/%3E%3Cpolygon points='100%25,100%25 62%25,100%25 100%25,45%25' fill='%23b8860b' opacity='0.06'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:cover}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
-.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:#0a0f1e;border-radius:16px 16px 18px 18px;margin:8px 8px 4px;font-family:'Inter',sans-serif}
-.header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#D42B2B,#E8621A,#F5D000,#5BA830,#1565C0,#7B52AB);z-index:1;border-radius:16px 16px 0 0}
+.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:#fff8e6;border-radius:16px 16px 18px 18px;margin:8px 8px 4px;font-family:'Inter',sans-serif}
+.header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#b8860b,#d4a017,#f0c040,#d4a017,#b8860b);z-index:1;border-radius:16px 16px 0 0}
 .header-bg{display:none}
 .header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Inter',sans-serif;color:#fff}
-.header-sub{position:relative;color:#64748b;font-size:11px;margin-bottom:4px;font-family:'Inter',sans-serif}
-.countdown-bar{position:relative;background:#0f172a;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#3b82f6;border:1px solid #1e40af;font-family:'Inter',sans-serif}
+.header-sub{position:relative;color:#7a6030;font-size:11px;margin-bottom:4px;font-family:'Inter',sans-serif}
+.countdown-bar{position:relative;background:#fef9f0;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#b8860b;border:1px solid #b8860b;font-family:'Inter',sans-serif}
 .tabs-wrap{position:relative;display:flex;justify-content:center}
-.tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,#0a0f1e);pointer-events:none;z-index:2}
+.tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,#fff8e6);pointer-events:none;z-index:2}
 .tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:8px 12px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
-.tab.active{background:#1e40af;color:#fff;border-bottom:2px solid #3b82f6}
-.tab:not(.active){background:transparent;color:#94a3b8;border-bottom:2px solid transparent}
+.tab.active{background:#b8860b;color:#fff;border-bottom:2px solid #b8860b}
+.tab:not(.active){background:transparent;color:#b8a060;border-bottom:2px solid transparent}
 
 /* ── CONTENT ── */
 .content{padding:16px 12px}
-.card{background:#1e293b;border-radius:10px;padding:14px;margin-bottom:10px}
-.match-card{background:#1e293b;border-radius:10px;padding:12px;margin-bottom:8px;position:relative}
-.match-meta{font-size:11px;color:#64748b;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.card{background:#ffffff;border-radius:10px;padding:14px;margin-bottom:10px}
+.match-card{background:#ffffff;border-radius:10px;padding:12px;margin-bottom:8px;position:relative}
+.match-meta{font-size:11px;color:#7a6030;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .match-teams{display:flex;align-items:center;gap:8px}
 .team{flex:1;font-weight:700;font-size:13px}
 .team.home{text-align:right}
-.score-input{width:36px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:4px;font-size:14px;font-weight:700}
-.score-input:focus{outline:none;border-color:#3b82f6}
-.score-sep{color:#64748b;font-weight:700;flex-shrink:0}
+.score-input{width:36px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:4px;font-size:14px;font-weight:700}
+.score-input:focus{outline:none;border-color:#b8860b}
+.score-sep{color:#7a6030;font-weight:700;flex-shrink:0}
 .group-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .pill{padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:opacity .15s}
-.rank-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0f172a}
+.rank-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e8d99a}
 .rank-row:last-child{border-bottom:none}
 
 /* ── LOGIN ── */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;background:transparent}
 .login-screen h1{font-size:26px;font-weight:900;margin:12px 0 4px;font-family:'Inter',sans-serif;letter-spacing:-0.5px}
-.input{width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
-.input:focus{border-color:#3b82f6}
-.btn{width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
-.btn:disabled{background:#334155;cursor:not-allowed}
-.btn-secondary{width:100%;max-width:340px;background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px}
-.btn-secondary:hover{border-color:#3b82f6;color:#f1f5f9}
-.link-btn{background:none;border:none;color:#3b82f6;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;padding:0}
+.input{width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
+.input:focus{border-color:#b8860b}
+.btn{width:100%;max-width:340px;background:#b8860b;color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:disabled{background:#e8d99a;cursor:not-allowed}
+.btn-secondary{width:100%;max-width:340px;background:transparent;color:#b8a060;border:1px solid #e8d99a;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px}
+.btn-secondary:hover{border-color:#b8860b;color:#1c1207}
+.link-btn{background:none;border:none;color:#b8860b;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-decoration:underline;padding:0}
 .remember-row{display:flex;align-items:center;gap:8px;max-width:340px;width:100%;margin-bottom:12px;cursor:pointer}
-.remember-row input[type=checkbox]{width:16px;height:16px;accent-color:#3b82f6;cursor:pointer}
-.remember-row span{font-size:13px;color:#94a3b8;font-family:'Inter',sans-serif}
+.remember-row input[type=checkbox]{width:16px;height:16px;accent-color:#b8860b;cursor:pointer}
+.remember-row span{font-size:13px;color:#b8a060;font-family:'Inter',sans-serif}
 .error{color:#ef4444;font-size:13px;margin-bottom:10px;max-width:340px}
-.lock-badge{font-size:10px;background:#334155;color:#94a3b8;padding:2px 6px;border-radius:10px;margin-left:4px}
+.lock-badge{font-size:10px;background:#e8d99a;color:#b8a060;padding:2px 6px;border-radius:10px;margin-left:4px}
 .admin-badge{background:#7c3aed;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:#22c55e;color:#fff;padding:11px 20px 11px 16px;border-radius:14px;font-weight:700;font-size:14px;z-index:999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.35);display:flex;align-items:center;gap:8px;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.spinner{text-align:center;padding:60px;color:#64748b;font-size:14px}
+.spinner{text-align:center;padding:60px;color:#7a6030;font-size:14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 
 /* ── SCORES ── */
-.score-box{background:#0f172a;padding:4px 8px;border-radius:6px;font-size:14px;font-weight:700;min-width:28px;text-align:center}
-.score-box.pred{color:#94a3b8;border:1px solid #334155}
+.score-box{background:#fef9f0;padding:4px 8px;border-radius:6px;font-size:14px;font-weight:700;min-width:28px;text-align:center}
+.score-box.pred{color:#b8a060;border:1px solid #e8d99a}
 .score-box.result{color:#22c55e;border:1px solid #22c55e}
 .vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:90px}
 .pred-row{display:flex;align-items:center;gap:4px}
 .pts-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
-.pts-3{background:#14532d;color:#22c55e}
-.pts-1{background:#713f12;color:#facc15}
-.pts-2{background:#713f12;color:#facc15}
-.pts-0{background:#450a0a;color:#f87171}
+.pts-3{background:#dcfce7;color:#166534}
+.pts-1{background:#fef9c3;color:#854d0e}
+.pts-2{background:#fef9c3;color:#854d0e}
+.pts-0{background:#fee2e2;color:#991b1b}
 
 /* ── LIVE PULSE ── */
 .live-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;margin-right:4px;animation:pulse 1.2s ease-in-out infinite}
@@ -87,23 +87,23 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 /* ── DRAG & DROP ── */
 .sortable-list{list-style:none}
-.sortable-item{display:flex;align-items:center;gap:10px;background:#0f172a;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;border:1px solid #1e293b;transition:border-color .2s;user-select:none;touch-action:none}
+.sortable-item{display:flex;align-items:center;gap:10px;background:#fef9f0;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;border:1px solid #e8d99a;transition:border-color .2s;user-select:none;touch-action:none}
 .sortable-item.dragging{opacity:.4;cursor:grabbing}
-.sortable-item.drag-over{border-color:#3b82f6}
+.sortable-item.drag-over{border-color:#b8860b}
 .pos-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff}
 
 /* ── ELIM ── */
-.elim-locked-info{background:#1e293b;border-radius:10px;padding:24px;text-align:center;color:#64748b;font-size:13px;border:1px dashed #334155;margin-bottom:8px}
+.elim-locked-info{background:#ffffff;border-radius:10px;padding:24px;text-align:center;color:#7a6030;font-size:13px;border:1px dashed #e8d99a;margin-bottom:8px}
 
 /* ── RANKING PODIO ── */
 .podio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;align-items:end}
-.podio-card{border-radius:10px;padding:12px 8px;text-align:center;border:1px solid #1e293b}
-.podio-card.p1{background:linear-gradient(180deg,#1c1500 0%,#1e293b 100%);border-color:#eab308;order:2}
-.podio-card.p2{background:#1e293b;order:1}
-.podio-card.p3{background:#1e293b;order:3}
+.podio-card{border-radius:10px;padding:12px 8px;text-align:center;border:1px solid #ffffff}
+.podio-card.p1{background:linear-gradient(180deg,#fefce8 0%,#ffffff 100%);border-color:#b8860b;order:2}
+.podio-card.p2{background:#ffffff;order:1}
+.podio-card.p3{background:#ffffff;order:3}
 .podio-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;margin:0 auto 6px}
 .podio-medal{font-size:20px;margin-bottom:4px}
-.podio-name{font-size:12px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.podio-name{font-size:12px;font-weight:700;color:#1c1207;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .podio-pts{font-size:18px;font-weight:900}
 @keyframes podioIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .podio-card{animation:podioIn .4s ease both}
@@ -112,73 +112,73 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .podio-card.p3{animation-delay:.2s}
 
 /* ── FABS ── */
-.fab{position:fixed;bottom:20px;width:42px;height:42px;border-radius:50%;color:#94a3b8;border:1px solid #334155;font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:#1e293b}
-.fab:hover{background:#334155;color:#f1f5f9}
+.fab{position:fixed;bottom:20px;width:42px;height:42px;border-radius:50%;color:#b8a060;border:1px solid #e8d99a;font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:#ffffff}
+.fab:hover{background:#e8d99a;color:#1c1207}
 .fab-right{right:20px}
 .fab-left{left:20px}
 
 /* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-box{background:#1e293b;border-radius:16px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:22px}
+.modal-box{background:#ffffff;border-radius:16px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:22px}
 .modal-box h2{font-size:18px;font-weight:900;margin-bottom:16px;text-align:center}
-.rules-section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #0f172a}
+.rules-section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #e8d99a}
 .rules-section:last-of-type{border-bottom:none}
-.rules-section h3{font-size:12px;font-weight:700;color:#3b82f6;margin-bottom:6px;letter-spacing:.5px}
-.rules-section p,.rules-section li{font-size:13px;color:#94a3b8;line-height:1.65;margin-bottom:3px}
+.rules-section h3{font-size:12px;font-weight:700;color:#b8860b;margin-bottom:6px;letter-spacing:.5px}
+.rules-section p,.rules-section li{font-size:13px;color:#b8a060;line-height:1.65;margin-bottom:3px}
 .rules-section ul{padding-left:16px}
-.modal-close{width:100%;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px}
+.modal-close{width:100%;background:#b8860b;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px}
 
 /* ── CARTA CAMPEÓN ── */
 .carta-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
-.carta-box{background:#0f172a;border-radius:20px;max-width:420px;width:100%;padding:28px 22px 24px;border:1px solid #eab308;text-align:center}
+.carta-box{background:#fef9f0;border-radius:20px;max-width:420px;width:100%;padding:28px 22px 24px;border:1px solid #b8860b;text-align:center}
 .carta-trophy{font-size:52px;margin-bottom:8px;display:block;animation:bounce .8s ease infinite alternate}
 @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 @keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.carta-crown{font-size:11px;font-weight:700;letter-spacing:2px;color:#64748b;text-transform:uppercase;margin-bottom:4px}
-.carta-name{font-size:24px;font-weight:900;color:#f1f5f9;margin-bottom:12px}
-.carta-divider{border:none;border-top:1px solid #1e293b;margin:14px 0}
-.carta-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#eab308;text-transform:uppercase;margin-bottom:10px}
-.carta-text{font-size:13px;color:#cbd5e1;line-height:1.8;text-align:left}
+.carta-crown{font-size:11px;font-weight:700;letter-spacing:2px;color:#7a6030;text-transform:uppercase;margin-bottom:4px}
+.carta-name{font-size:24px;font-weight:900;color:#1c1207;margin-bottom:12px}
+.carta-divider{border:none;border-top:1px solid #ffffff;margin:14px 0}
+.carta-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#b8860b;text-transform:uppercase;margin-bottom:10px}
+.carta-text{font-size:13px;color:#3a2810;line-height:1.8;text-align:left}
 .carta-text p{margin-bottom:10px}
 .carta-text p:last-child{margin-bottom:0}
-.carta-firma{margin-top:14px;text-align:right;font-size:11px;color:#475569;font-style:italic}
-.carta-close{margin-top:18px;width:100%;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer}
+.carta-firma{margin-top:14px;text-align:right;font-size:11px;color:#8a7040;font-style:italic}
+.carta-close{margin-top:18px;width:100%;background:#b8860b;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer}
 
 /* ── CHAT ── */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:280px}
-.chat-messages{flex:1;overflow-y:auto;padding:4px 0 8px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:#1e293b transparent}
+.chat-messages{flex:1;overflow-y:auto;padding:4px 0 8px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:#e8d99a transparent}
 .chat-messages::-webkit-scrollbar{width:4px}
 .chat-messages::-webkit-scrollbar-track{background:transparent}
-.chat-messages::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:#e8d99a;border-radius:4px}
 .chat-msg{display:flex;flex-direction:column;max-width:82%;gap:2px}
 .chat-msg.mine{align-self:flex-end;align-items:flex-end}
 .chat-msg.theirs{align-self:flex-start;align-items:flex-start}
 .chat-bubble{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word}
-.chat-msg.mine .chat-bubble{background:#1e40af;color:#fff;border-bottom-right-radius:4px}
-.chat-msg.theirs .chat-bubble{background:#1e293b;color:#f1f5f9;border-bottom-left-radius:4px}
-.chat-meta{font-size:10px;color:#475569;padding:0 4px}
-.chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid #1e293b;margin-top:6px}
-.chat-input{flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:10px 14px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;min-height:42px;max-height:80px}
-.chat-input:focus{border-color:#3b82f6}
-.chat-send{background:#1e40af;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
-.chat-send:hover{background:#2563eb}
-.chat-empty{text-align:center;padding:40px 20px;color:#475569;font-size:13px}
+.chat-msg.mine .chat-bubble{background:#b8860b;color:#fff;border-bottom-right-radius:4px}
+.chat-msg.theirs .chat-bubble{background:#f5e8b8;color:#1c1207;border-bottom-left-radius:4px}
+.chat-meta{font-size:10px;color:#8a7040;padding:0 4px}
+.chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid #ffffff;margin-top:6px}
+.chat-input{flex:1;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:10px 14px;font-size:14px;outline:none;font-family:'Inter',sans-serif;resize:none;min-height:42px;max-height:80px}
+.chat-input:focus{border-color:#b8860b}
+.chat-send{background:#b8860b;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
+.chat-send:hover{background:#d4a017}
+.chat-empty{text-align:center;padding:40px 20px;color:#8a7040;font-size:13px}
 
 /* ── H2H HISTORY ── */
-.h2h-block{padding:8px 0 2px;border-top:1px solid #1e293b;margin-top:8px}
-.h2h-title{font-size:10px;font-weight:700;letter-spacing:1px;color:#475569;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
+.h2h-block{padding:8px 0 2px;border-top:1px solid #ffffff;margin-top:8px}
+.h2h-title{font-size:10px;font-weight:700;letter-spacing:1px;color:#8a7040;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
 .h2h-rows{display:none}
-.h2h-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#94a3b8;padding:4px 0;border-bottom:1px solid #0f172a}
+.h2h-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#b8a060;padding:4px 0;border-bottom:1px solid #e8d99a}
 .h2h-row:last-child{border-bottom:none}
-.h2h-score{font-weight:700;color:#f1f5f9;font-size:12px}
-.h2h-comp{font-size:10px;color:#475569;text-align:right;min-width:64px}
+.h2h-score{font-weight:700;color:#1c1207;font-size:12px}
+.h2h-comp{font-size:10px;color:#8a7040;text-align:right;min-width:64px}
 
 /* ── HISTORIAL ── */
 .hist-chart{padding:8px 0}
 .hist-line{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.hist-label{font-size:11px;color:#64748b;width:60px;text-align:right;flex-shrink:0}
-.hist-bar-wrap{flex:1;background:#0f172a;border-radius:4px;height:20px;position:relative;overflow:hidden}
-.hist-bar{height:100%;border-radius:4px;background:#1e40af;transition:width .4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;min-width:24px}
+.hist-label{font-size:11px;color:#7a6030;width:60px;text-align:right;flex-shrink:0}
+.hist-bar-wrap{flex:1;background:#fef9f0;border-radius:4px;height:20px;position:relative;overflow:hidden}
+.hist-bar{height:100%;border-radius:4px;background:#b8860b;transition:width .4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;min-width:24px}
 .hist-bar-val{font-size:10px;font-weight:700;color:#fff}
 .hist-pos{font-size:11px;font-weight:700;width:20px;flex-shrink:0}
 @media(hover:none)and(pointer:coarse){.polla-dots-btn{display:none!important}}
@@ -189,11 +189,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <body>
 <div id="root"><div class="spinner"><span class="spin">⚽</span> Cargando...</div></div>
 <div class="toast" id="toast"></div>
-<div id="goal-notif" style="position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:#1e3a5f;border-bottom:1px solid #3b82f644;transform:translateY(-100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none">
+<div id="goal-notif" style="position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:#fffbf0;border-bottom:1px solid #b8860b44;transform:translateY(-100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none">
   <div id="gn-icon" style="font-size:20px;flex-shrink:0">⚽</div>
   <div style="flex:1;min-width:0">
-    <div id="gn-score" style="font-size:13px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-    <div id="gn-pts" style="font-size:11px;margin-top:2px;color:#93c5fd"></div>
+    <div id="gn-score" style="font-size:13px;font-weight:700;color:#1c1207;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+    <div id="gn-pts" style="font-size:11px;margin-top:2px;color:#7a6030"></div>
   </div>
 </div>
 <button id="fab-left" class="fab fab-left" onclick="openHistorial()" title="Mi historial" style="display:none">📊</button>
@@ -203,16 +203,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div id="modal-invite" style="display:none" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal-box" style="text-align:center">
     <h2>🔗 Invitar a la polla</h2>
-    <div style="background:#0f172a;border-radius:14px;overflow:hidden;margin-bottom:14px">
+    <div style="background:#fef9f0;border-radius:14px;overflow:hidden;margin-bottom:14px">
       <div style="padding:18px 18px 14px">
-        <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
+        <div style="font-size:11px;font-weight:700;color:#7a6030;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
         <div id="invite-code" onclick="navigator.clipboard.writeText(this.textContent).then(()=>showToast('Código copiado ✓'))"
-          style="font-size:38px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
+          style="font-size:38px;font-weight:900;color:#1c1207;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
           title="Toca para copiar"></div>
-        <div style="font-size:10px;color:#475569;margin-bottom:14px">toca para copiar</div>
+        <div style="font-size:10px;color:#8a7040;margin-bottom:14px">toca para copiar</div>
       </div>
-      <div style="border-top:1px solid #1e293b;padding:12px 18px">
-        <div id="invite-link" style="font-size:11px;color:#475569;word-break:break-all;margin-bottom:10px"></div>
+      <div style="border-top:1px solid #ffffff;padding:12px 18px">
+        <div id="invite-link" style="font-size:11px;color:#8a7040;word-break:break-all;margin-bottom:10px"></div>
         <button id="invite-link-copy" class="btn-secondary" style="width:100%">Copiar link 🔗</button>
       </div>
     </div>
@@ -226,7 +226,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <input class="input" id="changeNameInput" type="text" placeholder="Nuevo nombre" maxlength="20" style="margin-bottom:8px;text-align:center"/>
     <div class="error" id="changeNameError"></div>
     <button class="btn" onclick="doChangeName()" style="margin-bottom:10px">Guardar ✓</button>
-    <button class="modal-close" onclick="closeChangeName()" style="background:#334155">Cancelar</button>
+    <button class="modal-close" onclick="closeChangeName()" style="background:#e8d99a">Cancelar</button>
   </div>
 </div>
 
@@ -243,7 +243,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div id="modal-historial" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeHistorial()">
   <div class="modal-box">
     <h2>📊 Mi historial de posiciones</h2>
-    <div id="historial-content"><p style="color:#64748b;text-align:center;padding:20px">Cargando...</p></div>
+    <div id="historial-content"><p style="color:#7a6030;text-align:center;padding:20px">Cargando...</p></div>
     <button class="modal-close" onclick="closeHistorial()">Cerrar</button>
   </div>
 </div>
@@ -253,9 +253,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
   <div class="modal-box" style="text-align:center;max-width:360px">
     <div id="modal-confirm-icon" style="font-size:40px;margin-bottom:12px">⚠️</div>
     <h2 id="modal-confirm-title" style="margin-bottom:8px;font-size:17px"></h2>
-    <p id="modal-confirm-body" style="font-size:13px;color:#94a3b8;margin-bottom:22px;line-height:1.65"></p>
+    <p id="modal-confirm-body" style="font-size:13px;color:#b8a060;margin-bottom:22px;line-height:1.65"></p>
     <button id="modal-confirm-ok" onclick="doConfirmModal()" class="btn" style="margin-bottom:10px;background:#ef4444"></button>
-    <button class="modal-close" onclick="closeConfirmModal()" style="background:#334155">Cancelar</button>
+    <button class="modal-close" onclick="closeConfirmModal()" style="background:#e8d99a">Cancelar</button>
   </div>
 </div>
 
@@ -267,7 +267,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="carta-name" id="carta-winner-name">—</div>
     <div class="carta-divider"></div>
     <div class="carta-label">⭐ Carta al Campeón</div>
-    <div class="carta-text" id="carta-content"><p style="color:#475569;font-style:italic;text-align:center">Generando carta...</p></div>
+    <div class="carta-text" id="carta-content"><p style="color:#8a7040;font-style:italic;text-align:center">Generando carta...</p></div>
     <div class="carta-firma">— Tu Polla 2026</div>
     <button class="carta-close" onclick="closeCarta()">Cerrar ✓</button>
   </div>
@@ -310,14 +310,14 @@ const GROUPS={
   K:["Portugal","Uzbekistán","Colombia","RD Congo"],
   L:["Inglaterra","Croacia","Ghana","Panamá"],
 };
-const GROUP_COLORS={A:"#ef4444",B:"#f97316",C:"#eab308",D:"#22c55e",E:"#14b8a6",F:"#3b82f6",G:"#8b5cf6",H:"#ec4899",I:"#f43f5e",J:"#10b981",K:"#6366f1",L:"#0ea5e9"};
+const GROUP_COLORS={A:"#ef4444",B:"#f97316",C:"#d97706",D:"#22c55e",E:"#14b8a6",F:"#2563eb",G:"#8b5cf6",H:"#ec4899",I:"#f43f5e",J:"#10b981",K:"#6366f1",L:"#0ea5e9"};
 const FLAGS={"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Canadá":"🇨🇦","Qatar":"🇶🇦","Suiza":"🇨🇭","Bosnia":"🇧🇦","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Suecia":"🇸🇪","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Irak":"🇮🇶","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","RD Congo":"🇨🇩","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Ghana":"🇬🇭","Panamá":"🇵🇦"};
 const flag=t=>FLAGS[t]||"🏳️";
 const PHASE_LABELS={groups:"Grupos",r32:"16avos",r16:"Octavos",qf:"Cuartos",sf:"Semis",third:"3er Puesto",final:"⭐ Final"};
 const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"third",label:"3er Puesto"},{id:"final",label:"Final ⭐"}];
-const POS_COLORS=["#22c55e","#22c55e","#eab308","#ef4444"];
+const POS_COLORS=["#22c55e","#22c55e","#b8860b","#ef4444"];
 const POS_LABELS=["1°","2°","3°","4°"];
-const AVATAR_COLORS=["#1e40af","#7c3aed","#0f766e","#b45309","#be123c","#0369a1","#15803d","#9333ea"];
+const AVATAR_COLORS=["#1565c0","#7c3aed","#0f766e","#b45309","#be123c","#0369a1","#15803d","#9333ea"];
 
 const MATCHES=[
   {id:1,date:"11 Jun",time:"14:00",home:"México",away:"Sudáfrica",group:"A",stadium:"Azteca, CDMX",phase:"groups",kickoff:"2026-06-11T19:00:00Z"},
@@ -683,35 +683,35 @@ function renderLanding(){
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
       <div style="margin-bottom:40px">
         <div style="font-size:68px;margin-bottom:6px;display:inline-block;animation:bounce2 1.4s ease-in-out infinite">⚽</div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#475569;margin-bottom:8px">MUNDIAL 2026</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#8a7040;margin-bottom:8px">MUNDIAL 2026</div>
         <div style="display:flex;align-items:center;gap:12px;justify-content:center">
-          <div style="width:52px;height:52px;border-radius:14px;background:#F5C518;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🐔</div>
+          <div style="width:52px;height:52px;border-radius:14px;background:#b8860b;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🐔</div>
           <div>
-            <div style="font-size:32px;font-weight:900;letter-spacing:-1px;color:#f1f5f9;line-height:1">Tu Polla</div>
-            <div style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:2px">MUNDIAL 2026</div>
+            <div style="font-size:32px;font-weight:900;letter-spacing:-1px;color:#1c1207;line-height:1">Tu Polla</div>
+            <div style="font-size:10px;color:#8a7040;letter-spacing:2px;margin-top:2px">MUNDIAL 2026</div>
           </div>
         </div>
-        <div style="font-size:12px;color:#334155;margin-top:8px;font-weight:600">USA · México · Canadá</div>
+        <div style="font-size:12px;color:#e8d99a;margin-top:8px;font-weight:600">USA · México · Canadá</div>
       </div>
 
-      <button onclick="renderCrearPolla()" style="width:100%;max-width:340px;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px;box-shadow:0 4px 24px rgba(59,130,246,0.4)">
+      <button onclick="renderCrearPolla()" style="width:100%;max-width:340px;background:linear-gradient(135deg,#b8860b,#b8860b);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px;box-shadow:0 4px 24px rgba(184,134,11,0.25)">
         ✨ Crear una polla
       </button>
 
       <div style="width:100%;max-width:340px;position:relative;margin-bottom:6px">
         <input id="landingCode" type="text" placeholder="¿Tienes un código?"
           maxlength="6"
-          style="width:100%;background:#1e293b;border:1.5px solid #334155;border-radius:14px;color:#f1f5f9;padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
-          oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#3b82f6':'#334155'"
+          style="width:100%;background:#ffffff;border:1.5px solid #e8d99a;border-radius:14px;color:#1c1207;padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
+          oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#b8860b':'#e8d99a'"
           onkeydown="if(event.key==='Enter')doJoinFromLanding()"
-          onfocus="this.style.borderColor='#3b82f6'"
-          onblur="this.style.borderColor=this.value.length>0?'#3b82f6':'#334155'"
+          onfocus="this.style.borderColor='#b8860b'"
+          onblur="this.style.borderColor=this.value.length>0?'#b8860b':'#e8d99a'"
         />
-        <button onclick="doJoinFromLanding()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:#1e40af;border:none;border-radius:10px;color:#fff;padding:7px 13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">→</button>
+        <button onclick="doJoinFromLanding()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:#b8860b;border:none;border-radius:10px;color:#fff;padding:7px 13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">→</button>
       </div>
       <div id="landingError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:16px"></div>
 
-      <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px">
+      <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:#e8d99a;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px">
         Ya tengo cuenta — iniciar sesión
       </button>
     </div>`;
@@ -747,20 +747,20 @@ function renderPickName(onDone, onBack){
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
       <div style="font-size:52px;margin-bottom:16px">🎮</div>
-      <div style="font-size:24px;font-weight:900;color:#f1f5f9;margin-bottom:6px;letter-spacing:-0.5px">¿Cómo te conocerán<br>tus rivales?</div>
-      <div style="font-size:13px;color:#475569;margin-bottom:28px">Puedes cambiarlo después cuando quieras</div>
+      <div style="font-size:24px;font-weight:900;color:#1c1207;margin-bottom:6px;letter-spacing:-0.5px">¿Cómo te conocerán<br>tus rivales?</div>
+      <div style="font-size:13px;color:#8a7040;margin-bottom:28px">Puedes cambiarlo después cuando quieras</div>
       <input id="pickNameInput" type="text" placeholder="Tu nombre en la polla"
         maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false"
         value="${savedName}"
-        style="width:100%;max-width:340px;background:#1e293b;border:2px solid #3b82f6;border-radius:14px;color:#f1f5f9;padding:16px 18px;font-size:22px;font-weight:700;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
+        style="width:100%;max-width:340px;background:#ffffff;border:2px solid #b8860b;border-radius:14px;color:#1c1207;padding:16px 18px;font-size:22px;font-weight:700;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
         onkeydown="if(event.key==='Enter')doPickName()"
         oninput="pendingName=this.value.trim()"
       />
       <div id="pickNameError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:12px"></div>
-      <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif">
+      <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:#b8860b;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif">
         Continuar →
       </button>
-      <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">← Volver</button>
+      <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:#e8d99a;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px">← Volver</button>
     </div>`;
   setTimeout(()=>{const el=document.getElementById("pickNameInput");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},100);
 }
@@ -779,35 +779,35 @@ function renderAuthScreen(name){
   setFabs(false);
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
-      ${name?`<div style="font-size:18px;font-weight:900;color:#f1f5f9;margin-bottom:4px">Hola, ${name} 👋</div><div style="font-size:13px;color:#475569;margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:18px;font-weight:900;color:#f1f5f9;margin-bottom:24px">Bienvenido de vuelta</div>`}
+      ${name?`<div style="font-size:18px;font-weight:900;color:#1c1207;margin-bottom:4px">Hola, ${name} 👋</div><div style="font-size:13px;color:#8a7040;margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:18px;font-weight:900;color:#1c1207;margin-bottom:24px">Bienvenido de vuelta</div>`}
 
-      <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1e293b;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
+      <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#ffffff;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         Continuar con Google
       </button>
 
       <div style="display:flex;align-items:center;gap:10px;width:100%;max-width:340px;margin-bottom:16px">
-        <div style="flex:1;height:1px;background:#1e293b"></div>
-        <span style="font-size:11px;color:#334155;font-weight:700">O CON EMAIL</span>
-        <div style="flex:1;height:1px;background:#1e293b"></div>
+        <div style="flex:1;height:1px;background:#ffffff"></div>
+        <span style="font-size:11px;color:#e8d99a;font-weight:700">O CON EMAIL</span>
+        <div style="flex:1;height:1px;background:#ffffff"></div>
       </div>
 
       <input id="authEmail" type="email" placeholder="Email" autocomplete="email"
-        style="width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"/>
+        style="width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"/>
       <div style="position:relative;width:100%;max-width:340px;margin-bottom:10px">
         <input id="authPass" type="password" placeholder="Contraseña" autocomplete="current-password"
-          style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
+          style="width:100%;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
           onkeydown="if(event.key==='Enter')doEmailAuth()"/>
-        <button type="button" onclick="togglePass('authPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
+        <button type="button" onclick="togglePass('authPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#7a6030;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
       </div>
       <div id="authError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px;text-align:left"></div>
-      <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">
+      <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:#b8860b;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">
         Entrar →
       </button>
-      <button onclick="renderForgot()" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
+      <button onclick="renderForgot()" style="background:none;border:none;color:#8a7040;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
         ¿Olvidaste tu contraseña?
       </button>
-      <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:#334155;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
+      <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:#e8d99a;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
     </div>`;
   setTimeout(()=>document.getElementById("authEmail")?.focus(),100);
 }
@@ -875,14 +875,14 @@ function renderForgot(){
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
       <div style="font-size:44px;margin-bottom:16px">🔑</div>
-      <div style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">Recuperar contraseña</div>
-      <div style="font-size:13px;color:#475569;margin-bottom:24px">Te enviaremos un link por email</div>
+      <div style="font-size:20px;font-weight:900;color:#1c1207;margin-bottom:6px">Recuperar contraseña</div>
+      <div style="font-size:13px;color:#8a7040;margin-bottom:24px">Te enviaremos un link por email</div>
       <input id="forgotEmail" type="email" placeholder="Tu email" autocomplete="email"
-        style="width:100%;max-width:340px;background:#1e293b;border:1px solid #334155;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
+        style="width:100%;max-width:340px;background:#ffffff;border:1px solid #e8d99a;border-radius:10px;color:#fff;padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box"
         onkeydown="if(event.key==='Enter')doForgot()"/>
       <div id="forgotMsg" style="font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px"></div>
-      <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:#1e40af;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">Enviar link 📧</button>
-      <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
+      <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:#b8860b;color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px">Enviar link 📧</button>
+      <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:#8a7040;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif">← Volver</button>
     </div>`;
 }
 
@@ -920,19 +920,19 @@ function renderPollaLobby(){
       <!-- TOP BAR -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
         <div style="width:40px"></div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#334155;text-transform:uppercase">MUNDIAL 2026</div>
-        <button onclick="logout()" style="background:#1e293b;border:none;border-radius:8px;color:#64748b;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Inter',sans-serif">Salir</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:#e8d99a;text-transform:uppercase">MUNDIAL 2026</div>
+        <button onclick="logout()" style="background:#ffffff;border:none;border-radius:8px;color:#7a6030;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Inter',sans-serif">Salir</button>
       </div>
 
       <!-- HERO -->
       <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 24px">
-        <div style="font-size:22px;font-weight:900;color:#f1f5f9;letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
-        <button onclick="openChangeName()" style="background:none;border:none;color:#3b82f6;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
+        <div style="font-size:22px;font-weight:900;color:#1c1207;letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
+        <button onclick="openChangeName()" style="background:none;border:none;color:#b8860b;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;padding:4px 0;margin-bottom:4px">✏️ Cambiar nombre</button>
         <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-top:8px">
-          <div style="width:44px;height:44px;border-radius:12px;background:#F5C518;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🐔</div>
+          <div style="width:44px;height:44px;border-radius:12px;background:#b8860b;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🐔</div>
           <div>
-            <div style="font-size:24px;font-weight:900;letter-spacing:-0.5px;color:#f1f5f9;line-height:1">Tu Polla</div>
-            <div style="font-size:9px;color:#475569;letter-spacing:2px;margin-top:2px">MUNDIAL 2026</div>
+            <div style="font-size:24px;font-weight:900;letter-spacing:-0.5px;color:#1c1207;line-height:1">Tu Polla</div>
+            <div style="font-size:9px;color:#8a7040;letter-spacing:2px;margin-top:2px">MUNDIAL 2026</div>
           </div>
         </div>
       </div>
@@ -940,8 +940,8 @@ function renderPollaLobby(){
       <!-- POLLAS LIST -->
       <div style="flex:1;padding:0 20px 32px;max-width:680px;width:100%;margin:0 auto;box-sizing:border-box">
         ${pollaIds.length>0?`
-          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#334155;margin-bottom:10px;text-transform:uppercase;padding:0 4px">Mis Pollas</div>
-          <div style="background:#1e293b;border-radius:16px;margin-bottom:20px;border:1px solid #1e293b">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#e8d99a;margin-bottom:10px;text-transform:uppercase;padding:0 4px">Mis Pollas</div>
+          <div style="background:#ffffff;border-radius:16px;margin-bottom:20px;border:1px solid #ffffff">
             ${pollaIds.map((id,i)=>{
               const p=myPollas[id];
               const isCreator=p.creadorUid===currentUser.uid;
@@ -952,26 +952,26 @@ function renderPollaLobby(){
               const swipeBg=isCreator?'#ef4444':'#f97316';
               const swipeLabel=isCreator?'Eliminar':'Salirse';
               const showMenu=isCreator||canLeave;
-              return`<div class="polla-swipe-row" style="position:relative;${notLast?"border-bottom:1px solid #0f172a":""}">
+              return`<div class="polla-swipe-row" style="position:relative;${notLast?"border-bottom:1px solid #e8d99a":""}">
                 ${swipeAction?`<div class="polla-swipe-del" onclick="event.stopPropagation();${swipeAction};" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:${swipeBg};display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:700;color:#fff;opacity:0;pointer-events:none;border-radius:${notLast?"0":"0 0 16px 0"}">${swipeLabel}</div>`:""}
-                <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#1e293b;transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='#263044'" onmouseleave="this.style.background='#1e293b'">
-                  <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1e40af,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">⚽</div>
+                <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#ffffff;transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='#fff8e6'" onmouseleave="this.style.background='#ffffff'">
+                  <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#b8860b,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">⚽</div>
                   <div style="flex:1;min-width:0">
-                    <div style="font-size:15px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla sin nombre"}</div>
-                    <div style="font-size:11px;color:#475569;margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
+                    <div style="font-size:15px;font-weight:700;color:#1c1207;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla sin nombre"}</div>
+                    <div style="font-size:11px;color:#8a7040;margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:4px">
-                    ${showMenu?`<button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:#475569;cursor:pointer;font-size:20px;padding:6px 8px;border-radius:6px;letter-spacing:2px;line-height:1;font-weight:900" onmouseenter="this.style.color='#94a3b8'" onmouseleave="this.style.color='#475569'">···</button>`:""}
-                    <div style="color:#334155;font-size:18px;font-weight:300">›</div>
+                    ${showMenu?`<button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:#8a7040;cursor:pointer;font-size:20px;padding:6px 8px;border-radius:6px;letter-spacing:2px;line-height:1;font-weight:900" onmouseenter="this.style.color='#b8a060'" onmouseleave="this.style.color='#8a7040'">···</button>`:""}
+                    <div style="color:#e8d99a;font-size:18px;font-weight:300">›</div>
                   </div>                </div>
               </div>`;
             }).join("")}
           </div>
-        `:`<div style="text-align:center;padding:32px 0 28px;color:#334155;font-size:13px">Aún no estás en ninguna polla</div>`}
+        `:`<div style="text-align:center;padding:32px 0 28px;color:#e8d99a;font-size:13px">Aún no estás en ninguna polla</div>`}
 
         <div style="display:flex;flex-direction:column;gap:10px">
-          <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(59,130,246,0.3)">✨ Crear una polla</button>
-          <button onclick="renderUnirse()" style="width:100%;background:#1e293b;color:#94a3b8;border:1px solid #1e293b;border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🔗 Unirme a una polla</button>
+          <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,#b8860b,#b8860b);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(59,130,246,0.3)">✨ Crear una polla</button>
+          <button onclick="renderUnirse()" style="width:100%;background:#ffffff;color:#b8a060;border:1px solid #ffffff;border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🔗 Unirme a una polla</button>
         </div>
       </div>
     </div>`;
@@ -1033,12 +1033,12 @@ window.togglePollaMenu=function(id,nombre,btn){
     if(!isCreator&&!canLeave)return;
     m=document.createElement('div');
     m.id=`menu-${id}`;
-    m.style.cssText='position:fixed;background:#2d3748;border:1px solid #475569;border-radius:10px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6)';
+    m.style.cssText='position:fixed;background:#ffffff;border:1px solid #8a7040;border-radius:10px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6)';
     const safeName=nombre.replace(/'/g,"\\'");
-    const btnStyle='width:100%;background:none;border:none;color:#fca5a5;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:\'Inter\',sans-serif';
+    const btnStyle='width:100%;background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:\'Inter\',sans-serif';
     const items=[];
-    if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
-    if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#374151'" onmouseleave="this.style.background='none'">🚪 Salirse</button>`);
+    if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
+    if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">🚪 Salirse</button>`);
     m.innerHTML=items.join('');
     document.body.appendChild(m);
   }
@@ -1131,24 +1131,24 @@ const DEFAULT_RULES={
 };
 
 function ruleRow(id,label,val){
-  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0f172a">
-    <span style="font-size:13px;color:#cbd5e1">${label}</span>
+  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e8d99a">
+    <span style="font-size:13px;color:#3a2810">${label}</span>
     <div style="display:flex;align-items:center;gap:6px">
-      <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
-      <span style="font-size:11px;color:#475569;width:20px">pts</span>
+      <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+      <span style="font-size:11px;color:#8a7040;width:20px">pts</span>
     </div>
   </div>`;
 }
-function exBox(html){return`<div style="background:#0a0f1e;border-radius:8px;padding:10px 12px;margin:8px 0 10px;font-size:12px;color:#64748b;line-height:1.8">${html}</div>`;}
+function exBox(html){return`<div style="background:#fff8e6;border-radius:8px;padding:10px 12px;margin:8px 0 10px;font-size:12px;color:#7a6030;line-height:1.8">${html}</div>`;}
 function renderCrearPolla(){
   const r=DEFAULT_RULES;
   setFabs(false);
   const savedName=sessionStorage.getItem("pendingPollaName")||"";
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
-      <div style="background:#0a0f1e;border-bottom:1px solid #1e293b;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
-        <button onclick="${currentUser?"renderPollaLobby()":"renderLanding()"}" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
-        <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#f1f5f9">✨ Crear polla</div>
+      <div style="background:#fff8e6;border-bottom:1px solid #ffffff;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
+        <button onclick="${currentUser?"renderPollaLobby()":"renderLanding()"}" style="background:none;border:none;color:#7a6030;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
+        <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#1c1207">✨ Crear polla</div>
         <div style="width:32px"></div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">
@@ -1160,32 +1160,32 @@ function renderCrearPolla(){
             oninput="sessionStorage.setItem('pendingPollaName',this.value)"/>
           <div class="error" id="crearError" style="text-align:center;margin-bottom:12px;width:100%"></div>
           <button class="btn" onclick="doCrearPolla()" style="margin-bottom:20px;width:100%">Crear polla 🚀</button>
-          <div style="width:100%;background:#1e293b;border:1px solid #334155;border-radius:14px;overflow:hidden">
-            <div style="padding:12px 14px 6px;font-size:11px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase">Configurar polla</div>
+          <div style="width:100%;background:#ffffff;border:1px solid #e8d99a;border-radius:14px;overflow:hidden">
+            <div style="padding:12px 14px 6px;font-size:11px;font-weight:700;color:#7a6030;letter-spacing:1px;text-transform:uppercase">Configurar polla</div>
             ${[
               {id:"incluirClasificacion", icon:"🏟️", label:"Clasificación grupos", pts:`${DEFAULT_RULES.ptsPosGrupo} pts / posición`},
               {id:"incluirPartidosGrupos", icon:"🟢", label:"Partidos de grupos", pts:`${DEFAULT_RULES.ptsExactoGrupos}/${DEFAULT_RULES.ptsGanadorDifGrupos}/${DEFAULT_RULES.ptsSoloGanadorGrupos} pts`},
               {id:"incluirEliminatoria", icon:"🔥", label:"Eliminatoria", pts:`${DEFAULT_RULES.ptsExactoElim}/${DEFAULT_RULES.ptsSoloClasif} pts`},
               {id:"incluirEspeciales", icon:"⭐", label:"Especiales", pts:`${DEFAULT_RULES.espCampeon} pts campeón`}
             ].map((s,i,arr)=>`
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;${i<arr.length-1?"border-bottom:1px solid #0f172a":""}">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;${i<arr.length-1?"border-bottom:1px solid #e8d99a":""}">
                 <div style="display:flex;align-items:center;gap:10px">
                   <span style="font-size:15px;width:20px;text-align:center">${s.icon}</span>
                   <div>
-                    <div style="font-size:13px;font-weight:700;color:#f1f5f9">${s.label}</div>
-                    <div style="font-size:10px;color:#64748b;margin-top:1px">${s.pts}</div>
+                    <div style="font-size:13px;font-weight:700;color:#1c1207">${s.label}</div>
+                    <div style="font-size:10px;color:#7a6030;margin-top:1px">${s.pts}</div>
                   </div>
                 </div>
                 <label style="position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer">
                   <input type="checkbox" id="${s.id}" checked
                     style="opacity:0;width:0;height:0;position:absolute"
-                    onchange="document.getElementById('toggle-track-${s.id}').style.background=this.checked?'#22c55e':'#334155';document.getElementById('toggle-dot-${s.id}').style.transform=this.checked?'translateX(18px)':'translateX(0)'"/>
+                    onchange="document.getElementById('toggle-track-${s.id}').style.background=this.checked?'#22c55e':'#e8d99a';document.getElementById('toggle-dot-${s.id}').style.transform=this.checked?'translateX(18px)':'translateX(0)'"/>
                   <div id="toggle-track-${s.id}" style="position:absolute;inset:0;background:#22c55e;border-radius:11px;transition:background .2s"></div>
                   <div id="toggle-dot-${s.id}" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;transform:translateX(18px)"></div>
                 </label>
               </div>`).join("")}
-            <div style="border-top:1px solid #1e293b;padding:10px 14px;text-align:center">
-              <button onclick="toggleRules()" style="background:none;border:none;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">✏️ Cambiar puntos</button>
+            <div style="border-top:1px solid #ffffff;padding:10px 14px;text-align:center">
+              <button onclick="toggleRules()" style="background:none;border:none;color:#b8860b;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">✏️ Cambiar puntos</button>
             </div>
           </div>
         </div>
@@ -1193,75 +1193,75 @@ function renderCrearPolla(){
 
       <!-- RULES MODAL -->
       <div id="rulesModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:flex-end;justify-content:center;padding:16px" onclick="if(event.target===this)closeRulesModal()">
-        <div style="background:#1e293b;border-radius:16px;max-width:520px;width:100%;max-height:82vh;overflow-y:auto;padding:20px">
+        <div style="background:#ffffff;border-radius:16px;max-width:520px;width:100%;max-height:82vh;overflow-y:auto;padding:20px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div style="font-size:15px;font-weight:900;color:#f1f5f9">✏️ Cambiar puntos</div>
-            <button onclick="closeRulesModal()" style="background:none;border:none;color:#64748b;font-size:20px;cursor:pointer;line-height:1">×</button>
+            <div style="font-size:15px;font-weight:900;color:#1c1207">✏️ Cambiar puntos</div>
+            <button onclick="closeRulesModal()" style="background:none;border:none;color:#7a6030;font-size:20px;cursor:pointer;line-height:1">×</button>
           </div>
-          <div style="font-size:12px;color:#475569;text-align:center;margin-bottom:16px;line-height:1.6">Las reglas estándar ya están listas. Solo cambia lo que quieras.</div>
-          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+          <div style="font-size:12px;color:#8a7040;text-align:center;margin-bottom:16px;line-height:1.6">Las reglas estándar ya están listas. Solo cambia lo que quieras.</div>
+          <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
-                <div style="font-size:12px;color:#475569;margin-top:2px">Ordenas los 4 equipos de cada grupo antes del torneo.</div>
+                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">🏟️ Tabla de Grupos</div>
+                <div style="font-size:12px;color:#8a7040;margin-top:2px">Ordenas los 4 equipos de cada grupo antes del torneo.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
-                <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+                <input type="checkbox" id="incluirClasificacion" checked style="accent-color:#b8860b;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#b8a060">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × <span id="ex-ptsPosGrupo">${r.ptsPosGrupo??2}</span> pt por acierto</b>`)}
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #0f172a">
-              <span style="font-size:13px;color:#cbd5e1">Por cada equipo en posición exacta</span>
+            ${exBox(`<span style="color:#b8a060">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#b8a060">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × <span id="ex-ptsPosGrupo">${r.ptsPosGrupo??2}</span> pt por acierto</b>`)}
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e8d99a">
+              <span style="font-size:13px;color:#3a2810">Por cada equipo en posición exacta</span>
               <div style="display:flex;align-items:center;gap:6px">
                 <input type="number" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
                   oninput="document.getElementById('ex-ptsPosGrupo').textContent=this.value||'?'"
-                  style="width:48px;text-align:center;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
-                <span style="font-size:11px;color:#475569;width:20px">pts</span>
+                  style="width:48px;text-align:center;background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:5px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif"/>
+                <span style="font-size:11px;color:#8a7040;width:20px">pts</span>
               </div>
             </div>
           </div>
-          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+          <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🟢 Partidos de Grupos</div>
-                <div style="font-size:12px;color:#475569;margin-top:2px">Pronosticas el marcador de cada partido.</div>
+                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">🟢 Partidos de Grupos</div>
+                <div style="font-size:12px;color:#8a7040;margin-top:2px">Pronosticas el marcador de cada partido.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
-                <input type="checkbox" id="incluirPartidosGrupos" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+                <input type="checkbox" id="incluirPartidosGrupos" checked style="accent-color:#b8860b;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#b8a060">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#94a3b8">Pronosticas</span> Argentina <b style="color:#f1f5f9">2–1</b> Brasil<br>✅ <b style="color:#22c55e">Exacto</b> si el real es 2–1<br>🟡 <b style="color:#facc15">Ganador+dif.</b> si el real es 3–2 (Argentina gana por 1)<br>🟡 <b style="color:#facc15">Solo ganador</b> si el real es 1–0<br>❌ Sin puntos si Brasil gana o hay empate`)}
+            ${exBox(`<span style="color:#b8a060">Pronosticas</span> Argentina <b style="color:#1c1207">2–1</b> Brasil<br>✅ <b style="color:#22c55e">Exacto</b> si el real es 2–1<br>🟡 <b style="color:#facc15">Ganador+dif.</b> si el real es 3–2 (Argentina gana por 1)<br>🟡 <b style="color:#facc15">Solo ganador</b> si el real es 1–0<br>❌ Sin puntos si Brasil gana o hay empate`)}
             ${ruleRow("ptsExactoGrupos","✅ Marcador exacto",r.ptsExactoGrupos)}
             ${ruleRow("ptsGanadorDifGrupos","🟡 Ganador + misma diferencia",r.ptsGanadorDifGrupos)}
             ${ruleRow("ptsSoloGanadorGrupos","🟡 Solo ganador o empate",r.ptsSoloGanadorGrupos)}
           </div>
-          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
+          <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
-                <div style="font-size:12px;color:#475569;margin-top:2px">Como grupos, pero también dices quién clasifica si hay penales.</div>
+                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">🔥 Fase Eliminatoria</div>
+                <div style="font-size:12px;color:#8a7040;margin-top:2px">Como grupos, pero también dices quién clasifica si hay penales.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
-                <input type="checkbox" id="incluirEliminatoria" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+                <input type="checkbox" id="incluirEliminatoria" checked style="accent-color:#b8860b;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#b8a060">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#94a3b8">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España<br><span style="color:#64748b;font-size:11px">⏱ El marcador cuenta solo el tiempo regular (90 min), no la prórroga.</span>`)}
+            ${exBox(`<span style="color:#b8a060">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España<br><span style="color:#7a6030;font-size:11px">⏱ El marcador cuenta solo el tiempo regular (90 min), no la prórroga.</span>`)}
             ${ruleRow("ptsExactoElim","✅ Marcador exacto + quién clasifica",r.ptsExactoElim)}
             ${ruleRow("ptsExactoSinClasif","🟡 Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
             ${ruleRow("ptsSoloClasif","🟡 Solo acertaste quién clasifica",r.ptsSoloClasif)}
           </div>
-          <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:20px">
+          <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:20px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
               <div>
-                <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
-                <div style="font-size:12px;color:#475569;margin-top:2px">Campeón, Bota de Oro, Guante y Mejor Jugador.</div>
+                <div style="font-size:11px;font-weight:700;color:#b8860b;letter-spacing:1px;text-transform:uppercase">⭐ Especiales</div>
+                <div style="font-size:12px;color:#8a7040;margin-top:2px">Campeón, Bota de Oro, Guante y Mejor Jugador.</div>
               </div>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;margin-left:12px">
-                <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#3b82f6;width:15px;height:15px"/>
-                <span style="font-size:12px;color:#94a3b8">Incluir</span>
+                <input type="checkbox" id="incluirEspeciales" checked style="accent-color:#b8860b;width:15px;height:15px"/>
+                <span style="font-size:12px;color:#b8a060">Incluir</span>
               </label>
             </div>
             ${ruleRow("espCampeon","🏆 Campeón",r.espCampeon)}
@@ -1269,7 +1269,7 @@ function renderCrearPolla(){
             ${ruleRow("espGuanteOro","🧤 Guante de Oro",r.espGuanteOro)}
             ${ruleRow("espMejorJugador","⭐ Mejor Jugador",r.espMejorJugador)}
           </div>
-          <button onclick="closeRulesModal()" style="width:100%;background:#1e40af;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Listo ✓</button>
+          <button onclick="closeRulesModal()" style="width:100%;background:#b8860b;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Listo ✓</button>
         </div>
       </div>
     </div>`;
@@ -1329,16 +1329,16 @@ function renderInvite(pollaId,nombre,code){
   document.getElementById("root").innerHTML=`
     <div style="max-width:480px;margin:0 auto;padding:24px 16px;text-align:center;position:relative;z-index:1">
       <div style="font-size:52px;margin-bottom:12px">🎉</div>
-      <h2 style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:6px">¡Polla creada!</h2>
-      <p style="font-size:13px;color:#64748b;margin-bottom:24px">${nombre}</p>
-      <div style="background:#1e293b;border-radius:14px;overflow:hidden;margin-bottom:16px">
+      <h2 style="font-size:20px;font-weight:900;color:#1c1207;margin-bottom:6px">¡Polla creada!</h2>
+      <p style="font-size:13px;color:#7a6030;margin-bottom:24px">${nombre}</p>
+      <div style="background:#ffffff;border-radius:14px;overflow:hidden;margin-bottom:16px">
         <div style="padding:20px 20px 14px">
-          <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
-          <div onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado ✓'))" style="font-size:40px;font-weight:900;color:#f1f5f9;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
-          <div style="font-size:10px;color:#475569;margin-bottom:14px">toca para copiar</div>
+          <div style="font-size:11px;font-weight:700;color:#7a6030;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
+          <div onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado ✓'))" style="font-size:40px;font-weight:900;color:#1c1207;letter-spacing:8px;font-family:'Inter',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
+          <div style="font-size:10px;color:#8a7040;margin-bottom:14px">toca para copiar</div>
         </div>
-        <div style="border-top:1px solid #0f172a;padding:14px 20px">
-          <div style="font-size:11px;color:#475569;word-break:break-all;margin-bottom:10px">${link}</div>
+        <div style="border-top:1px solid #e8d99a;padding:14px 20px">
+          <div style="font-size:11px;color:#8a7040;word-break:break-all;margin-bottom:10px">${link}</div>
           <button class="btn-secondary" onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copiado ✓'))" style="width:100%">Copiar link 🔗</button>
         </div>
       </div>
@@ -1350,14 +1350,14 @@ function renderInvite(pollaId,nombre,code){
 function renderUnirse(){
   document.getElementById("root").innerHTML=`
     <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
-      <div style="background:#0a0f1e;border-bottom:1px solid #1e293b;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
-        <button onclick="renderPollaLobby()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
-        <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#f1f5f9">🔗 Unirme a una polla</div>
+      <div style="background:#fff8e6;border-bottom:1px solid #ffffff;padding:14px 16px;display:flex;align-items:center;position:sticky;top:0;z-index:10">
+        <button onclick="renderPollaLobby()" style="background:none;border:none;color:#7a6030;cursor:pointer;font-size:20px;padding:0;line-height:1;width:32px">←</button>
+        <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:#1c1207">🔗 Unirme a una polla</div>
         <div style="width:32px"></div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">
         <div style="width:100%;max-width:340px">
-          <p style="font-size:13px;color:#64748b;margin-bottom:20px;text-align:center">Escribe el código que te pasaron</p>
+          <p style="font-size:13px;color:#7a6030;margin-bottom:20px;text-align:center">Escribe el código que te pasaron</p>
           <input class="input" id="joinCode" type="text" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:22px;font-weight:700;text-align:center;width:100%;box-sizing:border-box"/>
           <div class="error" id="joinError"></div>
           <button class="btn" onclick="doJoinPolla()" style="width:100%">Unirme 🚀</button>
@@ -1425,14 +1425,14 @@ function showGoalNotif(match,newH,newA){
       },380);
     } else {
       ptsEl.textContent=`Pronosticaste ${pred.h}-${pred.a} · ahora tendrías ${pts} pt${pts!==1?"s":""}`;
-      ptsEl.style.color="#93c5fd";
-      bar.style.background="#1e3a5f";
-      bar.style.borderBottomColor="#3b82f644";
+      ptsEl.style.color="#f0c040";
+      bar.style.background="#fffbf0";
+      bar.style.borderBottomColor="#b8860b44";
     }
   } else {
     ptsEl.textContent="";
-    bar.style.background="#1e3a5f";
-    bar.style.borderBottomColor="#3b82f644";
+    bar.style.background="#fffbf0";
+    bar.style.borderBottomColor="#b8860b44";
   }
 
   clearTimeout(_gnTimer);
@@ -1543,14 +1543,14 @@ function render(){
       <div class="header">
         <div class="header-bg"></div>
         <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-          <button onclick="goToLobby()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
-          ${isCreator?`<button onclick="showInvite()" style="background:rgba(30,64,175,0.3);border:1px solid #1e40af;color:#60a5fa;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;border-radius:6px;padding:3px 8px">🔗 Invitar</button>`:`<div></div>`}
+          <button onclick="goToLobby()" style="background:none;border:none;color:#8a7040;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
+          ${isCreator?`<button onclick="showInvite()" style="background:rgba(184,134,11,0.1);border:1px solid #b8860b;color:#d4a017;cursor:pointer;font-size:11px;font-family:'Inter',sans-serif;border-radius:6px;padding:3px 8px">🔗 Invitar</button>`:`<div></div>`}
         </div>
-        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:3px;color:#64748b;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase;text-align:center">TU POLLA · MUNDIAL 2026</div>
+        <div style="position:relative;font-size:10px;font-weight:700;letter-spacing:3px;color:#7a6030;margin-bottom:2px;font-family:'Inter',sans-serif;text-transform:uppercase;text-align:center">TU POLLA · MUNDIAL 2026</div>
         <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
         <p class="header-sub">USA · México · Canadá 2026</p>
-        <div style="position:relative;font-size:12px;color:#64748b;margin-bottom:6px;font-family:'Inter',sans-serif;text-align:center">
-          Hola, <strong style="color:#f1f5f9">${currentUser.name}</strong>
+        <div style="position:relative;font-size:12px;color:#7a6030;margin-bottom:6px;font-family:'Inter',sans-serif;text-align:center">
+          Hola, <strong style="color:#1c1207">${currentUser.name}</strong>
         </div>
         <div style="display:flex;justify-content:center;margin-bottom:4px">
         ${countdown?`<div class="countdown-bar" style="position:relative">⏱ <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e">⚽ ¡El Mundial está en curso!</div>`}
@@ -1573,10 +1573,10 @@ function renderTab(){
 
 // ─── PILLS ────────────────────────────────────────────────
 function groupPills(){
-  return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?GROUP_COLORS[g]:"#1e293b"};color:${currentGroup===g?"#fff":"#94a3b8"}" onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
+  return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?GROUP_COLORS[g]:"#ffffff"};color:${currentGroup===g?"#fff":"#b8a060"}" onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
 }
 function elimPhasePills(){
-  return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"#1e40af":"#1e293b"};color:${currentElimPhase===p.id?"#fff":"#94a3b8"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
+  return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"#b8860b":"#ffffff"};color:${currentElimPhase===p.id?"#fff":"#b8a060"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
 }
 
 // ─── TAB: GRUPOS ──────────────────────────────────────────
@@ -1598,7 +1598,7 @@ function renderGrupos(){
   const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
   const realGrp=allResults["groupOrder"]||{};
   const myTotalPts=Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(myGroupPreds[g],realGrp[g]),0);
-  const posColors=["#22c55e","#22c55e","#eab308","#ef4444"];
+  const posColors=["#22c55e","#22c55e","#b8860b","#ef4444"];
   const posTips=["Clasifica","Clasifica","Posible clasificación","Eliminado"];
   const table=calcGroupTable(currentGroup);
   const userOrder=myGroupPreds[currentGroup]||[...GROUPS[currentGroup]];
@@ -1606,15 +1606,15 @@ function renderGrupos(){
 
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#94a3b8">Pronóstico grupos</div>
+      <div><div style="font-size:12px;color:#b8a060">Pronóstico grupos</div>
         <div style="font-size:28px;font-weight:900;color:#14b8a6">${myTotalPts} pts</div></div>
-      <div style="font-size:11px;color:#64748b;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
+      <div style="font-size:11px;color:#7a6030;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
     </div>
     ${groupPills()}
-    <div style="background:#1e293b;border-radius:10px;margin-bottom:12px;overflow:hidden">
+    <div style="background:#ffffff;border-radius:10px;margin-bottom:12px;overflow:hidden">
       <div style="background:${GROUP_COLORS[currentGroup]};padding:8px 14px;font-weight:900;font-size:13px;letter-spacing:1px">GRUPO ${currentGroup} — Tabla actual</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">
-        <thead><tr style="color:#64748b;border-bottom:1px solid #0f172a">
+        <thead><tr style="color:#7a6030;border-bottom:1px solid #e8d99a">
           <th style="padding:6px 6px;width:12px"></th>
           <th style="padding:6px 4px;text-align:left;font-weight:700">Equipo</th>
           <th style="padding:6px 0;text-align:center;font-weight:700;width:32px;min-width:32px">PJ</th>
@@ -1625,35 +1625,35 @@ function renderGrupos(){
           <th style="padding:6px 0;text-align:center;font-weight:700;width:36px;min-width:36px">Pts</th>
         </tr></thead>
         <tbody>${table.map((r,i)=>`
-          <tr style="border-bottom:${i<table.length-1?"1px solid #0f172a":"none"}">
+          <tr style="border-bottom:${i<table.length-1?"1px solid #e8d99a":"none"}">
             <td style="padding:8px 6px"><div style="width:5px;height:24px;background:${posColors[i]};border-radius:0"></div></td>
             <td style="padding:8px 4px;font-weight:700;white-space:nowrap">${flag(r.team)} ${r.team}</td>
-            <td style="padding:8px 0;text-align:center;color:#94a3b8;width:32px;min-width:32px">${r.pj}</td>
-            <td style="padding:8px 0;text-align:center;color:#94a3b8;width:32px;min-width:32px">${r.pg}</td>
-            <td style="padding:8px 0;text-align:center;color:#94a3b8;width:32px;min-width:32px">${r.pe}</td>
-            <td style="padding:8px 0;text-align:center;color:#94a3b8;width:32px;min-width:32px">${r.pp}</td>
-            <td style="padding:8px 0;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"#94a3b8"};width:36px;min-width:36px">${r.dif>0?"+":""}${r.dif}</td>
+            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pj}</td>
+            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pg}</td>
+            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pe}</td>
+            <td style="padding:8px 0;text-align:center;color:#b8a060;width:32px;min-width:32px">${r.pp}</td>
+            <td style="padding:8px 0;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"#b8a060"};width:36px;min-width:36px">${r.dif>0?"+":""}${r.dif}</td>
             <td style="padding:8px 0;text-align:center;font-weight:900;font-size:14px;color:${GROUP_COLORS[currentGroup]};width:36px;min-width:36px">${r.pts}</td>
           </tr>`).join("")}
         </tbody>
       </table></div>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;padding:8px 14px;border-top:1px solid #0f172a">
-        ${posColors.map((c,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b"><span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}</span>`).join("")}
+      <div style="display:flex;flex-wrap:wrap;gap:10px;padding:8px 14px;border-top:1px solid #e8d99a">
+        ${posColors.map((c,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#7a6030"><span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}</span>`).join("")}
       </div>
     </div>
     <div class="card">
-      <div style="font-size:12px;color:#64748b;margin-bottom:10px;font-weight:700">GRUPO ${currentGroup} — ${locked?"Tu pronóstico de clasificación":"Arrastra para ordenar"}</div>
+      <div style="font-size:12px;color:#7a6030;margin-bottom:10px;font-weight:700">GRUPO ${currentGroup} — ${locked?"Tu pronóstico de clasificación":"Arrastra para ordenar"}</div>
       ${locked
         ?userOrder.map((t,i)=>{
             const correct=realOrder&&realOrder[i]===t;
-            return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"#1e293b"}">
+            return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"#ffffff"}">
               <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
               <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
-              ${realOrder?`<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"#64748b"}">${correct?"✓ +2":"✗ 0"}</span>`:""}
+              ${realOrder?`<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"#7a6030"}">${correct?"✓ +2":"✗ 0"}</span>`:""}
             </div>`;
           }).join("")+
-          (realOrder?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid #0f172a">
-            <div style="font-size:12px;color:#64748b;margin-bottom:8px;font-weight:700">Clasificación real</div>
+          (realOrder?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e8d99a">
+            <div style="font-size:12px;color:#7a6030;margin-bottom:8px;font-weight:700">Clasificación real</div>
             ${realOrder.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">
               <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
               <span>${flag(t)} ${t}</span>
@@ -1661,7 +1661,7 @@ function renderGrupos(){
           </div>`:"")
         :`<ul class="sortable-list" id="sortable-${currentGroup}">
           ${userOrder.map((t,i)=>`<li class="sortable-item" draggable="true" data-team="${t}">
-            <span style="color:#475569;font-size:16px;cursor:grab">⠿</span>
+            <span style="color:#8a7040;font-size:16px;cursor:grab">⠿</span>
             <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
             <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
           </li>`).join("")}
@@ -1695,7 +1695,7 @@ function initDragDrop(){
       tEl.style.transform="scale(1.03)";tEl.style.opacity="0.9";
       tEl.style.boxShadow="0 4px 16px rgba(0,0,0,0.4)";
       tClone=tEl.cloneNode(true);
-      tClone.style.cssText=`position:fixed;opacity:.75;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:#334155;border-radius:8px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,0.4);`;
+      tClone.style.cssText=`position:fixed;opacity:.75;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:#e8d99a;border-radius:8px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,0.4);`;
       document.body.appendChild(tClone);
     },300);
   },{passive:true});
@@ -1758,7 +1758,7 @@ function h2hHTML(matchId,home,away){
     const date=m.date?new Date(m.date).toLocaleDateString([],{month:"short",year:"numeric"}):"";
     const comp=m.competition||"";
     return`<div class="h2h-row">
-      <span style="min-width:52px;font-size:10px;color:#475569">${date}</span>
+      <span style="min-width:52px;font-size:10px;color:#8a7040">${date}</span>
       <span class="h2h-score">${ht} ${hs}–${as} ${at}</span>
       <span class="h2h-comp">${comp}</span>
     </div>`;
@@ -1766,7 +1766,7 @@ function h2hHTML(matchId,home,away){
   return`<div class="h2h-block">
     <div class="h2h-title" onclick="toggleH2H(${matchId},this)">
       <span>Últimos enfrentamientos</span>
-      <span style="font-size:10px;color:#475569">▼ ver</span>
+      <span style="font-size:10px;color:#8a7040">▼ ver</span>
     </div>
     <div class="h2h-rows" id="h2h-${matchId}">${rows}</div>
   </div>`;
@@ -1794,15 +1794,15 @@ function matchScoreBlock(m,pred,res){
   if(locked&&hasRes){
     return`<div class="vs-scores">
       <div class="pred-row"><span class="score-box pred">${pred?.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box pred">${pred?.a??"-"}</span></div>
-      <div style="font-size:9px;color:#475569;text-align:center;margin:1px 0">tu pronóstico</div>
+      <div style="font-size:9px;color:#8a7040;text-align:center;margin:1px 0">tu pronóstico</div>
       <div class="pred-row"><span class="score-box result">${res.h}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box result">${res.a}</span></div>
-      <div style="font-size:9px;color:#475569;text-align:center;margin:1px 0">resultado real</div>
+      <div style="font-size:9px;color:#8a7040;text-align:center;margin:1px 0">resultado real</div>
     </div>`;
   }
   if(locked){
     return`<div class="vs-scores">
       <div class="pred-row"><span class="score-box pred">${pred?.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box pred">${pred?.a??"-"}</span></div>
-      <div style="font-size:9px;color:#475569;text-align:center">🔒 bloqueado</div>
+      <div style="font-size:9px;color:#8a7040;text-align:center">🔒 bloqueado</div>
     </div>`;
   }
   return`<div style="display:flex;gap:4px;align-items:center">
@@ -1819,22 +1819,22 @@ function spectatorBlock(m, res){
   function badge(pts){
     if(pts===null||pts===undefined) return '';
     if(pts===3) return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#166534;color:#4ade80">exacto</span>`;
-    if(pts>=1)  return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#1e3a5f;color:#60a5fa">ganador</span>`;
+    if(pts>=1)  return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#fffbf0;color:#d4a017">ganador</span>`;
     return        `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#450a0a;color:#f87171">sin puntos</span>`;
   }
   function scoreColor(pts){
     if(pts===3) return '#4ade80';
-    if(pts>=1)  return '#60a5fa';
+    if(pts>=1)  return '#d4a017';
     if(pts===0) return '#f87171';
-    return '#64748b';
+    return '#7a6030';
   }
 
   const rows = others.map(([uid,user])=>{
     const pred = (user.predictions||{})[m.id];
     if(!pred||pred.h===undefined||pred.h==='') return '';
     const pts = hasRes ? calcMatchPoints(pred, res) : null;
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #0f172a">
-      <span style="font-size:12px;font-weight:700;color:#f1f5f9">${user.name||'?'}</span>
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e8d99a">
+      <span style="font-size:12px;font-weight:700;color:#1c1207">${user.name||'?'}</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)}">${pred.h} — ${pred.a}</span>
         ${badge(pts)}
@@ -1843,8 +1843,8 @@ function spectatorBlock(m, res){
   }).filter(Boolean).join('');
 
   if(!rows) return '';
-  return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #0f172a">
-    <div style="font-size:10px;font-weight:700;color:#475569;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos de todos</div>
+  return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e8d99a">
+    <div style="font-size:10px;font-weight:700;color:#8a7040;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos de todos</div>
     ${rows}
   </div>`;
 }
@@ -1854,8 +1854,8 @@ function renderMisPronos(){
   const totalMatchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPoints(myPredictions[m.id],allResults[m.id])||0),0);
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#94a3b8">Total puntos partidos</div>
-        <div style="font-size:28px;font-weight:900;color:#3b82f6">${totalMatchPts} pts</div></div>
+      <div><div style="font-size:12px;color:#b8a060">Total puntos partidos</div>
+        <div style="font-size:28px;font-weight:900;color:#b8860b">${totalMatchPts} pts</div></div>
     </div>
     ${groupPills()}
     ${matches.map(m=>{
@@ -1863,7 +1863,7 @@ function renderMisPronos(){
       const pts=calcMatchPoints(pred,res);
       const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
       const live=isLive(m);
-      const color=hasRes?(pts===3?"#22c55e":pts===2?"#3b82f6":pts===1?"#eab308":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
+      const color=hasRes?(pts===3?"#22c55e":pts===2?"#b8860b":pts===1?"#b8860b":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
       return`<div class="match-card" style="border-left:3px solid ${color}">
         <div class="match-meta">
           <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}${locked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
@@ -1885,7 +1885,7 @@ function renderEliminatorias(){
   const myPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints((myElimPreds||{})[m.id],allResults[m.id])||0),0);
   return`
     <div class="card" style="margin-bottom:14px">
-      <div style="font-size:12px;color:#94a3b8">Mis puntos (eliminatorias)</div>
+      <div style="font-size:12px;color:#b8a060">Mis puntos (eliminatorias)</div>
       <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div>
     </div>
     ${elimPhasePills()}
@@ -1908,19 +1908,19 @@ function renderElimPhase(phaseId){
     const pred=(myElimPreds||{})[m.id]||{},res=allResults[m.id];
     const pts=calcElimPoints(pred,res);
     const matchLocked=isLocked(m),hasRes=res?.winner!==undefined,live=isLive(m);
-    const color=hasRes?(pts===3?"#22c55e":pts===2?"#eab308":"#ef4444"):live?"#ef4444":"#1e40af";
+    const color=hasRes?(pts===3?"#22c55e":pts===2?"#b8860b":"#ef4444"):live?"#ef4444":"#b8860b";
     let scoreBlock;
     if(matchLocked&&hasRes){
       scoreBlock=`<div class="vs-scores">
         <div class="pred-row"><span class="score-box pred">${pred?.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box pred">${pred?.a??"-"}</span></div>
-        <div style="font-size:9px;color:#475569;text-align:center;margin:1px 0">tu pronóstico</div>
+        <div style="font-size:9px;color:#8a7040;text-align:center;margin:1px 0">tu pronóstico</div>
         <div class="pred-row"><span class="score-box result">${res.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box result">${res.a??"-"}</span></div>
-        <div style="font-size:9px;color:#475569;text-align:center;margin:1px 0">resultado real</div>
+        <div style="font-size:9px;color:#8a7040;text-align:center;margin:1px 0">resultado real</div>
       </div>`;
     }else if(matchLocked){
       scoreBlock=`<div class="vs-scores">
         <div class="pred-row"><span class="score-box pred">${pred?.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box pred">${pred?.a??"-"}</span></div>
-        <div style="font-size:9px;color:#475569;text-align:center">🔒</div>
+        <div style="font-size:9px;color:#8a7040;text-align:center">🔒</div>
       </div>`;
     }else{
       scoreBlock=`<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
@@ -1929,7 +1929,7 @@ function renderElimPhase(phaseId){
           <span class="score-sep">:</span>
           <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)"/>
         </div>
-        <select onchange="saveElimWinner(${m.id},this.value)" style="background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:3px 6px;font-size:11px;width:100%;max-width:130px">
+        <select onchange="saveElimWinner(${m.id},this.value)" style="background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:3px 6px;font-size:11px;width:100%;max-width:130px">
           <option value="">¿Quién avanza?</option>
           <option value="${m.home}" ${pred.winner===m.home?"selected":""}>${flag(m.home)} ${m.home}</option>
           <option value="${m.away}" ${pred.winner===m.away?"selected":""}>${flag(m.away)} ${m.away}</option>
@@ -1946,7 +1946,7 @@ function renderElimPhase(phaseId){
         ${scoreBlock}
         <span class="team">${m.away} ${flag(m.away)}</span>
       </div>
-      ${hasRes&&res.winner?`<div style="margin-top:6px;font-size:11px;color:#64748b;text-align:center">Avanza: <strong style="color:#22c55e">${flag(res.winner)} ${res.winner}</strong></div>`:""}
+      ${hasRes&&res.winner?`<div style="margin-top:6px;font-size:11px;color:#7a6030;text-align:center">Avanza: <strong style="color:#22c55e">${flag(res.winner)} ${res.winner}</strong></div>`:""}
     </div>`;
   }).join("");
 }
@@ -1960,33 +1960,33 @@ function renderEspeciales(){
   ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&r&&p===r)espPts+=f.pts;});
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div><div style="font-size:12px;color:#94a3b8">Mis puntos especiales</div>
+      <div><div style="font-size:12px;color:#b8a060">Mis puntos especiales</div>
         <div style="font-size:28px;font-weight:900;color:#f59e0b">${espPts} pts</div></div>
-      <div style="font-size:11px;color:#64748b;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
+      <div style="font-size:11px;color:#7a6030;text-align:right">${locked?`<span style="color:#ef4444">🔒 Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
     </div>
     ${ESPECIALES_FIELDS.map(f=>{
       const pred=myEsp[f.id]||"",real=(adminEsp[f.id]||"").trim();
       const correct=real&&pred.trim().toLowerCase()===real.toLowerCase();
       const wrong=real&&pred.trim()&&!correct;
-      return`<div class="card" style="margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"#334155"):"#f59e0b"}">
+      return`<div class="card" style="margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"#e8d99a"):"#f59e0b"}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <span style="font-weight:700;font-size:14px">${f.label}</span>
-          ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?`✓ +${f.pts}`:"✗ 0"}</span>`:`<span style="font-size:11px;color:#64748b">${f.pts} pts</span>`}
+          ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?`✓ +${f.pts}`:"✗ 0"}</span>`:`<span style="font-size:11px;color:#7a6030">${f.pts} pts</span>`}
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           ${locked
-            ?`<div style="background:#0f172a;border-radius:8px;padding:8px 12px;font-size:14px;flex:1;color:${pred?"#f1f5f9":"#475569"}">${pred||"No ingresaste predicción"}</div>`
-            :`<input type="text" placeholder="${f.placeholder}" value="${pred}" style="flex:1;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecial('${f.id}',this.value)"/>`
+            ?`<div style="background:#fef9f0;border-radius:8px;padding:8px 12px;font-size:14px;flex:1;color:${pred?"#1c1207":"#8a7040"}">${pred||"No ingresaste predicción"}</div>`
+            :`<input type="text" placeholder="${f.placeholder}" value="${pred}" style="flex:1;background:#fef9f0;border:1px solid #e8d99a;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecial('${f.id}',this.value)"/>`
           }
-          ${real?`<div style="font-size:12px;color:#64748b;text-align:right;min-width:80px">Real:<br/><strong style="color:#f1f5f9">${real}</strong></div>`:""}
+          ${real?`<div style="font-size:12px;color:#7a6030;text-align:right;min-width:80px">Real:<br/><strong style="color:#1c1207">${real}</strong></div>`:""}
         </div>
       </div>`;
     }).join("")}
     ${currentUser.name.toUpperCase()===ADMIN_NAME.toUpperCase()?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
       <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">⚙️ Admin — Resultados oficiales</div>
       ${ESPECIALES_FIELDS.map(f=>`<div style="margin-bottom:10px">
-        <div style="font-size:12px;color:#94a3b8;margin-bottom:4px">${f.label}</div>
-        <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}" style="width:100%;background:#0f172a;border:1px solid #7c3aed;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecialResult('${f.id}',this.value)"/>
+        <div style="font-size:12px;color:#b8a060;margin-bottom:4px">${f.label}</div>
+        <input type="text" placeholder="${f.placeholder}" value="${adminEsp[f.id]||""}" style="width:100%;background:#fef9f0;border:1px solid #7c3aed;border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecialResult('${f.id}',this.value)"/>
       </div>`).join("")}
     </div>`:""}`;
 }
@@ -1995,7 +1995,7 @@ function renderEspeciales(){
 function renderRanking(){
   const rows=getRankedUsers();
   const medals=["🥇","🥈","🥉"];
-  const podioColors=["#eab308","#94a3b8","#b45309"];
+  const podioColors=["#b8860b","#b8a060","#b45309"];
   const top3=rows.slice(0,3);
   const rest=rows.slice(3);
 
@@ -2011,13 +2011,13 @@ function renderRanking(){
         const streak=getStreak(r.uid);
         const prevPos=prevRanking[r.uid];
         const curPos=realIdx+1;
-        const arrow=prevPos&&prevPos!==curPos?(prevPos>curPos?`<span style="color:#22c55e;font-size:11px">↑</span>`:`<span style="color:#ef4444;font-size:11px">↓</span>`):"";
-        return`<div class="podio-card ${pClass}" style="${r.uid===currentUser.uid?"border-color:#3b82f6;":""}">
+        const arrow=prevPos&&prevPos!==curPos?(prevPos>curPos?`<span style="color:#166534;font-size:11px">↑</span>`:`<span style="color:#b91c1c;font-size:11px">↓</span>`):"";
+        return`<div class="podio-card ${pClass}" style="${r.uid===currentUser.uid?"border-color:#b8860b;":""}">
           <div class="podio-medal">${medals[realIdx]}</div>
           <div class="podio-avatar" style="background:${avatarColor(r.name)}">${avatarInitial(r.name)}</div>
           <div class="podio-name">${r.name}</div>
           <div class="podio-pts" style="color:${podioColors[realIdx]}">${r.pts}</div>
-          <div style="font-size:10px;color:#64748b">pts ${arrow}${streak>=5?` 🔥×${streak}`:""}</div>
+          <div style="font-size:10px;color:#7a6030">pts ${arrow}${streak>=5?` 🔥×${streak}`:""}</div>
         </div>`;
       }).join("")}
     </div>`;
@@ -2026,16 +2026,16 @@ function renderRanking(){
   const restHtml=rest.map((r,i)=>{
     const pos=i+4;
     const prevPos=prevRanking[r.uid];
-    const arrow=prevPos&&prevPos!==pos?(prevPos>pos?`<span style="color:#22c55e;font-weight:700">↑</span>`:`<span style="color:#ef4444;font-weight:700">↓</span>`):"";
+    const arrow=prevPos&&prevPos!==pos?(prevPos>pos?`<span style="color:#166534;font-weight:700">↑</span>`:`<span style="color:#b91c1c;font-weight:700">↓</span>`):"";
     const streak=getStreak(r.uid);
-    return`<div class="rank-row" style="${r.uid===currentUser.uid?"border-left:3px solid #3b82f6;padding-left:9px;margin-left:-12px;":""}">
-      <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:#1e293b;color:#64748b;flex-shrink:0">${pos}</div>
+    return`<div class="rank-row" style="${r.uid===currentUser.uid?"border-left:3px solid #b8860b;padding-left:9px;margin-left:-12px;":""}">
+      <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:#ffffff;color:#7a6030;flex-shrink:0">${pos}</div>
       <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:${avatarColor(r.name)};color:#fff;flex-shrink:0">${avatarInitial(r.name)}</div>
-      <span style="flex:1;font-weight:700;color:${r.uid===currentUser.uid?"#93c5fd":"#f1f5f9"}">${r.name}</span>
+      <span style="flex:1;font-weight:700;color:${r.uid===currentUser.uid?"#f0c040":"#1c1207"}">${r.name}</span>
       ${streak>=5?`<span style="font-size:11px">🔥×${streak}</span>`:""}
       ${arrow}
-      <span style="font-size:18px;font-weight:900;color:#f1f5f9">${r.pts}</span>
-      <span style="font-size:11px;color:#64748b">pts</span>
+      <span style="font-size:18px;font-weight:900;color:#1c1207">${r.pts}</span>
+      <span style="font-size:11px;color:#7a6030">pts</span>
     </div>`;
   }).join("");
 
@@ -2119,12 +2119,12 @@ function renderAdmin(){
   return`
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;margin-bottom:4px">⚙️ Panel de Administración</div>
-      <div style="font-size:12px;color:#94a3b8">${rows.length} participante${rows.length!==1?"s":""} registrado${rows.length!==1?"s":""}</div>
+      <div style="font-size:12px;color:#b8a060">${rows.length} participante${rows.length!==1?"s":""} registrado${rows.length!==1?"s":""}</div>
     </div>
     <div class="card" style="margin-bottom:14px;border-left:3px solid #7c3aed">
       <div style="font-weight:700;margin-bottom:12px;color:#a78bfa">🔥 Fases Eliminatorias</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${ELIM_PHASES.map(p=>{const u=!!phaseLocks[p.id];return`<button onclick="${u?`lockPhase('${p.id}')`:`unlockPhase('${p.id}')`}" style="background:${u?"#14532d":"#1e293b"};color:${u?"#22c55e":"#94a3b8"};border:1px solid ${u?"#22c55e":"#334155"};border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700">${u?"🔓":"🔒"} ${p.label}</button>`;}).join("")}
+        ${ELIM_PHASES.map(p=>{const u=!!phaseLocks[p.id];return`<button onclick="${u?`lockPhase('${p.id}')`:`unlockPhase('${p.id}')`}" style="background:${u?"#14532d":"#ffffff"};color:${u?"#22c55e":"#b8a060"};border:1px solid ${u?"#22c55e":"#e8d99a"};border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700">${u?"🔓":"🔒"} ${p.label}</button>`;}).join("")}
       </div>
     </div>
     <div class="card" style="margin-bottom:14px;border-left:3px solid #14b8a6">
@@ -2132,10 +2132,10 @@ function renderAdmin(){
       ${Object.keys(GROUPS).map(g=>{
         const realOrder=realGrp[g]||[];
         return`<div style="margin-bottom:14px">
-          <div style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:6px">GRUPO ${g}</div>
+          <div style="font-size:12px;color:#7a6030;font-weight:700;margin-bottom:6px">GRUPO ${g}</div>
           ${GROUPS[g].map(t=>{const curPos=realOrder.indexOf(t);return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <span style="flex:1;font-size:12px">${flag(t)} ${t}</span>
-            <select onchange="saveRealGroupPos('${g}','${t}',this.value)" style="background:#0f172a;border:1px solid #334155;border-radius:6px;color:#fff;padding:3px 6px;font-size:11px">
+            <select onchange="saveRealGroupPos('${g}','${t}',this.value)" style="background:#fef9f0;border:1px solid #e8d99a;border-radius:6px;color:#fff;padding:3px 6px;font-size:11px">
               <option value="">-</option>
               ${[1,2,3,4].map(n=>`<option value="${n}" ${curPos===n-1?"selected":""}>${n}°</option>`).join("")}
             </select>
@@ -2144,15 +2144,15 @@ function renderAdmin(){
       }).join("")}
     </div>
     <div class="card" style="border-left:3px solid #ef4444">
-      <div style="font-weight:700;margin-bottom:10px;color:#94a3b8">👥 Participantes</div>
+      <div style="font-weight:700;margin-bottom:10px;color:#b8a060">👥 Participantes</div>
       ${rows.map(([uid,u])=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0f172a">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e8d99a">
           <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:${avatarColor(u.name)};color:#fff;flex-shrink:0">${avatarInitial(u.name)}</div>
           <div style="flex:1">
-            <div style="font-weight:700">${u.name}${uid===currentUser.uid?` <span style="font-size:10px;color:#3b82f6">(tú)</span>`:""}</div>
-            <div style="font-size:11px;color:#64748b">${totalPoints(u)} pts</div>
+            <div style="font-weight:700">${u.name}${uid===currentUser.uid?` <span style="font-size:10px;color:#b8860b">(tú)</span>`:""}</div>
+            <div style="font-size:11px;color:#7a6030">${totalPoints(u)} pts</div>
           </div>
-          ${uid!==currentUser.uid?`<button onclick="deleteUser('${uid}','${u.name}')" style="background:#7f1d1d;color:#fca5a5;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700">🗑️ Eliminar</button>`:`<span style="font-size:11px;color:#475569">eres tú</span>`}
+          ${uid!==currentUser.uid?`<button onclick="deleteUser('${uid}','${u.name}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700">🗑️ Eliminar</button>`:`<span style="font-size:11px;color:#8a7040">eres tú</span>`}
         </div>`).join("")}
     </div>`;
 }
@@ -2168,13 +2168,13 @@ function renderHistorial(){
   const history=Object.entries(snap).sort((a,b)=>a[0].localeCompare(b[0]));
   const el=document.getElementById("historial-content");
   if(!history.length){
-    el.innerHTML=`<p style="color:#64748b;text-align:center;padding:20px;font-size:13px">El historial estará disponible una vez que empiecen los partidos.</p>`;
+    el.innerHTML=`<p style="color:#7a6030;text-align:center;padding:20px;font-size:13px">El historial estará disponible una vez que empiecen los partidos.</p>`;
     return;
   }
 
   const labels=history.map(([date])=>date);
   const uids=Object.keys(allUsers);
-  const COLORS=['#E8002D','#3b82f6','#F5C518','#a78bfa','#22d3ee','#f97316','#22c55e','#ec4899','#64748b','#ef4444'];
+  const COLORS=['#E8002D','#b8860b','#b8860b','#a78bfa','#22d3ee','#f97316','#22c55e','#ec4899','#7a6030','#ef4444'];
 
   const datasets=uids.map((uid,i)=>{
     const user=allUsers[uid];
@@ -2201,7 +2201,7 @@ function renderHistorial(){
   const legend=document.getElementById("hist-legend");
   datasets.forEach(ds=>{
     const el2=document.createElement("span");
-    el2.style.cssText="display:flex;align-items:center;gap:5px;font-size:12px;color:#94a3b8;cursor:pointer";
+    el2.style.cssText="display:flex;align-items:center;gap:5px;font-size:12px;color:#b8a060;cursor:pointer";
     el2.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${ds.borderColor};flex-shrink:0"></span>${ds.label}`;
     legend.appendChild(el2);
   });
@@ -2222,11 +2222,11 @@ function renderHistorial(){
           reverse:true,
           min:1,
           max:Math.max(totalUsers,2),
-          ticks:{stepSize:1,callback:v=>v+"°",color:"#64748b",font:{size:11}},
+          ticks:{stepSize:1,callback:v=>v+"°",color:"#7a6030",font:{size:11}},
           grid:{color:"rgba(100,116,139,0.15)"}
         },
         x:{
-          ticks:{color:"#64748b",font:{size:10},autoSkip:true,maxRotation:45},
+          ticks:{color:"#7a6030",font:{size:10},autoSkip:true,maxRotation:45},
           grid:{color:"rgba(100,116,139,0.1)"}
         }
       }
@@ -2238,7 +2238,7 @@ function renderHistorial(){
 window.openCarta=async function(winnerName){
   document.getElementById("carta-winner-name").textContent=winnerName;
   document.getElementById("carta-overlay").style.display="flex";
-  document.getElementById("carta-content").innerHTML=`<p style="color:#475569;font-style:italic;text-align:center">Generando carta...</p>`;
+  document.getElementById("carta-content").innerHTML=`<p style="color:#8a7040;font-style:italic;text-align:center">Generando carta...</p>`;
   const prompt=`Eres el narrador oficial de la Tu Polla 2026, una polla de pronósticos del Mundial entre amigos.
 Escribe una carta corta (3 párrafos) felicitando a ${winnerName} por ganar.
 Reglas ESTRICTAS:
@@ -2393,7 +2393,7 @@ window.openRules=function(){
       <h3>🏟️ FASE DE GRUPOS — CLASIFICACIÓN</h3>
       <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
       <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
-      ${!incClasif?`<p style="margin-top:6px;font-size:12px;color:#64748b;font-style:italic">No incluido en esta polla.</p>`:""}
+      ${!incClasif?`<p style="margin-top:6px;font-size:12px;color:#7a6030;font-style:italic">No incluido en esta polla.</p>`:""}
     </div>
     <div class="rules-section">
       <h3>🟢 FASE DE GRUPOS — PARTIDOS</h3>
@@ -2404,7 +2404,7 @@ window.openRules=function(){
         <li><strong style="color:#facc15">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
         <li><strong style="color:#f87171">0 pts</strong> — fallo</li>
       </ul>
-      <p style="margin-top:8px;font-size:12px;color:#64748b">Si pronosticas empate: 3 pts si aciertas el marcador exacto, 1 pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
+      <p style="margin-top:8px;font-size:12px;color:#7a6030">Si pronosticas empate: 3 pts si aciertas el marcador exacto, 1 pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
     </div>
     <div class="rules-section">
       <h3>🔥 FASE ELIMINATORIA</h3>
@@ -2425,7 +2425,7 @@ window.openRules=function(){
         <li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro ⚽</li>
         <li><strong style="color:#facc15">${r.espGuanteOro??5} pts</strong> — Guante de Oro 🧤</li>
         <li><strong style="color:#facc15">${r.espMejorJugador??5} pts</strong> — Mejor Jugador ⭐</li>
-      </ul>`:`<p style="font-size:12px;color:#64748b;font-style:italic">No incluido en esta polla.</p>`}
+      </ul>`:`<p style="font-size:12px;color:#7a6030;font-style:italic">No incluido en esta polla.</p>`}
     </div>
     <div class="rules-section">
       <h3>⚠️ REGLAS GENERALES</h3>
