@@ -984,8 +984,16 @@ function renderCrearPolla(){
                 <span style="font-size:12px;color:#94a3b8">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × pts por acierto</b>`)}
+            ${exBox(`<span style="color:#94a3b8">Tu pronóstico para Grupo A:</span><br>1° México · 2° Sudáfrica · 3° Rep. Checa · 4° Corea<br><span style="color:#94a3b8">Real:</span> 1° México ✓ · 2° Sudáfrica ✓ · 3° Corea · 4° Rep. Checa<br>→ 2 aciertos = <b style="color:#22c55e">2 × <span id="ex-ptsPosGrupo">${r.ptsPosGrupo??2}</span> pt por acierto</b>`)}
             ${ruleRow("ptsPosGrupo","Por cada equipo en posición exacta",r.ptsPosGrupo)}
+          </div>
+          <script>
+            (function(){
+              const inp=document.getElementById("rule_ptsPosGrupo");
+              const ex=document.getElementById("ex-ptsPosGrupo");
+              if(inp&&ex)inp.addEventListener("input",()=>{ex.textContent=inp.value||"?";});
+            })();
+          </script>
           </div>
           <div style="background:#1e293b;border-radius:12px;padding:16px;margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
@@ -1014,7 +1022,7 @@ function renderCrearPolla(){
                 <span style="font-size:12px;color:#94a3b8">Incluir</span>
               </label>
             </div>
-            ${exBox(`<span style="color:#94a3b8">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España`)}
+            ${exBox(`<span style="color:#94a3b8">Real: Francia 1–1 España → pasa Francia en penales</span><br>✅ <b style="color:#22c55e">Exacto+clasif.</b> si pronosticaste 1–1 y Francia<br>🟡 <b style="color:#facc15">Solo clasif.</b> si pronosticaste 2–0 y Francia<br>❌ Sin puntos si pronosticaste que pasaba España<br><span style="color:#64748b;font-size:11px">⏱ El marcador cuenta solo el tiempo regular (90 min), no la prórroga.</span>`)}
             ${ruleRow("ptsExactoElim","✅ Marcador exacto + quién clasifica",r.ptsExactoElim)}
             ${ruleRow("ptsExactoSinClasif","🟡 Marcador exacto, clasificado incorrecto",r.ptsExactoSinClasif)}
             ${ruleRow("ptsSoloClasif","🟡 Solo acertaste quién clasifica",r.ptsSoloClasif)}
