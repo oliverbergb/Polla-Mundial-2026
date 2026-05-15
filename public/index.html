@@ -52,7 +52,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,Bl
 .tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:8px 12px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
-.tab.active{background:var(--primary);color:#0b1220;border-bottom:2px solid var(--primary)}
+.tab.active{background:transparent;color:var(--text);border-bottom:2px solid var(--text)}
 .tab:not(.active){background:transparent;color:var(--text-muted);border-bottom:2px solid transparent}
 
 /* ── CONTENT ── */
@@ -1635,10 +1635,10 @@ function renderTab(){
 
 // ─── PILLS ────────────────────────────────────────────────
 function groupPills(){
-  return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?GROUP_COLORS[g]:"transparent"};color:${currentGroup===g?"#fff":"var(--text-muted)"};border:1px solid var(--border)" onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
+  return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?"var(--surface-3)":"transparent"};color:${currentGroup===g?"var(--text)":"var(--text-muted)"};border:1px solid ${currentGroup===g?"var(--text)":"var(--border)"}` onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
 }
 function elimPhasePills(){
-  return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--primary)":"transparent"};color:${currentElimPhase===p.id?"#0b1220":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--primary)":"var(--border)"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
+  return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--surface-3)":"transparent"};color:${currentElimPhase===p.id?"var(--text)":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--text)":"var(--border)"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
 }
 
 // ─── TAB: GRUPOS ──────────────────────────────────────────
@@ -1674,9 +1674,9 @@ function renderGrupos(){
     </div>
     ${groupPills()}
     <div style="background:var(--surface);border-radius:10px;margin-bottom:12px;overflow:hidden">
-      <div style="background:${GROUP_COLORS[currentGroup]};padding:8px 14px;font-weight:900;font-size:13px;letter-spacing:1px">GRUPO ${currentGroup} — Tabla actual</div>
+      <div style="background:var(--surface-3);padding:8px 14px;font-weight:900;font-size:13px;letter-spacing:1px;color:var(--text)">GRUPO ${currentGroup} — Tabla actual</div>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">
-        <thead><tr style="color:var(--text-muted);border-bottom:1px solid var(--border)">
+        <thead><tr style="color:var(--text);border-bottom:1px solid var(--border)">
           <th style="padding:6px 6px;width:12px"></th>
           <th style="padding:6px 4px;text-align:left;font-weight:700">Equipo</th>
           <th style="padding:6px 0;text-align:center;font-weight:700;width:32px;min-width:32px">PJ</th>
@@ -1695,7 +1695,7 @@ function renderGrupos(){
             <td style="padding:8px 0;text-align:center;color:var(--text-muted);width:32px;min-width:32px">${r.pe}</td>
             <td style="padding:8px 0;text-align:center;color:var(--text-muted);width:32px;min-width:32px">${r.pp}</td>
             <td style="padding:8px 0;text-align:center;color:${r.dif>0?"#22c55e":r.dif<0?"#ef4444":"var(--text-muted)"};width:36px;min-width:36px">${r.dif>0?"+":""}${r.dif}</td>
-            <td style="padding:8px 0;text-align:center;font-weight:900;font-size:14px;color:${GROUP_COLORS[currentGroup]};width:36px;min-width:36px">${r.pts}</td>
+            <td style="padding:8px 0;text-align:center;font-weight:900;font-size:14px;color:var(--text);width:36px;min-width:36px">${r.pts}</td>
           </tr>`).join("")}
         </tbody>
       </table></div>
