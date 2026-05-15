@@ -1635,7 +1635,7 @@ function renderTab(){
 
 // ─── PILLS ────────────────────────────────────────────────
 function groupPills(){
-  return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?"var(--surface-3)":"transparent"};color:${currentGroup===g?"var(--text)":"var(--text-muted)"};border:1px solid ${currentGroup===g?"var(--text)":"var(--border)"}` onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
+  return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?"var(--surface-3)":"transparent"};color:${currentGroup===g?"var(--text)":"var(--text-muted)"};border:1px solid ${currentGroup===g?"var(--text)":"var(--border)"}" onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
 }
 function elimPhasePills(){
   return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--surface-3)":"transparent"};color:${currentElimPhase===p.id?"var(--text)":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--text)":"var(--border)"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
