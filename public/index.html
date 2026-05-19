@@ -210,6 +210,66 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,Bl
 @media(hover:none)and(pointer:coarse){.polla-dots-btn{display:none!important}}
 @media(max-width:768px){.polla-dots-btn{display:none!important}}
 
+/* ── REACTIONS ── */
+.reaction-float{position:fixed;background:var(--surface);border:1px solid var(--border-soft);border-radius:16px;padding:6px 10px;display:flex;gap:6px;z-index:2000;box-shadow:0 8px 32px rgba(0,0,0,.7);animation:popIn .15s ease}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.reaction-btn{font-size:22px;background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:10px;transition:transform .12s;line-height:1}
+.reaction-btn:hover,.reaction-btn:active{transform:scale(1.35);background:var(--surface-3)}
+.pred-reaction-badge{font-size:12px;display:inline-flex;align-items:center;gap:2px;background:var(--surface-3);border:1px solid var(--border-soft);border-radius:8px;padding:1px 5px;cursor:default}
+
+/* ── BRACKET VERTICAL ── */
+.bracket-outer{padding:4px 0 8px}
+.bracket-section{margin-bottom:20px}
+.bracket-phase-hdr{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--primary);text-transform:uppercase;padding:4px 0 10px;border-bottom:1px solid var(--border-soft);margin-bottom:10px}
+.bracket-match{background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .15s;position:relative}
+.bracket-match:not(.locked):hover{border-color:var(--primary);cursor:pointer}
+.bracket-match.locked{cursor:default}
+.bm-team{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;font-weight:700;position:relative}
+.bm-team.winner{background:rgba(34,197,94,.1);color:var(--success-text)}
+.bm-team.loser{color:var(--text-dim)}
+.bm-score{margin-left:auto;font-size:14px;font-weight:900;min-width:20px;text-align:right}
+.bm-sep{height:1px;background:var(--border-soft);margin:0 12px}
+.bm-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
+.bm-meta{font-size:10px;color:var(--text-dim);padding:4px 12px 7px;display:flex;gap:8px}
+
+/* ── COLLECTIVE BAR ── */
+.coll-bar-wrap{margin-top:10px;padding:8px 10px;background:var(--surface-2);border-radius:8px}
+.coll-bar-title{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.coll-bar-row{display:flex;height:14px;border-radius:6px;overflow:hidden;margin-bottom:5px}
+.coll-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;min-width:0;transition:width .3s}
+.coll-legend{display:flex;gap:10px;flex-wrap:wrap}
+.coll-leg-item{font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:3px}
+.coll-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* ── MISSING TOGGLE ── */
+.missing-banner{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-2);border-radius:8px;cursor:pointer;border:1px solid var(--border-soft);margin-bottom:12px;user-select:none}
+.m-toggle{width:34px;height:20px;border-radius:10px;position:relative;flex-shrink:0;transition:background .2s}
+.m-toggle::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+.m-toggle.on{background:var(--primary)}
+.m-toggle.on::after{transform:translateX(14px)}
+.m-toggle.off{background:var(--border)}
+
+/* ── AUTOCOMPLETE ── */
+.autocomplete-wrap{position:relative;flex:1}
+.autocomplete-input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none;font-family:'Inter',sans-serif}
+.autocomplete-input:focus{border-color:var(--primary)}
+.autocomplete-drop{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border-soft);border-radius:8px;z-index:500;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);margin-top:2px}
+.autocomplete-item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border-soft)}
+.autocomplete-item:last-child{border-bottom:none}
+.autocomplete-item:hover,.autocomplete-item.focused{background:var(--surface-3)}
+
+/* ── RANKING BREAKDOWN ── */
+.breakdown-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1100;display:flex;align-items:flex-end;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.breakdown-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:680px;margin:0 auto;max-height:82vh;overflow-y:auto;padding:20px 16px 36px;border-top:1px solid var(--border-soft);animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.breakdown-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.rb-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.rb-row:last-child{border-bottom:none}
+.rb-label{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+.rb-val{font-size:16px;font-weight:900;color:var(--text)}
+.rb-total{font-size:20px;font-weight:900;color:var(--primary)}
+
 /* ── BRAND LOGO ── */
 .brand-logo{display:inline-flex;align-items:flex-end;gap:6px;line-height:1;color:var(--primary);user-select:none}
 .brand-tu{font-family:'Caveat Brush',cursive;font-size:36px;color:var(--primary);transform:rotate(-6deg);display:inline-block;margin-right:-2px;margin-bottom:-4px;text-shadow:1px 1px 0 var(--secondary)}
@@ -297,6 +357,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,Bl
   </div>
 </div>
 
+<!-- BREAKDOWN MODAL (ranking) -->
+<div id="breakdown-overlay" style="display:none" class="breakdown-overlay" onclick="if(event.target===this)closeBreakdown()">
+  <div class="breakdown-sheet">
+    <div class="breakdown-handle"></div>
+    <div id="breakdown-content"></div>
+  </div>
+</div>
+
 <!-- CARTA CAMPEÓN -->
 <div id="carta-overlay" style="display:none" class="carta-overlay">
   <div class="carta-box">
@@ -356,6 +424,37 @@ const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf"
 const POS_COLORS=["#22c55e","#22c55e","var(--primary)","#ef4444"];
 const POS_LABELS=["1°","2°","3°","4°"];
 const AVATAR_COLORS=["#1565c0","#7c3aed","#0f766e","#b45309","#be123c","#0369a1","var(--success-text)","#9333ea"];
+
+// ─── PLAYER LIST (autocomplete especiales) ─────────────────
+const ALL_TEAMS=Object.values(GROUPS).flat();
+const DT_PLAYERS=[
+  // Delanteros
+  "Kylian Mbappé","Erling Haaland","Harry Kane","Robert Lewandowski","Ciro Immobile","Romelu Lukaku",
+  "Memphis Depay","Raheem Sterling","Gabriel Jesús","Richarlison","Vinícius Jr.","Rodrygo",
+  "Antoine Griezmann","Karim Benzema","Olivier Giroud","Neymar","Lautaro Martínez","Julián Álvarez",
+  "Darwin Núñez","Luis Díaz","Duván Zapata","Bernardo Silva","Diogo Jota","Rafael Leão",
+  "Bukayo Saka","Marcus Rashford","Phil Foden","Jude Bellingham","İlkay Gündoğan","Leroy Sané",
+  "Ferran Torres","Álvaro Morata","Mikel Oyarzabal","Lorenzo Pellegrini","Nicolò Zaniolo",
+  "Sadio Mané","Mohammed Salah","Riyad Mahrez","Achraf Hakimi","Hakim Ziyech",
+  "Son Heung-min","Hwang Hee-chan","Paulo Dybala","Ángel Di María","Rodrigo De Paul",
+  "Takumi Minamino","Kaoru Mitoma","Yuki Soma",
+  // Mediocampistas
+  "Kevin De Bruyne","Luka Modrić","Toni Kroos","Pedri","Gavi","Sergio Busquets",
+  "N'Golo Kanté","Paul Pogba","Aurélien Tchouaméni","Eduardo Camavinga","Marco Verratti",
+  "Frenkie de Jong","Virgil van Dijk","Declan Rice","Jordan Henderson","Bruno Fernandes",
+  "Vitinha","Rubén Neves","Christian Eriksen","Martin Ødegaard","Sandro Tonali",
+  "Nicolo Barella","James Maddison","Alexis Mac Allister","Enzo Fernández","Nicolás Tagliafico",
+  // Defensas
+  "Trent Alexander-Arnold","Reece James","Kyle Walker","João Cancelo","Theo Hernández",
+  "Lucas Hernández","Benjamin Pavard","Jules Koundé","Raphaël Varane","David Alaba",
+  "Antonio Rüdiger","Matthias Ginter","Ronald Araújo","Pau Cubarsí","Aymeric Laporte",
+  "Dayot Upamecano","Dani Alves","Marquinhos","Thiago Silva","Eder Militão",
+  // Porteros
+  "Alisson Becker","Ederson","Manuel Neuer","Marc-André ter Stegen","Keylor Navas",
+  "Gianluigi Donnarumma","Mike Maignan","Jordan Pickford","Lukáš Hrádecký","Unai Simón",
+  "Diogo Costa","Rui Patrício","Gregor Kobel","Yann Sommer","Wojciech Szczęsny",
+  "Thibaut Courtois","Simon Mignolet","Samir Handanović","Jan Oblak",
+].sort();
 
 const MATCHES=[
   {id:1,date:"11 Jun",time:"14:00",home:"México",away:"Sudáfrica",group:"A",stadium:"Azteca, CDMX",phase:"groups",kickoff:"2026-06-11T19:00:00Z"},
@@ -470,7 +569,9 @@ let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},ph
 let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,prevRanking={};
 let currentPollaId=null,currentPolla=null,myPollas={};
-const h2hCache={}; // key: "Home_Away" → array of match objects or null
+const h2hCache={};
+let showOnlyMissing=false;
+let allReactions={}; // {matchId: {predictorUid: {reactorUid: emoji}}}
 
 // ─── UTILS ────────────────────────────────────────────────
 function calcMatchPoints(pred,res){
@@ -709,6 +810,7 @@ function loadData(){
     }
   });
   db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
+  db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};});
   prefetchH2H();
   iniciarMasterPolling();
   setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
@@ -1625,13 +1727,8 @@ function render(){
   if(newTabs&&savedScroll)newTabs.scrollLeft=savedScroll;
   renderTab();
 }
-function renderTab(){
-  const c=document.getElementById("tab-content");if(!c)return;
-  const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking,chat:renderChat};
-  c.innerHTML=(fns[currentTab]||renderGrupos)();
-  if(currentTab==="grupos")initDragDrop();
-  if(currentTab==="chat")initChat();
-}
+// renderTab is defined in the features section below
+function renderTab_UNUSED(){}
 
 // ─── PILLS ────────────────────────────────────────────────
 function groupPills(){
@@ -1851,6 +1948,39 @@ async function prefetchH2H(){
 }
 
 // ─── TAB: MIS PRONÓSTICOS ─────────────────────────────────
+window.toggleMissingFilter=function(){showOnlyMissing=!showOnlyMissing;renderTab();};
+
+function collectiveBar(m){
+  // Aggregate all users' predictions for this match
+  const users=Object.values(allUsers);
+  if(users.length<2)return"";
+  let home=0,draw=0,away=0;
+  users.forEach(u=>{
+    const p=(u.predictions||{})[m.id];
+    if(!p||p.h===undefined||p.h==="")return;
+    const ph=parseInt(p.h),pa=parseInt(p.a);
+    if(isNaN(ph)||isNaN(pa))return;
+    if(ph>pa)home++;
+    else if(ph===pa)draw++;
+    else away++;
+  });
+  const total=home+draw+away;
+  if(!total)return"";
+  const pH=Math.round(home/total*100),pD=Math.round(draw/total*100),pA=100-pH-pD;
+  return`<div class="coll-bar-wrap">
+    <div class="coll-bar-title">📊 Pronóstico colectivo (${total} participante${total!==1?"s":""})</div>
+    <div class="coll-bar-row">
+      ${pH>0?`<div class="coll-seg" style="width:${pH}%;background:#1d4ed8">${pH>=15?pH+"%":""}</div>`:""}
+      ${pD>0?`<div class="coll-seg" style="width:${pD}%;background:#71717a">${pD>=15?pD+"%":""}</div>`:""}
+      ${pA>0?`<div class="coll-seg" style="width:${pA}%;background:#b91c1c">${pA>=15?pA+"%":""}</div>`:""}
+    </div>
+    <div class="coll-legend">
+      <span class="coll-leg-item"><span class="coll-dot" style="background:#1d4ed8"></span>${flag(m.home)} ${pH}%</span>
+      <span class="coll-leg-item"><span class="coll-dot" style="background:#71717a"></span>Empate ${pD}%</span>
+      <span class="coll-leg-item"><span class="coll-dot" style="background:#b91c1c"></span>${flag(m.away)} ${pA}%</span>
+    </div>
+  </div>`;
+}
 function matchScoreBlock(m,pred,res){
   const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
   if(locked&&hasRes){
@@ -1891,13 +2021,22 @@ function spectatorBlock(m, res){
     return 'var(--text-muted)';
   }
 
+  const matchReactions=allReactions[m.id]||{};
+
   const rows = others.map(([uid,user])=>{
     const pred = (user.predictions||{})[m.id];
     if(!pred||pred.h===undefined||pred.h==='') return '';
     const pts = hasRes ? calcMatchPoints(pred, res) : null;
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+    // Collect reactions for this predictor
+    const predRxns=matchReactions[uid]||{};
+    const rxnCounts={};
+    Object.values(predRxns).forEach(e=>{rxnCounts[e]=(rxnCounts[e]||0)+1;});
+    const myRxn=predRxns[currentUser.uid]||null;
+    const rxnBadges=Object.entries(rxnCounts).map(([e,c])=>`<span class="pred-reaction-badge" style="${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`).join('');
+    return `<div class="spectator-pred" data-match="${m.id}" data-uid="${uid}" style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);position:relative">
       <span style="font-size:12px;font-weight:700;color:var(--text)">${user.name||'?'}</span>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        ${rxnBadges}
         <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)}">${pred.h} — ${pred.a}</span>
         ${badge(pts)}
       </div>
@@ -1906,21 +2045,38 @@ function spectatorBlock(m, res){
 
   if(!rows) return '';
   return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-    <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos de todos</div>
+    <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos de todos <span style="font-size:9px;font-weight:400;color:var(--text-dim);text-transform:none;letter-spacing:0">(mantén presionado para reaccionar)</span></div>
     ${rows}
   </div>`;
 }
 
 function renderMisPronos(){
-  const matches=MATCHES.filter(m=>m.group===currentGroup);
+  const allGroupMatches=MATCHES.filter(m=>m.group===currentGroup);
+  const missingMatches=allGroupMatches.filter(m=>{
+    const p=myPredictions[m.id];
+    return !isLocked(m)&&(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="");
+  });
+  const displayMatches=showOnlyMissing?missingMatches:allGroupMatches;
+  const missingCount=missingMatches.length;
   const totalMatchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPoints(myPredictions[m.id],allResults[m.id])||0),0);
+  const isPostLockout=new Date()>=new Date(TOURNAMENT_LOCKOUT);
+
   return`
     <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div><div style="font-size:12px;color:var(--text-muted)">Total puntos partidos</div>
         <div style="font-size:28px;font-weight:900;color:var(--primary)">${totalMatchPts} pts</div></div>
     </div>
+    ${!isPostLockout&&missingCount>0?`
+    <div class="missing-banner" onclick="toggleMissingFilter()">
+      <div class="m-toggle ${showOnlyMissing?'on':'off'}"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">Solo faltantes</div>
+        <div style="font-size:11px;color:var(--text-muted)">${missingCount} sin pronosticar en Grupo ${currentGroup}</div>
+      </div>
+    </div>`:""}
     ${groupPills()}
-    ${matches.map(m=>{
+    ${displayMatches.length===0&&showOnlyMissing?`<div style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px">✅ Todos los partidos de Grupo ${currentGroup} tienen pronóstico</div>`:""}
+    ${displayMatches.map(m=>{
       const pred=myPredictions[m.id]||{},res=allResults[m.id];
       const pts=calcMatchPoints(pred,res);
       const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
@@ -1937,6 +2093,7 @@ function renderMisPronos(){
           <span class="team">${m.away} ${flag(m.away)}</span>
         </div>
         ${h2hHTML(m.id,m.home,m.away)}
+        ${isPostLockout?collectiveBar(m):""}
         ${locked?spectatorBlock(m,res):''}
       </div>`;
     }).join("")}`;
@@ -1945,72 +2102,98 @@ function renderMisPronos(){
 // ─── TAB: ELIMINATORIAS ───────────────────────────────────
 function renderEliminatorias(){
   const myPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints((myElimPreds||{})[m.id],allResults[m.id])||0),0);
+  const phasesHtml=ELIM_PHASES.map(phase=>renderBracketPhase(phase)).join("");
   return`
     <div class="card" style="margin-bottom:14px">
       <div style="font-size:12px;color:var(--text-muted)">Mis puntos (eliminatorias)</div>
       <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div>
     </div>
-    ${elimPhasePills()}
-    ${renderElimPhase(currentElimPhase)}`;
+    <div class="bracket-outer">${phasesHtml}</div>`;
 }
-function renderElimPhase(phaseId){
-  const locked=isPhaseLocked(phaseId);
-  const matches=MATCHES.filter(m=>m.phase===phaseId);
-  const phaseInfo=ELIM_PHASES.find(p=>p.id===phaseId);
+
+function renderBracketPhase(phase){
+  const locked=isPhaseLocked(phase.id);
+  const matches=MATCHES.filter(m=>m.phase===phase.id);
   if(!locked){
-    return`<div class="elim-locked-info">
-      <div style="font-size:32px;margin-bottom:8px">🔒</div>
-      <div style="font-weight:700;font-size:15px;margin-bottom:6px">${phaseInfo.label}</div>
-      <div>Esta fase se desbloqueará cuando se conozcan los clasificados reales.</div>
-      
+    return`<div class="bracket-section">
+      <div class="bracket-phase-hdr">${phase.label}</div>
+      <div style="background:var(--surface);border-radius:10px;padding:18px;text-align:center;border:1px dashed var(--border)">
+        <div style="font-size:24px;margin-bottom:6px">🔒</div>
+        <div style="font-size:13px;color:var(--text-muted)">Se desbloquea cuando se conozcan los clasificados</div>
+      </div>
     </div>`;
   }
-  if(!matches.length)return`<div class="elim-locked-info">No hay partidos configurados para esta fase.</div>`;
-  return matches.map(m=>{
-    const pred=(myElimPreds||{})[m.id]||{},res=allResults[m.id];
+  const matchesHtml=matches.map(m=>{
+    const pred=(myElimPreds||{})[m.id]||{};
+    const res=allResults[m.id];
     const pts=calcElimPoints(pred,res);
-    const matchLocked=isLocked(m),hasRes=res?.winner!==undefined,live=isLive(m);
-    const color=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":"#ef4444"):live?"#ef4444":"var(--primary)";
-    let scoreBlock;
-    if(matchLocked&&hasRes){
-      scoreBlock=`<div class="vs-scores">
-        <div class="pred-row"><span class="score-box pred">${pred?.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box pred">${pred?.a??"-"}</span></div>
-        <div style="font-size:9px;color:var(--text-dim);text-align:center;margin:1px 0">tu pronóstico</div>
-        <div class="pred-row"><span class="score-box result">${res.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box result">${res.a??"-"}</span></div>
-        <div style="font-size:9px;color:var(--text-dim);text-align:center;margin:1px 0">resultado real</div>
-      </div>`;
-    }else if(matchLocked){
-      scoreBlock=`<div class="vs-scores">
-        <div class="pred-row"><span class="score-box pred">${pred?.h??"-"}</span><span class="score-sep" style="font-size:10px">:</span><span class="score-box pred">${pred?.a??"-"}</span></div>
-        <div style="font-size:9px;color:var(--text-dim);text-align:center">🔒</div>
-      </div>`;
-    }else{
-      scoreBlock=`<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
-        <div style="display:flex;gap:4px;align-items:center">
-          <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="saveElimPred(${m.id},'h',this.value)"/>
-          <span class="score-sep">:</span>
-          <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)"/>
+    const matchLocked=isLocked(m);
+    const hasRes=res?.winner!==undefined;
+    const live=isLive(m);
+    const borderColor=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":"#ef4444"):live?"#ef4444":"var(--border-soft)";
+    const homeIsWinner=hasRes&&res.winner===m.home;
+    const awayIsWinner=hasRes&&res.winner===m.away;
+    const predIsHome=pred.winner===m.home,predIsAway=pred.winner===m.away;
+    let ptsBadge="";
+    if(hasRes&&pts!==null){
+      const cl=pts===3?"background:#166534;color:#4ade80":pts===2?"background:var(--warning-soft);color:var(--warning)":"background:#450a0a;color:#f87171";
+      ptsBadge=`<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${cl}">${pts===3?"✓ +3":pts===2?"≈ +2":"✗ 0"}</span>`;
+    }
+    if(!matchLocked){
+      // Editable match
+      return`<div class="bracket-match" style="border-color:${borderColor}">
+        <div class="bm-team">
+          <span style="min-width:20px">${flag(m.home)}</span>
+          <span style="flex:1;font-size:12px">${m.home}</span>
+          <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="saveElimPred(${m.id},'h',this.value)" style="width:32px;font-size:12px;padding:3px"/>
         </div>
-        <select onchange="saveElimWinner(${m.id},this.value)" style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:#fff;padding:3px 6px;font-size:11px;width:100%;max-width:130px">
-          <option value="">¿Quién avanza?</option>
-          <option value="${m.home}" ${pred.winner===m.home?"selected":""}>${flag(m.home)} ${m.home}</option>
-          <option value="${m.away}" ${pred.winner===m.away?"selected":""}>${flag(m.away)} ${m.away}</option>
-        </select>
+        <div class="bm-sep"></div>
+        <div class="bm-team">
+          <span style="min-width:20px">${flag(m.away)}</span>
+          <span style="flex:1;font-size:12px">${m.away}</span>
+          <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)" style="width:32px;font-size:12px;padding:3px"/>
+        </div>
+        <div class="bm-meta">
+          <span>📅 ${localMatchDate(m.kickoff)}</span>
+          <span>🏟 ${m.stadium}</span>
+        </div>
+        <div style="padding:0 12px 10px">
+          <select onchange="saveElimWinner(${m.id},this.value)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:#fff;padding:6px 10px;font-size:12px">
+            <option value="">¿Quién avanza?</option>
+            <option value="${m.home}" ${pred.winner===m.home?"selected":""}>${flag(m.home)} ${m.home}</option>
+            <option value="${m.away}" ${pred.winner===m.away?"selected":""}>${flag(m.away)} ${m.away}</option>
+          </select>
+        </div>
       </div>`;
     }
-    return`<div class="match-card" style="border-left:3px solid ${color}">
-      <div class="match-meta">
-        <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}${matchLocked&&!live?`<span class="lock-badge">🔒</span>`:""}</span>
-        ${hasRes&&pts!==null?`<span class="pts-badge ${pts===3?"pts-3":pts===2?"pts-2":"pts-0"}">${pts===3?"✓ +3":pts===2?"≈ +2":"✗ 0"}</span>`:""}
+    return`<div class="bracket-match locked" style="border-color:${borderColor}">
+      <div class="bm-team ${homeIsWinner?"winner":hasRes?"loser":""}">
+        <span style="min-width:20px">${flag(m.home)}</span>
+        <span style="flex:1;font-size:12px">${m.home}</span>
+        ${predIsHome?`<span style="font-size:10px;color:var(--text-dim)">tu pick</span>`:""}
+        <span class="bm-score">${res?.h??"-"}</span>
+        ${homeIsWinner?`<span style="font-size:12px;margin-left:4px">✓</span>`:""}
       </div>
-      <div class="match-teams">
-        <span class="team home">${flag(m.home)} ${m.home}</span>
-        ${scoreBlock}
-        <span class="team">${m.away} ${flag(m.away)}</span>
+      <div class="bm-sep"></div>
+      <div class="bm-team ${awayIsWinner?"winner":hasRes?"loser":""}">
+        <span style="min-width:20px">${flag(m.away)}</span>
+        <span style="flex:1;font-size:12px">${m.away}</span>
+        ${predIsAway?`<span style="font-size:10px;color:var(--text-dim)">tu pick</span>`:""}
+        <span class="bm-score">${res?.a??"-"}</span>
+        ${awayIsWinner?`<span style="font-size:12px;margin-left:4px">✓</span>`:""}
       </div>
-      ${hasRes&&res.winner?`<div style="margin-top:6px;font-size:11px;color:var(--text-muted);text-align:center">Avanza: <strong style="color:#22c55e">${flag(res.winner)} ${res.winner}</strong></div>`:""}
+      <div class="bm-meta">
+        <span>📅 ${localMatchDate(m.kickoff)}</span>
+        <span>🏟 ${m.stadium}</span>
+        ${live?`<span class="live-dot"></span>`:""}
+        <span style="margin-left:auto">${ptsBadge}</span>
+      </div>
     </div>`;
   }).join("");
+  return`<div class="bracket-section">
+    <div class="bracket-phase-hdr">${phase.label}</div>
+    ${matchesHtml}
+  </div>`;
 }
 
 // ─── TAB: ESPECIALES ──────────────────────────────────────
@@ -2030,6 +2213,8 @@ function renderEspeciales(){
       const pred=myEsp[f.id]||"",real=(adminEsp[f.id]||"").trim();
       const correct=real&&pred.trim().toLowerCase()===real.toLowerCase();
       const wrong=real&&pred.trim()&&!correct;
+      const isTeam=f.id==="campeon";
+      const suggestions=isTeam?ALL_TEAMS:DT_PLAYERS;
       return`<div class="card" style="margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"var(--border)"):"#f59e0b"}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <span style="font-weight:700;font-size:14px">${f.label}</span>
@@ -2038,7 +2223,14 @@ function renderEspeciales(){
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           ${locked
             ?`<div style="background:var(--surface-2);border-radius:8px;padding:8px 12px;font-size:14px;flex:1;color:${pred?"var(--text)":"var(--text-dim)"}">${pred||"No ingresaste predicción"}</div>`
-            :`<input type="text" placeholder="${f.placeholder}" value="${pred}" style="flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:#fff;padding:8px 12px;font-size:14px;outline:none" onchange="saveEspecial('${f.id}',this.value)"/>`
+            :`<div class="autocomplete-wrap" id="ac-wrap-${f.id}">
+                <input class="autocomplete-input" id="ac-${f.id}" type="text"
+                  placeholder="${f.placeholder}" value="${pred}" autocomplete="off"
+                  oninput="acFilter('${f.id}',this.value)"
+                  onblur="setTimeout(()=>acClose('${f.id}'),200)"
+                  onkeydown="acKey(event,'${f.id}')"/>
+                <div class="autocomplete-drop" id="ac-drop-${f.id}" style="display:none"></div>
+              </div>`
           }
           ${real?`<div style="font-size:12px;color:var(--text-muted);text-align:right;min-width:80px">Real:<br/><strong style="color:var(--text)">${real}</strong></div>`:""}
         </div>
@@ -2063,9 +2255,6 @@ function renderRanking(){
 
   let podioHtml="";
   if(top3.length>0){
-    // Order: 2nd, 1st, 3rd
-    const order=[top3[1],top3[0],top3[2]].filter(Boolean);
-    const classes=top3[1]?"p2 p1 p3":"p1";
     podioHtml=`<div class="podio">
       ${(top3[1]?[top3[1],top3[0],top3[2]]:[top3[0]]).filter(Boolean).map((r,idx)=>{
         const realIdx=top3[1]?[1,0,2][idx]:0;
@@ -2074,7 +2263,7 @@ function renderRanking(){
         const prevPos=prevRanking[r.uid];
         const curPos=realIdx+1;
         const arrow=prevPos&&prevPos!==curPos?(prevPos>curPos?`<span style="color:#166534;font-size:11px">↑</span>`:`<span style="color:#b91c1c;font-size:11px">↓</span>`):"";
-        return`<div class="podio-card ${pClass}" style="${r.uid===currentUser.uid?"border-color:var(--primary);":""}">
+        return`<div class="podio-card ${pClass}" style="${r.uid===currentUser.uid?"border-color:var(--primary);":""}cursor:pointer" onclick="openBreakdown('${r.uid}')">
           <div class="podio-medal">${medals[realIdx]}</div>
           <div class="podio-avatar" style="background:${avatarColor(r.name)}">${avatarInitial(r.name)}</div>
           <div class="podio-name">${r.name}</div>
@@ -2090,7 +2279,7 @@ function renderRanking(){
     const prevPos=prevRanking[r.uid];
     const arrow=prevPos&&prevPos!==pos?(prevPos>pos?`<span style="color:#166534;font-weight:700">↑</span>`:`<span style="color:#b91c1c;font-weight:700">↓</span>`):"";
     const streak=getStreak(r.uid);
-    return`<div class="rank-row" style="${r.uid===currentUser.uid?"border-left:3px solid var(--primary);padding-left:9px;margin-left:-12px;":""}">
+    return`<div class="rank-row" style="${r.uid===currentUser.uid?"border-left:3px solid var(--primary);padding-left:9px;margin-left:-12px;":""}cursor:pointer" onclick="openBreakdown('${r.uid}')">
       <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:var(--surface);color:var(--text-muted);flex-shrink:0">${pos}</div>
       <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:${avatarColor(r.name)};color:#fff;flex-shrink:0">${avatarInitial(r.name)}</div>
       <span style="flex:1;font-weight:700;color:${r.uid===currentUser.uid?"var(--primary-hover)":"var(--text)"}">${r.name}</span>
@@ -2098,12 +2287,14 @@ function renderRanking(){
       ${arrow}
       <span style="font-size:18px;font-weight:900;color:var(--text)">${r.pts}</span>
       <span style="font-size:11px;color:var(--text-muted)">pts</span>
+      <span style="font-size:14px;color:var(--border)">›</span>
     </div>`;
   }).join("");
 
   return`
     ${podioHtml}
     ${rest.length>0?`<div class="card">${restHtml}</div>`:""}
+    <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-dim)">Toca cualquier jugador para ver su desglose</div>
     ${tournamentEnded()&&rows.length>0?`<button onclick="openCarta('${rows[0].name}')" style="width:100%;background:linear-gradient(135deg,var(--primary-hover),var(--primary));color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-top:8px">🏆 Ver carta al campeón</button>`:""}`;
 }
 
@@ -2501,6 +2692,167 @@ window.openRules=function(){
   modal.style.display="flex";
 };
 window.closeRules=function(){document.getElementById("modal-rules").style.display="none";};
+
+// ─── AUTOCOMPLETE ─────────────────────────────────────────
+const _acFocus={};
+window.acFilter=function(fieldId, val){
+  const drop=document.getElementById(`ac-drop-${fieldId}`);
+  if(!drop)return;
+  const isTeam=fieldId==="campeon";
+  const list=isTeam?ALL_TEAMS:DT_PLAYERS;
+  const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const q=norm(val.trim());
+  if(!q){drop.style.display="none";return;}
+  const filtered=list.filter(x=>norm(x).includes(q)).slice(0,8);
+  if(!filtered.length){drop.style.display="none";return;}
+  _acFocus[fieldId]=-1;
+  drop.innerHTML=filtered.map((x,i)=>
+    `<div class="autocomplete-item" data-idx="${i}" onmousedown="acSelect('${fieldId}','${x.replace(/'/g,"\\'")}')">
+      ${isTeam?flag(x)+" ":""}<span>${x}</span>
+    </div>`
+  ).join("");
+  drop.style.display="block";
+};
+window.acSelect=function(fieldId, val){
+  const inp=document.getElementById(`ac-${fieldId}`);
+  if(inp){inp.value=val;saveEspecial(fieldId,val);}
+  acClose(fieldId);
+  showToast("Guardado ✓");
+};
+window.acClose=function(fieldId){
+  const drop=document.getElementById(`ac-drop-${fieldId}`);
+  if(drop)drop.style.display="none";
+  // Save on blur
+  const inp=document.getElementById(`ac-${fieldId}`);
+  if(inp)saveEspecial(fieldId,inp.value.trim());
+};
+window.acKey=function(e,fieldId){
+  const drop=document.getElementById(`ac-drop-${fieldId}`);
+  if(!drop||drop.style.display==="none")return;
+  const items=drop.querySelectorAll(".autocomplete-item");
+  if(!items.length)return;
+  if(e.key==="ArrowDown"){e.preventDefault();_acFocus[fieldId]=Math.min((_acFocus[fieldId]||0)+1,items.length-1);}
+  else if(e.key==="ArrowUp"){e.preventDefault();_acFocus[fieldId]=Math.max((_acFocus[fieldId]||0)-1,0);}
+  else if(e.key==="Enter"&&_acFocus[fieldId]>=0){e.preventDefault();items[_acFocus[fieldId]].dispatchEvent(new Event("mousedown"));return;}
+  else if(e.key==="Escape"){acClose(fieldId);return;}
+  items.forEach((el,i)=>{el.classList.toggle("focused",i===_acFocus[fieldId]);if(i===_acFocus[fieldId])el.scrollIntoView({block:"nearest"});});
+};
+
+// ─── RANKING BREAKDOWN ────────────────────────────────────
+window.openBreakdown=function(uid){
+  const u=allUsers[uid];
+  if(!u)return;
+  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+  const preds=u.predictions||{},esp=u.especiales||{},grp=u.groupPredictions||{},elim=u.elimPredictions||{};
+  const adminEsp=allResults["especiales"]||{};
+  const realGrp=allResults["groupOrder"]||{};
+  const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPointsR(preds[m.id],allResults[m.id],r)||0),0);
+  const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
+    const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
+    const pts=r[ruleKey]??f.pts;
+    const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
+    return s+(p&&rv&&p===rv?pts:0);
+  },0):0;
+  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0):0;
+  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
+  const total=matchPts+espPts+grpPts+elimPts;
+  const isMine=uid===currentUser.uid;
+  const streak=getStreak(uid);
+  const rows=[
+    {icon:"🟢",label:"Partidos de grupos",val:matchPts,max:MATCHES.filter(m=>m.phase==="groups").length*3},
+    {icon:"🏟️",label:"Clasificación grupos",val:grpPts,max:Object.keys(GROUPS).length*4*(r.ptsPosGrupo??2)},
+    {icon:"🔥",label:"Eliminatorias",val:elimPts,max:MATCHES.filter(m=>m.phase!=="groups").length*3},
+    {icon:"⭐",label:"Especiales",val:espPts,max:(r.espCampeon??10)+(r.espBotaOro??5)+(r.espGuanteOro??5)+(r.espMejorJugador??5)},
+  ];
+  document.getElementById("breakdown-content").innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="width:44px;height:44px;border-radius:50%;background:${avatarColor(u.name)};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0">${avatarInitial(u.name)}</div>
+      <div>
+        <div style="font-size:17px;font-weight:900;color:var(--text)">${u.name}${isMine?" <span style='font-size:11px;color:var(--primary)'>(tú)</span>":""}</div>
+        ${streak>=3?`<div style="font-size:12px;color:var(--text-muted)">🔥 Racha de ${streak} aciertos seguidos</div>`:""}
+      </div>
+    </div>
+    ${rows.map(row=>`<div class="rb-row">
+      <div class="rb-label">${row.icon} ${row.label}</div>
+      <div style="display:flex;align-items:baseline;gap:4px">
+        <span class="rb-val">${row.val}</span>
+        <span style="font-size:11px;color:var(--text-dim)">/${row.max}</span>
+      </div>
+    </div>`).join("")}
+    <div class="rb-row" style="border-top:2px solid var(--primary);margin-top:4px;padding-top:12px">
+      <div style="font-size:15px;font-weight:700;color:var(--text)">🏆 Total</div>
+      <span class="rb-total">${total} pts</span>
+    </div>
+    <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px">Cerrar</button>
+  `;
+  document.getElementById("breakdown-overlay").style.display="flex";
+};
+window.closeBreakdown=function(){document.getElementById("breakdown-overlay").style.display="none";};
+
+// ─── REACTIONS ────────────────────────────────────────────
+const REACTION_EMOJIS=["🔥","😂","🤔","💀"];
+let _rxnTimer=null,_rxnEl=null;
+
+function initReactionListeners(){
+  // Remove existing listeners by re-querying
+  document.querySelectorAll(".spectator-pred").forEach(el=>{
+    el.addEventListener("touchstart",rxnTouchStart,{passive:true});
+    el.addEventListener("touchend",rxnTouchEnd,{passive:true});
+    el.addEventListener("touchcancel",rxnTouchEnd,{passive:true});
+    el.addEventListener("contextmenu",e=>{e.preventDefault();rxnShow(el);},{passive:false});
+  });
+}
+
+function rxnTouchStart(e){
+  const el=this;
+  _rxnEl=el;
+  _rxnTimer=setTimeout(()=>{if(navigator.vibrate)navigator.vibrate(30);rxnShow(el);},400);
+}
+function rxnTouchEnd(){
+  clearTimeout(_rxnTimer);
+  _rxnEl=null;
+}
+function rxnShow(el){
+  rxnCloseFloat();
+  const matchId=parseInt(el.dataset.match);
+  const predictorUid=el.dataset.uid;
+  const rect=el.getBoundingClientRect();
+  const float=document.createElement("div");
+  float.className="reaction-float";
+  float.id="rxn-float";
+  float.style.top=Math.max(8,(rect.top-54))+"px";
+  float.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-200))+"px";
+  REACTION_EMOJIS.forEach(e=>{
+    const btn=document.createElement("button");
+    btn.className="reaction-btn";
+    btn.textContent=e;
+    btn.onclick=()=>rxnSave(matchId,predictorUid,e);
+    float.appendChild(btn);
+  });
+  document.body.appendChild(float);
+  setTimeout(()=>document.addEventListener("touchstart",rxnCloseFloat,{once:true,passive:true}),50);
+}
+function rxnCloseFloat(){
+  const f=document.getElementById("rxn-float");
+  if(f)f.remove();
+}
+async function rxnSave(matchId,predictorUid,emoji){
+  rxnCloseFloat();
+  if(!currentPollaId||!currentUser)return;
+  const path=`pollas/${currentPollaId}/reactions/${matchId}/${predictorUid}/${currentUser.uid}`;
+  await db.ref(path).set(emoji);
+  showToast(emoji+" Reacción guardada");
+}
+
+// ─── RENDER TAB (with reactions init) ────────────────────
+function renderTab(){
+  const c=document.getElementById("tab-content");if(!c)return;
+  const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking,chat:renderChat};
+  c.innerHTML=(fns[currentTab]||renderGrupos)();
+  if(currentTab==="grupos")initDragDrop();
+  if(currentTab==="chat")initChat();
+  if(currentTab==="mis_pronos")setTimeout(initReactionListeners,50);
+}
 
 window.addEventListener("load",initFirebase);
 </script>
