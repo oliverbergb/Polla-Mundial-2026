@@ -7,101 +7,106 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
- --bg:#FBF7F3;
+ --bg:#F7F7F7;
  --surface:#FFFFFF;
- --surface-2:#F3EDE7;
- --surface-3:#EDE5DC;
- --border:#D9CECC;
- --border-soft:#E8E0DB;
- --text:#1A1008;
- --text-muted:#6B5044;
- --text-dim:#A8907E;
- --primary:#FF6B35;
- --primary-hover:#E85520;
- --primary-soft:#FFE8DF;
- --secondary:#CC3300;
- --secondary-light:#FF5533;
- --secondary-soft:#FFE0D4;
- --accent:#1A5278;
- --accent-light:#2E86BE;
- --accent-soft:#DCF0FA;
- --success:#1A7A3A;
- --success-text:#1A7A3A;
- --danger:#CC2200;
- --danger-soft:#FFE0D8;
- --danger-text:#CC2200;
- --warning:#C47800;
- --warning-soft:#FFF0CC;
+ --surface-2:#F0F0F0;
+ --surface-3:#E5E5E5;
+ --border:#E5E5E5;
+ --border-soft:#EBEBEB;
+ --border-strong:#CACACA;
+ --text:#3C3C3C;
+ --text-muted:#777777;
+ --text-dim:#AFAFAF;
+ --primary:#FF9600;
+ --primary-hover:#E68600;
+ --primary-dark:#CC7700;
+ --primary-soft:#FFF3D4;
+ --secondary:#1CB0F6;
+ --secondary-light:#46C6FF;
+ --secondary-soft:#DFF4FF;
+ --accent:#CE82FF;
+ --accent-light:#A560E8;
+ --accent-soft:#F4E4FF;
+ --success:#58CC02;
+ --success-text:#3D9100;
+ --danger:#FF4B4B;
+ --danger-soft:#FFD5D5;
+ --danger-text:#CC0000;
+ --warning:#FF9600;
+ --warning-soft:#FFF3D4;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;position:relative}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;position:relative}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
-.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:var(--surface);border-radius:16px 16px 18px 18px;margin:8px 8px 4px}
-.header::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#ef4444,#f97316,#facc15,#22c55e,#3b82f6,#a855f7);z-index:1;border-radius:16px 16px 0 0}
+.header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:var(--surface);border-radius:20px;margin:8px 8px 4px;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
+.header::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#ef4444,#f97316,#facc15,#22c55e,#3b82f6,#a855f7);z-index:1;border-radius:20px 20px 0 0}
 .header-bg{display:none}
-.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 2px;text-transform:uppercase;font-family:'Poppins',sans-serif;color:#f0e8d4}
-.header-sub{position:relative;color:var(--text-muted);font-size:11px;margin-bottom:4px;font-family:'Poppins',sans-serif}
-.countdown-bar{position:relative;background:transparent;border-radius:8px;padding:6px 12px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--primary);border:1px solid var(--primary);font-family:'Poppins',sans-serif}
+.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.3px;margin:6px 0 2px;text-transform:uppercase;font-family:'Nunito',sans-serif;color:var(--text)}
+.header-sub{position:relative;color:var(--text-muted);font-size:11px;margin-bottom:4px;font-family:'Nunito',sans-serif;font-weight:700}
+.countdown-bar{position:relative;background:var(--primary-soft);border-radius:20px;padding:6px 14px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--primary-dark);border:2px solid var(--primary);font-family:'Nunito',sans-serif}
 .tabs-wrap{position:relative;display:flex;justify-content:center}
 .tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,var(--surface));pointer-events:none;z-index:2}
-.tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%}
+.tabs{display:flex;overflow-x:auto;gap:5px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%;padding:8px 6px 6px}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:8px 12px;font-size:11px;font-weight:700;border:none;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif}
-.tab.active{background:transparent;color:var(--text);border-bottom:2px solid var(--text)}
-.tab:not(.active){background:transparent;color:var(--text-muted);border-bottom:2px solid transparent}
+.tab{flex:0 0 auto;padding:7px 14px;font-size:11px;font-weight:800;border:2px solid transparent;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif;transition:all .15s}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary-dark);box-shadow:0 3px 0 var(--primary-dark)}
+.tab:not(.active){background:var(--surface-2);color:var(--text-muted);border-color:var(--border)}
 
 /* ── CONTENT ── */
 .content{padding:16px 12px}
-.card{background:var(--surface);border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid var(--border-soft)}
-.match-card{background:var(--surface);border-radius:10px;padding:12px;margin-bottom:8px;position:relative;border:1px solid var(--border-soft)}
-.match-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--surface);border-radius:18px;padding:16px;margin-bottom:12px;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
+.match-card{background:var(--surface);border-radius:18px;padding:12px;margin-bottom:10px;position:relative;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
+.match-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
 .match-teams{display:flex;align-items:center;gap:8px}
-.team{flex:1;font-weight:700;font-size:13px}
+.team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
-.score-input{width:36px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px;font-size:14px;font-weight:700}
-.score-input:focus{outline:none;border-color:var(--primary)}
-.score-sep{color:var(--text-muted);font-weight:700;flex-shrink:0}
+.score-input{width:40px;text-align:center;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:6px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif}
+.score-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.score-sep{color:var(--text-muted);font-weight:800;flex-shrink:0}
 .group-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.pill{padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:opacity .15s}
-.rank-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.pill{padding:6px 14px;border-radius:20px;border:2px solid var(--border);cursor:pointer;font-size:12px;font-weight:800;transition:all .15s;box-shadow:0 3px 0 var(--border-strong);font-family:'Nunito',sans-serif}
+.rank-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:2px solid var(--border-soft)}
 .rank-row:last-child{border-bottom:none}
 
 /* ── LOGIN ── */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;background:transparent}
-.login-screen h1{font-size:26px;font-weight:900;margin:12px 0 4px;font-family:'Poppins',sans-serif;letter-spacing:-0.5px}
-.input{width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Poppins',sans-serif}
-.input:focus{border-color:var(--primary)}
-.btn{width:100%;max-width:340px;background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif}
-.btn:disabled{background:var(--border);color:var(--text-dim);cursor:not-allowed}
-.btn-secondary{width:100%;max-width:340px;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:10px}
-.btn-secondary:hover{border-color:var(--primary);color:var(--text)}
-.link-btn{background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;font-family:'Poppins',sans-serif;text-decoration:underline;padding:0}
+.login-screen h1{font-size:28px;font-weight:900;margin:12px 0 4px;font-family:'Nunito',sans-serif;letter-spacing:-0.3px}
+.input{width:100%;max-width:340px;background:var(--surface);border:2px solid var(--border);border-radius:16px;color:var(--text);padding:14px 18px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Nunito',sans-serif;font-weight:700;transition:border-color .15s}
+.input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.btn{width:100%;max-width:340px;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .1s;letter-spacing:0.2px}
+.btn:hover{background:var(--primary-hover)}
+.btn:active{border-bottom-width:0;transform:translateY(4px)}
+.btn:disabled{background:var(--surface-3);color:var(--text-dim);cursor:not-allowed;border-bottom-color:var(--border-strong)}
+.btn-secondary{width:100%;max-width:340px;background:var(--surface);color:var(--text-muted);border:2px solid var(--border);border-bottom:4px solid var(--border-strong);border-radius:16px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px;transition:all .1s}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
+.btn-secondary:active{border-bottom-width:0;transform:translateY(4px)}
+.link-btn{background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;font-family:'Nunito',sans-serif;text-decoration:underline;padding:0;font-weight:800}
 .remember-row{display:flex;align-items:center;gap:8px;max-width:340px;width:100%;margin-bottom:12px;cursor:pointer}
-.remember-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
-.remember-row span{font-size:13px;color:var(--text-muted);font-family:'Poppins',sans-serif}
-.error{color:var(--danger);font-size:13px;margin-bottom:10px;max-width:340px}
-.lock-badge{font-size:10px;background:var(--surface-3);color:var(--text-muted);padding:2px 6px;border-radius:10px;margin-left:4px}
-.admin-badge{background:var(--secondary);color:#ffffff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px}
+.remember-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
+.remember-row span{font-size:13px;color:var(--text-muted);font-family:'Nunito',sans-serif;font-weight:700}
+.error{color:var(--danger);font-size:13px;margin-bottom:10px;max-width:340px;font-weight:800}
+.lock-badge{font-size:10px;background:var(--surface-2);color:var(--text-muted);padding:3px 8px;border-radius:20px;margin-left:4px;border:2px solid var(--border);font-weight:800}
+.admin-badge{background:var(--secondary);color:#ffffff;font-size:10px;padding:3px 10px;border-radius:20px;margin-left:8px;font-weight:800}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--success);color:#ffffff;padding:11px 20px 11px 16px;border-radius:14px;font-weight:700;font-size:14px;z-index:999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.5);display:flex;align-items:center;gap:8px;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--success);color:#ffffff;padding:12px 22px 12px 18px;border-radius:20px;font-weight:800;font-size:14px;z-index:999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.25);display:flex;align-items:center;gap:8px;max-width:90vw;overflow:hidden;text-overflow:ellipsis;border:2px solid rgba(255,255,255,.25)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.spinner{text-align:center;padding:60px;color:var(--text-muted);font-size:14px}
+.spinner{text-align:center;padding:60px;color:var(--text-muted);font-size:14px;font-weight:700}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 
 /* ── SCORES ── */
-.score-box{background:var(--surface-2);padding:4px 8px;border-radius:6px;font-size:14px;font-weight:700;min-width:28px;text-align:center}
-.score-box.pred{color:var(--text-muted);border:1px solid var(--border)}
-.score-box.result{color:var(--success-text);border:1px solid var(--success)}
+.score-box{background:var(--surface-2);padding:5px 10px;border-radius:12px;font-size:14px;font-weight:800;min-width:30px;text-align:center;border:2px solid var(--border)}
+.score-box.pred{color:var(--text-muted)}
+.score-box.result{color:var(--success-text);border-color:var(--success);background:rgba(88,204,2,.1)}
 .vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:90px}
 .pred-row{display:flex;align-items:center;gap:4px}
-.pts-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.pts-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;border:2px solid transparent}
 .pts-3{background:rgba(34,197,94,0.18);color:var(--success-text)}
 .pts-1{background:var(--warning-soft);color:var(--warning)}
 .pts-2{background:var(--warning-soft);color:var(--warning)}
@@ -113,18 +118,18 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 
 /* ── DRAG & DROP ── */
 .sortable-list{list-style:none}
-.sortable-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:grab;border:1px solid var(--border);transition:border-color .2s;user-select:none;touch-action:none}
+.sortable-item{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;padding:12px 14px;margin-bottom:8px;cursor:grab;border:2px solid var(--border);box-shadow:0 3px 0 var(--border-strong);transition:border-color .2s;user-select:none;touch-action:none}
 .sortable-item.dragging{opacity:.4;cursor:grabbing}
 .sortable-item.drag-over{border-color:var(--primary)}
 .pos-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#ffffff}
 
 /* ── ELIM ── */
-.elim-locked-info{background:var(--surface);border-radius:10px;padding:24px;text-align:center;color:var(--text-muted);font-size:13px;border:1px dashed var(--border);margin-bottom:8px}
+.elim-locked-info{background:var(--surface);border-radius:18px;padding:24px;text-align:center;color:var(--text-muted);font-size:13px;font-weight:700;border:2px dashed var(--border);margin-bottom:10px}
 
 /* ── RANKING PODIO ── */
 .podio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;align-items:end}
-.podio-card{border-radius:10px;padding:12px 8px;text-align:center;border:1px solid var(--border-soft)}
-.podio-card.p1{background:linear-gradient(180deg,var(--surface-3) 0%,var(--surface) 100%);border-color:var(--primary);order:2}
+.podio-card{border-radius:20px;padding:14px 8px;text-align:center;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
+.podio-card.p1{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark);order:2}
 .podio-card.p2{background:var(--surface);order:1}
 .podio-card.p3{background:var(--surface);order:3}
 .podio-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;margin:0 auto 6px}
@@ -138,25 +143,25 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 .podio-card.p3{animation-delay:.2s}
 
 /* ── FABS ── */
-.fab{position:fixed;bottom:20px;width:42px;height:42px;border-radius:50%;color:var(--text-muted);border:1px solid var(--border);font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:var(--surface)}
+.fab{position:fixed;bottom:20px;width:44px;height:44px;border-radius:50%;color:var(--text-muted);border:2px solid var(--border);border-bottom:4px solid var(--border-strong);font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:var(--surface)}
 .fab:hover{background:var(--surface-3);color:var(--text);border-color:var(--primary)}
 .fab-right{right:20px}
 .fab-left{left:20px}
 
 /* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-box{background:var(--surface);border-radius:16px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;border:1px solid var(--border-soft)}
-.modal-box h2{font-size:18px;font-weight:900;margin-bottom:16px;text-align:center}
+.modal-box{background:var(--surface);border-radius:24px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;border:2px solid var(--border);box-shadow:0 6px 0 var(--border-strong)}
+.modal-box h2{font-size:18px;font-weight:900;margin-bottom:16px;text-align:center;font-family:'Nunito',sans-serif}
 .rules-section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-soft)}
 .rules-section:last-of-type{border-bottom:none}
 .rules-section h3{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:.5px}
 .rules-section p,.rules-section li{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:3px}
 .rules-section ul{padding-left:16px}
-.modal-close{width:100%;background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px}
+.modal-close{width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:13px;font-size:15px;font-weight:900;cursor:pointer;margin-top:12px;font-family:'Nunito',sans-serif;transition:all .1s}.modal-close:active{border-bottom-width:0;transform:translateY(4px)}
 
 /* ── CARTA CAMPEÓN ── */
 .carta-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
-.carta-box{background:var(--surface);border-radius:20px;max-width:420px;width:100%;padding:28px 22px 24px;border:1px solid var(--primary);text-align:center}
+.carta-box{background:var(--surface);border-radius:24px;max-width:420px;width:100%;padding:28px 22px 24px;border:3px solid var(--primary);box-shadow:0 6px 0 var(--primary-dark);text-align:center}
 .carta-trophy{font-size:52px;margin-bottom:8px;display:block;animation:bounce .8s ease infinite alternate}
 @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 @keyframes bounce2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
@@ -168,7 +173,7 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 .carta-text p{margin-bottom:10px}
 .carta-text p:last-child{margin-bottom:0}
 .carta-firma{margin-top:14px;text-align:right;font-size:11px;color:var(--text-muted);font-style:italic}
-.carta-close{margin-top:18px;width:100%;background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer}
+.carta-close{margin-top:18px;width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:12px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .1s}.carta-close:active{border-bottom-width:0;transform:translateY(4px)}
 
 /* ── CHAT ── */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:280px}
@@ -179,15 +184,16 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 .chat-msg{display:flex;flex-direction:column;max-width:82%;gap:2px}
 .chat-msg.mine{align-self:flex-end;align-items:flex-end}
 .chat-msg.theirs{align-self:flex-start;align-items:flex-start}
-.chat-bubble{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word}
-.chat-msg.mine .chat-bubble{background:var(--primary);color:#0b1220;border-bottom-right-radius:4px}
-.chat-msg.theirs .chat-bubble{background:var(--surface-3);color:var(--text);border-bottom-left-radius:4px}
+.chat-bubble{padding:9px 14px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word;font-weight:700}
+.chat-msg.mine .chat-bubble{background:var(--primary);color:#fff;border-bottom-right-radius:4px;border:2px solid var(--primary-dark)}
+.chat-msg.theirs .chat-bubble{background:var(--surface-2);color:var(--text);border-bottom-left-radius:4px;border:2px solid var(--border)}
 .chat-meta{font-size:10px;color:var(--text-dim);padding:0 4px}
 .chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid var(--border-soft);margin-top:6px}
-.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 14px;font-size:14px;outline:none;font-family:'Poppins',sans-serif;resize:none;min-height:42px;max-height:80px}
+.chat-input{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:16px;color:var(--text);padding:10px 14px;font-size:14px;outline:none;font-family:'Nunito',sans-serif;font-weight:700;resize:none;min-height:44px;max-height:80px}
 .chat-input:focus{border-color:var(--primary)}
-.chat-send{background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1}
+.chat-send{background:var(--primary);color:#fff;border:none;border-bottom:3px solid var(--primary-dark);border-radius:16px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;transition:all .1s}
 .chat-send:hover{background:var(--primary-hover)}
+.chat-send:active{border-bottom-width:0;transform:translateY(3px)}
 .chat-empty{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:13px}
 
 /* ── H2H HISTORY ── */
@@ -205,7 +211,7 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 .hist-label{font-size:11px;color:var(--text-muted);width:60px;text-align:right;flex-shrink:0}
 .hist-bar-wrap{flex:1;background:var(--surface-2);border-radius:4px;height:20px;position:relative;overflow:hidden}
 .hist-bar{height:100%;border-radius:4px;background:var(--primary);transition:width .4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;min-width:24px}
-.hist-bar-val{font-size:10px;font-weight:700;color:#0b1220}
+.hist-bar-val{font-size:10px;font-weight:700;color:#ffffff}
 .hist-pos{font-size:11px;font-weight:700;width:20px;flex-shrink:0}
 @media(hover:none)and(pointer:coarse){.polla-dots-btn{display:none!important}}
 @media(max-width:768px){.polla-dots-btn{display:none!important}}
@@ -221,8 +227,8 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 .bracket-outer{padding:4px 0 8px}
 .bracket-section{margin-bottom:20px}
 .bracket-phase-hdr{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--primary);text-transform:uppercase;padding:4px 0 10px;border-bottom:1px solid var(--border-soft);margin-bottom:10px}
-.bracket-match{background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .15s;position:relative}
-.bracket-match:not(.locked):hover{border-color:var(--primary);cursor:pointer}
+.bracket-match{background:var(--surface);border:2px solid var(--border);border-radius:18px;margin-bottom:10px;overflow:hidden;transition:border-color .15s,box-shadow .15s;position:relative;box-shadow:0 4px 0 var(--border-strong)}
+.bracket-match:not(.locked):hover{border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark);cursor:pointer}
 .bracket-match.locked{cursor:default}
 .bm-team{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;font-weight:700;position:relative}
 .bm-team.winner{background:rgba(34,197,94,.1);color:var(--success-text)}
@@ -233,7 +239,7 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 .bm-meta{font-size:10px;color:var(--text-dim);padding:4px 12px 7px;display:flex;gap:8px}
 
 /* ── COLLECTIVE BAR ── */
-.coll-bar-wrap{margin-top:10px;padding:8px 10px;background:var(--surface-2);border-radius:8px}
+.coll-bar-wrap{margin-top:10px;padding:10px 12px;background:var(--surface-2);border-radius:14px;border:2px solid var(--border)}
 .coll-bar-title{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
 .coll-bar-row{display:flex;height:14px;border-radius:6px;overflow:hidden;margin-bottom:5px}
 .coll-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;min-width:0;transition:width .3s}
@@ -251,7 +257,7 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 
 /* ── AUTOCOMPLETE ── */
 .autocomplete-wrap{position:relative;flex:1}
-.autocomplete-input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:14px;outline:none;font-family:'Poppins',sans-serif}
+.autocomplete-input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:14px;outline:none;font-family:'Nunito',sans-serif}
 .autocomplete-input:focus{border-color:var(--primary)}
 .autocomplete-drop{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border-soft);border-radius:8px;z-index:500;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);margin-top:2px}
 .autocomplete-item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border-soft)}
@@ -261,7 +267,7 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 /* ── RANKING BREAKDOWN ── */
 .breakdown-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1100;display:flex;align-items:flex-end;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.breakdown-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:680px;margin:0 auto;max-height:82vh;overflow-y:auto;padding:20px 16px 36px;border-top:1px solid var(--border-soft);animation:slideUp .25s ease}
+.breakdown-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:680px;margin:0 auto;max-height:82vh;overflow-y:auto;padding:20px 16px 36px;border-top:3px solid var(--border);animation:slideUp .25s ease}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .breakdown-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
 .rb-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border-soft)}
@@ -272,8 +278,8 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
 
 /* ── BRAND LOGO ── */
 .brand-logo{display:inline-flex;align-items:flex-end;gap:6px;line-height:1;color:var(--primary);user-select:none}
-.brand-tu{font-family:'Poppins',sans-serif;font-size:36px;color:var(--primary);font-weight:900;display:inline-block;margin-right:2px;margin-bottom:-4px}
-.brand-polla{font-family:'Poppins',sans-serif;font-size:26px;color:var(--primary);letter-spacing:-0.5px;text-transform:uppercase;font-weight:900}
+.brand-tu{font-family:'Nunito',sans-serif;font-size:36px;color:var(--primary);font-weight:900;display:inline-block;margin-right:2px;margin-bottom:-4px}
+.brand-polla{font-family:'Nunito',sans-serif;font-size:26px;color:var(--primary);letter-spacing:-0.5px;text-transform:uppercase;font-weight:900}
 .brand-trophy{width:22px;height:28px;color:var(--primary);flex-shrink:0;margin-bottom:1px;filter:drop-shadow(1px 1px 0 var(--secondary))}
 .brand-logo.lg .brand-tu{font-size:54px;margin-bottom:-6px}
 .brand-logo.lg .brand-polla{font-size:40px}
@@ -305,7 +311,7 @@ body{background:var(--bg);color:var(--text);font-family:'Poppins',-apple-system,
  <div style="padding:18px 18px 14px">
  <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
  <div id="invite-code" onclick="navigator.clipboard.writeText(this.textContent).then(()=>showToast('Código copiado '))"
- style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Poppins',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
+ style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Nunito',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
  title="Toca para copiar"></div>
  <div style="font-size:10px;color:var(--text-dim);margin-bottom:14px">toca para copiar</div>
  </div>
@@ -837,24 +843,24 @@ function renderLanding(){
  <div style="font-size:12px;color:var(--text-dim);margin-top:14px;font-weight:600;letter-spacing:1px">USA · México · Canadá</div>
  </div>
 
- <button onclick="renderCrearPolla()" style="width:100%;max-width:340px;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:16px;box-shadow:0 4px 24px rgba(184,134,11,0.25)">
+ <button onclick="renderCrearPolla()" style="width:100%;max-width:340px;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:16px;box-shadow:0 4px 24px rgba(184,134,11,0.25)">
  Crear una polla
  </button>
 
  <div style="width:100%;max-width:340px;position:relative;margin-bottom:6px">
  <input id="landingCode" type="text" placeholder="¿Tienes un código?"
  maxlength="6"
- style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;color:var(--text);padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Poppins',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
+ style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;color:var(--text);padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
  oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'var(--primary)':'var(--border)'"
  onkeydown="if(event.key==='Enter')doJoinFromLanding()"
  onfocus="this.style.borderColor='var(--primary)'"
  onblur="this.style.borderColor=this.value.length>0?'var(--primary)':'var(--border)'"
  />
- <button onclick="doJoinFromLanding()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-radius:10px;color:#0b1220;padding:7px 13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif">→</button>
+ <button onclick="doJoinFromLanding()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-radius:10px;color:#ffffff;padding:7px 13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">→</button>
  </div>
  <div id="landingError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:16px"></div>
 
- <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline;text-underline-offset:3px">
+ <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:underline;text-underline-offset:3px">
  Ya tengo cuenta — iniciar sesión
  </button>
  </div>`;
@@ -895,15 +901,15 @@ function renderPickName(onDone, onBack){
  <input id="pickNameInput" type="text" placeholder="Tu nombre en la polla"
  maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false"
  value="${savedName}"
- style="width:100%;max-width:340px;background:var(--surface);border:2px solid var(--primary);border-radius:14px;color:var(--text);padding:16px 18px;font-size:22px;font-weight:700;font-family:'Poppins',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
+ style="width:100%;max-width:340px;background:var(--surface);border:2px solid var(--primary);border-radius:14px;color:var(--text);padding:16px 18px;font-size:22px;font-weight:700;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
  onkeydown="if(event.key==='Enter')doPickName()"
  oninput="pendingName=this.value.trim()"
  />
  <div id="pickNameError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:12px"></div>
- <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:var(--primary);color:#0b1220;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Poppins',sans-serif">
+ <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif">
  Continuar →
  </button>
- <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:16px">← Volver</button>
+ <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:16px">← Volver</button>
  </div>`;
  setTimeout(()=>{const el=document.getElementById("pickNameInput");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},100);
 }
@@ -924,7 +930,7 @@ function renderAuthScreen(name){
  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
  ${name?`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px">Hola, ${name} </div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:24px">Bienvenido de vuelta</div>`}
 
- <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
+ <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
  <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
  Continuar con Google
  </button>
@@ -936,21 +942,21 @@ function renderAuthScreen(name){
  </div>
 
  <input id="authEmail" type="email" placeholder="Email" autocomplete="email"
- style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Poppins',sans-serif;box-sizing:border-box"/>
+ style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif;box-sizing:border-box"/>
  <div style="position:relative;width:100%;max-width:340px;margin-bottom:10px">
  <input id="authPass" type="password" placeholder="Contraseña" autocomplete="current-password"
- style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Poppins',sans-serif;box-sizing:border-box"
+ style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Nunito',sans-serif;box-sizing:border-box"
  onkeydown="if(event.key==='Enter')doEmailAuth()"/>
  <button type="button" onclick="togglePass('authPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:0;line-height:1"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
  </div>
  <div id="authError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px;text-align:left"></div>
- <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:var(--primary);color:#0b1220;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:14px">
+ <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:14px">
  Entrar →
  </button>
- <button onclick="renderForgot()" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
+ <button onclick="renderForgot()" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
  ¿Olvidaste tu contraseña?
  </button>
- <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif">← Volver</button>
+ <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif">← Volver</button>
  </div>`;
  setTimeout(()=>document.getElementById("authEmail")?.focus(),100);
 }
@@ -1021,11 +1027,11 @@ function renderForgot(){
  <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Recuperar contraseña</div>
  <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Te enviaremos un link por email</div>
  <input id="forgotEmail" type="email" placeholder="Tu email" autocomplete="email"
- style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Poppins',sans-serif;box-sizing:border-box"
+ style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif;box-sizing:border-box"
  onkeydown="if(event.key==='Enter')doForgot()"/>
  <div id="forgotMsg" style="font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px"></div>
- <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:var(--primary);color:#0b1220;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:14px">Enviar link </button>
- <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif">← Volver</button>
+ <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:14px">Enviar link </button>
+ <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif">← Volver</button>
  </div>`;
 }
 
@@ -1064,13 +1070,13 @@ function renderPollaLobby(){
  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
  <div style="width:40px"></div>
  <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:var(--border);text-transform:uppercase">MUNDIAL 2026</div>
- <button onclick="logout()" style="background:var(--surface);border:none;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Poppins',sans-serif">Salir</button>
+ <button onclick="logout()" style="background:var(--surface);border:none;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Nunito',sans-serif">Salir</button>
  </div>
 
  <!-- HERO -->
  <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 24px">
  <div style="font-size:22px;font-weight:900;color:var(--text);letter-spacing:-0.5px;margin-bottom:2px">${currentUser.name}</div>
- <button onclick="openChangeName()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;font-family:'Poppins',sans-serif;padding:4px 0;margin-bottom:4px"> Cambiar nombre</button>
+ <button onclick="openChangeName()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;font-family:'Nunito',sans-serif;padding:4px 0;margin-bottom:4px"> Cambiar nombre</button>
  <div class="brand-logo" style="margin-top:8px">
  <span class="brand-tu">Tu</span><span class="brand-polla">Polla</span>
  <svg class="brand-trophy" viewBox="0 0 32 40" fill="currentColor" aria-hidden="true">
@@ -1121,8 +1127,8 @@ function renderPollaLobby(){
  </div>`}
 
  <div style="display:flex;flex-direction:column;gap:10px">
- <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#0b1220;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;box-shadow:0 4px 16px rgba(255,179,16,0.25)"> Crear una polla</button>
- <button onclick="renderUnirse()" style="width:100%;background:var(--surface);color:var(--text-muted);border:1px solid var(--border-soft);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif"> Unirme a una polla</button>
+ <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(255,179,16,0.25)"> Crear una polla</button>
+ <button onclick="renderUnirse()" style="width:100%;background:var(--surface);color:var(--text-muted);border:1px solid var(--border-soft);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif"> Unirme a una polla</button>
  </div>
  </div>
  </div>`;
@@ -1285,7 +1291,7 @@ function ruleRow(id,label,val){
  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
  <span style="font-size:13px;color:var(--text)">${label}</span>
  <div style="display:flex;align-items:center;gap:6px">
- <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif"/>
+ <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif"/>
  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span>
  </div>
  </div>`;
@@ -1336,7 +1342,7 @@ function renderCrearPolla(){
  </label>
  </div>`).join("")}
  <div style="border-top:1px solid var(--border-soft);padding:10px 14px;text-align:center">
- <button onclick="toggleRules()" style="background:none;border:none;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif"> Cambiar puntos</button>
+ <button onclick="toggleRules()" style="background:none;border:none;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif"> Cambiar puntos</button>
  </div>
  </div>
  </div>
@@ -1367,7 +1373,7 @@ function renderCrearPolla(){
  <div style="display:flex;align-items:center;gap:6px">
  <input type="number" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
  oninput="document.getElementById('ex-ptsPosGrupo').textContent=this.value||'?'"
- style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif"/>
+ style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif"/>
  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span>
  </div>
  </div>
@@ -1420,7 +1426,7 @@ function renderCrearPolla(){
  ${ruleRow("espGuanteOro"," Guante de Oro",r.espGuanteOro)}
  ${ruleRow("espMejorJugador","Mejor Jugador",r.espMejorJugador)}
  </div>
- <button onclick="closeRulesModal()" style="width:100%;background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif">Listo </button>
+ <button onclick="closeRulesModal()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Listo </button>
  </div>
  </div>
  </div>`;
@@ -1485,7 +1491,7 @@ function renderInvite(pollaId,nombre,code){
  <div style="background:var(--surface);border-radius:14px;overflow:hidden;margin-bottom:16px">
  <div style="padding:20px 20px 14px">
  <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
- <div onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado '))" style="font-size:40px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Poppins',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
+ <div onclick="navigator.clipboard.writeText('${code}').then(()=>showToast('Código copiado '))" style="font-size:40px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Nunito',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
  <div style="font-size:10px;color:var(--text-dim);margin-bottom:14px">toca para copiar</div>
  </div>
  <div style="border-top:1px solid var(--border);padding:14px 20px">
@@ -1694,8 +1700,8 @@ function render(){
  <div class="header">
  <div class="header-bg"></div>
  <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
- <button onclick="goToLobby()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
- ${isCreator?`<button onclick="showInvite()" style="background:rgba(184,134,11,0.1);border:1px solid var(--primary);color:var(--primary-hover);cursor:pointer;font-size:11px;font-family:'Poppins',sans-serif;border-radius:6px;padding:3px 8px"> Invitar</button>`:`<div></div>`}
+ <button onclick="goToLobby()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:3px">⬅ Mis pollas</button>
+ ${isCreator?`<button onclick="showInvite()" style="background:rgba(184,134,11,0.1);border:1px solid var(--primary);color:var(--primary-hover);cursor:pointer;font-size:11px;font-family:'Nunito',sans-serif;border-radius:6px;padding:3px 8px"> Invitar</button>`:`<div></div>`}
  </div>
  <div style="position:relative;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px">
  <div class="brand-logo sm">
@@ -1713,7 +1719,7 @@ function render(){
  </div>
  <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
  <p class="header-sub">USA · México · Canadá 2026</p>
- <div style="position:relative;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:'Poppins',sans-serif;text-align:center">
+ <div style="position:relative;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:'Nunito',sans-serif;text-align:center">
  Hola, <strong style="color:var(--text)">${currentUser.name}</strong>
  </div>
  <div style="display:flex;justify-content:center;margin-bottom:4px">
@@ -2783,7 +2789,7 @@ window.openBreakdown=function(uid){
  <div style="font-size:15px;font-weight:700;color:var(--text)"> Total</div>
  <span class="rb-total">${total} pts</span>
  </div>
- <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#0b1220;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px">Cerrar</button>
+ <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px">Cerrar</button>
  `;
  document.getElementById("breakdown-overlay").style.display="flex";
 };
