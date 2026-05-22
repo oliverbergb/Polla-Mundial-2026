@@ -287,6 +287,61 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 .brand-logo.sm .brand-tu{font-size:22px;margin-bottom:-2px}
 .brand-logo.sm .brand-polla{font-size:16px;text-shadow:1px 1px 0 var(--secondary)}
 .brand-logo.sm .brand-trophy{width:14px;height:18px}
+
+/* ── DESKTOP ── */
+/* =============================================
+   MOBILE  (pantallas hasta 899px / celular)
+   ============================================= */
+@media(max-width:899px){
+ .app{padding-bottom:80px}
+ .card,.match-card{border-radius:18px}
+}
+
+/* =============================================
+   DESKTOP  (pantallas desde 900px / web / PC)
+   ============================================= */
+@media(min-width:900px){
+ body{background:#EBEBEB}
+ .app{
+  max-width:none;
+  display:grid;
+  grid-template-columns:260px 1fr;
+  grid-template-rows:auto 1fr;
+  min-height:100vh;
+  padding-bottom:0;
+ }
+ .header{
+  grid-column:1;
+  grid-row:1 / 999;
+  margin:12px 0 12px 12px;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  padding:24px 16px 20px;
+  min-height:calc(100vh - 24px);
+  position:sticky;
+  top:12px;
+  height:calc(100vh - 24px);
+  overflow-y:auto;
+ }
+ .header::before{border-radius:20px 20px 0 0}
+ .tabs-wrap{flex-direction:column;align-items:stretch;margin-top:8px}
+ .tabs-wrap::after{display:none}
+ .tabs{flex-direction:column;flex-wrap:nowrap;gap:4px;padding:0;justify-content:flex-start;width:100%}
+ .tab{border-radius:14px;padding:11px 14px;text-align:left;font-size:13px;border-bottom-width:2px!important}
+ .tab.active{border-bottom:3px solid var(--primary-dark)!important;box-shadow:0 3px 0 var(--primary-dark)}
+ .content{
+  grid-column:2;
+  grid-row:1 / 999;
+  padding:16px 20px 40px;
+  max-width:700px;
+ }
+ .fab{display:none!important}
+ .card,.match-card{border-radius:20px}
+ .header h1{font-size:18px;margin-top:12px}
+ .header-sub{font-size:11px}
+ .countdown-bar{font-size:11px}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -826,10 +881,11 @@ function loadData(){
 function renderLanding(){
  setFabs(false);
  document.getElementById("root").innerHTML=`
- <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
- <div style="margin-bottom:40px">
- <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:var(--text-dim);margin-bottom:14px">MUNDIAL 2026</div>
- <div class="brand-logo lg">
+ <div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);font-family:'Nunito',sans-serif;">
+
+ <!-- NAV -->
+ <nav style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--surface);border-bottom:2px solid var(--border);">
+ <div class="brand-logo sm">
  <span class="brand-tu">Tu</span><span class="brand-polla">Polla</span>
  <svg class="brand-trophy" viewBox="0 0 32 40" fill="currentColor" aria-hidden="true">
  <path d="M8,4 L24,4 L24,16 Q24,22 16,22 Q8,22 8,16 Z"/>
@@ -840,30 +896,134 @@ function renderLanding(){
  <path d="M24,7 Q29,8 29,12 Q29,16 24,17" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
  </svg>
  </div>
- <div style="font-size:12px;color:var(--text-dim);margin-top:14px;font-weight:600;letter-spacing:1px">USA · México · Canadá</div>
+ <div style="font-size:11px;font-weight:900;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;">MUNDIAL 2026</div>
+ </nav>
+
+ <!-- HERO -->
+ <div style="flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;padding:32px 20px 40px;gap:20px;max-width:680px;margin:0 auto;width:100%;box-sizing:border-box;">
+
+ <!-- Illustration -->
+ <div style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;">
+ <svg width="270" height="285" viewBox="0 0 320 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+ <circle cx="160" cy="175" r="72" fill="#fff" stroke="#222" stroke-width="3"/>
+ <polygon points="160,113 175,130 170,150 150,150 145,130" fill="#222"/>
+ <polygon points="217,153 228,168 218,185 200,183 196,165" fill="#222"/>
+ <polygon points="196,217 209,230 204,247 184,245 180,228" fill="#222"/>
+ <polygon points="120,217 107,230 112,247 132,245 136,228" fill="#222"/>
+ <polygon points="103,153 92,168 102,185 120,183 124,165" fill="#222"/>
+ <line x1="160" y1="113" x2="175" y2="130" stroke="#555" stroke-width="1.5"/>
+ <line x1="175" y1="130" x2="170" y2="150" stroke="#555" stroke-width="1.5"/>
+ <line x1="170" y1="150" x2="196" y2="165" stroke="#555" stroke-width="1.5"/>
+ <line x1="196" y1="165" x2="217" y2="153" stroke="#555" stroke-width="1.5"/>
+ <line x1="150" y1="150" x2="124" y2="165" stroke="#555" stroke-width="1.5"/>
+ <line x1="103" y1="153" x2="124" y2="165" stroke="#555" stroke-width="1.5"/>
+ <line x1="120" y1="183" x2="120" y2="217" stroke="#555" stroke-width="1.5"/>
+ <line x1="200" y1="183" x2="196" y2="217" stroke="#555" stroke-width="1.5"/>
+ <line x1="136" y1="228" x2="160" y2="235" stroke="#555" stroke-width="1.5"/>
+ <line x1="180" y1="228" x2="160" y2="235" stroke="#555" stroke-width="1.5"/>
+ <g transform="translate(228,20)">
+ <rect x="10" y="0" width="44" height="44" rx="22" fill="#FFF3D4"/>
+ <svg x="10" y="0" width="44" height="44" viewBox="0 0 32 40" fill="#FF9600">
+ <path d="M6,3 L26,3 L26,14 Q26,20 16,20 Q6,20 6,14 Z"/>
+ <rect x="13" y="20" width="6" height="5"/>
+ <rect x="8" y="25" width="16" height="2.5" rx="1"/>
+ <rect x="6" y="27.5" width="20" height="2.5" rx="1"/>
+ <path d="M6,6 Q2,7 2,11 Q2,15 6,15.5" stroke="#FF9600" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+ <path d="M26,6 Q30,7 30,11 Q30,15 26,15.5" stroke="#FF9600" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+ </svg>
+ </g>
+ <g transform="translate(42,45)"><circle cx="18" cy="18" r="18" fill="#FFF3D4"/><text x="18" y="25" text-anchor="middle" font-size="20">⭐</text></g>
+ <g transform="translate(68,12)">
+ <ellipse cx="22" cy="52" rx="14" ry="18" fill="#1CB0F6"/>
+ <circle cx="22" cy="30" r="14" fill="#FDBCB4"/>
+ <ellipse cx="22" cy="18" rx="13" ry="7" fill="#333"/>
+ <line x1="8" y1="48" x2="-4" y2="32" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+ <line x1="36" y1="48" x2="48" y2="32" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
+ <line x1="16" y1="68" x2="8" y2="86" stroke="#1CB0F6" stroke-width="7" stroke-linecap="round"/>
+ <line x1="28" y1="68" x2="36" y2="86" stroke="#1CB0F6" stroke-width="7" stroke-linecap="round"/>
+ <ellipse cx="6" cy="88" rx="8" ry="5" fill="#333"/>
+ <ellipse cx="38" cy="88" rx="8" ry="5" fill="#333"/>
+ <path d="M16,34 Q22,40 28,34" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+ </g>
+ <g transform="translate(218,52)">
+ <ellipse cx="22" cy="52" rx="14" ry="18" fill="#58CC02"/>
+ <circle cx="22" cy="30" r="13" fill="#C68642"/>
+ <ellipse cx="22" cy="19" rx="12" ry="6" fill="#1a1a1a"/>
+ <line x1="8" y1="46" x2="-2" y2="30" stroke="#C68642" stroke-width="5" stroke-linecap="round"/>
+ <line x1="36" y1="46" x2="50" y2="30" stroke="#C68642" stroke-width="5" stroke-linecap="round"/>
+ <circle cx="50" cy="26" r="8" fill="#C68642"/>
+ <line x1="16" y1="68" x2="10" y2="88" stroke="#58CC02" stroke-width="7" stroke-linecap="round"/>
+ <line x1="28" y1="68" x2="34" y2="88" stroke="#58CC02" stroke-width="7" stroke-linecap="round"/>
+ <ellipse cx="8" cy="90" rx="8" ry="5" fill="#222"/>
+ <ellipse cx="36" cy="90" rx="8" ry="5" fill="#222"/>
+ <path d="M16,33 Q22,39 28,33" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+ </g>
+ <g transform="translate(34,185)">
+ <ellipse cx="18" cy="42" rx="12" ry="15" fill="#CE82FF"/>
+ <circle cx="18" cy="24" r="12" fill="#FDBCB4"/>
+ <ellipse cx="18" cy="14" rx="11" ry="6" fill="#8B4513"/>
+ <line x1="6" y1="38" x2="-4" y2="26" stroke="#FDBCB4" stroke-width="5" stroke-linecap="round"/>
+ <line x1="30" y1="38" x2="42" y2="30" stroke="#FDBCB4" stroke-width="5" stroke-linecap="round"/>
+ <line x1="12" y1="56" x2="4" y2="74" stroke="#CE82FF" stroke-width="6" stroke-linecap="round"/>
+ <line x1="24" y1="56" x2="44" y2="72" stroke="#CE82FF" stroke-width="6" stroke-linecap="round"/>
+ <ellipse cx="2" cy="76" rx="7" ry="4" fill="#222"/>
+ <ellipse cx="46" cy="74" rx="7" ry="4" fill="#222"/>
+ <path d="M12,27 Q18,32 24,27" stroke="#333" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+ </g>
+ <circle cx="88" cy="155" r="5" fill="#FF9600"/>
+ <circle cx="246" cy="145" r="4" fill="#58CC02"/>
+ <circle cx="58" cy="110" r="3" fill="#CE82FF"/>
+ <rect x="255" y="195" width="8" height="8" rx="2" fill="#FF4B4B" transform="rotate(20,259,199)"/>
+ <rect x="220" y="265" width="9" height="9" rx="2" fill="#FF9600" transform="rotate(30,224,269)"/>
+ <circle cx="140" cy="68" r="4" fill="#FF4B4B"/>
+ <circle cx="195" cy="76" r="3" fill="#1CB0F6"/>
+ <rect x="70" y="268" width="7" height="7" rx="2" fill="#1CB0F6" transform="rotate(-15,73,271)"/>
+ </svg>
  </div>
 
- <button onclick="renderCrearPolla()" style="width:100%;max-width:340px;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:16px;box-shadow:0 4px 24px rgba(184,134,11,0.25)">
+ <!-- Copy + CTAs -->
+ <div style="flex:1;min-width:220px;max-width:310px;display:flex;flex-direction:column;align-items:stretch;">
+ <p style="font-size:11px;font-weight:900;letter-spacing:4px;color:var(--text-dim);text-transform:uppercase;margin:0 0 12px;">MUNDIAL 2026</p>
+ <h1 style="font-size:26px;font-weight:900;color:var(--text);line-height:1.2;margin:0 0 26px;letter-spacing:-0.3px;font-family:'Nunito',sans-serif;">¡La forma más<br>divertida de vivir<br>el Mundial!</h1>
+
+ <button onclick="renderCrearPolla()"
+ style="width:100%;padding:17px;background:var(--primary);color:#fff;border:none;border-bottom:5px solid var(--primary-dark);border-radius:16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;margin-bottom:12px;transition:transform .08s,border-bottom-width .08s;"
+ onmousedown="this.style.borderBottomWidth='0px';this.style.transform='translateY(5px)'"
+ onmouseup="this.style.borderBottomWidth='5px';this.style.transform='translateY(0)'"
+ onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='translateY(0)'"
+ ontouchstart="this.style.borderBottomWidth='0px';this.style.transform='translateY(5px)'"
+ ontouchend="this.style.borderBottomWidth='5px';this.style.transform='translateY(0)'">
  Crear una polla
  </button>
 
- <div style="width:100%;max-width:340px;position:relative;margin-bottom:6px">
+ <button onclick="renderAuthScreen(null)"
+ style="width:100%;padding:15px;background:var(--surface);color:var(--text-muted);border:2px solid var(--border);border-bottom:5px solid var(--border-strong);border-radius:16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;margin-bottom:22px;transition:transform .08s,border-bottom-width .08s;"
+ onmousedown="this.style.borderBottomWidth='0px';this.style.transform='translateY(5px)'"
+ onmouseup="this.style.borderBottomWidth='5px';this.style.transform='translateY(0)'"
+ onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='translateY(0)'"
+ ontouchstart="this.style.borderBottomWidth='0px';this.style.transform='translateY(5px)'"
+ ontouchend="this.style.borderBottomWidth='5px';this.style.transform='translateY(0)'">
+ Ya tengo una cuenta
+ </button>
+
+ <!-- Code input -->
+ <div style="position:relative;">
  <input id="landingCode" type="text" placeholder="¿Tienes un código?"
  maxlength="6"
- style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;color:var(--text);padding:15px 52px 15px 18px;font-size:16px;font-weight:700;letter-spacing:4px;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s"
+ style="width:100%;background:var(--surface);border:2px solid var(--border);border-radius:14px;color:var(--text);padding:13px 54px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s;"
  oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'var(--primary)':'var(--border)'"
  onkeydown="if(event.key==='Enter')doJoinFromLanding()"
  onfocus="this.style.borderColor='var(--primary)'"
- onblur="this.style.borderColor=this.value.length>0?'var(--primary)':'var(--border)'"
- />
- <button onclick="doJoinFromLanding()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-radius:10px;color:#ffffff;padding:7px 13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">→</button>
+ onblur="this.style.borderColor=this.value.length>0?'var(--primary)':'var(--border)'"/>
+ <button onclick="doJoinFromLanding()"
+ style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-bottom:3px solid var(--primary-dark);border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1;">→</button>
  </div>
- <div id="landingError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:16px"></div>
+ <div id="landingError" style="color:var(--danger);font-size:13px;font-weight:800;min-height:20px;margin-top:6px;"></div>
+ </div>
 
- <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:underline;text-underline-offset:3px">
- Ya tengo cuenta — iniciar sesión
- </button>
- </div>`;
+ </div>
+ </div>
+ `;
  setTimeout(()=>document.getElementById("landingCode")?.focus(),200);
 }
 
