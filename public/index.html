@@ -44,7 +44,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 
 /* ── HEADER ── */
 .header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:var(--surface);border-radius:20px;margin:8px 8px 4px;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
-.header::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#ef4444,#f97316,#facc15,#22c55e,#3b82f6,#a855f7);z-index:1;border-radius:20px 20px 0 0}
+.header::before{display:none}
 .header-bg{display:none}
 .header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.3px;margin:6px 0 2px;text-transform:uppercase;font-family:'Nunito',sans-serif;color:var(--text)}
 .header-sub{position:relative;color:var(--text-muted);font-size:11px;margin-bottom:4px;font-family:'Nunito',sans-serif;font-weight:700}
@@ -402,8 +402,9 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
   grid-column:2;
   grid-row:1 / 999;
   padding:16px 32px 40px;
-  max-width:860px;
+  max-width:780px;
   width:100%;
+  margin:0 auto;
  }
  .fab{display:none!important}
  .card,.match-card{border-radius:20px}
@@ -1143,7 +1144,7 @@ function renderAuthScreen(name){
  <button onclick="renderForgot()" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
  ¿Olvidaste tu contraseña?
  </button>
- <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif">← Volver</button>
+ <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px">← Volver</button>
  </div>`;
  setTimeout(()=>document.getElementById("authEmail")?.focus(),100);
 }
@@ -1914,6 +1915,11 @@ function render(){
  ${countdown?`<div class="countdown-bar" style="position:relative"> <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e"> ¡El Mundial está en curso!</div>`}
  </div>
  <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}</div></div>
+ <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)">
+ <button onclick="openRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+ <i data-lucide="help-circle" style="width:15px;height:15px;flex-shrink:0"></i> Reglas de la polla
+ </button>
+ </div>
  </div>
  <div class="content" id="tab-content"></div>
  </div>`;
@@ -1965,6 +1971,33 @@ function renderGrupos(){
  <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
  </div>
  ${groupPills()}
+ <div class="card">
+ <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:700">GRUPO ${currentGroup} — ${locked?"Tu pronóstico de clasificación":"Arrastra para ordenar"}</div>
+ ${locked
+ ?userOrder.map((t,i)=>{
+ const correct=realOrder&&realOrder[i]===t;
+ return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"var(--border)"}">
+ <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
+ <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
+ ${realOrder?`<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"var(--text-muted)"}">${correct?" +2":" 0"}</span>`:""}
+ </div>`;
+ }).join("")+
+ (realOrder?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+ <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700">Clasificación real</div>
+ ${realOrder.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">
+ <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
+ <span>${flag(t)} ${t}</span>
+ </div>`).join("")}
+ </div>`:"")
+ :`<ul class="sortable-list" id="sortable-${currentGroup}">
+ ${userOrder.map((t,i)=>`<li class="sortable-item" draggable="true" data-team="${t}">
+ <span style="color:var(--text-dim);font-size:16px;cursor:grab">⠿</span>
+ <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
+ <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
+ </li>`).join("")}
+ </ul>`
+ }
+ </div>
  <div style="background:var(--surface);border-radius:10px;margin-bottom:12px;overflow:hidden">
  <div style="background:var(--surface-3);padding:8px 14px;font-weight:900;font-size:13px;letter-spacing:1px;color:var(--text)">GRUPO ${currentGroup} — Tabla actual</div>
  <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">
@@ -1994,90 +2027,106 @@ function renderGrupos(){
  <div style="display:flex;flex-wrap:wrap;gap:10px;padding:8px 14px;border-top:1px solid var(--border)">
  ${posColors.map((c,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted)"><span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}</span>`).join("")}
  </div>
- </div>
- <div class="card">
- <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:700">GRUPO ${currentGroup} — ${locked?"Tu pronóstico de clasificación":"Arrastra para ordenar"}</div>
- ${locked
- ?userOrder.map((t,i)=>{
- const correct=realOrder&&realOrder[i]===t;
- return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"var(--border)"}">
- <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
- <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
- ${realOrder?`<span style="font-size:12px;font-weight:700;color:${correct?"#22c55e":"var(--text-muted)"}">${correct?" +2":" 0"}</span>`:""}
- </div>`;
- }).join("")+
- (realOrder?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
- <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700">Clasificación real</div>
- ${realOrder.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">
- <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
- <span>${flag(t)} ${t}</span>
- </div>`).join("")}
- </div>`:"")
- :`<ul class="sortable-list" id="sortable-${currentGroup}">
- ${userOrder.map((t,i)=>`<li class="sortable-item" draggable="true" data-team="${t}">
- <span style="color:var(--text-dim);font-size:16px;cursor:grab">⠿</span>
- <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
- <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
- </li>`).join("")}
- </ul>`
- }
  </div>`;
 }
 function initDragDrop(){
  const g=currentGroup;if(!GROUPS[g])return;
  const list=document.getElementById(`sortable-${g}`);if(!list)return;
- let dragEl=null;
- function updateBadges(){[...list.children].forEach((item,i)=>{const b=item.querySelector('.pos-num');if(b){b.style.background=POS_COLORS[i];b.textContent=POS_LABELS[i];}});}
- function saveOrder(){saveGroupPred(g,[...list.children].map(li=>li.dataset.team));}
- list.addEventListener("dragstart",e=>{dragEl=e.target.closest(".sortable-item");setTimeout(()=>dragEl&&dragEl.classList.add("dragging"),0);});
- list.addEventListener("dragend",()=>{if(dragEl)dragEl.classList.remove("dragging");dragEl=null;updateBadges();saveOrder();});
- list.addEventListener("dragover",e=>{e.preventDefault();const over=e.target.closest(".sortable-item");if(!over||over===dragEl)return;[...list.children].forEach(c=>c.classList.remove("drag-over"));over.classList.add("drag-over");const rect=over.getBoundingClientRect();list.insertBefore(dragEl,e.clientY>rect.top+rect.height/2?over.nextSibling:over);});
- list.addEventListener("dragleave",e=>{const o=e.target.closest(".sortable-item");if(o)o.classList.remove("drag-over");});
- list.addEventListener("drop",e=>{e.preventDefault();[...list.children].forEach(c=>c.classList.remove("drag-over"));});
+ let dragEl=null,placeholder=null;
 
- // Touch: long-press (300ms) to activate drag
- let tEl=null,tClone=null,tTimer=null,tActive=false;
+ function makePlaceholder(el){
+  const ph=document.createElement('li');
+  ph.className='sortable-item';
+  ph.style.cssText=`height:${el.offsetHeight}px;background:var(--primary-soft);border:2px dashed var(--primary);opacity:0.6;pointer-events:none;border-radius:16px;`;
+  return ph;
+ }
+ function updateBadges(){[...list.children].filter(c=>!c._isPlaceholder).forEach((item,i)=>{const b=item.querySelector('.pos-num');if(b){b.style.background=POS_COLORS[i];b.textContent=POS_LABELS[i];}});}
+ function realItems(){return[...list.children].filter(c=>c!==placeholder);}
+ function saveOrder(){saveGroupPred(g,realItems().map(li=>li.dataset.team));}
+
+ list.addEventListener("dragstart",e=>{
+  dragEl=e.target.closest(".sortable-item");
+  if(!dragEl)return;
+  placeholder=makePlaceholder(dragEl);
+  placeholder._isPlaceholder=true;
+  setTimeout(()=>{
+   if(dragEl)dragEl.style.opacity="0.3";
+   list.insertBefore(placeholder,dragEl.nextSibling);
+  },0);
+ });
+ list.addEventListener("dragend",()=>{
+  if(dragEl)dragEl.style.opacity="";
+  if(placeholder&&placeholder.parentNode)placeholder.parentNode.removeChild(placeholder);
+  placeholder=null;dragEl=null;
+  updateBadges();saveOrder();
+ });
+ list.addEventListener("dragover",e=>{
+  e.preventDefault();
+  if(!dragEl||!placeholder)return;
+  const over=e.target.closest(".sortable-item");
+  if(!over||over===dragEl||over===placeholder)return;
+  const rect=over.getBoundingClientRect();
+  const insertAfter=e.clientY>rect.top+rect.height/2;
+  list.insertBefore(placeholder,insertAfter?over.nextSibling:over);
+  list.insertBefore(dragEl,placeholder);
+  updateBadges();
+ });
+ list.addEventListener("drop",e=>{e.preventDefault();});
+
+ // Touch drag with live preview
+ let tEl=null,tClone=null,tTimer=null,tActive=false,tPh=null;
  list.addEventListener("touchstart",e=>{
- const item=e.target.closest(".sortable-item");
- if(!item)return;
- tEl=item;tActive=false;
- tTimer=setTimeout(()=>{
- tActive=true;
- document.body.style.overflow="hidden";
- // Haptic feedback if available
- if(navigator.vibrate)navigator.vibrate(40);
- tEl.style.transform="scale(1.03)";tEl.style.opacity="0.9";
- tEl.style.boxShadow="0 4px 16px rgba(0,0,0,0.4)";
- tClone=tEl.cloneNode(true);
- tClone.style.cssText=`position:fixed;opacity:.75;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:var(--border);border-radius:8px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,0.4);`;
- document.body.appendChild(tClone);
- },300);
+  const item=e.target.closest(".sortable-item");
+  if(!item)return;
+  tEl=item;tActive=false;
+  tTimer=setTimeout(()=>{
+   tActive=true;
+   document.body.style.overflow="hidden";
+   if(navigator.vibrate)navigator.vibrate(40);
+   tPh=makePlaceholder(tEl);
+   tPh._isPlaceholder=true;
+   list.insertBefore(tPh,tEl.nextSibling);
+   tEl.style.opacity="0.3";
+   tClone=tEl.cloneNode(true);
+   tClone.style.cssText=`position:fixed;opacity:.85;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;`;
+   document.body.appendChild(tClone);
+  },300);
  },{passive:true});
  list.addEventListener("touchmove",e=>{
- if(!tEl){clearTimeout(tTimer);return;}
- if(!tActive){clearTimeout(tTimer);tEl=null;return;} // cancelled — user is scrolling
- e.preventDefault();
- const t=e.touches[0];
- tClone.style.left=(t.clientX-tEl.offsetWidth/2)+"px";
- tClone.style.top=(t.clientY-24)+"px";
- const els=document.elementsFromPoint(t.clientX,t.clientY);
- const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl);
- if(over){const rect=over.getBoundingClientRect();list.insertBefore(tEl,t.clientY>rect.top+rect.height/2?over.nextSibling:over);updateBadges();}
+  if(!tEl){clearTimeout(tTimer);return;}
+  if(!tActive){clearTimeout(tTimer);tEl=null;return;}
+  e.preventDefault();
+  const t=e.touches[0];
+  tClone.style.left=(t.clientX-tEl.offsetWidth/2)+"px";
+  tClone.style.top=(t.clientY-30)+"px";
+  const els=document.elementsFromPoint(t.clientX,t.clientY);
+  const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl&&el!==tPh);
+  if(over){
+   const rect=over.getBoundingClientRect();
+   const insertAfter=t.clientY>rect.top+rect.height/2;
+   list.insertBefore(tPh,insertAfter?over.nextSibling:over);
+   list.insertBefore(tEl,tPh);
+   updateBadges();
+  }
  },{passive:false});
  list.addEventListener("touchend",()=>{
- clearTimeout(tTimer);
- document.body.style.overflow="";
- if(tClone){tClone.remove();tClone=null;}
- if(tEl){tEl.style.transform="";tEl.style.opacity="";tEl.style.boxShadow="";}
- if(tActive){updateBadges();saveOrder();}
- tEl=null;tActive=false;
+  clearTimeout(tTimer);
+  document.body.style.overflow="";
+  if(tClone){tClone.remove();tClone=null;}
+  if(tPh&&tPh.parentNode)tPh.parentNode.removeChild(tPh);
+  tPh=null;
+  if(tEl){tEl.style.opacity="";}
+  if(tActive){updateBadges();saveOrder();}
+  tEl=null;tActive=false;
  });
  list.addEventListener("touchcancel",()=>{
- clearTimeout(tTimer);
- document.body.style.overflow="";
- if(tClone){tClone.remove();tClone=null;}
- if(tEl){tEl.style.transform="";tEl.style.opacity="";tEl.style.boxShadow="";}
- tEl=null;tActive=false;
+  clearTimeout(tTimer);
+  document.body.style.overflow="";
+  if(tClone){tClone.remove();tClone=null;}
+  if(tPh&&tPh.parentNode)tPh.parentNode.removeChild(tPh);
+  tPh=null;
+  if(tEl)tEl.style.opacity="";
+  tEl=null;tActive=false;
  });
 }
 
@@ -2193,11 +2242,44 @@ function matchScoreBlock(m,pred,res){
  </div>`;
  }
  return`<div style="display:flex;gap:4px;align-items:center">
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="savePred(${m.id},'h',this.value)"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}"
+   data-match="${m.id}" data-side="h"
+   onchange="savePred(${m.id},'h',this.value)"
+   onkeydown="scoreInputKey(event,${m.id},'h')"/>
  <span class="score-sep">:</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="savePred(${m.id},'a',this.value)"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}"
+   data-match="${m.id}" data-side="a"
+   onchange="savePred(${m.id},'a',this.value)"
+   onkeydown="scoreInputKey(event,${m.id},'a')"/>
  </div>`;
 }
+window.scoreInputKey=function(e,matchId,side){
+ // Tab: home→away within same match; away→home of next unlocked match
+ if(e.key==="Tab"){
+  e.preventDefault();
+  savePred(matchId,side,e.target.value);
+  if(side==="h"){
+   // Move to away input of same match
+   const next=document.querySelector(`.score-input[data-match="${matchId}"][data-side="a"]`);
+   if(next){next.focus();next.select();}
+  }else{
+   // Move to home input of next unlocked match
+   const allInputs=[...document.querySelectorAll('.score-input[data-side="h"]')];
+   const cur=allInputs.findIndex(inp=>parseInt(inp.dataset.match)===matchId);
+   const next=allInputs[cur+1];
+   if(next){next.focus();next.select();}
+  }
+ }
+ // Enter: save current and jump to home input of next match
+ if(e.key==="Enter"){
+  e.preventDefault();
+  savePred(matchId,side,e.target.value);
+  const allH=[...document.querySelectorAll('.score-input[data-side="h"]')];
+  const cur=allH.findIndex(inp=>parseInt(inp.dataset.match)===matchId);
+  const next=allH[cur+1];
+  if(next){next.focus();next.select();}
+ }
+};
 function spectatorBlock(m, res){
  const others = Object.entries(allUsers).filter(([uid])=>uid!==currentUser.uid);
  if(!others.length) return '';
@@ -2763,44 +2845,40 @@ window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
 
 // ─── KEYBOARD NAVIGATION ──────────────────────────────────
-let _kbFocus=null; // "tab" | "group" | "elim" | null
 document.addEventListener("keydown",function(e){
  if(!currentPollaId)return;
  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT")return;
  const isDesktop=window.innerWidth>=900;
- const tabKeys=isDesktop?["ArrowUp","ArrowDown"]:["ArrowLeft","ArrowRight"];
- const pillKeys=["ArrowLeft","ArrowRight"];
  const groupKeys=Object.keys(GROUPS);
  const elimIds=ELIM_PHASES.map(p=>p.id);
  const tabIds=["grupos","mis_pronos","eliminatorias",...(currentPolla?.rules?.incluirEspeciales!==false?["especiales"]:[]),"ranking","chat"];
 
- if(_kbFocus==="group"&&(currentTab==="grupos"||currentTab==="mis_pronos")&&pillKeys.includes(e.key)){
-  const dir=e.key==="ArrowRight"?1:-1;
-  const i=groupKeys.indexOf(currentGroup);
-  const next=groupKeys[(i+dir+groupKeys.length)%groupKeys.length];
-  setGroup(next);
- }else if(_kbFocus==="elim"&&currentTab==="eliminatorias"&&pillKeys.includes(e.key)){
-  const dir=e.key==="ArrowRight"?1:-1;
-  const i=elimIds.indexOf(currentElimPhase);
-  const next=elimIds[(i+dir+elimIds.length)%elimIds.length];
-  setElimPhase(next);
- }else if(_kbFocus==="tab"&&tabKeys.includes(e.key)){
-  e.preventDefault();
-  const dir=(e.key==="ArrowRight"||e.key==="ArrowDown")?1:-1;
-  const i=tabIds.indexOf(currentTab);
-  const next=tabIds[(i+dir+tabIds.length)%tabIds.length];
-  setTab(next);
- }
-});
-// Set focus context on pill/tab clicks
-document.addEventListener("click",function(e){
- if(!currentPollaId)return;
- const pill=e.target.closest(".pill");
- const tab=e.target.closest(".tab");
- if(tab){_kbFocus="tab";return;}
- if(pill){
- if(currentTab==="eliminatorias")_kbFocus="elim";
- else _kbFocus="group";
+ // On desktop: Up/Down always change tabs; Left/Right change pills when relevant
+ // On mobile: Left/Right always change tabs
+ if(isDesktop){
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+   e.preventDefault();
+   const dir=e.key==="ArrowDown"?1:-1;
+   const i=tabIds.indexOf(currentTab);
+   setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
+  }else if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+   const dir=e.key==="ArrowRight"?1:-1;
+   if((currentTab==="grupos"||currentTab==="mis_pronos")){
+    e.preventDefault();
+    const i=groupKeys.indexOf(currentGroup);
+    setGroup(groupKeys[(i+dir+groupKeys.length)%groupKeys.length]);
+   }else if(currentTab==="eliminatorias"){
+    e.preventDefault();
+    const i=elimIds.indexOf(currentElimPhase);
+    setElimPhase(elimIds[(i+dir+elimIds.length)%elimIds.length]);
+   }
+  }
+ }else{
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+   const dir=e.key==="ArrowRight"?1:-1;
+   const i=tabIds.indexOf(currentTab);
+   setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
+  }
  }
 });
 window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
