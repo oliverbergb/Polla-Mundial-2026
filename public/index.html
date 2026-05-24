@@ -401,17 +401,20 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
  .content{
   grid-column:2;
   grid-row:1 / 999;
-  padding:16px 20px 40px;
-  max-width:700px;
+  padding:16px 32px 40px;
+  max-width:860px;
+  width:100%;
  }
  .fab{display:none!important}
  .card,.match-card{border-radius:20px}
  .header h1{font-size:18px;margin-top:12px}
  .header-sub{font-size:11px}
  .countdown-bar{font-size:11px}
+ .chat-wrap{height:calc(100vh - 80px)!important;}
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 <div id="root"><div class="spinner"><span class="spin"></span> Cargando...</div></div>
@@ -973,80 +976,41 @@ function renderLanding(){
 
  <!-- Illustration -->
  <div style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;">
- <svg width="270" height="285" viewBox="0 0 320 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
- <circle cx="160" cy="175" r="72" fill="#fff" stroke="#222" stroke-width="3"/>
- <polygon points="160,113 175,130 170,150 150,150 145,130" fill="#222"/>
- <polygon points="217,153 228,168 218,185 200,183 196,165" fill="#222"/>
- <polygon points="196,217 209,230 204,247 184,245 180,228" fill="#222"/>
- <polygon points="120,217 107,230 112,247 132,245 136,228" fill="#222"/>
- <polygon points="103,153 92,168 102,185 120,183 124,165" fill="#222"/>
- <line x1="160" y1="113" x2="175" y2="130" stroke="#555" stroke-width="1.5"/>
- <line x1="175" y1="130" x2="170" y2="150" stroke="#555" stroke-width="1.5"/>
- <line x1="170" y1="150" x2="196" y2="165" stroke="#555" stroke-width="1.5"/>
- <line x1="196" y1="165" x2="217" y2="153" stroke="#555" stroke-width="1.5"/>
- <line x1="150" y1="150" x2="124" y2="165" stroke="#555" stroke-width="1.5"/>
- <line x1="103" y1="153" x2="124" y2="165" stroke="#555" stroke-width="1.5"/>
- <line x1="120" y1="183" x2="120" y2="217" stroke="#555" stroke-width="1.5"/>
- <line x1="200" y1="183" x2="196" y2="217" stroke="#555" stroke-width="1.5"/>
- <line x1="136" y1="228" x2="160" y2="235" stroke="#555" stroke-width="1.5"/>
- <line x1="180" y1="228" x2="160" y2="235" stroke="#555" stroke-width="1.5"/>
- <g transform="translate(228,20)">
- <rect x="10" y="0" width="44" height="44" rx="22" fill="#FFF3D4"/>
- <svg x="10" y="0" width="44" height="44" viewBox="0 0 32 40" fill="#FF9600">
- <path d="M6,3 L26,3 L26,14 Q26,20 16,20 Q6,20 6,14 Z"/>
- <rect x="13" y="20" width="6" height="5"/>
- <rect x="8" y="25" width="16" height="2.5" rx="1"/>
- <rect x="6" y="27.5" width="20" height="2.5" rx="1"/>
- <path d="M6,6 Q2,7 2,11 Q2,15 6,15.5" stroke="#FF9600" stroke-width="1.5" fill="none" stroke-linecap="round"/>
- <path d="M26,6 Q30,7 30,11 Q30,15 26,15.5" stroke="#FF9600" stroke-width="1.5" fill="none" stroke-linecap="round"/>
- </svg>
- </g>
- <g transform="translate(42,45)"><circle cx="18" cy="18" r="18" fill="#FFF3D4"/><text x="18" y="25" text-anchor="middle" font-size="20">⭐</text></g>
- <g transform="translate(68,12)">
- <ellipse cx="22" cy="52" rx="14" ry="18" fill="#1CB0F6"/>
- <circle cx="22" cy="30" r="14" fill="#FDBCB4"/>
- <ellipse cx="22" cy="18" rx="13" ry="7" fill="#333"/>
- <line x1="8" y1="48" x2="-4" y2="32" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
- <line x1="36" y1="48" x2="48" y2="32" stroke="#FDBCB4" stroke-width="6" stroke-linecap="round"/>
- <line x1="16" y1="68" x2="8" y2="86" stroke="#1CB0F6" stroke-width="7" stroke-linecap="round"/>
- <line x1="28" y1="68" x2="36" y2="86" stroke="#1CB0F6" stroke-width="7" stroke-linecap="round"/>
- <ellipse cx="6" cy="88" rx="8" ry="5" fill="#333"/>
- <ellipse cx="38" cy="88" rx="8" ry="5" fill="#333"/>
- <path d="M16,34 Q22,40 28,34" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
- </g>
- <g transform="translate(218,52)">
- <ellipse cx="22" cy="52" rx="14" ry="18" fill="#58CC02"/>
- <circle cx="22" cy="30" r="13" fill="#C68642"/>
- <ellipse cx="22" cy="19" rx="12" ry="6" fill="#1a1a1a"/>
- <line x1="8" y1="46" x2="-2" y2="30" stroke="#C68642" stroke-width="5" stroke-linecap="round"/>
- <line x1="36" y1="46" x2="50" y2="30" stroke="#C68642" stroke-width="5" stroke-linecap="round"/>
- <circle cx="50" cy="26" r="8" fill="#C68642"/>
- <line x1="16" y1="68" x2="10" y2="88" stroke="#58CC02" stroke-width="7" stroke-linecap="round"/>
- <line x1="28" y1="68" x2="34" y2="88" stroke="#58CC02" stroke-width="7" stroke-linecap="round"/>
- <ellipse cx="8" cy="90" rx="8" ry="5" fill="#222"/>
- <ellipse cx="36" cy="90" rx="8" ry="5" fill="#222"/>
- <path d="M16,33 Q22,39 28,33" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
- </g>
- <g transform="translate(34,185)">
- <ellipse cx="18" cy="42" rx="12" ry="15" fill="#CE82FF"/>
- <circle cx="18" cy="24" r="12" fill="#FDBCB4"/>
- <ellipse cx="18" cy="14" rx="11" ry="6" fill="#8B4513"/>
- <line x1="6" y1="38" x2="-4" y2="26" stroke="#FDBCB4" stroke-width="5" stroke-linecap="round"/>
- <line x1="30" y1="38" x2="42" y2="30" stroke="#FDBCB4" stroke-width="5" stroke-linecap="round"/>
- <line x1="12" y1="56" x2="4" y2="74" stroke="#CE82FF" stroke-width="6" stroke-linecap="round"/>
- <line x1="24" y1="56" x2="44" y2="72" stroke="#CE82FF" stroke-width="6" stroke-linecap="round"/>
- <ellipse cx="2" cy="76" rx="7" ry="4" fill="#222"/>
- <ellipse cx="46" cy="74" rx="7" ry="4" fill="#222"/>
- <path d="M12,27 Q18,32 24,27" stroke="#333" stroke-width="1.8" fill="none" stroke-linecap="round"/>
- </g>
- <circle cx="88" cy="155" r="5" fill="#FF9600"/>
- <circle cx="246" cy="145" r="4" fill="#58CC02"/>
- <circle cx="58" cy="110" r="3" fill="#CE82FF"/>
- <rect x="255" y="195" width="8" height="8" rx="2" fill="#FF4B4B" transform="rotate(20,259,199)"/>
- <rect x="220" y="265" width="9" height="9" rx="2" fill="#FF9600" transform="rotate(30,224,269)"/>
- <circle cx="140" cy="68" r="4" fill="#FF4B4B"/>
- <circle cx="195" cy="76" r="3" fill="#1CB0F6"/>
- <rect x="70" y="268" width="7" height="7" rx="2" fill="#1CB0F6" transform="rotate(-15,73,271)"/>
+ <svg width="260" height="280" viewBox="0 0 260 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <!-- Comb -->
+  <ellipse cx="108" cy="54" rx="11" ry="16" fill="#CC2B1A"/>
+  <ellipse cx="126" cy="44" rx="11" ry="18" fill="#CC2B1A"/>
+  <ellipse cx="144" cy="54" rx="11" ry="16" fill="#CC2B1A"/>
+  <!-- Body -->
+  <circle cx="128" cy="150" r="95" fill="#F2E87A"/>
+  <!-- Wing -->
+  <ellipse cx="58" cy="160" rx="22" ry="14" fill="#EDE070" transform="rotate(-20 58 160)"/>
+  <!-- Wattle -->
+  <ellipse cx="194" cy="130" rx="14" ry="18" fill="#CC2B1A"/>
+  <!-- Eye ring -->
+  <ellipse cx="182" cy="110" rx="22" ry="22" fill="#CC2B1A"/>
+  <!-- Eye white -->
+  <ellipse cx="182" cy="110" rx="14" ry="14" fill="#ffffff"/>
+  <!-- Pupil -->
+  <ellipse cx="184" cy="112" rx="5" ry="6" fill="#1a1a1a"/>
+  <!-- Beak -->
+  <polygon points="204,118 230,126 204,136" fill="#F5A020"/>
+  <!-- Feet -->
+  <rect x="105" y="240" width="12" height="22" rx="6" fill="#1a1a1a"/>
+  <rect x="133" y="240" width="12" height="22" rx="6" fill="#1a1a1a"/>
+  <!-- Toe left -->
+  <ellipse cx="99" cy="262" rx="10" ry="5" fill="#1a1a1a"/>
+  <ellipse cx="117" cy="264" rx="10" ry="5" fill="#1a1a1a"/>
+  <!-- Toe right -->
+  <ellipse cx="127" cy="264" rx="10" ry="5" fill="#1a1a1a"/>
+  <ellipse cx="145" cy="262" rx="10" ry="5" fill="#1a1a1a"/>
+  <!-- Confetti dots -->
+  <circle cx="60" cy="90" r="5" fill="#FF9600"/>
+  <circle cx="200" cy="200" r="4" fill="#58CC02"/>
+  <circle cx="50" cy="190" r="3" fill="#CE82FF"/>
+  <rect x="205" y="70" width="8" height="8" rx="2" fill="#FF4B4B" transform="rotate(20,209,74)"/>
+  <circle cx="170" cy="55" r="4" fill="#1CB0F6"/>
+  <rect x="52" cy="240" width="7" height="7" rx="2" fill="#FF9600" transform="rotate(-15,55,243)"/>
  </svg>
  </div>
 
@@ -1909,8 +1873,8 @@ window.doChangeName=async function(){
  if(allUsers[currentUser.uid])allUsers[currentUser.uid].name=newName;
  closeChangeName();
  showToast("Nombre actualizado ");
- // Only re-render if we're in the lobby (no currentPollaId active)
- if(!currentPollaId)renderPollaLobby();
+ // Re-render only when inside a polla (lobby re-render caused "Crear Polla" redirect bug)
+ if(currentPollaId)render();
 };
 
 function setFabs(v){const l=document.getElementById('fab-left'),r=document.getElementById('fab-right');const show=v&&currentTab!=='chat';if(l)l.style.display=show?'flex':'none';if(r)r.style.display=show?'flex':'none';}
@@ -1922,7 +1886,7 @@ function render(){
  const countdown=getCountdown();
  const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
  isAdmin=isCreator;
- const tabs=[["grupos"," Fase de grupos"],["mis_pronos"," Mis Pronósticos"],["eliminatorias"," Eliminatorias"],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales","Especiales"]]:[]),["ranking"," Ranking"],["chat"," Chat"]];
+ const tabs=[["grupos",'<i data-lucide="layers" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Fase de grupos'],["mis_pronos",'<i data-lucide="clipboard-list" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Mis Pronósticos'],["eliminatorias",'<i data-lucide="trophy" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Eliminatorias'],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales",'<i data-lucide="star" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Especiales']]:[]),["ranking",'<i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Ranking'],["chat",'<i data-lucide="message-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Chat']];
  const tabsEl=document.querySelector(".tabs");
  const savedScroll=tabsEl?tabsEl.scrollLeft:0;
  document.getElementById("root").innerHTML=`
@@ -1962,6 +1926,7 @@ function render(){
  const newTabs=document.getElementById("main-tabs");
  if(newTabs&&savedScroll)newTabs.scrollLeft=savedScroll;
  renderTab();
+ if(window.lucide)lucide.createIcons();
 }
 // renderTab is defined in the features section below
 function renderTab_UNUSED(){}
@@ -2808,24 +2773,29 @@ let _kbFocus=null; // "tab" | "group" | "elim" | null
 document.addEventListener("keydown",function(e){
  if(!currentPollaId)return;
  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT")return;
- if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
- const dir=e.key==="ArrowRight"?1:-1;
+ const isDesktop=window.innerWidth>=900;
+ const tabKeys=isDesktop?["ArrowUp","ArrowDown"]:["ArrowLeft","ArrowRight"];
+ const pillKeys=["ArrowLeft","ArrowRight"];
  const groupKeys=Object.keys(GROUPS);
  const elimIds=ELIM_PHASES.map(p=>p.id);
  const tabIds=["grupos","mis_pronos","eliminatorias",...(currentPolla?.rules?.incluirEspeciales!==false?["especiales"]:[]),"ranking","chat"];
 
- if(_kbFocus==="group"&&(currentTab==="grupos"||currentTab==="mis_pronos")){
- const i=groupKeys.indexOf(currentGroup);
- const next=groupKeys[(i+dir+groupKeys.length)%groupKeys.length];
- setGroup(next);
- }else if(_kbFocus==="elim"&&currentTab==="eliminatorias"){
- const i=elimIds.indexOf(currentElimPhase);
- const next=elimIds[(i+dir+elimIds.length)%elimIds.length];
- setElimPhase(next);
- }else if(_kbFocus==="tab"){
- const i=tabIds.indexOf(currentTab);
- const next=tabIds[(i+dir+tabIds.length)%tabIds.length];
- setTab(next);
+ if(_kbFocus==="group"&&(currentTab==="grupos"||currentTab==="mis_pronos")&&pillKeys.includes(e.key)){
+  const dir=e.key==="ArrowRight"?1:-1;
+  const i=groupKeys.indexOf(currentGroup);
+  const next=groupKeys[(i+dir+groupKeys.length)%groupKeys.length];
+  setGroup(next);
+ }else if(_kbFocus==="elim"&&currentTab==="eliminatorias"&&pillKeys.includes(e.key)){
+  const dir=e.key==="ArrowRight"?1:-1;
+  const i=elimIds.indexOf(currentElimPhase);
+  const next=elimIds[(i+dir+elimIds.length)%elimIds.length];
+  setElimPhase(next);
+ }else if(_kbFocus==="tab"&&tabKeys.includes(e.key)){
+  e.preventDefault();
+  const dir=(e.key==="ArrowRight"||e.key==="ArrowDown")?1:-1;
+  const i=tabIds.indexOf(currentTab);
+  const next=tabIds[(i+dir+tabIds.length)%tabIds.length];
+  setTab(next);
  }
 });
 // Set focus context on pill/tab clicks
