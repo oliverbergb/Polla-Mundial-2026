@@ -266,9 +266,9 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 .autocomplete-item:hover,.autocomplete-item.focused{background:var(--surface-3)}
 
 /* ── RANKING BREAKDOWN ── */
-.breakdown-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1100;display:flex;align-items:flex-end;animation:fadeIn .2s ease}
+.breakdown-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1100;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.breakdown-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:680px;margin:0 auto;max-height:82vh;overflow-y:auto;padding:20px 16px 36px;border-top:3px solid var(--border);animation:slideUp .25s ease}
+.breakdown-sheet{background:var(--surface);border-radius:24px;width:100%;max-width:480px;margin:0 auto;max-height:88vh;overflow-y:auto;padding:24px 20px 24px;border:2px solid var(--border);box-shadow:0 6px 0 var(--border-strong);animation:fadeIn .2s ease}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .breakdown-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
 .rb-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border-soft)}
@@ -3078,11 +3078,16 @@ window.openBreakdown=function(uid){
  const total=matchPts+espPts+grpPts+elimPts;
  const isMine=uid===currentUser.uid;
  const streak=getStreak(uid);
+ const _ic=(vb,d)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="16" height="16" fill="currentColor" style="vertical-align:-2px;flex-shrink:0">${d}</svg>`;
+ const iconDoc=_ic("298 53 108 162","<path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/>");
+ const iconLayers=_ic("288 416 136 142","<path d=\"m412.33,469.08l-54.27,34.27c-1.73,1.1-3.95,1.1-5.68,0l-54.27-34.27c-3.27-2.07-3.31-6.83-.07-8.95l54.27-35.54c1.77-1.16,4.06-1.16,5.83,0l54.27,35.54c3.24,2.12,3.2,6.88-.07,8.95Z\"/><path d=\"m355.23,523.77c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.35,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.37-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/><path d=\"m355.23,543.76c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.36,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.36-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/>");
+ const iconTrophy=_ic("278 242 158 128","<path d=\"m428.15,272.07c0-10.34-9.7-19.15-23.3-22.52-1.35-2.66-3.84-4.47-6.7-4.47h-80.22c-2.93,0-5.48,1.91-6.8,4.69-13.15,3.52-22.45,12.17-22.45,22.29,0,12.96,15.26,23.51,34.32,23.96,7.2,11.65,16.83,19.7,27.66,22.25v18.43c-8.13,2.61-14.71,9.4-17.77,18.21-1.9,5.47,2.16,11.18,7.95,11.18h34.41c5.79,0,9.85-5.72,7.95-11.18-3.06-8.81-9.64-15.6-17.77-18.21v-18.43c10.82-2.55,20.45-10.6,27.65-22.24,19.42-.18,35.08-10.84,35.08-23.97Zm-128.04,0c0-5.57,4.15-10.48,10.48-13.42,1.3,10.75,4.11,20.68,8.08,29.26-10.64-1.7-18.56-8.14-18.56-15.84Zm97.26,15.96c4.04-8.69,6.89-18.77,8.17-29.7,6.72,2.89,11.19,7.96,11.19,13.73,0,7.89-8.32,14.46-19.36,15.96Z\"/>");
+ const iconStar=_ic("118 410 150 140","<path d=\"m193.28,423.11l16.12,32.66c.55,1.12,1.62,1.9,2.86,2.08l36.04,5.24c3.12.45,4.36,4.28,2.11,6.48l-26.08,25.42c-.9.87-1.3,2.13-1.09,3.36l6.16,35.89c.53,3.1-2.73,5.47-5.51,4.01l-32.23-16.95c-1.11-.58-2.43-.58-3.54,0l-32.23,16.95c-2.79,1.47-6.05-.9-5.51-4.01l6.16-35.89c.21-1.23-.2-2.49-1.09-3.36l-26.08-25.42c-2.26-2.2-1.01-6.03,2.11-6.48l36.04-5.24c1.24-.18,2.31-.96,2.86-2.08l16.12-32.66c1.39-2.82,5.42-2.82,6.82,0Z\"/>");
  const rows=[
- {icon:"🟢",label:"Partidos de grupos",val:matchPts,max:MATCHES.filter(m=>m.phase==="groups").length*3},
- {icon:"",label:"Clasificación grupos",val:grpPts,max:Object.keys(GROUPS).length*4*(r.ptsPosGrupo??2)},
- {icon:"",label:"Eliminatorias",val:elimPts,max:MATCHES.filter(m=>m.phase!=="groups").length*3},
- {icon:"",label:"Especiales",val:espPts,max:(r.espCampeon??10)+(r.espBotaOro??5)+(r.espGuanteOro??5)+(r.espMejorJugador??5)},
+ {icon:iconDoc,label:"Partidos de grupos",val:matchPts,max:MATCHES.filter(m=>m.phase==="groups").length*3},
+ {icon:iconLayers,label:"Clasificación grupos",val:grpPts,max:Object.keys(GROUPS).length*4*(r.ptsPosGrupo??2)},
+ {icon:iconTrophy,label:"Eliminatorias",val:elimPts,max:MATCHES.filter(m=>m.phase!=="groups").length*3},
+ {icon:iconStar,label:"Especiales",val:espPts,max:(r.espCampeon??10)+(r.espBotaOro??5)+(r.espGuanteOro??5)+(r.espMejorJugador??5)},
  ];
  document.getElementById("breakdown-content").innerHTML=`
  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
