@@ -131,9 +131,9 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 /* ── RANKING PODIO ── */
 .podio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;align-items:end}
 .podio-card{border-radius:20px;padding:14px 8px;text-align:center;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
-.podio-card.p1{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark);order:2}
-.podio-card.p2{background:var(--surface);order:1}
-.podio-card.p3{background:var(--surface);order:3}
+.podio-card.p1{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark);order:2;padding-top:28px}
+.podio-card.p2{background:var(--surface);order:1;padding-top:14px}
+.podio-card.p3{background:var(--surface);order:3;padding-top:14px}
 .podio-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;margin:0 auto 6px}
 .podio-medal{font-size:20px;margin-bottom:4px}
 .podio-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -147,8 +147,11 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 /* ── FABS ── */
 .fab{position:fixed;bottom:20px;width:44px;height:44px;border-radius:50%;color:var(--text-muted);border:2px solid var(--border);border-bottom:4px solid var(--border-strong);font-size:18px;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;background:var(--surface)}
 .fab:hover{background:var(--surface-3);color:var(--text);border-color:var(--primary)}
-.fab-right{right:20px}
-.fab-left{left:20px}
+/* FABs se posicionan dentro del .app (max-width:680px centrado).
+   calc(50% - 340px + 8px) = borde izquierdo del app + 8px de margen interno.
+   calc(50% - 340px + 8px) espejo para la derecha. */
+.fab-right{right:max(20px, calc(50% - 340px + 8px))}
+.fab-left{left:max(20px, calc(50% - 340px + 8px))}
 
 /* ── MODALS ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -171,7 +174,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 .carta-name{font-size:24px;font-weight:900;color:var(--text);margin-bottom:12px}
 .carta-divider{border:none;border-top:1px solid var(--border-soft);margin:14px 0}
 .carta-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--primary);text-transform:uppercase;margin-bottom:10px}
-.carta-text{font-size:13px;color:var(--text);line-height:1.8;text-align:left}
+.carta-text{font-size:13px;color:var(--text);line-height:1.8;text-align:left;max-width:360px;margin:0 auto}
 .carta-text p{margin-bottom:10px}
 .carta-text p:last-child{margin-bottom:0}
 .carta-firma{margin-top:14px;text-align:right;font-size:11px;color:var(--text-muted);font-style:italic}
@@ -210,7 +213,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 /* ── HISTORIAL ── */
 .hist-chart{padding:8px 0}
 .hist-line{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.hist-label{font-size:11px;color:var(--text-muted);width:60px;text-align:right;flex-shrink:0}
+.hist-label{font-size:11px;color:var(--text-muted);min-width:60px;width:auto;max-width:80px;text-align:right;flex-shrink:0}
 .hist-bar-wrap{flex:1;background:var(--surface-2);border-radius:4px;height:20px;position:relative;overflow:hidden}
 .hist-bar{height:100%;border-radius:4px;background:var(--primary);transition:width .4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;min-width:24px}
 .hist-bar-val{font-size:10px;font-weight:700;color:#ffffff}
@@ -280,18 +283,21 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 
 /* ── BRAND LOGO ── */
 .brand-logo{display:inline-flex;align-items:flex-end;gap:6px;line-height:1;color:var(--primary);user-select:none}
-.brand-tu{font-family:'Nunito',sans-serif;font-size:36px;color:var(--primary);font-weight:900;display:inline-block;margin-right:2px;margin-bottom:-4px}
+/* margin-bottom negativo compensa el descenso extra del texto grande:
+   valor ≈ (fontSize_tu - fontSize_polla) * lineHeight / 2
+   sm: (22-16)*1.2/2 ≈ 3.6 → 4px  |  base: (36-26)*1.2/2 = 6px  |  lg: (54-40)*1.2/2 = 8.4 → 8px */
+.brand-tu{font-family:'Nunito',sans-serif;font-size:36px;color:var(--primary);font-weight:900;display:inline-block;margin-right:2px;margin-bottom:-6px}
 .brand-polla{font-family:'Nunito',sans-serif;font-size:26px;color:var(--primary);letter-spacing:-0.5px;text-transform:uppercase;font-weight:900}
 .brand-trophy{width:22px;height:28px;color:var(--primary);flex-shrink:0;margin-bottom:1px;filter:drop-shadow(1px 1px 0 var(--secondary))}
-.brand-logo.lg .brand-tu{font-size:54px;margin-bottom:-6px}
+.brand-logo.lg .brand-tu{font-size:54px;margin-bottom:-8px}
 .brand-logo.lg .brand-polla{font-size:40px}
 .brand-logo.lg .brand-trophy{width:32px;height:40px}
-.brand-logo.sm .brand-tu{font-size:22px;margin-bottom:-2px}
+.brand-logo.sm .brand-tu{font-size:22px;margin-bottom:-4px}
 .brand-logo.sm .brand-polla{font-size:16px;text-shadow:1px 1px 0 var(--secondary)}
 .brand-logo.sm .brand-trophy{width:14px;height:18px}
 
 /* ── TRIVIA ── */
-.tv-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.tv-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;justify-items:center}
 .tv-cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--border);box-shadow:0 3px 0 var(--border-strong);transition:transform .1s;user-select:none}
 .tv-cell.tv-done{background:#dcfce7;border-color:var(--success);box-shadow:0 3px 0 var(--success-text);cursor:pointer}
 .tv-cell.tv-done:active,.tv-cell.tv-today-done:active{transform:translateY(2px);box-shadow:none}
@@ -403,7 +409,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
  .content{
   grid-column:2;
   grid-row:1 / 999;
-  padding:16px 32px 40px;
+  padding:24px 32px 24px;
   max-width:780px;
   width:100%;
   margin:0 auto;
@@ -434,7 +440,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 <body>
 <div id="root"><div class="spinner"><span class="spin"></span> Cargando...</div></div>
 <div class="toast" id="toast"></div>
-<div id="goal-notif" style="position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:var(--surface);border-bottom:1px solid var(--primary);transform:translateY(-100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none">
+<div id="goal-notif" style="position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);width:100%;max-width:680px;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:var(--surface);border-bottom:1px solid var(--primary);border-radius:0 0 16px 16px;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none">
  <div id="gn-icon" style="font-size:20px;flex-shrink:0"></div>
  <div style="flex:1;min-width:0">
  <div id="gn-score" style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
@@ -447,12 +453,12 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
 <!-- MODAL INVITAR -->
 <div id="modal-invite" style="display:none" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
  <div class="modal-box" style="text-align:center">
- <h2> Invitar a la polla</h2>
+ <h2>Invitar a la polla</h2>
  <div style="background:var(--surface-2);border-radius:14px;overflow:hidden;margin-bottom:14px">
  <div style="padding:18px 18px 14px">
  <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
  <div id="invite-code" onclick="navigator.clipboard.writeText(this.textContent).then(()=>showToast('Código copiado '))"
- style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Nunito',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
+ style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:8px;padding-left:8px;font-family:'Nunito',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
  title="Toca para copiar"></div>
  <div style="font-size:10px;color:var(--text-dim);margin-bottom:14px">toca para copiar</div>
  </div>
@@ -1823,9 +1829,9 @@ function showGoalNotif(match,newH,newA){
  bar.style.borderBottomColor="#22c55e66";
  // shake after slide in
  setTimeout(()=>{
- bar.style.transform="translateY(0) translateX(-4px)";
- setTimeout(()=>{bar.style.transform="translateY(0) translateX(4px)";
- setTimeout(()=>{bar.style.transform="translateY(0)";},80);},80);
+ bar.style.transform="translateX(-50%) translateY(0) translateX(-4px)";
+ setTimeout(()=>{bar.style.transform="translateX(-50%) translateY(0) translateX(4px)";
+ setTimeout(()=>{bar.style.transform="translateX(-50%) translateY(0)";},80);},80);
  },380);
  } else {
  ptsEl.textContent=`Pronosticaste ${pred.h}-${pred.a} · ahora tendrías ${pts} pt${pts!==1?"s":""}`;
@@ -1840,10 +1846,10 @@ function showGoalNotif(match,newH,newA){
  }
 
  clearTimeout(_gnTimer);
- bar.style.transform="translateY(-100%)";
+ bar.style.transform="translateX(-50%) translateY(-100%)";
  void bar.offsetWidth;
- bar.style.transform="translateY(0)";
- _gnTimer=setTimeout(()=>{bar.style.transform="translateY(-100%)";},isExact?5000:4000);
+ bar.style.transform="translateX(-50%) translateY(0)";
+ _gnTimer=setTimeout(()=>{bar.style.transform="translateX(-50%) translateY(-100%)";},isExact?5000:4000);
 }
 
 // ─── MASTER POLLING ───────────────────────────────────────
