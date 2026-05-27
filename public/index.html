@@ -711,7 +711,7 @@ const MATCHES=[
 ];
 
 // ─── STATE ────────────────────────────────────────────────
-let db,auth,currentUser=null,currentTab="grupos",currentGroup="A",currentElimPhase="r32";
+let db,auth,currentUser=null,currentTab="grupos",currentGroup="A",currentElimPhase="r32",currentGroupSubTab="partidos";
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
 let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,prevRanking={};
@@ -1944,7 +1944,7 @@ function render(){
  const countdown=getCountdown();
  const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
  isAdmin=isCreator;
- const tabs=[["grupos",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"288 416 136 142\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m412.33,469.08l-54.27,34.27c-1.73,1.1-3.95,1.1-5.68,0l-54.27-34.27c-3.27-2.07-3.31-6.83-.07-8.95l54.27-35.54c1.77-1.16,4.06-1.16,5.83,0l54.27,35.54c3.24,2.12,3.2,6.88-.07,8.95Z\"/><path d=\"m355.23,523.77c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.35,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.37-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/><path d=\"m355.23,543.76c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.36,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.36-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/></svg> Fase de grupos'],["mis_pronos",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"298 53 108 162\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/></svg> Mis Pronósticos'],["eliminatorias",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"278 242 158 128\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m428.15,272.07c0-10.34-9.7-19.15-23.3-22.52-1.35-2.66-3.84-4.47-6.7-4.47h-80.22c-2.93,0-5.48,1.91-6.8,4.69-13.15,3.52-22.45,12.17-22.45,22.29,0,12.96,15.26,23.51,34.32,23.96,7.2,11.65,16.83,19.7,27.66,22.25v18.43c-8.13,2.61-14.71,9.4-17.77,18.21-1.9,5.47,2.16,11.18,7.95,11.18h34.41c5.79,0,9.85-5.72,7.95-11.18-3.06-8.81-9.64-15.6-17.77-18.21v-18.43c10.82-2.55,20.45-10.6,27.65-22.24,19.42-.18,35.08-10.84,35.08-23.97Zm-128.04,0c0-5.57,4.15-10.48,10.48-13.42,1.3,10.75,4.11,20.68,8.08,29.26-10.64-1.7-18.56-8.14-18.56-15.84Zm97.26,15.96c4.04-8.69,6.89-18.77,8.17-29.7,6.72,2.89,11.19,7.96,11.19,13.73,0,7.89-8.32,14.46-19.36,15.96Z\"/></svg> Eliminatorias'],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"118 410 150 140\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m193.28,423.11l16.12,32.66c.55,1.12,1.62,1.9,2.86,2.08l36.04,5.24c3.12.45,4.36,4.28,2.11,6.48l-26.08,25.42c-.9.87-1.3,2.13-1.09,3.36l6.16,35.89c.53,3.1-2.73,5.47-5.51,4.01l-32.23-16.95c-1.11-.58-2.43-.58-3.54,0l-32.23,16.95c-2.79,1.47-6.05-.9-5.51-4.01l6.16-35.89c.21-1.23-.2-2.49-1.09-3.36l-26.08-25.42c-2.26-2.2-1.01-6.03,2.11-6.48l36.04-5.24c1.24-.18,2.31-.96,2.86-2.08l16.12-32.66c1.39-2.82,5.42-2.82,6.82,0Z\"/></svg> Especiales']]:[]),["ranking",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"110 55 140 165\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><rect x=\"128.77\" y=\"102.87\" width=\"29.53\" height=\"100.41\" rx=\"14.77\" ry=\"14.77\"/><rect x=\"199.65\" y=\"139.35\" width=\"29.53\" height=\"63.93\" rx=\"14.77\" ry=\"14.77\"/><rect x=\"164.21\" y=\"68.47\" width=\"29.53\" height=\"134.81\" rx=\"14.77\" ry=\"14.77\"/></svg> Ranking'],["chat",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"112 237 142 138\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m183.37,246.05h0c-32.89,0-59.55,26.66-59.55,59.55v59.55h59.55c32.89,0,59.55-26.66,59.55-59.55h0c0-32.89-26.66-59.55-59.55-59.55Zm-26.78,74.46c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Zm27.34,0c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Zm26.22,0c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Z\"/></svg> Chat']];
+ const tabs=[["grupos",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"298 53 108 162\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/></svg> Grupos'],["eliminatorias",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"278 242 158 128\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m428.15,272.07c0-10.34-9.7-19.15-23.3-22.52-1.35-2.66-3.84-4.47-6.7-4.47h-80.22c-2.93,0-5.48,1.91-6.8,4.69-13.15,3.52-22.45,12.17-22.45,22.29,0,12.96,15.26,23.51,34.32,23.96,7.2,11.65,16.83,19.7,27.66,22.25v18.43c-8.13,2.61-14.71,9.4-17.77,18.21-1.9,5.47,2.16,11.18,7.95,11.18h34.41c5.79,0,9.85-5.72,7.95-11.18-3.06-8.81-9.64-15.6-17.77-18.21v-18.43c10.82-2.55,20.45-10.6,27.65-22.24,19.42-.18,35.08-10.84,35.08-23.97Zm-128.04,0c0-5.57,4.15-10.48,10.48-13.42,1.3,10.75,4.11,20.68,8.08,29.26-10.64-1.7-18.56-8.14-18.56-15.84Zm97.26,15.96c4.04-8.69,6.89-18.77,8.17-29.7,6.72,2.89,11.19,7.96,11.19,13.73,0,7.89-8.32,14.46-19.36,15.96Z\"/></svg> Eliminatorias'],...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"118 410 150 140\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m193.28,423.11l16.12,32.66c.55,1.12,1.62,1.9,2.86,2.08l36.04,5.24c3.12.45,4.36,4.28,2.11,6.48l-26.08,25.42c-.9.87-1.3,2.13-1.09,3.36l6.16,35.89c.53,3.1-2.73,5.47-5.51,4.01l-32.23-16.95c-1.11-.58-2.43-.58-3.54,0l-32.23,16.95c-2.79,1.47-6.05-.9-5.51-4.01l6.16-35.89c.21-1.23-.2-2.49-1.09-3.36l-26.08-25.42c-2.26-2.2-1.01-6.03,2.11-6.48l36.04-5.24c1.24-.18,2.31-.96,2.86-2.08l16.12-32.66c1.39-2.82,5.42-2.82,6.82,0Z\"/></svg> Especiales']]:[]),["ranking",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"110 55 140 165\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><rect x=\"128.77\" y=\"102.87\" width=\"29.53\" height=\"100.41\" rx=\"14.77\" ry=\"14.77\"/><rect x=\"199.65\" y=\"139.35\" width=\"29.53\" height=\"63.93\" rx=\"14.77\" ry=\"14.77\"/><rect x=\"164.21\" y=\"68.47\" width=\"29.53\" height=\"134.81\" rx=\"14.77\" ry=\"14.77\"/></svg> Ranking'],["chat",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"112 237 142 138\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m183.37,246.05h0c-32.89,0-59.55,26.66-59.55,59.55v59.55h59.55c32.89,0,59.55-26.66,59.55-59.55h0c0-32.89-26.66-59.55-59.55-59.55Zm-26.78,74.46c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Zm27.34,0c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Zm26.22,0c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Z\"/></svg> Chat']];
  const tabsEl=document.querySelector(".tabs");
  const savedScroll=tabsEl?tabsEl.scrollLeft:0;
  document.getElementById("root").innerHTML=`
@@ -2007,7 +2007,7 @@ function calcGroupTable(g){
  });
  return Object.entries(stats).map(([t,s])=>({team:t,...s,dif:s.gf-s.gc})).sort((a,b)=>b.pts-a.pts||b.dif-a.dif||b.gf-a.gf);
 }
-function renderGrupos(){
+function renderGruposTabla(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  const realGrp=allResults["groupOrder"]||{};
  const incClasif=currentPolla?.rules?.incluirClasificacion!==false;
@@ -2082,6 +2082,14 @@ function renderGrupos(){
  ${posColors.map((c,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted)"><span style="width:6px;height:6px;background:${c};border-radius:50%;display:inline-block"></span>${posTips[i]}</span>`).join("")}
  </div>
  </div>`;
+}
+
+function renderGrupos(){
+ const subToggle=`<div style="display:flex;background:var(--surface-2);border-radius:20px;padding:3px;margin-bottom:14px;width:fit-content">
+ <button onclick="setGroupSubTab('partidos')" style="padding:6px 18px;border-radius:17px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s;${currentGroupSubTab==='partidos'?'background:var(--surface);color:var(--text);box-shadow:0 2px 0 var(--border-strong)':'background:transparent;color:var(--text-muted)'}">Partidos</button>
+ <button onclick="setGroupSubTab('tabla')" style="padding:6px 18px;border-radius:17px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s;${currentGroupSubTab==='tabla'?'background:var(--surface);color:var(--text);box-shadow:0 2px 0 var(--border-strong)':'background:transparent;color:var(--text-muted)'}">Tabla</button>
+ </div>`;
+ return subToggle+(currentGroupSubTab==='partidos'?renderMisPronos():renderGruposTabla());
 }
 function initDragDrop(){
  const g=currentGroup;if(!GROUPS[g])return;
@@ -2916,9 +2924,10 @@ window.deleteUser=async function(uid,name){
  async()=>{await db.ref(`${pollaBase()}/participantes/${uid}`).remove();showToast(`${name} eliminado `);}
  );
 };
-window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";track('tab_viewed',{tab:t});render();};
+window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";currentGroupSubTab="partidos";track('tab_viewed',{tab:t});render();};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
+window.setGroupSubTab=function(s){currentGroupSubTab=s;renderTab();};
 
 // ─── KEYBOARD NAVIGATION ──────────────────────────────────
 document.addEventListener("keydown",function(e){
@@ -2927,7 +2936,7 @@ document.addEventListener("keydown",function(e){
  const isDesktop=window.innerWidth>=900;
  const groupKeys=Object.keys(GROUPS);
  const elimIds=ELIM_PHASES.map(p=>p.id);
- const tabIds=["grupos","mis_pronos","eliminatorias",...(currentPolla?.rules?.incluirEspeciales!==false?["especiales"]:[]),"ranking","chat"];
+ const tabIds=["grupos","eliminatorias",...(currentPolla?.rules?.incluirEspeciales!==false?["especiales"]:[]),"ranking","chat"];
 
  // On desktop: Up/Down always change tabs; Left/Right change pills when relevant
  // On mobile: Left/Right always change tabs
@@ -2939,7 +2948,7 @@ document.addEventListener("keydown",function(e){
    setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
   }else if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
    const dir=e.key==="ArrowRight"?1:-1;
-   if((currentTab==="grupos"||currentTab==="mis_pronos")){
+   if((currentTab==="grupos")){
     e.preventDefault();
     const i=groupKeys.indexOf(currentGroup);
     setGroup(groupKeys[(i+dir+groupKeys.length)%groupKeys.length]);
@@ -3210,11 +3219,11 @@ async function rxnSave(matchId,predictorUid,emoji){
 // ─── RENDER TAB (with reactions init) ────────────────────
 function renderTab(){
  const c=document.getElementById("tab-content");if(!c)return;
- const fns={grupos:renderGrupos,mis_pronos:renderMisPronos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking,chat:renderChat};
+ const fns={grupos:renderGrupos,eliminatorias:renderEliminatorias,especiales:renderEspeciales,ranking:renderRanking,chat:renderChat};
  c.innerHTML=(fns[currentTab]||renderGrupos)();
- if(currentTab==="grupos")initDragDrop();
+ if(currentTab==="grupos"&&currentGroupSubTab==="tabla")initDragDrop();
  if(currentTab==="chat")initChat();
- if(currentTab==="mis_pronos")setTimeout(initReactionListeners,50);
+ if(currentTab==="grupos"&&currentGroupSubTab==="partidos")setTimeout(initReactionListeners,50);
 }
 
 // ══════════════════════════════════════════════════════════════
