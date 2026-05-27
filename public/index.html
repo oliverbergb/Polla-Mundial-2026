@@ -12,13 +12,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
- --bg:#F7F7F7;
- --surface:#FFFFFF;
- --surface-2:#F0F0F0;
- --surface-3:#E5E5E5;
- --border:#E5E5E5;
- --border-soft:#EBEBEB;
- --border-strong:#CACACA;
+ --bg:#FDF8EE;
+ --surface:#FFFEFB;
+ --surface-2:#F7F3EC;
+ --surface-3:#EDE8DF;
+ --border:#E8E2D8;
+ --border-soft:#EDE8DF;
+ --border-strong:#CFC7BA;
  --text:#3C3C3C;
  --text-muted:#777777;
  --text-dim:#AFAFAF;
@@ -41,7 +41,8 @@
  --warning-soft:#FFF3D4;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;position:relative}
+html{background:#fff8ee}
+body{background-image:radial-gradient(circle,rgba(255,150,0,0.065) 1px,transparent 1px),linear-gradient(to bottom,#fff8ee 0%,#fdf3e3 30%,#edf6ff 100%);background-size:22px 22px,100% 100%;background-attachment:fixed;color:var(--text);font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;position:relative}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
@@ -377,7 +378,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',-apple-system,B
    DESKTOP  (pantallas desde 900px / web / PC)
    ============================================= */
 @media(min-width:900px){
- body{background:#EBEBEB}
+ body{background-image:radial-gradient(circle,rgba(255,150,0,0.065) 1px,transparent 1px),linear-gradient(to bottom,#fff8ee 0%,#fdf3e3 30%,#edf6ff 100%);background-size:22px 22px,100% 100%;background-attachment:fixed}
  .app{
   max-width:none;
   display:grid;
