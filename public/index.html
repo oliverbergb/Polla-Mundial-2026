@@ -60,6 +60,18 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .tab.active{background:var(--primary);color:#fff;border-color:var(--primary-dark);box-shadow:0 3px 0 var(--primary-dark)}
 .tab:not(.active){background:var(--surface-2);color:var(--text-muted);border-color:var(--border)}
 
+/* ── MOBILE BOTTOM TABS (Duolingo-style) ── */
+@media(max-width:768px){
+ .tabs-wrap{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:2px solid var(--border);z-index:50;padding:0;padding-bottom:env(safe-area-inset-bottom,0)}
+ .tabs-wrap::after{display:none}
+ .tabs{justify-content:space-around;padding:8px 4px;gap:2px;overflow-x:auto}
+ .tab{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;font-size:9px;border-radius:12px;text-align:center;line-height:1.1;letter-spacing:0;box-shadow:none!important;border-color:transparent!important;background:transparent!important;color:var(--text-muted)!important}
+ .tab.active{background:var(--primary-soft)!important;color:var(--primary)!important;border-color:transparent!important}
+ .tab svg{width:20px!important;height:20px!important;margin:0 0 1px 0!important;display:block!important;vertical-align:initial!important}
+ .app{padding-bottom:88px!important}
+ .fab{bottom:78px!important}
+}
+
 /* ── CONTENT ── */
 .content{padding:16px 12px}
 .card{background:var(--surface);border-radius:18px;padding:16px;margin-bottom:12px;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
@@ -68,7 +80,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .match-teams{display:flex;align-items:center;gap:8px}
 .team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
-.score-input{width:40px;text-align:center;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:6px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif}
+.score-input{width:48px;text-align:center;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:6px 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif}
 .score-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 .score-sep{color:var(--text-muted);font-weight:800;flex-shrink:0}
 .group-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -2586,17 +2598,13 @@ function spectatorBlock(m, res){
 
 function renderMisPronos(){
  const allGroupMatches=MATCHES.filter(m=>m.group===currentGroup);
- const missingMatches=allGroupMatches.filter(m=>{
- const p=myPredictions[m.id];
- return !isLocked(m)&&(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="");
- });
- const displayMatches=showOnlyMissing?missingMatches:allGroupMatches;
- const missingCount=missingMatches.length;
  const totalMatchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPoints(myPredictions[m.id],allResults[m.id])||0),0);
  const isPostLockout=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  const _allG=MATCHES.filter(m=>m.phase==="groups");
  const _done=_allG.filter(m=>{const p=myPredictions[m.id];return p&&p.h!==undefined&&p.h!==""&&p.a!==undefined&&p.a!=="";}).length;
  const _tot=_allG.length, _pct=_tot?Math.round(_done/_tot*100):0;
+ // Per-group missing count (open matches only)
+ const grpMissing=allGroupMatches.filter(m=>{const p=myPredictions[m.id];return !isLocked(m)&&(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="");}).length;
 
  return`
  <div class="card" style="margin-bottom:14px">
@@ -2607,26 +2615,20 @@ function renderMisPronos(){
  </div>
  ${!isPostLockout?`<div style="height:8px;background:var(--surface-2);border-radius:6px;overflow:hidden"><div style="height:100%;width:${_pct}%;background:linear-gradient(90deg,var(--primary),var(--primary-hover));border-radius:6px;transition:width .3s"></div></div>`:''}
  </div>
- ${!isPostLockout&&missingCount>0?`
- <div class="missing-banner" onclick="toggleMissingFilter()">
- <div class="m-toggle ${showOnlyMissing?'on':'off'}"></div>
- <div style="flex:1">
- <div style="font-size:13px;font-weight:700;color:var(--text)">Solo faltantes</div>
- <div style="font-size:11px;color:var(--text-muted)">${missingCount} sin pronosticar en Grupo ${currentGroup}</div>
- </div>
- </div>`:""}
  ${groupPills()}
- ${displayMatches.length===0&&showOnlyMissing?`<div style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px"> Todos los partidos de Grupo ${currentGroup} tienen pronóstico</div>`:""}
- ${displayMatches.map(m=>{
+ ${!isPostLockout&&grpMissing>0?`<div style="font-size:11px;font-weight:800;color:var(--primary-dark);background:var(--primary-soft);border:1px solid var(--primary);border-radius:10px;padding:7px 12px;margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="font-size:13px">⚠️</span> Te ${grpMissing===1?'falta 1 partido':'faltan '+grpMissing+' partidos'} por pronosticar en Grupo ${currentGroup}</div>`:""}
+ ${allGroupMatches.map(m=>{
  const pred=myPredictions[m.id]||{},res=allResults[m.id];
  const pts=calcMatchPoints(pred,res);
  const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
  const live=isLive(m);
- const color=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":pts===1?"var(--primary)":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
+ const hasPred=pred.h!==undefined&&pred.h!==""&&pred.a!==undefined&&pred.a!=="";
+ const missing=!locked&&!hasPred;
+ const color=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":pts===1?"var(--primary)":"#ef4444"):live?"#ef4444":missing?"#facc15":GROUP_COLORS[m.group];
  return`<div class="match-card" style="border-left:3px solid ${color}">
  <div class="match-meta">
  <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}${locked&&!live?`<span class="lock-badge"></span>`:""}</span>
- ${hasRes&&pts!==null?`<span class="pts-badge pts-${Math.min(pts,2)}">${pts===3?" +3":pts===2?"≈ +2":pts===1?"~ +1":" 0"}</span>`:""}
+ ${hasRes&&pts!==null?`<span class="pts-badge pts-${Math.min(pts,2)}">${pts===3?" +3":pts===2?"≈ +2":pts===1?"~ +1":" 0"}</span>`:missing?`<span style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;background:#fff8e1;color:#b45309;border:1px solid #facc15">Falta</span>`:""}
  </div>
  <div class="match-teams">
  <span class="team home">${flag(m.home)} ${m.home}</span>
@@ -2696,13 +2698,13 @@ function renderBracketPhase(phase){
  <div class="bm-team">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="saveElimPred(${m.id},'h',this.value)" style="width:32px;font-size:12px;padding:3px"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-sep"></div>
  <div class="bm-team">
  <span style="min-width:20px">${flag(awayTeam)}</span>
  <span style="flex:1;font-size:12px">${awayTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)" style="width:32px;font-size:12px;padding:3px"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-meta">
  <span> ${localMatchDate(m.kickoff)}</span>
@@ -3068,6 +3070,7 @@ const pollaBase=()=>`pollas/${currentPollaId}`;
 const _predTrackTimer={};
 window.savePred=async function(matchId,side,val){
  if(isLocked(MATCHES.find(m=>m.id===matchId)))return;
+ if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myPredictions[matchId]={...(myPredictions[matchId]||{}),[side]:val};
  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val});
  // Fire once per match after both sides filled, debounced
@@ -3087,6 +3090,7 @@ window.saveGroupPred=async function(group,order){
 };
 window.saveElimPred=async function(matchId,side,val){
  const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
+ if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val});
 };
@@ -3218,34 +3222,34 @@ window.openRules=function(){
 <p>Pronostica el marcador exacto de cada partido (fase de grupos y eliminatorias). Se bloquean automáticamente cuando empieza cada partido.</p>
 <p style="margin-top:10px;font-size:12px;font-weight:800;color:var(--text)">Fase de grupos</p>
 <ul>
-<li><strong style="color:var(--text)">${r.ptsExactoGrupos??3} pts</strong> — resultado exacto</li>
-<li><strong style="color:var(--text)">${r.ptsGanadorDifGrupos??2} pts</strong> — acertaste ganador y diferencia de goles</li>
-<li><strong style="color:var(--text)">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
-<li><strong style="color:var(--text-muted)">0 pts</strong> — fallo</li>
+<li><strong style="color:#22c55e">${r.ptsExactoGrupos??3} pts</strong> — resultado exacto</li>
+<li><strong style="color:#facc15">${r.ptsGanadorDifGrupos??2} pts</strong> — acertaste ganador y diferencia de goles</li>
+<li><strong style="color:#facc15">${r.ptsSoloGanadorGrupos??1} pt</strong> — solo acertaste el ganador (o empate)</li>
+<li><strong style="color:#f87171">0 pts</strong> — fallo</li>
 </ul>
 <p style="margin-top:8px;font-size:12px;color:var(--text-muted)">Si pronosticas empate: ${r.ptsExactoGrupos??3} pts si aciertas el marcador exacto, ${r.ptsSoloGanadorGrupos??1} pt si hay empate con otro marcador, 0 pts si no hay empate.</p>
 <p style="margin-top:10px;font-size:12px;font-weight:800;color:var(--text)">Fase eliminatoria</p>
-<p style="font-size:12px;color:var(--text-muted)">El resultado apostado es <strong>siempre el de los 90 minutos</strong>. Prórroga/penales solo cuentan para el clasificado.</p>
+<p style="font-size:12px;color:var(--text-muted)">El resultado apostado es <strong>siempre el de los 90 minutos</strong>.</p>
 <ul>
-<li><strong style="color:var(--text)">${r.ptsExactoElim??3} pts</strong> — resultado exacto + clasificado correcto</li>
-<li><strong style="color:var(--text)">${r.ptsExactoSinClasif??2} pts</strong> — resultado exacto, clasificado incorrecto</li>
-<li><strong style="color:var(--text)">${r.ptsSoloClasif??1} pt</strong> — solo acertaste el clasificado</li>
-<li><strong style="color:var(--text-muted)">0 pts</strong> — fallo</li>
+<li><strong style="color:#22c55e">${r.ptsExactoElim??3} pts</strong> — resultado exacto + clasificado correcto</li>
+<li><strong style="color:#facc15">${r.ptsExactoSinClasif??2} pts</strong> — resultado exacto, clasificado incorrecto</li>
+<li><strong style="color:#facc15">${r.ptsSoloClasif??1} pt</strong> — solo acertaste el clasificado</li>
+<li><strong style="color:#f87171">0 pts</strong> — fallo</li>
 </ul>
 </div>
 ${incClasif?`<div class="rules-section">
 <h3 style="display:flex;align-items:center;gap:6px;">${tpIcon("clasificacion",16)} CLASIFICACIÓN DE GRUPOS</h3>
 <p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
-<ul><li><strong style="color:var(--text)">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
+<ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
 </div>`:''}
 ${incEsp?`<div class="rules-section">
 <h3 style="display:flex;align-items:center;gap:6px;">${tpIcon("especiales",16)} ESPECIALES</h3>
 <p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
 <ul>
-<li><strong style="color:var(--text)">${r.espCampeon??10} pts</strong> — Campeón</li>
-<li><strong style="color:var(--text)">${r.espBotaOro??5} pts</strong> — Bota de Oro</li>
-<li><strong style="color:var(--text)">${r.espGuanteOro??5} pts</strong> — Guante de Oro</li>
-<li><strong style="color:var(--text)">${r.espMejorJugador??5} pts</strong> — Mejor Jugador</li>
+<li><strong style="color:#22c55e">${r.espCampeon??10} pts</strong> — Campeón</li>
+<li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro</li>
+<li><strong style="color:#facc15">${r.espGuanteOro??5} pts</strong> — Guante de Oro</li>
+<li><strong style="color:#facc15">${r.espMejorJugador??5} pts</strong> — Mejor Jugador</li>
 </ul>
 </div>`:''}
 <div class="rules-section">
@@ -3326,13 +3330,15 @@ window.openBreakdown=function(uid){
  const total=matchPts+espPts+grpPts+elimPts;
  const isMine=uid===currentUser.uid;
  const streak=getStreak(uid);
- // Max pts based on what this user actually bet on (not theoretical total)
- const matchMaxPts=MATCHES.filter(m=>m.phase==="groups"&&preds[m.id]?.h!==undefined&&preds[m.id]?.h!=="").length*(r.ptsExactoGrupos??3);
- const grpMaxPts=Object.keys(GROUPS).filter(g=>grp[g]&&grp[g].length).length*4*(r.ptsPosGrupo??2);
- const elimMaxPts=MATCHES.filter(m=>m.phase!=="groups"&&elim[m.id]?.winner).length*(r.ptsExactoElim??3);
- const espMaxPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
+ // Max pts: total possible according to rules (not what user predicted)
+ const totalGroupMatches=MATCHES.filter(m=>m.phase==="groups").length;
+ const totalElimMatches=MATCHES.filter(m=>m.phase!=="groups").length;
+ const matchMaxPts=totalGroupMatches*(r.ptsExactoGrupos??3);
+ const grpMaxPts=Object.keys(GROUPS).length*4*(r.ptsPosGrupo??2);
+ const elimMaxPts=totalElimMatches*(r.ptsExactoElim??3);
+ const espMaxPts=r.incluirEspeciales!==false?ESPECIALES_FIELDS.reduce((s,f)=>{
   const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
-  return s+(esp[f.id]?.trim()?(r[ruleKey]??f.pts):0);
+  return s+(r[ruleKey]??f.pts);
  },0):0;
  const rows=[
  {icon:tpIcon("partidos",15,"var(--primary)"),label:"Partidos",val:matchPts+elimPts,max:matchMaxPts+elimMaxPts,show:true},
@@ -3767,7 +3773,6 @@ function tvRenderQuestion(){
    </div>
    <div class="card">
     <div style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Día ${tvQuizDay} · ${TV_THEMES[tvQuizDay-1]}</div>
-    <div class="tv-dots">${dotsHtml}</div>
     <div class="tv-q">${q.q}</div>
     <div class="tv-opts" id="tv-opts">
      ${q.opts.map((o,i)=>`
@@ -3781,7 +3786,7 @@ function tvRenderQuestion(){
      <span class="tv-fb-msg" id="tv-fb-msg"></span>
     </div>
     <button class="tv-next" id="tv-next" onclick="tvNextQuestion()">
-     ${tvQuizQIdx<4?'Siguiente →':'Ver resultados 🏆'}
+     ${tvQuizQIdx<4?'Siguiente →':'Ver resultados'}
     </button>
    </div>
   </div>`;
@@ -3806,18 +3811,16 @@ window.tvPickAnswer=function(idx){
  fbMsg.className='tv-fb-msg '+(correct?'c':'w');
  fbMsg.textContent=correct?tvOkMsg():tvBadMsg(q.opts[q.a]);
  document.getElementById('tv-next').classList.add('show');
- const dots=document.querySelectorAll('.tv-dot');
- if(dots[tvQuizQIdx]){dots[tvQuizQIdx].classList.remove('active');dots[tvQuizQIdx].classList.add(correct?'correct':'wrong');}
 };
 
 window.tvNextQuestion=async function(){
- if(tvQuizQIdx<4){tvQuizQIdx++;tvRenderQuestion();}
- else{
-  const score=tvQuizAns.filter((a,i)=>a===TV_QUESTIONS[tvQuizDay-1][i].a).length;
-  track('trivia_completed',{day:tvQuizDay,score});
-  await tvSaveDay(tvQuizDay,score,tvQuizAns);
-  tvRenderResults(tvQuizDay,score,tvQuizAns);
- }
+ if(tvQuizQIdx<4){tvQuizQIdx++;tvRenderQuestion();return;}
+ const score=tvQuizAns.filter((a,i)=>a===TV_QUESTIONS[tvQuizDay-1][i].a).length;
+ // Render results first so user sees immediate feedback, then save in background
+ try{track('trivia_completed',{day:tvQuizDay,score});}catch(_){}
+ const dayNow=tvQuizDay,answersNow=tvQuizAns.slice();
+ tvRenderResults(dayNow,score,answersNow);
+ try{await tvSaveDay(dayNow,score,answersNow);}catch(e){console.warn('tvSaveDay failed',e);}
 };
 
 // ─── RESULTS ──────────────────────────────────────────────────
