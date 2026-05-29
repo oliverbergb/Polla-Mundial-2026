@@ -2624,7 +2624,7 @@ function renderMisPronos(){
  const live=isLive(m);
  const hasPred=pred.h!==undefined&&pred.h!==""&&pred.a!==undefined&&pred.a!=="";
  const missing=!locked&&!hasPred;
- const color=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":pts===1?"var(--primary)":"#ef4444"):live?"#ef4444":missing?"#facc15":GROUP_COLORS[m.group];
+ const color=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":pts===1?"var(--primary)":"#ef4444"):live?"#ef4444":GROUP_COLORS[m.group];
  return`<div class="match-card" style="border-left:3px solid ${color}">
  <div class="match-meta">
  <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}${locked&&!live?`<span class="lock-badge"></span>`:""}</span>
