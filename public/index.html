@@ -1862,21 +1862,24 @@ window.doCrearPolla=async function(){
  const nombre=(document.getElementById("pollaName").value||"").trim();
  const errEl=document.getElementById("crearError");
  if(!nombre||nombre.length<2){errEl.textContent="Escribe un nombre para la polla.";return;}
+ // Capture rules now, while the form is still in the DOM. Deferred creation
+ // (after sign-in) runs once the form is gone, which would otherwise reset
+ // every toggle/score selection back to its default.
+ const rules=readPollaRules();
  if(!currentUser){
  sessionStorage.setItem("pendingPollaName",nombre);
  // Queue the polla creation; auth handler will run it after sign-in.
  // If the user already has a stored profile, they'll skip the name picker entirely.
- pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre);sessionStorage.removeItem("pendingPollaName");};
+ pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre,rules);sessionStorage.removeItem("pendingPollaName");};
  renderAuthScreen("");
  return;
  }
- await _doCreatePolla(nombre);
+ await _doCreatePolla(nombre,rules);
 };
 
-async function _doCreatePolla(nombre){
- sessionStorage.removeItem("pendingPollaName");
+function readPollaRules(){
  const getRuleVal=id=>{const v=parseInt(document.getElementById(`rule_${id}`)?.value);return isNaN(v)||v<1?Math.max(1,DEFAULT_RULES[id]||1):v;};
- const rules={
+ return {
  ptsExactoGrupos:getRuleVal("ptsExactoGrupos"),ptsGanadorDifGrupos:getRuleVal("ptsGanadorDifGrupos"),
  ptsSoloGanadorGrupos:getRuleVal("ptsSoloGanadorGrupos"),ptsExactoElim:getRuleVal("ptsExactoElim"),
  ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),ptsSoloClasif:getRuleVal("ptsSoloClasif"),
@@ -1888,6 +1891,11 @@ async function _doCreatePolla(nombre){
  espGuanteOro:getRuleVal("espGuanteOro"),espMejorJugador:getRuleVal("espMejorJugador"),
  incluirEspeciales:document.getElementById("incluirEspeciales")?.checked!==false,
  };
+}
+
+async function _doCreatePolla(nombre,rules){
+ sessionStorage.removeItem("pendingPollaName");
+ if(!rules)rules=readPollaRules();
  const code=generateCode();
  const pollaId=db.ref("pollas").push().key;
  const pollaData={nombre,rules,code,creadorUid:currentUser.uid,creadaEn:Date.now(),
