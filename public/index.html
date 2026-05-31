@@ -1021,6 +1021,78 @@ function calcGroupPredPointsR(userOrder,realOrder,r){
  return pts;
 }
 
+// ─── LOGROS ───────────────────────────────────────────────
+// Una jornada = un día calendario. Los días con un solo partido se fusionan
+// con el siguiente hasta sumar >=2 partidos. El 3er puesto y la final quedan
+// excluidos (partidos sueltos).
+function buildJornadas(){
+ const elegibles=MATCHES
+  .filter(m=>m.phase!=="third"&&m.phase!=="final")
+  .slice().sort((a,b)=>a.kickoff<b.kickoff?-1:1);
+ const dias=[];
+ for(const m of elegibles){
+  const ult=dias[dias.length-1];
+  if(ult&&ult.date===m.date)ult.matches.push(m);
+  else dias.push({date:m.date,matches:[m]});
+ }
+ const jornadas=[];let acc=null;
+ for(const d of dias){
+  if(!acc)acc={dates:[d.date],matches:d.matches.slice()};
+  else{acc.dates.push(d.date);acc.matches.push(...d.matches);}
+  if(acc.matches.length>=2){jornadas.push(acc);acc=null;}
+ }
+ return jornadas; // un acc final con <2 partidos se descarta
+}
+// Cuántas jornadas perfectas completó el usuario (no falló ningún pronóstico).
+function jornadasPerfectas(u){
+ const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+ const preds=u.predictions||{},elim=u.elimPredictions||{};
+ let count=0;
+ for(const j of buildJornadas()){
+  let perfecta=true;
+  for(const m of j.matches){
+   const res=allResults[m.id];
+   const pred=m.phase==="groups"?preds[m.id]:elim[m.id];
+   const pts=m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r);
+   // null = partido sin resultado aún o sin pronóstico → no cuenta todavía
+   if(pts===null||pts===0){perfecta=false;break;}
+  }
+  if(perfecta)count++;
+ }
+ return count;
+}
+// Líder de la semana: permanente. Si en CUALQUIER snapshot del historial el
+// usuario estuvo en la posición 1, el logro queda desbloqueado para siempre.
+function fueLiderSemana(uid){
+ const hist=allResults["rankingHistory"]||{};
+ return Object.values(hist).some(snap=>snap&&snap[uid]===1);
+}
+// Estado de cada logro para un jugador. PLACEHOLDER: el emoji se reemplaza por
+// el badge de Franco (mismo tamaño ~22px) cuando esté listo.
+function getLogros(uid){
+ const u=allUsers[uid]; if(!u)return [];
+ const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+ const preds=u.predictions||{},elim=u.elimPredictions||{};
+ const tienePred=p=>p&&p.h!==""&&p.h!==undefined;
+ const hasAny=Object.values(preds).some(tienePred)||Object.values(elim).some(tienePred);
+ let exacto=false;
+ MATCHES.forEach(m=>{
+  const res=allResults[m.id];
+  if(m.phase==="groups"){if(calcMatchPointsR(preds[m.id],res,r)===(r.ptsExactoGrupos??3))exacto=true;}
+  else{if(calcElimPointsR(elim[m.id],res,r)===(r.ptsExactoElim??3))exacto=true;}
+ });
+ const ranked=getRankedUsers();
+ const campeon=tournamentEnded()&&ranked.length>0&&ranked[0].uid===uid;
+ return [
+  {id:"primer",  emoji:"📝", label:"Primer pronóstico", unlocked:hasAny},
+  {id:"exacto",  emoji:"🎯", label:"Marcador exacto",   unlocked:exacto},
+  {id:"racha",   emoji:"🔥", label:"Racha de 3",        unlocked:getStreak(uid)>=3},
+  {id:"perfecta",emoji:"✅", label:"Jornada perfecta",  unlocked:jornadasPerfectas(u)>0},
+  {id:"lider",   emoji:"👑", label:"Líder de la semana", unlocked:fueLiderSemana(uid)},
+  {id:"campeon", emoji:"🏆", label:"Campeón",           unlocked:campeon},
+ ];
+}
+
 function getRankedUsers(){
  return Object.entries(allUsers)
  .map(([uid,u])=>({uid,name:u.name,pts:totalPoints(u)}))
@@ -3598,6 +3670,16 @@ window.openBreakdown=function(uid){
  const total=matchPts+espPts+grpPts+elimPts;
  const isMine=uid===currentUser.uid;
  const streak=getStreak(uid);
+ const logros=getLogros(uid);
+ const logrosHtml=`<div style="margin-top:16px;border-top:1px solid var(--border-soft);padding-top:14px">
+ <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Logros</div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:10px">
+ ${logros.map(l=>`<div style="text-align:center;opacity:${l.unlocked?"1":".45"}">
+ <div style="width:46px;height:46px;margin:0 auto 4px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:${l.unlocked?"var(--primary-soft)":"var(--surface-2)"};border:2px solid ${l.unlocked?"var(--primary)":"var(--border)"};filter:${l.unlocked?"none":"grayscale(1)"}">${l.unlocked?l.emoji:"🔒"}</div>
+ <div style="font-size:9px;font-weight:700;color:var(--text-muted);line-height:1.2">${l.label}</div>
+ </div>`).join("")}
+ </div>
+ </div>`;
  // Max pts: total possible according to rules (not what user predicted)
  const totalGroupMatches=MATCHES.filter(m=>m.phase==="groups").length;
  const totalElimMatches=MATCHES.filter(m=>m.phase!=="groups").length;
@@ -3632,6 +3714,7 @@ window.openBreakdown=function(uid){
  <div style="font-size:15px;font-weight:700;color:var(--text)"> Total</div>
  <span class="rb-total">${total} pts</span>
  </div>
+ ${logrosHtml}
  ${!isMine?`<button onclick="closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif">Ver duelo Tú vs ${escHtml(u.name)} →</button>`:''}
  <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px">Cerrar</button>
  `;
