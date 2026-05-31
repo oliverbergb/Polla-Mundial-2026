@@ -1163,10 +1163,8 @@ function initFirebase(){
  const pendingInvite=sessionStorage.getItem("pendingPolla");
  if(pendingInvite){
  const code=pendingInvite;
- renderPickName(
- async(name)=>{pendingName=name;pendingPollaAction=async()=>{await joinPollaByCode(code);};renderAuthScreen(name);},
- ()=>renderLanding()
- );
+ pendingPollaAction=async()=>{await joinPollaByCode(code);};
+ renderAuthScreen("");
  }
  });
 }
@@ -1391,10 +1389,9 @@ window.doJoinFromLanding=async function(){
  const snap=await db.ref("pollas").orderByChild("code").equalTo(code).get();
  if(!snap.exists()){errEl.textContent="Código no encontrado. Verifica e intenta de nuevo.";inp.disabled=false;return;}
  if(currentUser){await joinPollaByCode(code);return;}
- renderPickName(
- async(name)=>{pendingName=name;pendingPollaAction=async()=>{await joinPollaByCode(code);};renderAuthScreen(name);},
- ()=>renderLanding()
- );
+ // Skip name pick — auth handler will restore name from DB if user exists.
+ pendingPollaAction=async()=>{await joinPollaByCode(code);};
+ renderAuthScreen("");
  }catch(e){errEl.textContent="Error al conectar. Intenta de nuevo.";inp.disabled=false;}
 };
 
@@ -1936,8 +1933,10 @@ window.doCrearPolla=async function(){
  if(!nombre||nombre.length<2){errEl.textContent="Escribe un nombre para la polla.";return;}
  if(!currentUser){
  sessionStorage.setItem("pendingPollaName",nombre);
+ // Queue the polla creation; auth handler will run it after sign-in.
+ // If the user already has a stored profile, they'll skip the name picker entirely.
  pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre);sessionStorage.removeItem("pendingPollaName");};
- renderPickName(async(name)=>{pendingName=name;renderAuthScreen(name);},()=>renderCrearPolla());
+ renderAuthScreen("");
  return;
  }
  await _doCreatePolla(nombre);
@@ -2564,8 +2563,12 @@ function matchScoreBlock(m,pred,res){
  </div>`;
 }
 window.scoreInputKey=function(e,matchId,side){
- // Tab: home→away within same match; away→home of next unlocked match
- if(e.key==="Tab"){
+ // Tab / Enter: same nav.
+ // - From home: go to away of same match
+ // - From away: go to home of next unlocked match
+ // (Enter only completes the "match" once both home and away are filled — but
+ //  navigating sequentially achieves the same since the user has to type away first.)
+ if(e.key==="Tab"||e.key==="Enter"){
   e.preventDefault();
   savePred(matchId,side,e.target.value);
   if(side==="h"){
@@ -2579,15 +2582,6 @@ window.scoreInputKey=function(e,matchId,side){
    const next=allInputs[cur+1];
    if(next){next.focus();next.select();}
   }
- }
- // Enter: save current and jump to home input of next match
- if(e.key==="Enter"){
-  e.preventDefault();
-  savePred(matchId,side,e.target.value);
-  const allH=[...document.querySelectorAll('.score-input[data-side="h"]')];
-  const cur=allH.findIndex(inp=>parseInt(inp.dataset.match)===matchId);
-  const next=allH[cur+1];
-  if(next){next.focus();next.select();}
  }
 };
 function spectatorBlock(m, res, opts){
