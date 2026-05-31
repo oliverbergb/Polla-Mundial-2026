@@ -136,6 +136,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .sortable-list{list-style:none}
 .sortable-item{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;padding:12px 14px;margin-bottom:8px;cursor:grab;border:2px solid var(--border);box-shadow:0 3px 0 var(--border-strong);transition:border-color .2s;user-select:none;touch-action:none}
 .sortable-item.dragging{opacity:.4;cursor:grabbing}
+.sortable-item.dragging-live{cursor:grabbing;border-color:var(--primary);box-shadow:0 6px 16px rgba(255,150,0,.25);position:relative;z-index:5}
 .sortable-item.drag-over{border-color:var(--primary)}
 .pos-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#ffffff}
 
@@ -2325,49 +2326,60 @@ function renderGrupos(){
 function initDragDrop(){
  const g=currentGroup;if(!GROUPS[g])return;
  const list=document.getElementById(`sortable-${g}`);if(!list)return;
- let dragEl=null,placeholder=null;
+ let dragEl=null;
 
- function makePlaceholder(el){
-  const ph=document.createElement('li');
-  ph.className='sortable-item';
-  ph.style.cssText=`height:${el.offsetHeight}px;background:var(--primary-soft);border:2px dashed var(--primary);opacity:0.6;pointer-events:none;border-radius:16px;`;
-  return ph;
+ function items(){return[...list.children];}
+ function updateBadges(){items().forEach((item,i)=>{const b=item.querySelector('.pos-num');if(b){b.style.background=POS_COLORS[i];b.textContent=POS_LABELS[i];}});}
+ function saveOrder(){saveGroupPred(g,items().map(li=>li.dataset.team));}
+
+ // FLIP: reorder the DOM, then slide the displaced items from their old
+ // positions to the new ones so the movement is visible (fast). The actively
+ // held element (exclude) is not animated — it simply takes its new slot.
+ function reorder(mutate,exclude){
+  const before=new Map();
+  items().forEach(el=>before.set(el,el.getBoundingClientRect().top));
+  mutate();
+  items().forEach(el=>{
+   if(el===exclude)return;
+   const oldTop=before.get(el);if(oldTop==null)return;
+   const dy=oldTop-el.getBoundingClientRect().top;
+   if(!dy)return;
+   el.style.transition="none";
+   el.style.transform=`translateY(${dy}px)`;
+   requestAnimationFrame(()=>{
+    el.style.transition="transform .16s ease";
+    el.style.transform="";
+   });
+  });
+  updateBadges();
  }
- function updateBadges(){[...list.children].filter(c=>!c._isPlaceholder).forEach((item,i)=>{const b=item.querySelector('.pos-num');if(b){b.style.background=POS_COLORS[i];b.textContent=POS_LABELS[i];}});}
- function realItems(){return[...list.children].filter(c=>c!==placeholder);}
- function saveOrder(){saveGroupPred(g,realItems().map(li=>li.dataset.team));}
 
+ // ── Desktop (HTML5 drag) ──
  list.addEventListener("dragstart",e=>{
   dragEl=e.target.closest(".sortable-item");
   if(!dragEl)return;
-  placeholder=makePlaceholder(dragEl);
-  placeholder._isPlaceholder=true;
-  setTimeout(()=>{
-   if(dragEl)dragEl.style.opacity="0.3";
-   list.insertBefore(placeholder,dragEl.nextSibling);
-  },0);
+  try{e.dataTransfer.effectAllowed="move";}catch(_){}
+  requestAnimationFrame(()=>{if(dragEl)dragEl.classList.add("dragging-live");});
  });
  list.addEventListener("dragend",()=>{
-  if(dragEl)dragEl.style.opacity="";
-  if(placeholder&&placeholder.parentNode)placeholder.parentNode.removeChild(placeholder);
-  placeholder=null;dragEl=null;
-  updateBadges();saveOrder();
+  if(dragEl)dragEl.classList.remove("dragging-live");
+  dragEl=null;updateBadges();saveOrder();
  });
  list.addEventListener("dragover",e=>{
   e.preventDefault();
-  if(!dragEl||!placeholder)return;
+  if(!dragEl)return;
   const over=e.target.closest(".sortable-item");
-  if(!over||over===dragEl||over===placeholder)return;
+  if(!over||over===dragEl)return;
   const rect=over.getBoundingClientRect();
   const insertAfter=e.clientY>rect.top+rect.height/2;
-  list.insertBefore(placeholder,insertAfter?over.nextSibling:over);
-  list.insertBefore(dragEl,placeholder);
-  updateBadges();
+  const ref=insertAfter?over.nextSibling:over;
+  if(ref===dragEl||ref===dragEl.nextSibling)return;
+  reorder(()=>list.insertBefore(dragEl,ref),dragEl);
  });
  list.addEventListener("drop",e=>{e.preventDefault();});
 
- // Touch drag with live preview
- let tEl=null,tClone=null,tTimer=null,tActive=false,tPh=null;
+ // ── Touch (clone follows finger, list reorders live) ──
+ let tEl=null,tClone=null,tTimer=null,tActive=false;
  list.addEventListener("touchstart",e=>{
   const item=e.target.closest(".sortable-item");
   if(!item)return;
@@ -2376,12 +2388,10 @@ function initDragDrop(){
    tActive=true;
    document.body.style.overflow="hidden";
    if(navigator.vibrate)navigator.vibrate(40);
-   tPh=makePlaceholder(tEl);
-   tPh._isPlaceholder=true;
-   list.insertBefore(tPh,tEl.nextSibling);
-   tEl.style.opacity="0.3";
+   tEl.classList.add("dragging-live");
+   tEl.style.opacity="0.35";
    tClone=tEl.cloneNode(true);
-   tClone.style.cssText=`position:fixed;opacity:.85;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;`;
+   tClone.style.cssText=`position:fixed;opacity:.9;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;`;
    document.body.appendChild(tClone);
   },300);
  },{passive:true});
@@ -2393,34 +2403,24 @@ function initDragDrop(){
   tClone.style.left=(t.clientX-tEl.offsetWidth/2)+"px";
   tClone.style.top=(t.clientY-30)+"px";
   const els=document.elementsFromPoint(t.clientX,t.clientY);
-  const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl&&el!==tPh);
+  const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl);
   if(over){
    const rect=over.getBoundingClientRect();
    const insertAfter=t.clientY>rect.top+rect.height/2;
-   list.insertBefore(tPh,insertAfter?over.nextSibling:over);
-   list.insertBefore(tEl,tPh);
-   updateBadges();
+   const ref=insertAfter?over.nextSibling:over;
+   if(ref!==tEl&&ref!==tEl.nextSibling)reorder(()=>list.insertBefore(tEl,ref),tEl);
   }
  },{passive:false});
- list.addEventListener("touchend",()=>{
+ function endTouch(){
   clearTimeout(tTimer);
   document.body.style.overflow="";
   if(tClone){tClone.remove();tClone=null;}
-  if(tPh&&tPh.parentNode)tPh.parentNode.removeChild(tPh);
-  tPh=null;
-  if(tEl){tEl.style.opacity="";}
+  if(tEl){tEl.classList.remove("dragging-live");tEl.style.opacity="";}
   if(tActive){updateBadges();saveOrder();}
   tEl=null;tActive=false;
- });
- list.addEventListener("touchcancel",()=>{
-  clearTimeout(tTimer);
-  document.body.style.overflow="";
-  if(tClone){tClone.remove();tClone=null;}
-  if(tPh&&tPh.parentNode)tPh.parentNode.removeChild(tPh);
-  tPh=null;
-  if(tEl)tEl.style.opacity="";
-  tEl=null;tActive=false;
- });
+ }
+ list.addEventListener("touchend",endTouch);
+ list.addEventListener("touchcancel",endTouch);
 }
 
 // ─── H2H HISTORY ──────────────────────────────────────────
@@ -2921,8 +2921,10 @@ function renderEspeciales(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  const myEsp=allUsers[currentUser.uid]?.especiales||{};
  const adminEsp=allResults["especiales"]||{};
+ const rules=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+ const fpts=f=>rules["esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1)]??f.pts;
  let espPts=0;
- ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),r=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&r&&p===r)espPts+=f.pts;});
+ ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&rv&&p===rv)espPts+=fpts(f);});
  return`
  <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
  <div><div style="font-size:12px;color:var(--text-muted)">Mis puntos especiales</div>
@@ -2938,7 +2940,7 @@ function renderEspeciales(){
  return`<div class="card" style="margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"var(--border)"):"#f59e0b"}">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
  <span style="font-weight:700;font-size:14px">${f.label}</span>
- ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?` +${f.pts}`:" 0"}</span>`:`<span style="font-size:11px;color:var(--text-muted)">${f.pts} pts</span>`}
+ ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?` +${fpts(f)}`:" 0"}</span>`:`<span style="font-size:11px;color:var(--text-muted)">${fpts(f)} pts</span>`}
  </div>
  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
  ${locked
