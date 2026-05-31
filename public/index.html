@@ -9,6 +9,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6Lco0QUtAAAAJhTQNecGbApGTr4Co2WDebJDWjg"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -1061,6 +1063,8 @@ function localMatchDate(kickoff){
 // ─── FIREBASE ─────────────────────────────────────────────
 function initFirebase(){
  firebase.initializeApp(FIREBASE_CONFIG);
+ const appCheck=firebase.appCheck();
+ appCheck.activate('6Lco0QUtAAAAJhTQNecGbApGTr4Co2WDebJDWjg',true);
  db=firebase.database();auth=firebase.auth();
  const urlParams=new URLSearchParams(window.location.search);
  const inviteCode=urlParams.get("polla");
