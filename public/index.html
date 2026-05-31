@@ -311,6 +311,74 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .brand-logo.sm .brand-polla{font-size:16px;text-shadow:1px 1px 0 var(--secondary)}
 .brand-logo.sm .brand-trophy{width:14px;height:18px}
 
+/* ── TRIVIA ── */
+.tv-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;justify-items:center}
+.tv-cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--border);box-shadow:0 3px 0 var(--border-strong);transition:transform .1s;user-select:none}
+.tv-cell.tv-done{background:#dcfce7;border-color:var(--success);box-shadow:0 3px 0 var(--success-text);cursor:pointer}
+.tv-cell.tv-done:active,.tv-cell.tv-today-done:active{transform:translateY(2px);box-shadow:none}
+.tv-cell.tv-today{background:var(--primary);border-color:var(--primary-dark);box-shadow:0 3px 0 var(--primary-dark);cursor:pointer;animation:tvPulse 2.2s ease-in-out infinite}
+.tv-cell.tv-today:active{transform:translateY(2px);box-shadow:none}
+.tv-cell.tv-locked{background:var(--surface-2);opacity:.5;cursor:not-allowed}
+.tv-cell.tv-today-done{background:#dcfce7;border-color:var(--success);box-shadow:0 3px 0 var(--success-text);cursor:pointer}
+@keyframes tvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.tv-num{font-size:13px;font-weight:900;color:var(--text)}
+.tv-cell.tv-today .tv-num{color:#fff}
+.tv-cell.tv-locked .tv-num{color:var(--text-dim)}
+.tv-score{font-size:8px;font-weight:800;color:var(--success-text);line-height:1.1}
+.tv-cell.tv-today .tv-score,.tv-cell.tv-today-done .tv-score{color:rgba(255,255,255,.9)}
+.tv-icon{font-size:9px;line-height:1}
+.tv-back{background:var(--surface-2);border:2px solid var(--border);border-bottom:3px solid var(--border-strong);border-radius:10px;padding:6px 12px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;color:var(--text-muted);flex-shrink:0;transition:all .1s}
+.tv-back:hover{border-color:var(--primary);color:var(--primary)}
+.tv-back:active{border-bottom-width:0;transform:translateY(2px)}
+.tv-pbar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.tv-pbar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#ffb833);border-radius:4px;transition:width .35s ease}
+.tv-dots{display:flex;gap:5px;justify-content:center;margin-bottom:16px}
+.tv-dot{width:9px;height:9px;border-radius:50%;background:var(--surface-3);border:2px solid var(--border);transition:all .2s}
+.tv-dot.active{background:var(--primary);border-color:var(--primary-dark);transform:scale(1.25)}
+.tv-dot.correct{background:var(--success);border-color:var(--success-text)}
+.tv-dot.wrong{background:var(--danger);border-color:var(--danger-text)}
+.tv-q{font-size:17px;font-weight:800;color:var(--text);text-align:center;line-height:1.45;margin-bottom:20px}
+.tv-opts{display:flex;flex-direction:column;gap:9px}
+.tv-opt{width:100%;background:var(--surface);color:var(--text);border:2px solid var(--border);border-bottom:4px solid var(--border-strong);border-radius:14px;padding:13px 15px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;text-align:left;display:flex;align-items:center;gap:10px;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
+.tv-opt:hover:not(:disabled){border-color:var(--primary)}
+.tv-opt:disabled{cursor:default}
+.tv-opt.correct{background:#dcfce7;border-color:var(--success);border-bottom-color:var(--success-text);color:var(--success-text)}
+.tv-opt.wrong{background:var(--danger-soft);border-color:var(--danger);border-bottom-color:var(--danger-text);color:var(--danger-text)}
+.tv-opt.faded:disabled{opacity:.4}
+.tv-letter{width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;transition:all .15s}
+.tv-opt.correct .tv-letter{background:var(--success);border-color:var(--success-text);color:#fff}
+.tv-opt.wrong .tv-letter{background:var(--danger);border-color:var(--danger-text);color:#fff}
+.tv-fb{border-radius:14px;padding:12px 14px;margin-top:12px;display:none;align-items:center;gap:10px;animation:tvFbIn .2s ease}
+@keyframes tvFbIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tv-fb.show{display:flex}
+.tv-fb.c{background:#dcfce7;border:2px solid var(--success)}
+.tv-fb.w{background:var(--danger-soft);border:2px solid var(--danger)}
+.tv-fb-icon{font-size:22px;flex-shrink:0}
+.tv-fb-msg{font-size:13px;font-weight:700}
+.tv-fb-msg.c{color:var(--success-text)}
+.tv-fb-msg.w{color:var(--danger-text)}
+.tv-next{width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:14px;padding:13px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:12px;transition:all .1s;display:none}
+.tv-next.show{display:block}
+.tv-next:active{border-bottom-width:0;transform:translateY(4px)}
+.tv-rrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:2px solid var(--border-soft)}
+.tv-rrow:last-child{border-bottom:none}
+.tv-rq{flex:1;font-size:12px;font-weight:700;color:var(--text-muted);line-height:1.35;padding-right:6px}
+.tv-rbadge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.tv-rbadge.c{background:#dcfce7;color:var(--success-text)}
+.tv-rbadge.w{background:var(--danger-soft);color:var(--danger-text)}
+.tv-rev-q{margin-bottom:12px;padding-bottom:12px;border-bottom:2px solid var(--border-soft)}
+.tv-rev-q:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.tv-rev-qtext{font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;line-height:1.4}
+.tv-rev-opt{font-size:12px;font-weight:700;padding:7px 10px;border-radius:10px;border:2px solid transparent;display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.tv-rev-opt.c{background:#dcfce7;border-color:var(--success);color:var(--success-text)}
+.tv-rev-opt.w{background:var(--danger-soft);border-color:var(--danger);color:var(--danger-text)}
+.tv-rev-opt.ca{background:#dcfce7;border-color:var(--success);color:var(--success-text);opacity:.65}
+.tv-rev-opt.n{color:var(--text-dim);background:var(--surface-2);border-color:var(--border)}
+.tv-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.tv-stat{background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:10px 6px;text-align:center;box-shadow:0 3px 0 var(--border-strong)}
+.tv-stat-n{font-size:22px;font-weight:900;color:var(--primary)}
+.tv-stat-l{font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+
 /* ── DESKTOP ── */
 /* =============================================
    MOBILE  (pantallas hasta 899px / celular)
@@ -1103,6 +1171,7 @@ function initFirebase(){
 }
 
 async function loadPollas(){
+ loadTriviaProgress(); // fire-and-forget, no need to block
  const snap=await db.ref("pollas").get();
  const allPollas=snap.val()||{};
  myPollas={};
@@ -3972,6 +4041,445 @@ function renderTab(){
  if(currentTab==="mis_pronos"&&partidosView==="grupos")setTimeout(initReactionListeners,50);
 }
 
+// ══════════════════════════════════════════════════════════════
+// ⚽  TRIVIA — Calentando Motores · Mundial 2026
+// ══════════════════════════════════════════════════════════════
+
+// ─── Config ───────────────────────────────────────────────────
+const TRIVIA_START='2026-05-28'; // Día 1 de trivia (14 días antes del mundial)
+
+// ─── Estado ───────────────────────────────────────────────────
+let triviaProgress={};
+let tvQuizDay=null,tvQuizQIdx=0,tvQuizAns=[];
+
+// ─── Temas ────────────────────────────────────────────────────
+const TV_THEMES=[
+ "El Mundial que se viene","Campeones del mundo","Goleadores históricos",
+ "La final de Qatar 2022","El nuevo formato","Las grandes sorpresas",
+ "Sudamérica mundialista","Europa mundialista","Momentos icónicos",
+ "Mundiales en América","Las estrellas del 2026","Récords únicos",
+ "La previa del 2026","Gran repaso final"
+];
+
+// ─── Preguntas: 14 días × 5 (a = índice correcto 0-3) ─────────
+const TV_QUESTIONS=[
+ // DÍA 1 — El Mundial que se viene
+ [{q:"¿Cuántas ciudades sede tiene el Mundial 2026 en total?",opts:["12","14","16","18"],a:2},
+  {q:"¿En qué estadio se jugará la final del Mundial 2026?",opts:["Rose Bowl","AT&T Stadium","Levi's Stadium","MetLife Stadium"],a:3},
+  {q:"¿Cuántos partidos en total se jugarán en el Mundial 2026?",opts:["80","96","104","120"],a:2},
+  {q:"¿Cuántas ciudades canadienses son sede del Mundial 2026?",opts:["1","2","3","4"],a:1},
+  {q:"¿Cuántas ciudades mexicanas son sede del Mundial 2026?",opts:["1","2","3","4"],a:2}],
+ // DÍA 2 — Campeones del mundo
+ [{q:"¿Cuántos títulos mundiales tiene Italia?",opts:["2","3","4","5"],a:2},
+  {q:"¿Qué selección fue campeona del Mundial de Rusia 2018?",opts:["Croacia","Bélgica","Inglaterra","Francia"],a:3},
+  {q:"¿Qué selección ganó el primer Mundial de la historia en 1930?",opts:["Argentina","Brasil","Uruguay","Italia"],a:2},
+  {q:"¿En qué año ganó Inglaterra su único título mundialista?",opts:["1958","1962","1966","1974"],a:2},
+  {q:"¿Cuántos títulos mundiales tiene Alemania?",opts:["2","3","4","5"],a:2}],
+ // DÍA 3 — Goleadores históricos
+ [{q:"¿Cuántos goles marcó Ronaldo (Brasil) en sus tres Mundiales?",opts:["10","12","15","18"],a:2},
+  {q:"¿Quién fue el Bota de Oro del Mundial de Rusia 2018?",opts:["Griezmann","Lukaku","Harry Kane","Cristiano Ronaldo"],a:2},
+  {q:"¿Quién fue el Bota de Oro del Mundial de Brasil 2014?",opts:["Messi","Thomas Müller","Neymar","James Rodríguez"],a:3},
+  {q:"¿Cuántos goles marcó Kylian Mbappé en Qatar 2022?",opts:["5","6","7","8"],a:3},
+  {q:"¿Cuántos goles mundialistas acumula Mbappé entrando al 2026?",opts:["8","10","12","14"],a:2}],
+ // DÍA 4 — La final de Qatar 2022
+ [{q:"¿Cómo terminó la final de Qatar 2022 al cabo del tiempo suplementario?",opts:["2-2","3-3","4-4","3-2"],a:1},
+  {q:"¿Cuántos goles marcó Mbappé en la final de Qatar 2022?",opts:["1","2","3","4"],a:2},
+  {q:"¿Cuántos penales atajó Dibu Martínez en la tanda final contra Francia?",opts:["0","1","2","3"],a:1},
+  {q:"¿Cuántos Mundiales jugó Messi antes de ganar el de Qatar 2022?",opts:["2","3","4","5"],a:2},
+  {q:"¿Cuántos partidos jugó Argentina en Qatar 2022 hasta consagrarse campeona?",opts:["5","6","7","8"],a:2}],
+ // DÍA 5 — El nuevo formato
+ [{q:"¿Cuántos grupos tiene el Mundial 2026?",opts:["8","10","12","16"],a:2},
+  {q:"¿Cómo se llama la nueva fase eliminatoria que debuta en 2026?",opts:["Fase de 64","Ronda de 32","Play-off global","Octavos extendidos"],a:1},
+  {q:"¿Cuántos 'mejores terceros' clasifican a la Ronda de 32 en el 2026?",opts:["4","6","8","12"],a:2},
+  {q:"¿Cuántas selecciones de CONMEBOL clasifican directamente al Mundial 2026?",opts:["4","5","6","7"],a:2},
+  {q:"¿Cuántas selecciones de UEFA (Europa) clasifican al Mundial 2026?",opts:["12","14","16","18"],a:2}],
+ // DÍA 6 — Las grandes sorpresas
+ [{q:"¿Qué selección africana llegó a semifinales de un Mundial por primera vez en Qatar 2022?",opts:["Senegal","Nigeria","Marruecos","Ghana"],a:2},
+  {q:"¿Qué selección asiática eliminó a Argentina en fase de grupos de Qatar 2022?",opts:["Japón","Irán","Arabia Saudita","Corea del Sur"],a:2},
+  {q:"¿Qué selección asiática llegó a semifinales del Mundial de Corea/Japón 2002?",opts:["Japón","China","Corea del Sur","Arabia Saudita"],a:2},
+  {q:"¿Qué selección africana llegó a cuartos de final en Italia 1990, primera en la historia?",opts:["Nigeria","Camerún","Senegal","Argelia"],a:1},
+  {q:"¿En qué fase eliminó Marruecos a Portugal en Qatar 2022?",opts:["Octavos de final","Cuartos de final","Semifinales","Fase de grupos"],a:1}],
+ // DÍA 7 — Sudamérica mundialista
+ [{q:"¿En qué año ganó Argentina su segundo Mundial, con Maradona como figura?",opts:["1978","1982","1986","1990"],a:2},
+  {q:"¿Cuántos Mundiales ha ganado Uruguay?",opts:["1","2","3","0"],a:1},
+  {q:"¿Qué selección eliminó a Brasil en cuartos de final de Qatar 2022?",opts:["Argentina","Francia","Croacia","Corea del Sur"],a:2},
+  {q:"¿Qué selección fue subcampeona del Mundial de Argentina 1978?",opts:["Brasil","Italia","Alemania","Países Bajos"],a:3},
+  {q:"¿Qué selección fue primera en ganar un Mundial fuera de su continente (Suecia, 1958)?",opts:["Argentina","Uruguay","Brasil","Chile"],a:2}],
+ // DÍA 8 — Europa mundialista
+ [{q:"¿En qué año ganó España su único título mundialista?",opts:["2006","2010","2014","2002"],a:1},
+  {q:"¿Con qué resultado ganó España la final del Mundial 2010 ante Países Bajos?",opts:["2-0 en 90 min","2-1 en prórroga","1-0 en prórroga","1-0 en 90 min"],a:2},
+  {q:"¿Qué selección perdió 3 finales mundialistas sin ganar ninguna (1974, 1978 y 2010)?",opts:["Hungría","Suecia","Portugal","Países Bajos"],a:3},
+  {q:"¿Qué selección ganó el Mundial de Alemania 2006?",opts:["Alemania","Francia","Italia","Portugal"],a:2},
+  {q:"¿Qué campeón defensor fue eliminado en la fase de grupos de Sudáfrica 2010?",opts:["Francia","Italia","Alemania","España"],a:1}],
+ // DÍA 9 — Momentos icónicos
+ [{q:"¿Quién marcó el famoso 'Gol del Siglo' en el Mundial de México 1986?",opts:["Gary Lineker","Careca","Diego Maradona","Michel Platini"],a:2},
+  {q:"¿Qué jugador fue expulsado con un cabezazo en la final del Mundial 2006?",opts:["Thierry Henry","Patrick Vieira","Zinedine Zidane","Roberto Pirès"],a:2},
+  {q:"¿Con qué resultado aplastó Alemania a Brasil en las semifinales del 2014?",opts:["5-0","6-1","6-0","7-1"],a:3},
+  {q:"¿Con qué apodo se conoce la goleada de Alemania a Brasil en Belo Horizonte 2014?",opts:["La Debacle","El Maracanazo","El Mineirazo","El Bochorno"],a:2},
+  {q:"¿Qué selección eliminó al campeón defensor Alemania en fase de grupos de Rusia 2018?",opts:["México","Suecia","Corea del Sur","Japón"],a:2}],
+ // DÍA 10 — Mundiales en América
+ [{q:"¿Qué selección ganó el Mundial de USA 1994?",opts:["Italia","Brasil","Alemania","Suecia"],a:1},
+  {q:"¿En qué año fue Argentina sede de un Mundial?",opts:["1974","1978","1982","1970"],a:1},
+  {q:"¿Cuántos Mundiales se han jugado en México antes del 2026?",opts:["1","2","3","4"],a:1},
+  {q:"¿Cuál fue el resultado de la final del Mundial de Brasil 2014?",opts:["Alemania 3-0","Alemania 1-0 (prórroga)","Alemania 2-1","Alemania 2-0"],a:1},
+  {q:"¿Quién marcó el gol de la victoria de Alemania en la final del Mundial 2014?",opts:["Thomas Müller","Toni Kroos","Mesut Özil","Mario Götze"],a:3}],
+ // DÍA 11 — Las estrellas del 2026
+ [{q:"¿Con qué club juega Kylian Mbappé desde el verano de 2024?",opts:["PSG","Manchester City","Real Madrid","Barcelona"],a:2},
+  {q:"¿En qué liga juega actualmente Vinicius Jr.?",opts:["Premier League","Serie A","Bundesliga","LaLiga"],a:3},
+  {q:"¿Quién fue el entrenador de Argentina cuando ganó Qatar 2022?",opts:["Alejandro Sabella","Jorge Sampaoli","Lionel Scaloni","Edgardo Bauza"],a:2},
+  {q:"¿Cuántos goles marcó Maradona en el Mundial de México 1986?",opts:["4","5","6","7"],a:1},
+  {q:"¿Quién fue el Bota de Oro (máximo goleador) del Mundial de México 1986?",opts:["Diego Maradona","Careca","Gary Lineker","Michel Platini"],a:2}],
+ // DÍA 12 — Récords únicos
+ [{q:"¿Qué selección ha clasificado a TODOS los Mundiales de la historia sin excepción?",opts:["Alemania","Italia","Argentina","Brasil"],a:3},
+  {q:"¿Cuántos goles se marcaron en el partido con más goles de la historia mundialista? (Austria 7-5 Suiza, 1954)",opts:["10","11","12","13"],a:2},
+  {q:"¿Cuántos Mundiales jugó el portero mexicano Antonio Carbajal, primero en alcanzar esa marca?",opts:["3","4","5","6"],a:2},
+  {q:"¿Cuántos goles necesita Mbappé en 2026 para SUPERAR el récord de Klose (16 goles)?",opts:["3","4","5","6"],a:2},
+  {q:"¿En cuántos Mundiales terminó Croacia en el podio (top 3) entre 1998 y 2022?",opts:["1","2","3","4"],a:2}],
+ // DÍA 13 — La previa del 2026
+ [{q:"¿Qué selección ganó la Eurocopa 2024?",opts:["Francia","Alemania","Inglaterra","España"],a:3},
+  {q:"¿Qué selección ganó la Copa América 2024?",opts:["Brasil","Uruguay","Colombia","Argentina"],a:3},
+  {q:"¿En qué país se jugó la Copa América 2024?",opts:["Brasil","Venezuela","Estados Unidos","Chile"],a:2},
+  {q:"¿En qué fase fue eliminada Francia en el Mundial 2002, siendo la defensora del título?",opts:["Cuartos de final","Octavos de final","Semifinales","Fase de grupos"],a:3},
+  {q:"¿En qué año fue el único Mundial disputado simultáneamente en dos países?",opts:["1994","1998","2002","2006"],a:2}],
+ // DÍA 14 — Gran repaso final
+ [{q:"¿Cuántos Mundiales ha ganado Brasil, el país con más títulos mundiales?",opts:["3","4","5","6"],a:2},
+  {q:"¿Cuántos Mundiales ha ganado Argentina?",opts:["1","2","3","4"],a:2},
+  {q:"¿Qué selección ganó Qatar 2022?",opts:["Francia","Argentina","Brasil","Croacia"],a:1},
+  {q:"¿Cuántos equipos participan en el Mundial 2026 por primera vez en la historia?",opts:["32","40","48","64"],a:2},
+  {q:"¿Quién es el máximo goleador en la historia de los Mundiales con 16 goles?",opts:["Ronaldo (Brasil)","Pelé","Gerd Müller","Miroslav Klose"],a:3}]
+];
+
+// ─── Helpers de fecha ─────────────────────────────────────────
+function tvTodayNum(){
+ const s=new Date(TRIVIA_START+'T00:00:00');
+ const n=new Date();
+ const sd=new Date(s.getFullYear(),s.getMonth(),s.getDate());
+ const nd=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+ return Math.round((nd-sd)/86400000)+1;
+}
+function tvDaysLeft(){
+ return Math.max(0,Math.ceil((new Date('2026-06-11T00:00:00')-new Date())/86400000));
+}
+function tvStreak(){
+ const today=Math.min(tvTodayNum(),14);
+ let s=0;for(let d=today;d>=1;d--){if(triviaProgress[`day_${d}`]?.completed)s++;else break;}
+ return s;
+}
+function tvTotalCorrect(){return Object.values(triviaProgress).reduce((s,v)=>s+(v.score||0),0);}
+function tvDaysCompleted(){return Object.values(triviaProgress).filter(v=>v.completed).length;}
+function tvScoreEmoji(s){if(s===5)return'🏆';if(s>=4)return'🌟';if(s>=3)return'⚽';if(s>=2)return'😬';return'😅';}
+function tvScoreMsg(s){
+ if(s===5)return'¡Perfecto! Eres un experto mundialero 🏆';
+ if(s===4)return'¡Muy bien! Solo una te escapó';
+ if(s===3)return'Bien, pero hay que estudiar más 📚';
+ if(s===2)return'Regular... mañana recuperas';
+ if(s<=1)return'Uy, hay que repasar esto 😅';
+}
+const TV_OK_MSGS=['¡Correcto! Eres un crack 🔥','¡Exacto! Lo sabías 👏','¡Bien! Eso lo tenías claro ✅','¡Correcto, bien jugado! ⚽'];
+const TV_BAD_FUNS=[m=>`Uy, era "${m}" 😬`,m=>`No era esa, era "${m}" 😅`,m=>`Casi... La respuesta era "${m}" `,m=>`Se te fue, era "${m}" 😤`];
+function tvOkMsg(){return TV_OK_MSGS[Math.floor(Math.random()*TV_OK_MSGS.length)];}
+function tvBadMsg(correct){return TV_BAD_FUNS[Math.floor(Math.random()*TV_BAD_FUNS.length)](correct);}
+
+// ─── Firebase ─────────────────────────────────────────────────
+async function loadTriviaProgress(){
+ if(!currentUser)return;
+ try{
+  const snap=await db.ref(`triviaProgress/${currentUser.uid}`).get();
+  triviaProgress=snap.exists()?(snap.val()||{}):{};
+ }catch(e){triviaProgress={};}
+}
+async function tvSaveDay(day,score,answers){
+ const data={score,answers,completed:true,ts:Date.now()};
+ await db.ref(`triviaProgress/${currentUser.uid}/day_${day}`).set(data);
+ triviaProgress[`day_${day}`]=data;
+}
+
+// ─── Banner para la polla lobby ───────────────────────────────
+function renderTriviaLobbyBanner(){
+ const today=tvTodayNum();
+ if(today<1||today>14)return''; // fuera del período
+ const streak=tvStreak();
+ const todayCap=Math.min(today,14);
+ const dp=triviaProgress[`day_${todayCap}`];
+ const done=dp?.completed;
+ const theme=TV_THEMES[todayCap-1];
+ const fireLabel=streak>=2?`🔥 Racha de ${streak} días · `:'';
+ const rightLabel=done?`${dp.score}/5 ${tvScoreEmoji(dp.score)}`:'Jugar →';
+ return`
+ <div onclick="renderTriviaLobby()" style="background:linear-gradient(135deg,var(--primary-soft),#fffdf5);border:2px solid var(--primary);border-radius:16px;padding:13px 15px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 4px 0 var(--primary-dark);-webkit-tap-highlight-color:transparent">
+  <div style="font-size:26px;flex-shrink:0">⚽</div>
+  <div style="flex:1;min-width:0">
+   <div style="font-size:9px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">${fireLabel}Calentando Motores · Día ${todayCap}/14</div>
+   <div style="font-size:13px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${theme}</div>
+  </div>
+  <div style="font-size:13px;font-weight:800;color:var(--primary-dark);flex-shrink:0">${rightLabel}</div>
+ </div>`;
+}
+
+// ─── TRIVIA LOBBY (pantalla completa) ─────────────────────────
+window.renderTriviaLobby=function(){
+ setFabs(false);
+ const today=tvTodayNum();
+ const dLeft=tvDaysLeft();
+ const streak=tvStreak();
+ const totalC=tvTotalCorrect();
+ const dComp=tvDaysCompleted();
+ const avg=dComp>0?(totalC/dComp).toFixed(1):'—';
+
+ // Período no iniciado
+ if(today<1){
+  document.getElementById('root').innerHTML=`
+   <div style="max-width:520px;margin:0 auto;padding:12px 12px 80px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+     <button class="tv-back" onclick="renderPollaLobby()">← Volver</button>
+    </div>
+    <div class="card" style="text-align:center;padding:40px 20px">
+     <div style="font-size:44px;margin-bottom:10px">🔒</div>
+     <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:6px">¡Aún no comenzó!</div>
+     <div style="font-size:13px;font-weight:700;color:var(--text-muted)">La trivia arranca el 28 de mayo.<br/>Vuelve pronto, que el Mundial no espera.</div>
+    </div>
+   </div>`;
+  return;
+ }
+
+ const todayCap=Math.min(today,14);
+ const todayDone=triviaProgress[`day_${todayCap}`]?.completed;
+ const triviaOver=today>14;
+
+ // Construir grilla de días
+ let gridHtml='';
+ for(let d=1;d<=14;d++){
+  const dp=triviaProgress[`day_${d}`];
+  const done=dp?.completed;
+  const isToday=d===todayCap&&!triviaOver;
+  const locked=d>todayCap||triviaOver;
+  let cls='tv-cell ';
+  if(done&&isToday)cls+='tv-today-done';
+  else if(done)cls+='tv-done';
+  else if(isToday)cls+='tv-today';
+  else if(locked)cls+='tv-locked';
+  const click=done?`onclick="tvOpenReview(${d})"`:(isToday?`onclick="tvStartQuiz(${d})"`:'');
+  gridHtml+=`<div class="${cls}" ${click}>
+   <div class="tv-num">${d}</div>
+   ${done?`<div class="tv-score">${dp.score}/5</div><div class="tv-icon">${tvScoreEmoji(dp.score)}</div>`:''}
+   ${isToday&&!done?`<div class="tv-icon" style="color:#fff;font-size:8px;font-weight:800">HOY</div>`:''}
+   ${locked&&!done?`<div class="tv-icon">🔒</div>`:''}
+  </div>`;
+ }
+
+ // Card del día de hoy
+ let todayCard='';
+ if(!triviaOver){
+  const theme=TV_THEMES[todayCap-1];
+  if(todayDone){
+   const dp=triviaProgress[`day_${todayCap}`];
+   todayCard=`<div class="card" style="background:linear-gradient(145deg,var(--primary-soft),#fffdf5);border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark)">
+    <div style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Día ${todayCap} de 14 · Completado ✅</div>
+    <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:12px">${theme}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+     <span style="font-size:44px;font-weight:900;color:var(--primary);line-height:1">${dp.score}</span>
+     <div>
+      <div style="font-size:18px;font-weight:700;color:var(--text-muted)">/5 correctas</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted)">${tvScoreMsg(dp.score)}</div>
+     </div>
+     <div style="font-size:32px;margin-left:auto">${tvScoreEmoji(dp.score)}</div>
+    </div>
+    <button onclick="tvOpenReview(${todayCap})" class="btn-secondary" style="width:100%;margin-bottom:0">Ver respuestas</button>
+   </div>`;
+  } else {
+   todayCard=`<div class="card" style="background:linear-gradient(145deg,var(--primary-soft),#fffdf5);border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark)">
+    <div style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Día ${todayCap} de 14</div>
+    <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:14px">${theme}</div>
+    <button onclick="tvStartQuiz(${todayCap})" style="width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:14px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .1s" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(4px)'" onmouseup="this.style.borderBottomWidth='4px';this.style.transform=''">Empezar las 5 preguntas 🏆</button>
+   </div>`;
+  }
+ } else {
+  todayCard=`<div class="card" style="text-align:center;padding:28px 20px">
+   <div style="font-size:36px;margin-bottom:8px">🏆</div>
+   <div style="font-size:16px;font-weight:900;color:var(--text)">¡Trivia completada!</div>
+   <div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-top:4px">14 días de preparación. Ahora a ganar la polla.</div>
+  </div>`;
+ }
+
+ document.getElementById('root').innerHTML=`
+  <div style="max-width:520px;margin:0 auto;padding:12px 12px 80px">
+   <!-- Header -->
+   <div class="card" style="text-align:center;margin-bottom:8px;overflow:hidden;position:relative">
+    <div style="position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#ef4444,#f97316,#facc15,#22c55e,#3b82f6,#a855f7);border-radius:0"></div>
+    <div style="margin-top:6px;font-size:26px">⚽</div>
+    <div style="font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:-.3px;margin:3px 0 1px">Calentando Motores</div>
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:8px">Mundial 2026 · Trivia diaria</div>
+    <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+     ${streak>0?`<div style="display:inline-flex;align-items:center;gap:4px;background:var(--primary-soft);border:2px solid var(--primary);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:800;color:var(--primary-dark)">🔥 Racha de ${streak} día${streak!==1?'s':''}</div>`:''}
+     <div style="display:inline-flex;align-items:center;gap:4px;background:var(--secondary-soft);border:2px solid var(--secondary);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:800;color:var(--secondary)">⏳ ${dLeft} día${dLeft!==1?'s':''} para el Mundial</div>
+    </div>
+    <div style="padding-top:8px;border-top:1px solid var(--border-soft)">
+     <button onclick="renderPollaLobby()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif">← Mis pollas</button>
+    </div>
+   </div>
+   <!-- Stats -->
+   <div class="tv-stats">
+    <div class="tv-stat"><div class="tv-stat-n">${dComp}/14</div><div class="tv-stat-l">Días hechos</div></div>
+    <div class="tv-stat"><div class="tv-stat-n">${totalC}</div><div class="tv-stat-l">Correctas</div></div>
+    <div class="tv-stat"><div class="tv-stat-n">${avg}</div><div class="tv-stat-l">Prom / día</div></div>
+   </div>
+   <!-- Today card -->
+   ${todayCard}
+   <!-- Day grid -->
+   <div class="card">
+    <div style="font-size:11px;font-weight:800;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Tus 14 días</div>
+    <div class="tv-day-grid">${gridHtml}</div>
+    <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+     <span style="font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#dcfce7;border:1px solid var(--success);border-radius:3px;display:inline-block"></span>Completado</span>
+     <span style="font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--primary);border:1px solid var(--primary-dark);border-radius:3px;display:inline-block"></span>Hoy</span>
+     <span style="font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:3px;display:inline-block;opacity:.5"></span>Bloqueado</span>
+    </div>
+   </div>
+   <div style="font-size:11px;color:var(--text-dim);font-weight:700;text-align:center;margin-top:4px">El score de trivia será el desempate en caso de empate en el ranking final 🏆</div>
+  </div>`;
+};
+
+// ─── QUIZ ─────────────────────────────────────────────────────
+window.tvStartQuiz=function(day){
+ tvQuizDay=day; tvQuizQIdx=0; tvQuizAns=[];
+ tvRenderQuestion();
+};
+
+function tvRenderQuestion(){
+ const qs=TV_QUESTIONS[tvQuizDay-1];
+ const q=qs[tvQuizQIdx];
+ const pct=Math.round((tvQuizQIdx/5)*100);
+ const letters=['A','B','C','D'];
+ const dotsHtml=qs.map((_,i)=>{
+  let cls='tv-dot';
+  if(i<tvQuizQIdx)cls+=tvQuizAns[i]===TV_QUESTIONS[tvQuizDay-1][i].a?' correct':' wrong';
+  else if(i===tvQuizQIdx)cls+=' active';
+  return`<div class="${cls}"></div>`;
+ }).join('');
+ document.getElementById('root').innerHTML=`
+  <div style="max-width:520px;margin:0 auto;padding:12px 12px 80px">
+   <div class="tv-qhdr" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button class="tv-back" onclick="renderTriviaLobby()">← Volver</button>
+    <div class="tv-pbar-wrap" style="flex:1">
+     <div class="tv-pbar-label" style="font-size:10px;font-weight:700;color:var(--text-muted);text-align:right;margin-bottom:3px">Pregunta ${tvQuizQIdx+1} de 5</div>
+     <div class="tv-pbar"><div class="tv-pbar-fill" style="width:${pct}%"></div></div>
+    </div>
+   </div>
+   <div class="card">
+    <div style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Día ${tvQuizDay} · ${TV_THEMES[tvQuizDay-1]}</div>
+    <div class="tv-q">${q.q}</div>
+    <div class="tv-opts" id="tv-opts">
+     ${q.opts.map((o,i)=>`
+     <button class="tv-opt" id="tv-opt-${i}" onclick="tvPickAnswer(${i})">
+      <span class="tv-letter">${letters[i]}</span>
+      <span>${o}</span>
+     </button>`).join('')}
+    </div>
+    <div class="tv-fb" id="tv-fb">
+     <span class="tv-fb-icon" id="tv-fb-icon"></span>
+     <span class="tv-fb-msg" id="tv-fb-msg"></span>
+    </div>
+    <button class="tv-next" id="tv-next" onclick="tvNextQuestion()">
+     ${tvQuizQIdx<4?'Siguiente →':'Ver resultados'}
+    </button>
+   </div>
+  </div>`;
+}
+
+window.tvPickAnswer=function(idx){
+ document.querySelectorAll('.tv-opt').forEach(b=>b.disabled=true);
+ const q=TV_QUESTIONS[tvQuizDay-1][tvQuizQIdx];
+ const correct=idx===q.a;
+ tvQuizAns.push(idx);
+ for(let i=0;i<4;i++){
+  const btn=document.getElementById(`tv-opt-${i}`);
+  if(i===idx){btn.classList.add(correct?'correct':'wrong');}
+  else if(i===q.a){btn.classList.add('correct');}
+  else{btn.classList.add('faded');}
+ }
+ const fb=document.getElementById('tv-fb');
+ const fbIcon=document.getElementById('tv-fb-icon');
+ const fbMsg=document.getElementById('tv-fb-msg');
+ fb.classList.add('show',correct?'c':'w');
+ fbIcon.textContent=correct?'✅':'❌';
+ fbMsg.className='tv-fb-msg '+(correct?'c':'w');
+ fbMsg.textContent=correct?tvOkMsg():tvBadMsg(q.opts[q.a]);
+ document.getElementById('tv-next').classList.add('show');
+};
+
+window.tvNextQuestion=async function(){
+ if(tvQuizQIdx<4){tvQuizQIdx++;tvRenderQuestion();return;}
+ const score=tvQuizAns.filter((a,i)=>a===TV_QUESTIONS[tvQuizDay-1][i].a).length;
+ // Render results first so user sees immediate feedback, then save in background
+ try{track('trivia_completed',{day:tvQuizDay,score});}catch(_){}
+ const dayNow=tvQuizDay,answersNow=tvQuizAns.slice();
+ tvRenderResults(dayNow,score,answersNow);
+ try{await tvSaveDay(dayNow,score,answersNow);}catch(e){console.warn('tvSaveDay failed',e);}
+};
+
+// ─── RESULTS ──────────────────────────────────────────────────
+function tvRenderResults(day,score,answers){
+ const qs=TV_QUESTIONS[day-1];
+ const rowsHtml=qs.map((q,i)=>{
+  const ok=answers[i]===q.a;
+  return`<div class="tv-rrow">
+   <span style="font-size:16px;width:22px;flex-shrink:0">${ok?'✅':'❌'}</span>
+   <div class="tv-rq">${q.q}</div>
+   <div class="tv-rbadge ${ok?'c':'w'}">${ok?q.opts[q.a]:`→ ${q.opts[q.a]}`}</div>
+  </div>`;
+ }).join('');
+ document.getElementById('root').innerHTML=`
+  <div style="max-width:520px;margin:0 auto;padding:12px 12px 80px">
+   <div class="card">
+    <div style="text-align:center;padding:8px 0 12px">
+     <div style="font-size:12px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Día ${day} · ${TV_THEMES[day-1]}</div>
+     <div style="font-size:64px;font-weight:900;color:var(--primary);line-height:1">${score}</div>
+     <div style="font-size:15px;font-weight:700;color:var(--text-muted)">de 5 correctas</div>
+     <div style="font-size:30px;margin:6px 0">${tvScoreEmoji(score)}</div>
+     <div style="font-size:13px;font-weight:800;color:var(--text-muted)">${tvScoreMsg(score)}</div>
+    </div>
+    <div>${rowsHtml}</div>
+    <button onclick="renderTriviaLobby()" style="width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:14px;padding:13px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:14px">← Volver al inicio</button>
+   </div>
+  </div>`;
+}
+
+// ─── REVIEW (día ya jugado) ────────────────────────────────────
+window.tvOpenReview=function(day){
+ const dp=triviaProgress[`day_${day}`];
+ if(!dp){renderTriviaLobby();return;}
+ const qs=TV_QUESTIONS[day-1];
+ const answers=dp.answers||[];
+ const letters=['A','B','C','D'];
+ const qHtml=qs.map((q,i)=>{
+  const chosen=answers[i];
+  const correct=q.a;
+  return`<div class="tv-rev-q">
+   <div class="tv-rev-qtext">${i+1}. ${q.q}</div>
+   ${q.opts.map((o,j)=>{
+    let cls='tv-rev-opt ';
+    if(j===chosen&&j===correct)cls+='c';
+    else if(j===chosen&&j!==correct)cls+='w';
+    else if(j===correct&&chosen!==correct)cls+='ca';
+    else cls+='n';
+    return`<div class="${cls}"><span style="font-weight:900;opacity:.6;min-width:14px">${letters[j]}</span><span style="flex:1">${o}</span>${j===correct?'<span style="font-size:10px;flex-shrink:0">✓</span>':''}</div>`;
+   }).join('')}
+  </div>`;
+ }).join('');
+ document.getElementById('root').innerHTML=`
+  <div style="max-width:520px;margin:0 auto;padding:12px 12px 80px">
+   <div class="card">
+    <button class="tv-back" onclick="renderTriviaLobby()" style="margin-bottom:12px">← Volver</button>
+    <div style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Día ${day} · ${TV_THEMES[day-1]}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+     <span style="font-size:28px;font-weight:900;color:var(--primary)">${dp.score}/5</span>
+     <span style="font-size:22px">${tvScoreEmoji(dp.score)}</span>
+     <span style="font-size:12px;font-weight:700;color:var(--text-muted)">${tvScoreMsg(dp.score)}</span>
+    </div>
+    ${qHtml}
+   </div>
+  </div>`;
+};
 
 window.addEventListener("load",initFirebase);
 </script>
