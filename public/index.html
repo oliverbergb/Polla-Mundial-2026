@@ -2142,6 +2142,11 @@ function renderPollaLobby(){
  <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(255,179,16,0.25)"> Crear una polla</button>
  <button onclick="renderUnirse()" style="width:100%;background:var(--surface);color:var(--text-muted);border:1px solid var(--border-soft);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif"> Unirme a una polla</button>
  </div>
+ <div style="text-align:center;margin-top:24px;font-size:11px;color:var(--text-dim)">
+ <a href="#" onclick="event.preventDefault();openLegal('terms')" style="color:var(--text-dim);text-decoration:underline">Términos</a>
+ &nbsp;·&nbsp;
+ <a href="#" onclick="event.preventDefault();openLegal('privacy')" style="color:var(--text-dim);text-decoration:underline">Privacidad</a>
+ </div>
  </div>
  </div>`;
  // Swipe to delete on mobile
@@ -4281,7 +4286,6 @@ const LEGAL_DOCS={
 <ul>
 <li><b>Google Firebase:</b> para el inicio de sesión, la base de datos y el alojamiento de la app.</li>
 <li><b>Google reCAPTCHA:</b> para distinguir personas de bots. Su uso está sujeto a la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de Privacidad</a> y los <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Términos</a> de Google.</li>
-<li><b>Anthropic:</b> para generar el texto de la \"carta al campeón\" se envía el nombre del ganador a su servicio de inteligencia artificial. No se envía tu correo ni otros datos personales en ese proceso.</li>
 </ul>
 <p>También podríamos compartir información si la ley nos lo exige o para prevenir fraudes o daños.</p>
 
