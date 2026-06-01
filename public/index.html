@@ -1115,7 +1115,7 @@ function getLogros(uid){
 const LOGRO_ICONS={
  primer:'<path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>',
  exacto:'<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"></circle>',
- racha:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.4-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5Z"></path>',
+ racha:'<path d="M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z"></path>',
  perfecta:'<path d="M18 6 7 17l-5-5"></path><path d="m22 10-7.5 7.5L13 16"></path>',
  lider:'<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z"></path><path d="M5 20h14"></path>',
  campeon:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>',
@@ -1222,7 +1222,9 @@ async function loadPollas(){
  }
  if(pendingPollaAction){
  const action=pendingPollaAction;pendingPollaAction=null;
- await action();return;
+ try{await action();}
+ catch(err){showToast("No se pudo completar. Intenta de nuevo.","#ef4444",4000);renderPollaLobby();}
+ return;
  }
  const ids=Object.keys(myPollas);
  if(ids.length===0){renderPollaLobby();return;}
@@ -1871,14 +1873,16 @@ window.doJoinFromLanding=async function(){
  errEl.textContent="";
  const inp=document.getElementById("landingCode");
  inp.disabled=true;
- try{
- const snap=await db.ref("pollas").orderByChild("code").equalTo(code).get();
- if(!snap.exists()){errEl.textContent="Código no encontrado. Verifica e intenta de nuevo.";inp.disabled=false;return;}
- if(currentUser){await joinPollaByCode(code);return;}
- // Skip name pick — auth handler will restore name from DB if user exists.
+ // If already logged in, join now (and validate). Otherwise DON'T hit the DB
+ // yet (reads may be blocked before sign-in) — stash the code and validate it
+ // right after the user authenticates.
+ if(currentUser){
+ try{await joinPollaByCode(code);}
+ catch(e){errEl.textContent="No se pudo conectar. Intenta de nuevo.";inp.disabled=false;}
+ return;
+ }
  pendingPollaAction=async()=>{await joinPollaByCode(code);};
  renderAuthScreen("");
- }catch(e){errEl.textContent="Error al conectar. Intenta de nuevo.";inp.disabled=false;}
 };
 
 // ─── PICK NAME ────────────────────────────────────────────
@@ -1924,7 +1928,7 @@ function renderAuthScreen(name){
  setFabs(false);
  document.getElementById("root").innerHTML=`
  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
- ${name?`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px">Hola, ${name} </div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:24px">Bienvenido de vuelta</div>`}
+ ${name?`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px">Hola, ${name} </div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Entra a Tu Polla</div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;max-width:320px;line-height:1.4">Pon tu email y contraseña. Si es tu primera vez te creamos la cuenta al instante; si ya tienes una, inicias sesión.</div>`}
 
  <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
  <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -1933,7 +1937,7 @@ function renderAuthScreen(name){
 
  <div style="display:flex;align-items:center;gap:10px;width:100%;max-width:340px;margin-bottom:16px">
  <div style="flex:1;height:1px;background:var(--surface)"></div>
- <span style="font-size:11px;color:var(--border);font-weight:700">O CON EMAIL</span>
+ <span style="font-size:11px;color:var(--border);font-weight:700">EMAIL Y CONTRASEÑA</span>
  <div style="flex:1;height:1px;background:var(--surface)"></div>
  </div>
 
@@ -1953,6 +1957,10 @@ function renderAuthScreen(name){
  ¿Olvidaste tu contraseña?
  </button>
  <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px">← Volver</button>
+ <div style="max-width:340px;margin:22px auto 0;font-size:11px;line-height:1.5;color:var(--text-dim)">
+ Al continuar, aceptas nuestros <a href="#" onclick="event.preventDefault();showToast('Próximamente')" style="color:var(--text-muted);text-decoration:underline">Términos</a> y la <a href="#" onclick="event.preventDefault();showToast('Próximamente')" style="color:var(--text-muted);text-decoration:underline">Política de Privacidad</a>.<br>
+ Este sitio está protegido por reCAPTCHA; aplican la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:underline">Política de Privacidad</a> y los <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:underline">Términos</a> de Google.
+ </div>
  </div>`;
  setTimeout(()=>document.getElementById("authEmail")?.focus(),100);
 }
@@ -2356,7 +2364,7 @@ function renderCrearPolla(){
     <path class="cls-11" d="m230.09,363.32l-19.15,13.52s-19.86-21.61-45.63-4.18c0,0,7.99-13.32,17.11-17.99,0,0,19.76-11.47,47.66,8.65Z"/>
   </g>
  </svg>
- <input class="input" id="pollaName" type="text" placeholder="Nombre de tu polla"
+ <input class="input" id="pollaName" type="text" placeholder="Nombre de tu polla (Ej: Polla del trabajo)" name="polla-name-field" autocomplete="off" autocapitalize="words"
  maxlength="40" autocorrect="off" value="${savedName}"
  style="width:100%;font-size:20px;font-weight:700;padding:16px;text-align:center;position:relative;z-index:1"
  onkeydown="if(event.key==='Enter')doCrearPolla()"
@@ -2514,7 +2522,12 @@ async function _doCreatePolla(nombre,rules){
  const pollaId=db.ref("pollas").push().key;
  const pollaData={nombre,rules,code,creadorUid:currentUser.uid,creadaEn:Date.now(),
  participantes:{[currentUser.uid]:{name:currentUser.name,joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}}}};
+ try{
  await db.ref(`pollas/${pollaId}`).set(pollaData);
+ }catch(err){
+ showToast("No se pudo crear la polla. Revisa tu conexión e intenta de nuevo.","#ef4444",4000);
+ renderPollaLobby();return;
+ }
  currentPollaId=pollaId;currentPolla=pollaData;myPollas[pollaId]=pollaData;
  track('polla_created',{includeEspeciales:rules.incluirEspeciales,includeElim:rules.incluirEliminatoria});
  renderInvite(pollaId,nombre,code);
@@ -2556,39 +2569,63 @@ function renderUnirse(){
  <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;text-align:center">Escribe el código que te pasaron</p>
  <input class="input" id="joinCode" type="text" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:22px;font-weight:700;text-align:center;width:100%;box-sizing:border-box"/>
  <div class="error" id="joinError"></div>
- <button class="btn" onclick="doJoinPolla()" style="width:100%">Unirme </button>
+ <button class="btn" onclick="doJoinPolla(event)" style="width:100%">Unirme</button>
  </div>
  </div>
  </div>`;
  document.getElementById("joinCode").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase();});
 }
 
-window.doJoinPolla=async function(){
+window.doJoinPolla=async function(ev){
  const code=(document.getElementById("joinCode").value||"").trim().toUpperCase();
  const errEl=document.getElementById("joinError");
- if(code.length<4){errEl.textContent="Escribe el código completo.";return;}
- await joinPollaByCode(code);
+ if(errEl)errEl.textContent="";
+ if(code.length<4){if(errEl)errEl.textContent="Escribe el código completo.";return;}
+ const btn=ev&&ev.target?ev.target.closest("button"):null;
+ if(btn){btn._t=btn.textContent;btn.disabled=true;btn.textContent="Uniéndote...";}
+ try{await joinPollaByCode(code);}
+ finally{if(btn){btn.disabled=false;btn.textContent=btn._t||"Unirme";}}
 };
 
 async function joinPollaByCode(code,silent=false){
  code=(code||"").trim().toUpperCase();
- const snap=await db.ref("pollas").orderByChild("code").equalTo(code).get();
- if(!snap.exists()){
- if(!silent)document.getElementById("joinError").textContent="Código no encontrado. Verifica e intenta de nuevo.";
+ let entry=null;
+ try{
+ const snap=await db.ref("pollas").get();
+ const all=snap.val()||{};
+ entry=Object.entries(all).find(([id,p])=>p&&(p.code||"").toUpperCase()===code)||null;
+ }catch(err){
+ const msg="No se pudo conectar. Revisa tu internet e intenta de nuevo.";
+ const el=document.getElementById("joinError");
+ if(!silent&&el)el.textContent=msg; else showToast(msg,"#ef4444");
+ return;
+ }
+ if(!entry){
+ const el=document.getElementById("joinError");
+ if(!silent&&el)el.textContent="Código no encontrado. Verifica e intenta de nuevo.";
  else{showToast("Código de invitación no encontrado","#ef4444");renderPollaLobby();}
  return;
  }
- const [pollaId,pollaData]=Object.entries(snap.val())[0];
+ const [pollaId,pollaData]=entry;
  if(pollaData.participantes&&pollaData.participantes[currentUser.uid]){
  // Already in, just enter
  currentPollaId=pollaId;currentPolla=pollaData;myPollas[pollaId]=pollaData;
  loadData();return;
  }
+ try{
  await db.ref(`pollas/${pollaId}/participantes/${currentUser.uid}`).set({name:currentUser.name,joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}});
+ }catch(err){
+ const el=document.getElementById("joinError");
+ const msg="No se pudo unir. Intenta de nuevo.";
+ if(!silent&&el)el.textContent=msg; else showToast(msg,"#ef4444");
+ return;
+ }
  currentPollaId=pollaId;currentPolla=pollaData;
+ if(!pollaData.participantes)pollaData.participantes={};
+ pollaData.participantes[currentUser.uid]={name:currentUser.name,joinedAt:Date.now()};
  myPollas[pollaId]=pollaData;
  track('user_joined');
- showToast(` Te uniste a "${pollaData.nombre}"`);
+ showToast(`Te uniste a "${pollaData.nombre}"`);
  loadData();
 }
 // ─── GOAL NOTIFICATION ────────────────────────────────────
@@ -2917,14 +2954,18 @@ function initDragDrop(){
   const live=dragEl.querySelector(".pos-num"),cb=dClone.querySelector(".pos-num");
   if(live&&cb){cb.style.background=live.style.background;cb.textContent=live.textContent;}
  }
- function moveClone(x,y){if(dClone&&x){dClone.style.left=(x-dClone.offsetWidth/2)+"px";dClone.style.top=(y-22)+"px";}}
+ // Clone stays locked to the list column (fixed X) and only slides vertically
+ // with the cursor, so the held row never jumps out of frame to the left.
+ let _cloneX=0,_grabDY=0;
+ function moveClone(x,y){if(dClone){dClone.style.left=_cloneX+"px";dClone.style.top=(y-_grabDY)+"px";}}
  list.addEventListener("dragstart",e=>{
   dragEl=e.target.closest(".sortable-item");
   if(!dragEl)return;
   try{e.dataTransfer.effectAllowed="move";e.dataTransfer.setDragImage(_emptyImg,0,0);}catch(_){}
   const rect=dragEl.getBoundingClientRect();
+  _cloneX=rect.left;_grabDY=(e.clientY||rect.top+rect.height/2)-rect.top;
   dClone=dragEl.cloneNode(true);
-  dClone.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;opacity:.92;pointer-events:none;z-index:999;width:${dragEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;`;
+  dClone.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;opacity:.92;pointer-events:none;z-index:999;width:${dragEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;box-sizing:border-box`;
   document.body.appendChild(dClone);
   requestAnimationFrame(()=>{if(dragEl)dragEl.classList.add("dragging-live");});
  });
@@ -2950,10 +2991,11 @@ function initDragDrop(){
  list.addEventListener("drop",e=>{e.preventDefault();});
 
  // ── Touch (clone follows finger, list reorders live) ──
- let tEl=null,tClone=null,tTimer=null,tActive=false;
+ let tEl=null,tClone=null,tTimer=null,tActive=false,tCloneX=0,tGrabDY=0,_tStartY=0;
  list.addEventListener("touchstart",e=>{
   const item=e.target.closest(".sortable-item");
   if(!item)return;
+  _tStartY=e.touches&&e.touches[0]?e.touches[0].clientY:0;
   tEl=item;tActive=false;
   tTimer=setTimeout(()=>{
    tActive=true;
@@ -2961,8 +3003,10 @@ function initDragDrop(){
    if(navigator.vibrate)navigator.vibrate(40);
    tEl.classList.add("dragging-live");
    tEl.style.opacity="0.35";
+   const _r=tEl.getBoundingClientRect();
+   tCloneX=_r.left;tGrabDY=(_tStartY||_r.top+_r.height/2)-_r.top;
    tClone=tEl.cloneNode(true);
-   tClone.style.cssText=`position:fixed;opacity:.9;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;`;
+   tClone.style.cssText=`position:fixed;left:${_r.left}px;top:${_r.top}px;opacity:.9;pointer-events:none;z-index:999;width:${tEl.offsetWidth}px;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.35);border:2px solid var(--primary);transition:none;box-sizing:border-box`;
    document.body.appendChild(tClone);
   },300);
  },{passive:true});
@@ -2971,8 +3015,8 @@ function initDragDrop(){
   if(!tActive){clearTimeout(tTimer);tEl=null;return;}
   e.preventDefault();
   const t=e.touches[0];
-  tClone.style.left=(t.clientX-tEl.offsetWidth/2)+"px";
-  tClone.style.top=(t.clientY-30)+"px";
+  tClone.style.left=tCloneX+"px";
+  tClone.style.top=(t.clientY-tGrabDY)+"px";
   const els=document.elementsFromPoint(t.clientX,t.clientY);
   const over=els.find(el=>el.classList?.contains("sortable-item")&&el!==tEl);
   if(over){
@@ -3639,7 +3683,7 @@ function renderChat(){
  <div id="sticker-tray" style="display:none;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px;margin:0 0 8px">
   <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Stickers</div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-   ${STICKERS.map(s=>`<button onclick="sendSticker('${s.id}')" style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:8px;cursor:pointer;aspect-ratio:1;width:100%;display:flex;align-items:center;justify-content:center;transition:transform .12s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''"><img src="${STICKER_SVGS[s.id]}" alt="" style="width:100%;height:100%;object-fit:contain" draggable="false"></button>`).join("")}
+   ${STICKERS.map(s=>`<button onclick="sendSticker('${s.id}')" style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:8px;cursor:pointer;aspect-ratio:1;width:100%;display:flex;align-items:center;justify-content:center;transition:transform .12s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''"><img src="${STICKER_SVGS[s.id]}" alt="" style="width:74%;height:74%;object-fit:contain" draggable="false"></button>`).join("")}
   </div>
  </div>
  <div class="chat-input-row">
@@ -4308,7 +4352,7 @@ window.openBreakdown=function(uid){
  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px">
  ${logros.map(l=>{const col=LOGRO_COLORS[l.id]||"#2563eb";const ic=LOGRO_ICONS[l.id]||"";return `<div style="text-align:center">
   <div class="logro-badge" style="width:52px;height:52px;margin:0 auto 6px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${l.unlocked?col+"1f":"var(--surface-2)"};border:2px solid ${l.unlocked?col:"var(--border)"}">
-   <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="${l.unlocked?col:"#aeb4bf"}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>
+   <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="${l.unlocked?col:"#aeb4bf"}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:${l.unlocked?col:"#aeb4bf"}">${ic}</svg>
   </div>
   <div style="font-size:9px;font-weight:700;color:${l.unlocked?"var(--text)":"var(--text-muted)"};line-height:1.2">${l.label}</div>
   </div>`;}).join("")}
