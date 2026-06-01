@@ -4067,36 +4067,14 @@ function renderCartaSlide(){
  }).join("");
  generateCartaText(f);
 }
-function cartaFallback(rank,name){
+function cartaTexto(rank,name){
  if(rank===2)return `<p>${name}, subcampeón. Tan cerca que casi puedes oler la gloria... casi.</p><p>Peleaste cada jornada hasta el final y le diste pelea al campeón hasta el último partido. Sin un rival como tú, ganar no tendría ningún mérito — así que, en parte, esa corona también es culpa tuya.</p><p>La plata también brilla. Cabeza en alto, ${name}.</p>`;
  if(rank===3)return `<p>${name}, bronce. Subiste al podio, y eso ya es más de lo que la mayoría puede decir.</p><p>Mientras otros miraban desde la tribuna buscando excusas, tú te ganaste tu lugar entre los tres mejores a punta de pronósticos. No es poca cosa.</p><p>Orgullo de la polla. Bien hecho, ${name}.</p>`;
  return `<p>${name}, ¡lo lograste! Definitivamente tienes la polla más rica del Mundial.</p><p>Mientras tus amigos pronosticaban con la misma precisión que Chiquito Flores, tú tenías más visión que Özil en el 2011. Los demás pueden culpar a los árbitros, a la pelota, al césped — lo que quieran pero tú ganaste y eso no te lo puede quitar nadie.</p><p>Felicidades, campeón. Te lo mereces.</p>`;
 }
-async function generateCartaText(f){
+function generateCartaText(f){
  const cont=document.getElementById("carta-content");
- cont.innerHTML=`<p style="color:var(--text-dim);font-style:italic;text-align:center">Generando carta...</p>`;
- const name=f.name,rank=f.rank;
- let prompt;
- if(rank===1){
-  prompt=`Eres el narrador oficial de la Tu Polla 2026, una polla de pronósticos del Mundial entre amigos.\nEscribe una carta corta (3 párrafos) felicitando a ${name} por ganar.\nReglas ESTRICTAS:\n- El primer párrafo debe ser EXACTAMENTE: "${name}, ¡lo lograste! Definitivamente tienes la polla más rica del Mundial."\n- El segundo párrafo debe ser EXACTAMENTE: "Mientras tus amigos pronosticaban con la misma precisión que Chiquito Flores, tú tenías más visión que Özil en el 2011. Los demás pueden culpar a los árbitros, a la pelota, al césped — lo que quieran pero tú ganaste y eso no te lo puede quitar nadie."\n- El tercer párrafo: cierre corto (1-2 oraciones), sincero y sin chistes. Sin cursilerías.\n- Solo el texto de los 3 párrafos, sin título ni firma. En español.`;
- }else if(rank===2){
-  prompt=`Eres el narrador oficial de la Tu Polla 2026 (pronósticos del Mundial entre amigos).\nEscribe una carta corta (3 párrafos) para ${name}, que quedó SUBCAMPEÓN (2do lugar).\nTono: cálido y con humor ligero futbolero, reconociendo que estuvo cerquísima del título sin ser cruel. Que se sienta orgulloso. Nada cursi.\nSolo el texto de los 3 párrafos, sin título ni firma. En español.`;
- }else{
-  prompt=`Eres el narrador oficial de la Tu Polla 2026 (pronósticos del Mundial entre amigos).\nEscribe una carta corta (3 párrafos) para ${name}, que quedó en TERCER PUESTO (bronce).\nTono: cálido y con humor ligero futbolero, celebrando que subió al podio y peleó hasta el final. Que se sienta orgulloso. Nada cursi.\nSolo el texto de los 3 párrafos, sin título ni firma. En español.`;
- }
- try{
-  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
-  const data=await res.json();
-  const text=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
-  const paras=text.split(/\n+/).filter(p=>p.trim());
-  if(!paras.length)throw new Error("empty");
-  // guard: if user switched slides while awaiting, don't overwrite
-  if(_cartaFinishers[_cartaIdx]&&_cartaFinishers[_cartaIdx].rank!==rank)return;
-  cont.innerHTML=paras.map(p=>`<p>${p}</p>`).join("");
- }catch(e){
-  if(_cartaFinishers[_cartaIdx]&&_cartaFinishers[_cartaIdx].rank!==rank)return;
-  cont.innerHTML=cartaFallback(rank,name);
- }
+ cont.innerHTML=cartaTexto(f.rank,f.name);
 }
 window.closeCarta=function(){document.getElementById("carta-overlay").style.display="none";};
 
