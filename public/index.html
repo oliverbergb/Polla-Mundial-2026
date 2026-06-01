@@ -141,6 +141,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .sortable-item.dragging-live{cursor:grabbing;border-color:var(--primary);box-shadow:0 6px 16px rgba(255,150,0,.25);position:relative;z-index:5}
 .sortable-item.drag-over{border-color:var(--primary)}
 .pos-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#ffffff}
+.logro-badge{transition:transform .15s ease}
+.logro-badge:hover{transform:scale(1.06)}
 
 /* ── ELIM ── */
 .elim-locked-info{background:var(--surface);border-radius:18px;padding:24px;text-align:center;color:var(--text-muted);font-size:13px;font-weight:700;border:2px dashed var(--border);margin-bottom:10px}
@@ -1092,6 +1094,16 @@ function getLogros(uid){
   {id:"campeon", emoji:"🏆", label:"Campeón",           unlocked:campeon},
  ];
 }
+// Iconos por logro (línea, estilo del set nuevo) + color de acento al desbloquear.
+const LOGRO_ICONS={
+ primer:'<path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>',
+ exacto:'<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"></circle>',
+ racha:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.4-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5Z"></path>',
+ perfecta:'<path d="M18 6 7 17l-5-5"></path><path d="m22 10-7.5 7.5L13 16"></path>',
+ lider:'<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z"></path><path d="M5 20h14"></path>',
+ campeon:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>',
+};
+const LOGRO_COLORS={primer:"#16a34a",exacto:"#2563eb",racha:"#f97316",perfecta:"#16a34a",lider:"#2563eb",campeon:"#d97706"};
 
 function getRankedUsers(){
  return Object.entries(allUsers)
@@ -2933,6 +2945,12 @@ function initDragDrop(){
    const ref=insertAfter?over.nextSibling:over;
    if(ref!==tEl&&ref!==tEl.nextSibling)reorder(()=>list.insertBefore(tEl,ref),tEl);
   }
+  // Keep the floating clone's position badge (1°,2°,3°,4°) in sync with where
+  // the held team currently sits, so its ranking updates live while dragging.
+  if(tClone){
+   const live=tEl.querySelector(".pos-num"),cb=tClone.querySelector(".pos-num");
+   if(live&&cb){cb.style.background=live.style.background;cb.textContent=live.textContent;}
+  }
  },{passive:false});
  function endTouch(){
   clearTimeout(tTimer);
@@ -3578,9 +3596,9 @@ function renderChat(){
  return`<div class="chat-wrap">
  <div class="chat-messages" id="chat-messages"><div class="chat-empty">¡Abre la conversación!</div></div>
  <div id="sticker-tray" style="display:none;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px;margin:0 0 8px">
-  <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Stickers</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-   ${STICKERS.map(s=>`<button onclick="sendSticker('${s.id}')" style="background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:6px;cursor:pointer;width:64px;height:64px;display:flex;align-items:center;justify-content:center;transition:transform .12s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''"><img src="${STICKER_SVGS[s.id]}" alt="" style="width:48px;height:48px;object-fit:contain" draggable="false"></button>`).join("")}
+  <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Stickers</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+   ${STICKERS.map(s=>`<button onclick="sendSticker('${s.id}')" style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:8px;cursor:pointer;aspect-ratio:1;width:100%;display:flex;align-items:center;justify-content:center;transition:transform .12s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''"><img src="${STICKER_SVGS[s.id]}" alt="" style="width:100%;height:100%;object-fit:contain" draggable="false"></button>`).join("")}
   </div>
  </div>
  <div class="chat-input-row">
@@ -3592,14 +3610,25 @@ function renderChat(){
  </div>
  </div>`;
 }
+function stickerOutsideClick(e){
+ const t=document.getElementById("sticker-tray");
+ if(!t){document.removeEventListener("click",stickerOutsideClick,true);return;}
+ if(t.contains(e.target))return;            // click inside tray (a sticker)
+ if(e.target.closest&&e.target.closest(".chat-stickers-btn"))return; // toggle button handles itself
+ t.style.display="none";
+ document.removeEventListener("click",stickerOutsideClick,true);
+}
 window.toggleStickerTray=function(){
  const t=document.getElementById("sticker-tray");
  if(!t)return;
  const show=t.style.display==="none"||!t.style.display;
  t.style.display=show?"block":"none";
+ document.removeEventListener("click",stickerOutsideClick,true);
+ if(show)setTimeout(()=>document.addEventListener("click",stickerOutsideClick,true),0);
 };
 window.sendSticker=async function(stickerId){
  if(!currentPollaId||!currentUser)return;
+ document.removeEventListener("click",stickerOutsideClick,true);
  const tray=document.getElementById("sticker-tray");
  if(tray)tray.style.display="none";
  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:currentUser.uid,name:currentUser.name,type:"sticker",stickerId,ts:Date.now()});
@@ -4194,12 +4223,14 @@ window.openBreakdown=function(uid){
  const streak=getStreak(uid);
  const logros=getLogros(uid);
  const logrosHtml=`<div style="margin-top:16px;border-top:1px solid var(--border-soft);padding-top:14px">
- <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Logros</div>
- <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:10px">
- ${logros.map(l=>`<div style="text-align:center;opacity:${l.unlocked?"1":".45"}">
- <div style="width:46px;height:46px;margin:0 auto 4px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:${l.unlocked?"var(--primary-soft)":"var(--surface-2)"};border:2px solid ${l.unlocked?"var(--primary)":"var(--border)"};filter:${l.unlocked?"none":"grayscale(1)"}">${l.unlocked?l.emoji:"🔒"}</div>
- <div style="font-size:9px;font-weight:700;color:var(--text-muted);line-height:1.2">${l.label}</div>
- </div>`).join("")}
+ <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Logros</div>
+ <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px">
+ ${logros.map(l=>{const col=LOGRO_COLORS[l.id]||"#2563eb";const ic=LOGRO_ICONS[l.id]||"";return `<div style="text-align:center">
+  <div class="logro-badge" style="width:52px;height:52px;margin:0 auto 6px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${l.unlocked?col+"1f":"var(--surface-2)"};border:2px solid ${l.unlocked?col:"var(--border)"}">
+   <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="${l.unlocked?col:"#aeb4bf"}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic}</svg>
+  </div>
+  <div style="font-size:9px;font-weight:700;color:${l.unlocked?"var(--text)":"var(--text-muted)"};line-height:1.2">${l.label}</div>
+  </div>`;}).join("")}
  </div>
  </div>`;
  // Max pts: total possible according to rules (not what user predicted)
