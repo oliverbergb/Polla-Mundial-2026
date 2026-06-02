@@ -651,6 +651,17 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
  </div>
 </div>
 
+<!-- MODAL EDITAR PUNTAJES (solo creador, antes del inicio) -->
+<div id="modal-editrules" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeEditRules()">
+ <div class="modal-box">
+ <h2>Editar puntajes</h2>
+ <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">Puedes ajustar los puntajes solo antes de que arranque el torneo. Al guardar se avisa a los participantes en el chat.</div>
+ <div id="editrules-content"></div>
+ <button class="btn" onclick="saveEditRules()" style="margin-top:16px;margin-bottom:10px">Guardar puntajes</button>
+ <button class="modal-close" onclick="closeEditRules()" style="background:var(--border)">Cancelar</button>
+ </div>
+</div>
+
 <!-- MODAL REGLAS -->
 <!-- MODAL LEGAL (Términos / Privacidad) -->
 <div id="modal-legal" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeLegal()">
@@ -934,6 +945,7 @@ let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},ph
 let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,prevRanking={};
 const expandedMatches=new Set();
+const expandedEspeciales=new Set();
 let currentPollaId=null,currentPolla=null,myPollas={};
 const h2hCache={};
 let showOnlyMissing=false;
@@ -1187,6 +1199,10 @@ function localMatchTime(kickoff){
 function localMatchDate(kickoff){
  const d=new Date(kickoff);
  return d.toLocaleDateString([],{day:"numeric",month:"short"});
+}
+// Closing deadline (tournament lockout) shown in the viewer's local timezone.
+function localDeadline(){
+ return `Cierra ${localMatchDate(TOURNAMENT_LOCKOUT)} · ${localMatchTime(TOURNAMENT_LOCKOUT)}`;
 }
 
 // ─── FIREBASE ─────────────────────────────────────────────
@@ -2861,6 +2877,7 @@ function render(){
  <i data-lucide="help-circle" style="width:15px;height:15px;flex-shrink:0"></i> Reglas de la polla
  </button>
  ${isCreator?`<button onclick="openManageParticipants()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="users" style="width:15px;height:15px;flex-shrink:0"></i> Participantes</button>`:''}
+ ${isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT)?`<button onclick="openEditRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="sliders-horizontal" style="width:15px;height:15px;flex-shrink:0"></i> Editar puntajes</button>`:''}
  </div>
  </div>
  <div class="content" id="tab-content"></div>
@@ -2911,7 +2928,7 @@ function renderGrupos(){
  ${incClasif?`<div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
  <div><div style="font-size:12px;color:var(--text-muted)">Pronóstico grupos</div>
  <div style="font-size:28px;font-weight:900;color:#14b8a6">${myTotalPts} pts</div></div>
- <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
+ <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">${localDeadline()}</span></div>
  </div>
  ${groupPills()}
  <div class="card">
@@ -3264,6 +3281,9 @@ window.scoreInputKey=function(e,matchId,side){
   }
  }
 };
+function matchHasAnyPrediction(m){
+ return Object.values(allUsers).some(u=>{const p=((u||{}).predictions||{})[m.id];return p&&p.h!==undefined&&p.h!=="";});
+}
 function spectatorBlock(m, res, opts){
  opts=opts||{};
  const isLiveState=!!opts.live; // true if we're framing as live (potential points)
@@ -3396,6 +3416,12 @@ window.toggleMatchExpand=function(matchId){
  if(navigator.vibrate)navigator.vibrate(6);
  renderTab();
 };
+window.toggleEspecialExpand=function(id){
+ if(expandedEspeciales.has(id))expandedEspeciales.delete(id);
+ else expandedEspeciales.add(id);
+ if(navigator.vibrate)navigator.vibrate(6);
+ renderTab();
+};
 
 function renderMisPronos(){
  const allGroupMatches=MATCHES.filter(m=>m.group===currentGroup);
@@ -3433,7 +3459,8 @@ function renderMisPronos(){
  // - locked && !live && !hasRes → BLOCKED-NOT-PLAYED: no expansion, hide spectator
  const cardState = !locked ? 'open' : (live ? 'live' : (hasRes ? 'finished' : 'blocked'));
  const isExpanded = expandedMatches.has(m.id);
- const showExpandedContent = (cardState==='live' && isExpanded) || (cardState==='finished' && isExpanded);
+ const anyPred = matchHasAnyPrediction(m);
+ const showExpandedContent = isExpanded && anyPred;
  const canTapExpand = cardState==='live' || cardState==='finished';
 
  // Countdown badge for missing predictions
@@ -3466,6 +3493,11 @@ function renderMisPronos(){
   ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" style="width:100%;margin-top:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif">${isExpanded?'Ocultar ▲':'Ver más ▼'}</button>`
   : '';
 
+ // Morbo: before kickoff (open/blocked) let anyone peek at others' predictions when at least one exists
+ const morboToggleBtn = ((cardState==='open'||cardState==='blocked') && anyPred)
+  ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" style="width:100%;margin-top:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px">${isExpanded?'Ocultar pronósticos ▲':'Ver pronósticos ▼'}</button>`
+  : '';
+
  // What goes INSIDE when expanded
  const expandedInside = showExpandedContent
   ? `<div>${spectatorBlock(m,res,{live:cardState==='live'})}${isPostLockout?collectiveBar(m):''}</div>`
@@ -3484,6 +3516,7 @@ function renderMisPronos(){
  ${h2hHTML(m.id,m.home,m.away)}
  ${liveHint}
  ${expandToggleBtn}
+ ${morboToggleBtn}
  ${expandedInside}
  </div>`;
  }).join("")}`;
@@ -3609,7 +3642,7 @@ function renderEspeciales(){
  <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
  <div><div style="font-size:12px;color:var(--text-muted)">Mis puntos especiales</div>
  <div style="font-size:28px;font-weight:900;color:#f59e0b">${espPts} pts</div></div>
- <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">Cierra 11 Jun · 14:00 Lima</span></div>
+ <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">${localDeadline()}</span></div>
  </div>
  ${ESPECIALES_FIELDS.map(f=>{
  const pred=myEsp[f.id]||"",real=(adminEsp[f.id]||"").trim();
@@ -3636,6 +3669,20 @@ function renderEspeciales(){
  }
  ${real?`<div style="font-size:12px;color:var(--text-muted);text-align:right;min-width:80px">Real:<br/><strong style="color:var(--text)">${real}</strong></div>`:""}
  </div>
+ ${(()=>{
+  const answers=Object.entries(allUsers).map(([uid,u])=>{const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v}:null;}).filter(Boolean);
+  if(!answers.length)return "";
+  const expE=expandedEspeciales.has(f.id);
+  return `<button onclick="toggleEspecialExpand('${f.id}')" style="width:100%;margin-top:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px">${expE?'Ocultar pronósticos ▲':'Ver pronósticos ▼'}</button>`+
+   (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
+     const isMe=a.uid===currentUser.uid;
+     const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
+     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px">
+      <span style="${isMe?'color:var(--primary);font-weight:900':'color:var(--text);font-weight:700'}">${isMe?'Tú':escHtml(a.name||'?')}</span>
+      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text-muted)'}">${escHtml(a.val)}</span>
+     </div>`;
+    }).join('')}</div>`:"");
+ })()}
  </div>`;
  }).join("")}
  ${currentUser.name.toUpperCase()===ADMIN_NAME.toUpperCase()?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
@@ -4177,6 +4224,7 @@ window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${poll
 window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).remove();showToast("Fase bloqueada ");};
 window.deleteUser=async function(uid,name){
  if(!isAdmin)return;
+ if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; ya no se pueden eliminar participantes.","#ef4444",4000);return;}
  showConfirmModal(
  "",`Eliminar a "${name}"`,
  "Se borrarán todos sus pronósticos en esta polla. Esta acción no se puede deshacer.",
@@ -4190,15 +4238,63 @@ window.openManageParticipants=function(){
  document.getElementById("modal-participants").style.display="flex";
 };
 window.closeManageParticipants=function(){document.getElementById("modal-participants").style.display="none";};
+window.openEditRules=function(){
+ if(!currentPolla||currentPolla.creadorUid!==currentUser.uid)return;
+ if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; los puntajes están bloqueados.","#ef4444",4000);return;}
+ const r=Object.assign({},DEFAULT_RULES,currentPolla.rules||{});
+ const row=(id,label,val)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-soft)">
+  <span style="font-size:13px;color:var(--text)">${label}</span>
+  <div style="display:flex;align-items:center;gap:6px">
+  <input type="number" id="erule_${id}" value="${val}" min="1" max="20" style="width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif"/>
+  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span></div></div>`;
+ const hdr=t=>`<div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin:14px 0 4px">${t}</div>`;
+ let html=hdr("Fase de grupos")+
+  row("ptsExactoGrupos","Marcador exacto",r.ptsExactoGrupos)+
+  row("ptsGanadorDifGrupos","Ganador + misma diferencia",r.ptsGanadorDifGrupos)+
+  row("ptsSoloGanadorGrupos","Solo ganador o empate",r.ptsSoloGanadorGrupos)+
+  hdr("Eliminatorias")+
+  row("ptsExactoElim","Marcador exacto + clasificado",r.ptsExactoElim)+
+  row("ptsExactoSinClasif","Exacto, clasificado incorrecto",r.ptsExactoSinClasif)+
+  row("ptsSoloClasif","Solo quién clasifica",r.ptsSoloClasif);
+ if(r.incluirClasificacion!==false)html+=hdr("Clasificación de grupos")+row("ptsPosGrupo","Por equipo en posición exacta",r.ptsPosGrupo??2);
+ if(r.incluirEspeciales!==false)html+=hdr("Especiales")+
+  row("espCampeon","Campeón",r.espCampeon)+
+  row("espBotaOro","Bota de Oro",r.espBotaOro)+
+  row("espGuanteOro","Guante de Oro",r.espGuanteOro)+
+  row("espMejorJugador","Mejor Jugador",r.espMejorJugador);
+ document.getElementById("editrules-content").innerHTML=html;
+ document.getElementById("modal-editrules").style.display="flex";
+};
+window.closeEditRules=function(){document.getElementById("modal-editrules").style.display="none";};
+window.saveEditRules=async function(){
+ if(!currentPolla||currentPolla.creadorUid!==currentUser.uid)return;
+ if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; los puntajes están bloqueados.","#ef4444",4000);closeEditRules();return;}
+ const r=Object.assign({},DEFAULT_RULES,currentPolla.rules||{});
+ const ids=["ptsExactoGrupos","ptsGanadorDifGrupos","ptsSoloGanadorGrupos","ptsExactoElim","ptsExactoSinClasif","ptsSoloClasif"];
+ if(r.incluirClasificacion!==false)ids.push("ptsPosGrupo");
+ if(r.incluirEspeciales!==false)ids.push("espCampeon","espBotaOro","espGuanteOro","espMejorJugador");
+ const updates={};
+ ids.forEach(id=>{const el=document.getElementById("erule_"+id);if(!el)return;let v=parseInt(el.value);if(isNaN(v)||v<1)v=1;if(v>20)v=20;updates[`pollas/${currentPollaId}/rules/${id}`]=v;});
+ try{
+  await db.ref().update(updates);
+  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html:`⚙️ <b>${escHtml(currentUser.name)}</b> actualizó los puntajes de la polla. Échale un ojo a las reglas.`,ts:Date.now()});
+  currentPolla.rules=currentPolla.rules||{};
+  Object.keys(updates).forEach(p=>{currentPolla.rules[p.split("/").pop()]=updates[p];});
+  closeEditRules();
+  showToast("Puntajes actualizados ");
+  render();
+ }catch(e){showToast("No se pudo guardar. Intenta de nuevo.","#ef4444",4000);}
+};
 function renderParticipantsList(){
  const box=document.getElementById("participants-content");
  if(!box)return;
+ const canDelete=new Date()<new Date(TOURNAMENT_LOCKOUT);
  const rows=Object.entries(allUsers).sort((a,b)=>(a[1].name||"").localeCompare(b[1].name||""));
- box.innerHTML=rows.map(([uid,u])=>`
+ box.innerHTML=(canDelete?"":`<div style="background:var(--surface-2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--text-muted);line-height:1.5">El torneo ya empezó, así que ya no se pueden eliminar participantes.</div>`)+rows.map(([uid,u])=>`
  <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
  <div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;background:${avatarColor(u.name)};color:#fff;flex-shrink:0">${avatarInitial(u.name)}</div>
  <div style="flex:1;min-width:0"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(u.name)}${uid===currentUser.uid?` <span style="font-size:10px;color:var(--primary)">(tú)</span>`:""}</div></div>
- ${uid!==currentUser.uid?`<button onclick="deleteUser('${uid}','${(u.name||'').replace(/'/g,"\\'")}')" style="background:var(--danger-soft);color:var(--danger-text);border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;flex-shrink:0">Eliminar</button>`:`<span style="font-size:11px;color:var(--text-dim);flex-shrink:0">eres tú</span>`}
+ ${uid!==currentUser.uid&&canDelete?`<button onclick="deleteUser('${uid}','${(u.name||'').replace(/'/g,"\\'")}')" style="background:var(--danger-soft);color:var(--danger-text);border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;flex-shrink:0">Eliminar</button>`:uid===currentUser.uid?`<span style="font-size:11px;color:var(--text-dim);flex-shrink:0">eres tú</span>`:""}
  </div>`).join("");
 }
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";track('tab_viewed',{tab:t});render();};
@@ -4559,6 +4655,62 @@ window.openBreakdown=function(uid){
 window.closeBreakdown=function(){document.getElementById("breakdown-overlay").style.display="none";};
 
 // ─── HEAD-TO-HEAD ─────────────────────────────────────────
+// ─── RANK-OVER-TIME (for duel chart) ──────────────────────
+function _ymdLocal(k){const d=new Date(k);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function buildRankTimeline(meUid,oppUid){
+ const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+ const played=MATCHES.filter(m=>{const res=allResults[m.id];return res&&res.h!==undefined&&res.h!=="";}).map(m=>({m,date:_ymdLocal(m.kickoff)}));
+ if(!played.length)return [];
+ const uids=Object.keys(allUsers);
+ if(uids.length<2)return [];
+ const dates=[...new Set(played.map(p=>p.date))].sort();
+ return dates.map(d=>{
+  const pts={};uids.forEach(u=>pts[u]=0);
+  played.forEach(({m,date})=>{
+   if(date>d)return;
+   const res=allResults[m.id];
+   uids.forEach(u=>{
+    const usr=allUsers[u]||{};
+    const pred=m.phase==="groups"?(usr.predictions||{})[m.id]:(usr.elimPredictions||{})[m.id];
+    if(!pred||pred.h===undefined||pred.h==="")return;
+    pts[u]+=(m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r))||0;
+   });
+  });
+  const ranked=uids.slice().sort((a,b)=>pts[b]-pts[a]);
+  const rankOf={};ranked.forEach((u,i)=>rankOf[u]=i+1);
+  const dd=new Date(d+"T12:00:00");
+  return {label:dd.toLocaleDateString([],{day:"numeric",month:"short"}),myRank:rankOf[meUid],oppRank:rankOf[oppUid],n:uids.length};
+ });
+}
+function renderRankChart(series,themName){
+ if(!series.length)return `<div style="background:var(--surface-2);border-radius:12px;padding:18px;margin-bottom:14px;text-align:center;color:var(--text-muted);font-size:12px">El gráfico de puestos se llenará cuando se jueguen partidos.</div>`;
+ const n=Math.max(2,series[0].n);
+ const W=300,H=120,padL=24,padR=12,padT=14,padB=22;
+ const innerW=W-padL-padR,innerH=H-padT-padB;
+ const xs=series.length>1?i=>padL+innerW*i/(series.length-1):()=>padL+innerW/2;
+ const y=rank=>padT+innerH*(rank-1)/(n-1); // rank 1 → top
+ const lineFor=(key,color)=>{
+  const pts=series.map((s,i)=>`${xs(i).toFixed(1)},${y(s[key]).toFixed(1)}`).join(" ");
+  const dots=series.map((s,i)=>`<circle cx="${xs(i).toFixed(1)}" cy="${y(s[key]).toFixed(1)}" r="3" fill="${color}"/>`).join("");
+  return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}`;
+ };
+ const yLabels=`<text x="${padL-6}" y="${(y(1)+3).toFixed(1)}" font-size="9" fill="var(--text-dim)" text-anchor="end">1°</text><text x="${padL-6}" y="${(y(n)+3).toFixed(1)}" font-size="9" fill="var(--text-dim)" text-anchor="end">${n}°</text>`;
+ const xLabels=`<text x="${xs(0).toFixed(1)}" y="${H-6}" font-size="9" fill="var(--text-dim)" text-anchor="start">${series[0].label}</text>`+(series.length>1?`<text x="${xs(series.length-1).toFixed(1)}" y="${H-6}" font-size="9" fill="var(--text-dim)" text-anchor="end">${series[series.length-1].label}</text>`:"");
+ return `<div style="background:var(--surface-2);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+  <div style="font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Evolución de puestos</div>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+   <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${(padT+innerH).toFixed(1)}" stroke="var(--border)" stroke-width="1"/>
+   ${yLabels}${xLabels}
+   ${lineFor("oppRank","var(--text-dim)")}
+   ${lineFor("myRank","var(--primary)")}
+  </svg>
+  <div style="display:flex;gap:16px;justify-content:center;margin-top:6px;font-size:11px;font-weight:700">
+   <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:3px;background:var(--primary);border-radius:2px;display:inline-block"></span>Tú</span>
+   <span style="display:flex;align-items:center;gap:5px;color:var(--text-muted)"><span style="width:12px;height:3px;background:var(--text-dim);border-radius:2px;display:inline-block"></span>${escHtml(themName)}</span>
+  </div>
+ </div>`;
+}
+
 window.openH2H=function(opponentUid){
  const opp=allUsers[opponentUid];
  if(!opp||!currentUser)return;
@@ -4618,7 +4770,6 @@ window.openH2H=function(opponentUid){
  document.getElementById("h2h-content").innerHTML=`
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
   <button onclick="closeH2H();openBreakdown('${opponentUid}')" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
-  <div style="font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase">Duelo</div>
   <button onclick="closeH2H()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0;width:28px;height:28px">✕</button>
  </div>
  <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:18px">
@@ -4637,23 +4788,21 @@ window.openH2H=function(opponentUid){
   </div>
  </div>
 
- <div style="background:var(--surface-2);border-radius:12px;padding:12px 16px;margin-bottom:14px">
-  ${[
-   ['Marcadores exactos',myStats.exactos,themStats.exactos],
-   ['Ganadores acertados',myStats.ganadores,themStats.ganadores],
-   ['Racha actual',myStats.streak,themStats.streak],
-  ].map(([label,my,their])=>{
-   const leader=my>their?'me':my<their?'them':null;
-   return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-    <span style="font-size:13px;color:var(--text)">${label}</span>
-    <span style="display:flex;align-items:center;gap:14px;font-family:monospace;font-weight:900">
-     <span style="color:${leader==='me'?'var(--primary)':'var(--text)'};font-size:15px;min-width:24px;text-align:right">${my}</span>
-     <span style="color:var(--text-muted);font-size:11px">vs</span>
-     <span style="color:${leader==='them'?'var(--primary)':'var(--text)'};font-size:15px;min-width:24px">${their}</span>
-    </span>
-   </div>`;
-  }).join("")}
+ <div style="background:var(--surface-2);border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;gap:10px">
+  <div style="flex:1;text-align:center">
+   <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Diferencia</div>
+   <div style="font-size:24px;font-weight:900;color:${myStats.total===themStats.total?'var(--text)':'var(--primary)'}">${Math.abs(myStats.total-themStats.total)} pts</div>
+   <div style="font-size:11px;color:var(--text-muted)">${myStats.total>themStats.total?'Vas arriba':myStats.total<themStats.total?'Vas abajo':'Empate'}</div>
+  </div>
+  <div style="width:1px;background:var(--border)"></div>
+  <div style="flex:1;text-align:center">
+   <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Mano a mano</div>
+   <div style="font-size:24px;font-weight:900;color:var(--text)"><span style="color:${myWins>theirWins?'var(--primary)':'var(--text)'}">${myWins}</span> - <span style="color:${theirWins>myWins?'var(--primary)':'var(--text)'}">${theirWins}</span></div>
+   <div style="font-size:11px;color:var(--text-muted)">${wonRows.length===0?'Sin definir':myWins>theirWins?'Le ganas':myWins<theirWins?'Te gana':'Parejos'}</div>
+  </div>
  </div>
+
+ ${renderRankChart(buildRankTimeline(currentUser.uid,opponentUid),themName)}
 
  ${differMatches.length>0?`
  <div style="margin-bottom:14px">
