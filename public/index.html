@@ -255,6 +255,10 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .reaction-btn{font-size:22px;background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:10px;transition:transform .12s;line-height:1}
 .reaction-btn:hover,.reaction-btn:active{transform:scale(1.35);background:var(--surface-3)}
 .pred-reaction-badge{font-size:12px;display:inline-flex;align-items:center;gap:2px;background:var(--surface-3);border:1px solid var(--border-soft);border-radius:8px;padding:1px 5px;cursor:default}
+.rxn-trigger{opacity:0;background:var(--surface-2);border:1px solid var(--border-soft);border-radius:50%;width:24px;height:24px;font-size:13px;line-height:1;padding:0;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;transition:opacity .12s,transform .12s}
+.rxn-trigger:hover{transform:scale(1.12)}
+.spectator-pred:hover .rxn-trigger{opacity:1}
+@media (hover:none){.rxn-trigger{display:none}}
 
 /* ── BRACKET VERTICAL ── */
 .bracket-outer{padding:4px 0 8px}
@@ -657,7 +661,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
  <h2>Editar puntajes</h2>
  <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">Puedes ajustar los puntajes solo antes de que arranque el torneo. Al guardar se avisa a los participantes en el chat.</div>
  <div id="editrules-content"></div>
- <button class="btn" onclick="saveEditRules()" style="margin-top:16px;margin-bottom:10px">Guardar puntajes</button>
+ <button class="btn" onclick="saveEditRules()" style="width:100%;max-width:100%;margin-top:16px;margin-bottom:10px">Guardar puntajes</button>
  <button class="modal-close" onclick="closeEditRules()" style="background:var(--border)">Cancelar</button>
  </div>
 </div>
@@ -701,7 +705,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 </div>
 
 <!-- BREAKDOWN MODAL (ranking) -->
-<div id="breakdown-overlay" style="display:none" class="breakdown-overlay" onclick="if(event.target===this)closeBreakdown()">
+<div id="breakdown-overlay" style="display:none" class="breakdown-overlay" onclick="if(event.target===this&&Date.now()-(window.breakdownGuardTs||0)>350)closeBreakdown()">
  <div class="breakdown-sheet">
  <div class="breakdown-handle"></div>
  <div id="breakdown-content"></div>
@@ -717,7 +721,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 </div>
 
 <!-- HEAD TO HEAD MODAL -->
-<div id="h2h-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1200;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeH2H()">
+<div id="h2h-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1200;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this&&Date.now()-(window.h2hGuardTs||0)>350)closeH2H()">
  <div style="background:var(--surface);border-radius:18px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;border:2px solid var(--border)">
   <div id="h2h-content" style="padding:20px"></div>
  </div>
@@ -785,7 +789,7 @@ const GROUPS={
  L:["Inglaterra","Croacia","Ghana","Panamá"],
 };
 const GROUP_COLORS={A:"#ef4444",B:"#f97316",C:"#d97706",D:"#22c55e",E:"#14b8a6",F:"#2563eb",G:"#8b5cf6",H:"#ec4899",I:"#f43f5e",J:"#10b981",K:"#6366f1",L:"#0ea5e9"};
-const FLAG_ISO={"México": "mx", "Sudáfrica": "za", "Corea del Sur": "kr", "Rep. Checa": "cz", "Brasil": "br", "Marruecos": "ma", "Haití": "ht", "Escocia": "gb-sct", "Canadá": "ca", "Qatar": "qa", "Suiza": "ch", "Bosnia": "ba", "Estados Unidos": "us", "Paraguay": "py", "Australia": "au", "Turquía": "tr", "Alemania": "de", "Costa de Marfil": "ci", "Ecuador": "ec", "Curazao": "cw", "Países Bajos": "nl", "Japón": "jp", "Túnez": "tn", "Suecia": "se", "Bélgica": "be", "Egipto": "eg", "Irán": "ir", "Nueva Zelanda": "nz", "España": "es", "Cabo Verde": "cv", "Arabia Saudita": "sa", "Uruguay": "uy", "Francia": "fr", "Senegal": "sn", "Noruega": "no", "Irak": "iq", "Argentina": "ar", "Argelia": "dz", "Austria": "at", "Jordania": "jo", "Portugal": "pt", "Uzbekistán": "uz", "Colombia": "co", "RD Congo": "cd", "Inglaterra": "gb-eng", "Croacia": "hr", "Ghana": "gh", "Panamá": "pa"};
+const FLAG_ISO={"México": "mx", "Sudáfrica": "za", "Corea del Sur": "kr", "Rep. Checa": "cz", "Brasil": "br", "Marruecos": "ma", "Haití": "ht", "Escocia": "gb-sct", "Canadá": "ca", "Qatar": "qa", "Suiza": "ch", "Bosnia": "ba", "Estados Unidos": "us", "Paraguay": "py", "Australia": "au", "Turquía": "tr", "Alemania": "de", "Costa de Marfil": "ci", "Ecuador": "ec", "Curazao": "cw", "Países Bajos": "nl", "Japón": "jp", "Túnez": "tn", "Suecia": "se", "Bélgica": "be", "Egipto": "eg", "Irán": "ir", "Nueva Zelanda": "nz", "España": "es", "Cabo Verde": "cv", "Arabia Saudita": "sa", "Uruguay": "uy", "Francia": "fr", "Senegal": "sn", "Noruega": "no", "Irak": "iq", "Argentina": "ar", "Argelia": "dz", "Austria": "at", "Jordania": "jo", "Portugal": "pt", "Uzbekistán": "uz", "Colombia": "co", "RD Congo": "cd", "Inglaterra": "gb-eng", "Croacia": "hr", "Ghana": "gh", "Panamá": "pa", "Serbia": "rs"};
 const flag=t=>{const c=FLAG_ISO[t];return c?`<img src="https://flagcdn.com/${c}.svg" alt="" loading="lazy" style="width:1.45em;height:1.05em;object-fit:cover;border-radius:3px;vertical-align:-2px;box-shadow:0 0 0 1px rgba(0,0,0,.12)"/>`:"";};
 const PHASE_LABELS={groups:"Grupos",r32:"16avos",r16:"Octavos",qf:"Cuartos",sf:"Semis",third:"3er Puesto",final:"Final"};
 const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"third",label:"3er Puesto"},{id:"final",label:"Final"}];
@@ -3282,7 +3286,7 @@ window.scoreInputKey=function(e,matchId,side){
  }
 };
 function matchHasAnyPrediction(m){
- return Object.values(allUsers).some(u=>{const p=((u||{}).predictions||{})[m.id];return p&&p.h!==undefined&&p.h!=="";});
+ return Object.entries(allUsers).some(([uid,u])=>{if(uid===currentUser.uid)return false;const p=((u||{}).predictions||{})[m.id];return p&&p.h!==undefined&&p.h!==""&&p.a!==undefined&&p.a!=="";});
 }
 function spectatorBlock(m, res, opts){
  opts=opts||{};
@@ -3306,10 +3310,11 @@ function spectatorBlock(m, res, opts){
 
  const matchReactions=allReactions[m.id]||{};
 
- // Build entries with predictions and points, then sort by points descending
+ // Build entries with predictions and points (others only; complete predictions only)
  const entries = allEntries.map(([uid,user])=>{
+  if(uid===currentUser.uid) return null;
   const pred = (user.predictions||{})[m.id];
-  if(!pred||pred.h===undefined||pred.h==='') return null;
+  if(!pred||pred.h===undefined||pred.h===''||pred.a===undefined||pred.a==='') return null;
   const pts = hasRes ? calcMatchPoints(pred, res) : null;
   return {uid,user,pred,pts};
  }).filter(Boolean);
@@ -3321,39 +3326,32 @@ function spectatorBlock(m, res, opts){
  }
 
  const rows = entries.map(({uid,user,pred,pts})=>{
- const isMe=uid===currentUser.uid;
- // Reactions only on others' picks
- let rxnBadges='';
- if(!isMe){
-  const predRxns=matchReactions[uid]||{};
-  const rxnByEmoji={};
-  Object.entries(predRxns).forEach(([reactorUid,e])=>{
-   if(!rxnByEmoji[e])rxnByEmoji[e]=[];
-   rxnByEmoji[e].push(reactorUid);
-  });
-  const myRxn=predRxns[currentUser.uid]||null;
-  rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{
-   const c=uids.length;
-   return `<span class="pred-reaction-badge" data-match="${m.id}" data-uid="${uid}" data-emoji="${e}" onclick="event.stopPropagation();showWhoReacted(${m.id},'${uid}','${e}',event)" style="cursor:pointer;${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`;
-  }).join('');
- }
- const nameStyle=isMe?'color:var(--primary);font-weight:900':'color:var(--text);font-weight:700';
- // Add inline +N pts indicator after the score
- const ptsInline=(pts!==null&&pts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(pts)};margin-left:4px">${pts>0?'+'+pts:'0'}</span>`:'';
- return `<div class="spectator-pred" data-match="${m.id}" data-uid="${uid}" style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);position:relative">
- <span style="font-size:12px;${nameStyle}">${isMe?'Tú':(user.name||'?')}</span>
- <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
- ${rxnBadges}
- <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)}">${pred.h} — ${pred.a}</span>
- ${ptsInline}
- ${badge(pts)}
- </div>
+ const color=avatarColor(user.name);
+ const predRxns=matchReactions[uid]||{};
+ const rxnByEmoji={};
+ Object.entries(predRxns).forEach(([reactorUid,e])=>{(rxnByEmoji[e]=rxnByEmoji[e]||[]).push(reactorUid);});
+ const myRxn=predRxns[currentUser.uid]||null;
+ const rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{
+  const c=uids.length;
+  return `<span class="pred-reaction-badge" data-match="${m.id}" data-uid="${uid}" data-emoji="${e}" onclick="event.stopPropagation();showWhoReacted(${m.id},'${uid}','${e}',event)" style="cursor:pointer;${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`;
+ }).join('');
+ const ptsInline=(pts!==null&&pts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(pts)}">${pts>0?'+'+pts:'0'}</span>`:'';
+ return `<div class="spectator-pred" data-match="${m.id}" data-uid="${uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);position:relative">
+ <span style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;font-weight:800;color:${color}">
+  <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span>
+  <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(user.name||'?')}</span>
+ </span>
+ <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)};text-align:center;white-space:nowrap">${pred.h} — ${pred.a}</span>
+ <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+  ${rxnBadges}${ptsInline}${badge(pts)}
+  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar">🙂</button>
+ </span>
  </div>`;
  }).join('');
 
  if(!rows) return '';
- const titleText=isLiveState?'Ranking en vivo del partido':(hasRes?'Pronósticos del grupo':'Pronósticos del grupo');
- const hint=isLiveState?'<span style="font-size:9px;font-weight:400;color:var(--text-dim);text-transform:none;letter-spacing:0">puntos si termina así</span>':'<span style="font-size:9px;font-weight:400;color:var(--text-dim);text-transform:none;letter-spacing:0">mantén presionado para reaccionar</span>';
+ const titleText=isLiveState?'Ranking en vivo del partido':'Pronósticos del grupo';
+ const hint=isLiveState?'<span style="font-size:9px;font-weight:400;color:var(--text-dim);text-transform:none;letter-spacing:0">puntos si termina así</span>':'';
  return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
  <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">${titleText} ${hint}</div>
  ${rows}
@@ -3495,7 +3493,7 @@ function renderMisPronos(){
 
  // Morbo: before kickoff (open/blocked) let anyone peek at others' predictions when at least one exists
  const morboToggleBtn = ((cardState==='open'||cardState==='blocked') && anyPred)
-  ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" style="width:100%;margin-top:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px">${isExpanded?'Ocultar pronósticos ▲':'Ver pronósticos ▼'}</button>`
+  ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" aria-label="Ver pronósticos" style="display:block;margin:6px auto 0;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 12px">${isExpanded?'▴':'▾'}</button>`
   : '';
 
  // What goes INSIDE when expanded
@@ -3670,16 +3668,16 @@ function renderEspeciales(){
  ${real?`<div style="font-size:12px;color:var(--text-muted);text-align:right;min-width:80px">Real:<br/><strong style="color:var(--text)">${real}</strong></div>`:""}
  </div>
  ${(()=>{
-  const answers=Object.entries(allUsers).map(([uid,u])=>{const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v}:null;}).filter(Boolean);
+  const answers=Object.entries(allUsers).map(([uid,u])=>{if(uid===currentUser.uid)return null;const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v}:null;}).filter(Boolean);
   if(!answers.length)return "";
   const expE=expandedEspeciales.has(f.id);
-  return `<button onclick="toggleEspecialExpand('${f.id}')" style="width:100%;margin-top:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px">${expE?'Ocultar pronósticos ▲':'Ver pronósticos ▼'}</button>`+
+  return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:8px auto 0;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 12px">${expE?'▴':'▾'}</button>`+
    (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
-     const isMe=a.uid===currentUser.uid;
+     const color=avatarColor(a.name);
      const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
-     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px">
-      <span style="${isMe?'color:var(--primary);font-weight:900':'color:var(--text);font-weight:700'}">${isMe?'Tú':escHtml(a.name||'?')}</span>
-      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text-muted)'}">${escHtml(a.val)}</span>
+     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;font-size:12px">
+      <span style="display:flex;align-items:center;gap:6px;min-width:0;font-weight:800;color:${color}"><span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(a.name||'?')}</span></span>
+      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text-muted)'};text-align:right">${escHtml(a.val)}</span>
      </div>`;
     }).join('')}</div>`:"");
  })()}
@@ -4269,15 +4267,18 @@ window.closeEditRules=function(){document.getElementById("modal-editrules").styl
 window.saveEditRules=async function(){
  if(!currentPolla||currentPolla.creadorUid!==currentUser.uid)return;
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; los puntajes están bloqueados.","#ef4444",4000);closeEditRules();return;}
- const r=Object.assign({},DEFAULT_RULES,currentPolla.rules||{});
+ const RULE_LABELS={ptsExactoGrupos:"Marcador exacto (grupos)",ptsGanadorDifGrupos:"Ganador + diferencia (grupos)",ptsSoloGanadorGrupos:"Solo ganador (grupos)",ptsExactoElim:"Marcador exacto + clasificado (elim.)",ptsExactoSinClasif:"Exacto, clasificado incorrecto (elim.)",ptsSoloClasif:"Solo quién clasifica (elim.)",ptsPosGrupo:"Por equipo en posición exacta",espCampeon:"Campeón",espBotaOro:"Bota de Oro",espGuanteOro:"Guante de Oro",espMejorJugador:"Mejor Jugador"};
+ const before=Object.assign({},DEFAULT_RULES,currentPolla.rules||{});
  const ids=["ptsExactoGrupos","ptsGanadorDifGrupos","ptsSoloGanadorGrupos","ptsExactoElim","ptsExactoSinClasif","ptsSoloClasif"];
- if(r.incluirClasificacion!==false)ids.push("ptsPosGrupo");
- if(r.incluirEspeciales!==false)ids.push("espCampeon","espBotaOro","espGuanteOro","espMejorJugador");
- const updates={};
- ids.forEach(id=>{const el=document.getElementById("erule_"+id);if(!el)return;let v=parseInt(el.value);if(isNaN(v)||v<1)v=1;if(v>20)v=20;updates[`pollas/${currentPollaId}/rules/${id}`]=v;});
+ if(before.incluirClasificacion!==false)ids.push("ptsPosGrupo");
+ if(before.incluirEspeciales!==false)ids.push("espCampeon","espBotaOro","espGuanteOro","espMejorJugador");
+ const updates={};const changes=[];
+ ids.forEach(id=>{const el=document.getElementById("erule_"+id);if(!el)return;let v=parseInt(el.value);if(isNaN(v)||v<1)v=1;if(v>20)v=20;const old=before[id];if(v!==old){updates[`pollas/${currentPollaId}/rules/${id}`]=v;changes.push(`${RULE_LABELS[id]||id}: ${old} → ${v}`);}});
+ if(!changes.length){closeEditRules();showToast("No cambiaste ningún puntaje.");return;}
  try{
   await db.ref().update(updates);
-  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html:`⚙️ <b>${escHtml(currentUser.name)}</b> actualizó los puntajes de la polla. Échale un ojo a las reglas.`,ts:Date.now()});
+  const html=`<b>${escHtml(currentUser.name)}</b> actualizó los puntajes:<br>${changes.map(c=>"• "+escHtml(c)).join("<br>")}<br>Revisa las reglas de la polla.`;
+  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html,ts:Date.now()});
   currentPolla.rules=currentPolla.rules||{};
   Object.keys(updates).forEach(p=>{currentPolla.rules[p.split("/").pop()]=updates[p];});
   closeEditRules();
@@ -4647,10 +4648,11 @@ window.openBreakdown=function(uid){
  <span class="rb-total">${total} pts</span>
  </div>
  ${logrosHtml}
- ${!isMine?`<button onclick="closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif">Ver duelo Tú vs ${escHtml(u.name)} →</button>`:''}
+ ${!isMine?`<button onclick="event.stopPropagation();closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif">Ver duelo Tú vs ${escHtml(u.name)} →</button>`:''}
  <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px">Cerrar</button>
  `;
  document.getElementById("breakdown-overlay").style.display="flex";
+ window.breakdownGuardTs=Date.now();
 };
 window.closeBreakdown=function(){document.getElementById("breakdown-overlay").style.display="none";};
 
@@ -4769,7 +4771,7 @@ window.openH2H=function(opponentUid){
  const themName=opp.name;
  document.getElementById("h2h-content").innerHTML=`
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-  <button onclick="closeH2H();openBreakdown('${opponentUid}')" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
+  <button onclick="event.stopPropagation();closeH2H();openBreakdown('${opponentUid}')" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
   <button onclick="closeH2H()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0;width:28px;height:28px">✕</button>
  </div>
  <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:18px">
@@ -4830,6 +4832,7 @@ window.openH2H=function(opponentUid){
  <button onclick="closeH2H()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Nunito',sans-serif">Cerrar</button>
  `;
  document.getElementById("h2h-overlay").style.display="flex";
+ window.h2hGuardTs=Date.now();
 };
 window.closeH2H=function(){document.getElementById("h2h-overlay").style.display="none";};
 
@@ -4964,6 +4967,7 @@ function rxnTouchEnd(){
  clearTimeout(_rxnTimer);
  _rxnEl=null;
 }
+window.rxnShowFromTrigger=function(btn){const el=btn.closest(".spectator-pred");if(el)rxnShow(el);};
 function rxnShow(el){
  rxnCloseFloat();
  const matchId=parseInt(el.dataset.match);
@@ -4982,7 +4986,7 @@ function rxnShow(el){
  float.appendChild(btn);
  });
  document.body.appendChild(float);
- setTimeout(()=>document.addEventListener("touchstart",rxnCloseFloat,{once:true,passive:true}),50);
+ setTimeout(()=>{document.addEventListener("touchstart",rxnCloseFloat,{once:true,passive:true});document.addEventListener("click",rxnCloseFloat,{once:true});},50);
 }
 function rxnCloseFloat(){
  const f=document.getElementById("rxn-float");
