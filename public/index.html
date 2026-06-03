@@ -254,11 +254,17 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 .reaction-btn{font-size:22px;background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:10px;transition:transform .12s;line-height:1}
 .reaction-btn:hover,.reaction-btn:active{transform:scale(1.35);background:var(--surface-3)}
-.pred-reaction-badge{font-size:12px;display:inline-flex;align-items:center;gap:2px;background:var(--surface-3);border:1px solid var(--border-soft);border-radius:8px;padding:1px 5px;cursor:default}
-.rxn-trigger{opacity:0;background:var(--surface-2);border:1px solid var(--border-soft);border-radius:50%;width:24px;height:24px;font-size:13px;line-height:1;padding:0;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;transition:opacity .12s,transform .12s}
-.rxn-trigger:hover{transform:scale(1.12)}
-.spectator-pred:hover .rxn-trigger{opacity:1}
-@media (hover:none){.rxn-trigger{display:none}}
+.pred-reaction-badge{font-size:12px;display:inline-flex;align-items:center;gap:2px;background:var(--surface-3);border:1px solid var(--border-soft);border-radius:10px;padding:2px 6px;cursor:pointer;font-weight:800;line-height:1.2}
+.rxn-trigger{opacity:.55;background:var(--surface-2);border:1px solid var(--border-soft);border-radius:50%;width:26px;height:26px;padding:0;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);transition:opacity .12s,transform .12s,color .12s}
+.rxn-trigger:hover,.rxn-trigger:active{opacity:1;transform:scale(1.12);color:var(--primary)}
+.spectator-pred:hover .rxn-trigger,.esp-pred-row:hover .rxn-trigger{opacity:1}
+.reaction-btn-more{font-size:16px;background:var(--surface-2);border:none;cursor:pointer;padding:6px 9px;border-radius:10px;transition:transform .12s,background .12s;line-height:1;color:var(--text-muted);font-weight:900;display:flex;align-items:center;justify-content:center}
+.reaction-btn-more:hover{transform:scale(1.15);background:var(--surface-3);color:var(--primary)}
+.emoji-picker{position:fixed;background:var(--surface);border:1px solid var(--border-soft);border-radius:16px;z-index:2100;box-shadow:0 12px 40px rgba(0,0,0,.28);width:302px;max-width:calc(100vw - 16px);display:flex;flex-direction:column;overflow:hidden;animation:popIn .14s ease}
+.emoji-picker-grid{overflow-y:auto;padding:6px 8px 8px;display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.emoji-picker-grid button{font-size:21px;background:none;border:none;cursor:pointer;padding:5px 0;border-radius:8px;line-height:1;transition:transform .1s,background .1s}
+.emoji-picker-grid button:hover{transform:scale(1.25);background:var(--surface-3)}
+.emoji-picker-cat{font-size:9px;font-weight:800;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase;padding:9px 4px 3px;grid-column:1/-1}
 
 /* ── BRACKET VERTICAL ── */
 .bracket-outer{padding:4px 0 8px}
@@ -658,7 +664,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 <!-- MODAL EDITAR PUNTAJES (solo creador, antes del inicio) -->
 <div id="modal-editrules" style="display:none" class="modal-overlay" onclick="if(event.target===this)closeEditRules()">
  <div class="modal-box">
- <h2>Editar puntajes</h2>
+ <h2>Editar reglas</h2>
  <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">Puedes ajustar los puntajes solo antes de que arranque el torneo. Al guardar se avisa a los participantes en el chat.</div>
  <div id="editrules-content"></div>
  <button class="btn" onclick="saveEditRules()" style="width:100%;max-width:100%;margin-top:16px;margin-bottom:10px">Guardar puntajes</button>
@@ -1314,7 +1320,7 @@ function loadData(){
  }
  });
  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
- db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};});
+ db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};if(currentPollaId)render();});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
  prefetchH2H();
  iniciarMasterPolling();
@@ -2347,7 +2353,8 @@ const DEFAULT_RULES={
  ptsExactoElim:3,ptsExactoSinClasif:2,ptsSoloClasif:1,
  ptsPosGrupo:2,
  espCampeon:10,espBotaOro:5,espGuanteOro:5,espMejorJugador:5,
- incluirPartidosGrupos:true,incluirClasificacion:true,incluirEliminatoria:true,incluirEspeciales:true
+ incluirPartidosGrupos:true,incluirClasificacion:true,incluirEliminatoria:true,incluirEspeciales:true,
+ verPronosticos:true
 };
 
 function ruleRow(id,label,val){
@@ -2472,6 +2479,38 @@ ${s.id==="incluirPartidosGrupos"?`<span style="flex-shrink:0;font-size:10px;font
  <button onclick="toggleRules()" style="background:none;border:none;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif"> Cambiar puntaje</button>
  </div>
  </div>
+ <div style="width:100%;background:var(--accent-soft);border:2px solid var(--accent);border-radius:14px;overflow:hidden;margin-top:12px">
+  <div style="padding:12px 14px 4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+   <span style="font-size:9px;font-weight:900;color:#fff;background:var(--accent-light);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.5px">Privacidad</span>
+   <span style="font-size:11px;font-weight:700;color:var(--accent-light)">No afecta el puntaje</span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px;gap:12px">
+   <div>
+    <div style="font-size:13px;font-weight:800;color:var(--text)">¿Ver los pronósticos de los demás?</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Activado: cada quien puede espiar lo que pronosticaron los demás. Apagado: los pronósticos quedan privados hasta el final.</div>
+   </div>
+   <label style="position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer">
+    <input type="checkbox" id="verPronosticos" checked style="opacity:0;width:0;height:0;position:absolute"
+     onchange="document.getElementById('toggle-track-verPronosticos').style.background=this.checked?'var(--accent)':'var(--border)';document.getElementById('toggle-dot-verPronosticos').style.transform=this.checked?'translateX(18px)':'translateX(0)';document.getElementById('vp-ej-on').style.display=this.checked?'block':'none';document.getElementById('vp-ej-off').style.display=this.checked?'none':'block'"/>
+    <div id="toggle-track-verPronosticos" style="position:absolute;inset:0;background:var(--accent);border-radius:11px;transition:background .2s"></div>
+    <div id="toggle-dot-verPronosticos" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;transform:translateX(18px)"></div>
+   </label>
+  </div>
+  <div style="padding:6px 14px 12px">
+   <div id="vp-ej-on" style="background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 10px">
+    <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Así se vería · activado</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-size:12px">
+     <span style="display:flex;align-items:center;gap:5px;font-weight:800;color:#1CB0F6"><span style="width:7px;height:7px;border-radius:50%;background:#1CB0F6"></span>Carla</span><span style="font-family:monospace;font-weight:700;text-align:center;color:var(--text)">2 — 1</span><span></span>
+    </div>
+   </div>
+   <div id="vp-ej-off" style="display:none;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 10px">
+    <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Así se vería · apagado</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-size:12px">
+     <span style="display:flex;align-items:center;gap:5px;font-weight:800;color:#1CB0F6"><span style="width:7px;height:7px;border-radius:50%;background:#1CB0F6"></span>Carla</span><span style="font-family:monospace;font-weight:700;text-align:center;color:var(--text-dim)">🔒 Oculto</span><span></span>
+    </div>
+   </div>
+  </div>
+ </div>
  </div>
  </div>
 
@@ -2581,6 +2620,7 @@ function readPollaRules(){
  espCampeon:getRuleVal("espCampeon"),espBotaOro:getRuleVal("espBotaOro"),
  espGuanteOro:getRuleVal("espGuanteOro"),espMejorJugador:getRuleVal("espMejorJugador"),
  incluirEspeciales:document.getElementById("incluirEspeciales")?.checked!==false,
+ verPronosticos:document.getElementById("verPronosticos")?.checked!==false,
  };
 }
 
@@ -2883,7 +2923,7 @@ function render(){
  <i data-lucide="help-circle" style="width:15px;height:15px;flex-shrink:0"></i> Reglas de la polla
  </button>
  ${isCreator?`<button onclick="openManageParticipants()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="users" style="width:15px;height:15px;flex-shrink:0"></i> Participantes</button>`:''}
- ${isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT)?`<button onclick="openEditRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="sliders-horizontal" style="width:15px;height:15px;flex-shrink:0"></i> Editar puntajes</button>`:''}
+ ${isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT)?`<button onclick="openEditRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="sliders-horizontal" style="width:15px;height:15px;flex-shrink:0"></i> Editar reglas</button>`:''}
  </div>
  </div>
  <div class="content" id="tab-content"></div>
@@ -3264,11 +3304,13 @@ function matchScoreBlock(m,pred,res){
  return`<div style="display:flex;gap:4px;align-items:center">
  <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}"
    data-match="${m.id}" data-side="h"
+   oninput="clampScoreInput(this)"
    onchange="savePred(${m.id},'h',this.value)"
    onkeydown="scoreInputKey(event,${m.id},'h')"/>
  <span class="score-sep">:</span>
  <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}"
    data-match="${m.id}" data-side="a"
+   oninput="clampScoreInput(this)"
    onchange="savePred(${m.id},'a',this.value)"
    onkeydown="scoreInputKey(event,${m.id},'a')"/>
  </div>`;
@@ -3300,6 +3342,7 @@ function matchHasAnyPrediction(m){
 }
 function spectatorBlock(m, res, opts){
  opts=opts||{};
+ if(currentPolla?.rules?.verPronosticos===false) return '';
  const isLiveState=!!opts.live; // true if we're framing as live (potential points)
  const allEntries = Object.entries(allUsers);
  if(!allEntries.length) return '';
@@ -3354,7 +3397,7 @@ function spectatorBlock(m, res, opts){
  <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)};text-align:center;white-space:nowrap">${pred.h} — ${pred.a}</span>
  <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">
   ${rxnBadges}${ptsInline}${badge(pts)}
-  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar">🙂</button>
+  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
  </span>
  </div>`;
  }).join('');
@@ -3502,7 +3545,7 @@ function renderMisPronos(){
   : '';
 
  // Morbo: before kickoff (open/blocked) let anyone peek at others' predictions when at least one exists
- const morboToggleBtn = ((cardState==='open'||cardState==='blocked') && anyPred)
+ const morboToggleBtn = ((cardState==='open'||cardState==='blocked') && anyPred && currentPolla?.rules?.verPronosticos!==false)
   ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" aria-label="Ver pronósticos" style="display:block;margin:6px auto 0;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 12px">${isExpanded?'▴':'▾'}</button>`
   : '';
 
@@ -3586,13 +3629,13 @@ function renderBracketPhase(phase){
  <div class="bm-team">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-sep"></div>
  <div class="bm-team">
  <span style="min-width:20px">${flag(awayTeam)}</span>
  <span style="flex:1;font-size:12px">${awayTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-meta">
  <span> ${localMatchDate(m.kickoff)}</span>
@@ -3640,6 +3683,7 @@ function renderBracketPhase(phase){
 // ─── TAB: ESPECIALES ──────────────────────────────────────
 function renderEspeciales(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
+ const verPronos=(currentPolla?.rules?.verPronosticos!==false);
  const myEsp=allUsers[currentUser.uid]?.especiales||{};
  const adminEsp=globalWorld.especiales||{};
  const rules=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
@@ -3677,20 +3721,28 @@ function renderEspeciales(){
  }
  ${real?`<div style="font-size:12px;color:var(--text-muted);text-align:right;min-width:80px">Real:<br/><strong style="color:var(--text)">${real}</strong></div>`:""}
  </div>
- ${(()=>{
+ ${verPronos?(()=>{
   const answers=Object.entries(allUsers).map(([uid,u])=>{if(uid===currentUser.uid)return null;const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v}:null;}).filter(Boolean);
   if(!answers.length)return "";
   const expE=expandedEspeciales.has(f.id);
+  const rxnKey="esp_"+f.id;
+  const matchReactions=allReactions[rxnKey]||{};
   return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:8px auto 0;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 12px">${expE?'▴':'▾'}</button>`+
    (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
      const color=avatarColor(a.name);
      const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
-     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;font-size:12px">
+     const predRxns=matchReactions[a.uid]||{};
+     const rxnByEmoji={};
+     Object.entries(predRxns).forEach(([reactorUid,e])=>{(rxnByEmoji[e]=rxnByEmoji[e]||[]).push(reactorUid);});
+     const myRxn=predRxns[currentUser.uid]||null;
+     const rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{const c=uids.length;return `<span class="pred-reaction-badge" onclick="event.stopPropagation();showWhoReacted('${rxnKey}','${a.uid}','${e}',event)" style="${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`;}).join('');
+     return `<div class="spectator-pred" data-match="${rxnKey}" data-uid="${a.uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:5px 0;font-size:12px;position:relative">
       <span style="display:flex;align-items:center;gap:6px;min-width:0;font-weight:800;color:${color}"><span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(a.name||'?')}</span></span>
-      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text-muted)'};text-align:right">${escHtml(a.val)}</span>
+      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text)'};text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${escHtml(a.val)}</span>
+      <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">${rxnBadges}<button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button></span>
      </div>`;
     }).join('')}</div>`:"");
- })()}
+ })():""}
  </div>`;
  }).join("")}
  ${currentUser.uid===ADMIN_UID?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
@@ -3758,6 +3810,7 @@ function renderRanking(){
 
 // ─── TAB: CHAT ────────────────────────────────────────────
 let chatListener=null;
+let _lastChatHTML="";
 
 // Polli (mascot) constants — appears as a system "user" in the chat
 const POLLI_UID="__polli__";
@@ -3793,18 +3846,19 @@ const STICKERS=[
 
 function renderChat(){
  return`<div class="chat-wrap">
- <div class="chat-messages" id="chat-messages"><div class="chat-empty">¡Abre la conversación!</div></div>
+ <div class="chat-messages" id="chat-messages">${_lastChatHTML}</div>
  <div id="sticker-tray" style="display:none;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px;margin:0 0 8px">
   <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Stickers</div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
    ${STICKERS.map(s=>`<button onclick="sendSticker('${s.id}')" style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:8px;cursor:pointer;aspect-ratio:1;width:100%;display:flex;align-items:center;justify-content:center;transition:transform .12s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''"><img src="${STICKER_SVGS[s.id]}" alt="" style="width:74%;height:74%;object-fit:contain" draggable="false"></button>`).join("")}
   </div>
  </div>
+ <div id="chat-charwarn" style="display:none;font-size:11px;font-weight:800;text-align:right;padding:2px 10px 4px;line-height:1"></div>
  <div class="chat-input-row">
  <button class="chat-stickers-btn" onclick="toggleStickerTray()" style="background:var(--surface-2);border:2px solid var(--border);color:var(--text-muted);border-radius:50%;width:40px;height:40px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Stickers"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
- <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="280" rows="1"
+ <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="210" rows="1"
  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
- oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+ oninput="chatInputResize(this)"></textarea>
  <button class="chat-send" onclick="sendChat()">↑</button>
  </div>
  </div>`;
@@ -3848,7 +3902,7 @@ function initChat(){
  if(!el)return;
  const data=snap.val()||{};
  const msgs=Object.entries(data).sort((a,b)=>a[1].ts-b[1].ts);
- if(!msgs.length){el.innerHTML=`<div class="chat-empty">¡Abre la conversación!</div>`;return;}
+ if(!msgs.length){el.innerHTML=`<div class="chat-empty">¡Abre la conversación!</div>`;_lastChatHTML=el.innerHTML;return;}
  const atBottom=el.scrollHeight-el.scrollTop-el.clientHeight<60;
  el.innerHTML=msgs.map(([id,m])=>{
  const mine=m.uid===currentUser.uid;
@@ -3879,6 +3933,7 @@ function initChat(){
  <div class="chat-meta">${time}</div>
  </div>`;
  }).join("");
+ _lastChatHTML=el.innerHTML;
  if(atBottom||msgs[msgs.length-1]?.[1]?.uid===currentUser.uid)el.scrollTop=el.scrollHeight;
  });
 
@@ -3900,11 +3955,29 @@ function initChat(){
 
 function escHtml(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
+const CHAT_MAX_CHARS=210;
+window.chatInputResize=function(el){
+ el.style.height="auto";el.style.height=Math.min(el.scrollHeight,80)+"px";
+ const warn=document.getElementById("chat-charwarn");
+ if(!warn)return;
+ const len=(el.value||"").length,left=CHAT_MAX_CHARS-len;
+ if(len>=CHAT_MAX_CHARS){
+  warn.textContent="Máximo "+CHAT_MAX_CHARS+" caracteres por mensaje";
+  warn.style.color="var(--danger-text)";warn.style.display="block";
+ }else if(left<=20){
+  warn.textContent="Te quedan "+left+" caracteres";
+  warn.style.color="var(--text-muted)";warn.style.display="block";
+ }else{
+  warn.style.display="none";
+ }
+};
+
 window.sendChat=async function(){
  const inp=document.getElementById("chat-input");
  const text=(inp?.value||"").trim();
  if(!text||!currentPollaId||!currentUser)return;
  inp.value="";inp.style.height="auto";
+ const warn=document.getElementById("chat-charwarn");if(warn)warn.style.display="none";
  track('chat_message_sent');
  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:currentUser.uid,name:currentUser.name,text,ts:Date.now()});
 };
@@ -4177,8 +4250,22 @@ window.closeCarta=function(){document.getElementById("carta-overlay").style.disp
 // ─── ACCIONES ─────────────────────────────────────────────
 const pollaBase=()=>`pollas/${currentPollaId}`;
 const _predTrackTimer={};
+window.clampScoreInput=function(el){
+ let v=(el.value||"").replace(/[^0-9]/g,"");
+ if(v.length>2)v=v.slice(0,2);
+ if(v!==""&&parseInt(v,10)>99)v="99";
+ if(el.value!==v)el.value=v;
+};
+function clampScore(val){
+ if(val===""||val==null)return"";
+ let n=parseInt(val,10);
+ if(isNaN(n))return"";
+ if(n<0)n=0;if(n>99)n=99;
+ return String(n);
+}
 window.savePred=async function(matchId,side,val){
  if(isLocked(MATCHES.find(m=>m.id===matchId)))return;
+ val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myPredictions[matchId]={...(myPredictions[matchId]||{}),[side]:val};
  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val});
@@ -4199,6 +4286,7 @@ window.saveGroupPred=async function(group,order){
 };
 window.saveElimPred=async function(matchId,side,val){
  const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
+ val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val});
@@ -4270,6 +4358,25 @@ window.openEditRules=function(){
   row("espBotaOro","Bota de Oro",r.espBotaOro)+
   row("espGuanteOro","Guante de Oro",r.espGuanteOro)+
   row("espMejorJugador","Mejor Jugador",r.espMejorJugador);
+ const vpOn=r.verPronosticos!==false;
+ html+=`<div style="margin:18px 0 2px;border-top:2px dashed var(--accent);padding-top:14px">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+   <span style="font-size:9px;font-weight:900;color:#fff;background:var(--accent-light);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.5px">Privacidad</span>
+   <span style="font-size:11px;font-weight:700;color:var(--accent-light)">No afecta el puntaje</span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+   <div>
+    <div style="font-size:13px;font-weight:800;color:var(--text)">¿Ver los pronósticos de los demás?</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Apagado: los pronósticos quedan privados hasta el final.</div>
+   </div>
+   <label style="position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer">
+    <input type="checkbox" id="erule_verPronosticos" ${vpOn?'checked':''} style="opacity:0;width:0;height:0;position:absolute"
+     onchange="document.getElementById('etr-vp').style.background=this.checked?'var(--accent)':'var(--border)';document.getElementById('edot-vp').style.transform=this.checked?'translateX(18px)':'translateX(0)'"/>
+    <div id="etr-vp" style="position:absolute;inset:0;background:${vpOn?'var(--accent)':'var(--border)'};border-radius:11px;transition:background .2s"></div>
+    <div id="edot-vp" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;transform:${vpOn?'translateX(18px)':'translateX(0)'}"></div>
+   </label>
+  </div>
+ </div>`;
  document.getElementById("editrules-content").innerHTML=html;
  document.getElementById("modal-editrules").style.display="flex";
 };
@@ -4284,15 +4391,27 @@ window.saveEditRules=async function(){
  if(before.incluirEspeciales!==false)ids.push("espCampeon","espBotaOro","espGuanteOro","espMejorJugador");
  const updates={};const changes=[];
  ids.forEach(id=>{const el=document.getElementById("erule_"+id);if(!el)return;let v=parseInt(el.value);if(isNaN(v)||v<1)v=1;if(v>20)v=20;const old=before[id];if(v!==old){updates[`pollas/${currentPollaId}/rules/${id}`]=v;changes.push(`${RULE_LABELS[id]||id}: ${old} → ${v}`);}});
- if(!changes.length){closeEditRules();showToast("No cambiaste ningún puntaje.");return;}
+ // Regla de privacidad (no afecta el puntaje, se anuncia aparte)
+ const vpEl=document.getElementById("erule_verPronosticos");
+ let vpChanged=false;
+ if(vpEl){const newVp=vpEl.checked;const oldVp=before.verPronosticos!==false;if(newVp!==oldVp){updates[`pollas/${currentPollaId}/rules/verPronosticos`]=newVp;vpChanged=newVp?"on":"off";}}
+ if(!changes.length&&!vpChanged){closeEditRules();showToast("No cambiaste nada.");return;}
  try{
   await db.ref().update(updates);
-  const html=`<b>${escHtml(currentUser.name)}</b> actualizó los puntajes:<br>${changes.map(c=>"• "+escHtml(c)).join("<br>")}<br>Revisa las reglas de la polla.`;
-  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html,ts:Date.now()});
+  if(changes.length){
+   const html=`<b>${escHtml(currentUser.name)}</b> actualizó los puntajes:<br>${changes.map(c=>"• "+escHtml(c)).join("<br>")}<br>Revisa las reglas de la polla.`;
+   await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html,ts:Date.now()});
+  }
+  if(vpChanged){
+   const html=vpChanged==="on"
+    ? `<b>${escHtml(currentUser.name)}</b> activó <b>ver los pronósticos de los demás</b>. Ahora todos pueden espiar lo que pronosticó cada quien. 👀`
+    : `<b>${escHtml(currentUser.name)}</b> apagó <b>ver los pronósticos de los demás</b>. Los pronósticos quedan privados hasta el final. 🔒`;
+   await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html,ts:Date.now()});
+  }
   currentPolla.rules=currentPolla.rules||{};
   Object.keys(updates).forEach(p=>{currentPolla.rules[p.split("/").pop()]=updates[p];});
   closeEditRules();
-  showToast("Puntajes actualizados ");
+  showToast("Cambios guardados ");
   render();
  }catch(e){showToast("No se pudo guardar. Intenta de nuevo.","#ef4444",4000);}
 };
@@ -4520,12 +4639,12 @@ window.openRules=function(){
 </div>
 ${incClasif?`<div class="rules-section">
 <h3 style="display:flex;align-items:center;gap:6px;">${tpIcon("clasificacion",16)} CLASIFICACIÓN DE GRUPOS</h3>
-<p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
+<p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea al arrancar el primer partido del Mundial (11 de junio).</p>
 <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
 </div>`:''}
 ${incEsp?`<div class="rules-section">
 <h3 style="display:flex;align-items:center;gap:6px;">${tpIcon("especiales",16)} ESPECIALES</h3>
-<p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
+<p>Pronostica antes de que arranque el Mundial. Se bloquean al empezar el primer partido (11 de junio).</p>
 <ul>
 <li><strong style="color:#22c55e">${r.espCampeon??10} pts</strong> — Campeón</li>
 <li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro</li>
@@ -4539,6 +4658,7 @@ ${incEsp?`<div class="rules-section">
 <li>Los pronósticos bloqueados no se pueden editar</li>
 <li>Los resultados se actualizan automáticamente</li>
 <li>En caso de empate en el ranking, gana quien acertó más marcadores exactos</li>
+<li>${(r.verPronosticos!==false)?"Puedes ver los pronósticos de los demás":"Los pronósticos de los demás son privados hasta el final"}</li>
 </ul>
 </div>`;
  modal.style.display="flex";
@@ -4591,7 +4711,7 @@ window.acKey=function(e,fieldId){
 };
 
 // ─── RANKING BREAKDOWN ────────────────────────────────────
-window.openBreakdown=function(uid){
+window.openBreakdown=function(uid,skipAnim){
  const u=allUsers[uid];
  if(!u)return;
  track('breakdown_opened',{isSelf:uid===currentUser.uid});
@@ -4660,7 +4780,9 @@ window.openBreakdown=function(uid){
  ${!isMine?`<button onclick="event.stopPropagation();closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif">Ver duelo Tú vs ${escHtml(u.name)} →</button>`:''}
  <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px">Cerrar</button>
  `;
- document.getElementById("breakdown-overlay").style.display="flex";
+ const _bov=document.getElementById("breakdown-overlay");
+ _bov.style.animation=skipAnim?"none":"";
+ _bov.style.display="flex";
  window.breakdownGuardTs=Date.now();
 };
 window.closeBreakdown=function(){document.getElementById("breakdown-overlay").style.display="none";};
@@ -4780,7 +4902,7 @@ window.openH2H=function(opponentUid){
  const themName=opp.name;
  document.getElementById("h2h-content").innerHTML=`
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-  <button onclick="event.stopPropagation();closeH2H();openBreakdown('${opponentUid}')" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
+  <button onclick="event.stopPropagation();closeH2H();openBreakdown('${opponentUid}',true)" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
   <button onclick="closeH2H()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0;width:28px;height:28px">✕</button>
  </div>
  <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:18px">
@@ -4953,7 +5075,17 @@ window.shareHallOfFame=async function(){
 };
 
 // ─── REACTIONS ────────────────────────────────────────────
-const REACTION_EMOJIS=["🔥","😂","😮","👏","🤡","🧠"];
+// Quick reactions shown in the floating bar (estilo WhatsApp). The "+" abre el
+// selector con todos los emojis disponibles.
+const REACTION_QUICK=["👍","❤️","😂","😮","😢","🙏"];
+// Catálogo completo para el selector "+", agrupado por categoría.
+const EMOJI_CATALOG=[
+ {cat:"Caras",emojis:["😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","🫠","😉","😊","😇","🥰","😍","🤩","😘","😗","☺️","😚","😙","🥲","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🫢","🤫","🤔","🫡","🤐","🤨","😐","😑","😶","🫥","😏","😒","🙄","😬","🤥","😌","😔","😪","🤤","😴","😷","🤒","🤕","🤢","🤮","🤧","🥵","🥶","🥴","😵","😵‍💫","🤯","🤠","🥳","🥸","😎","🤓","🧐","😕","🫤","😟","🙁","☹️","😮","😯","😲","😳","🥺","🥹","😦","😧","😨","😰","😥","😢","😭","😱","😖","😣","😞","😓","😩","😫","🥱","😤","😡","😠","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","👾","🤖"]},
+ {cat:"Gestos",emojis:["👍","👎","👌","🤌","🤏","✌️","🤞","🫰","🤟","🤘","🤙","👈","👉","👆","👇","☝️","✋","🤚","🖐️","🖖","👋","🤝","🙏","🫶","👏","🙌","👐","🤲","💪","🦾","🖕","✍️","🤳","💅","🦵","🦶","👂","👃","🧠","👀","👁️","👄","🫦"]},
+ {cat:"Corazones",emojis:["❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","♥️","💋","💯"]},
+ {cat:"Fiesta",emojis:["🔥","✨","🌟","⭐","💫","⚡","💥","🎉","🎊","🥂","🍻","🍺","🍾","🎈","🎁","🏆","🥇","🥈","🥉","🎯","👑","💎","🆒","🆗","🫡","😮‍💨","🤝","🙈","🙉","🙊"]},
+ {cat:"Fútbol",emojis:["⚽","🥅","🧤","👟","🏟️","📣","🚩","🟥","🟨","🤾","🏃","🏃‍♂️","🤕","🚑","📺","📱","💸","🧊","🐐","🦁","🐓","🦅","🐺","🦊","🐂"]},
+];
 let _rxnTimer=null,_rxnEl=null;
 
 function initReactionListeners(){
@@ -4979,25 +5111,76 @@ function rxnTouchEnd(){
 window.rxnShowFromTrigger=function(btn){const el=btn.closest(".spectator-pred");if(el)rxnShow(el);};
 function rxnShow(el){
  rxnCloseFloat();
- const matchId=parseInt(el.dataset.match);
+ const matchId=el.dataset.match;            // string key (match id o "esp_xxx")
  const predictorUid=el.dataset.uid;
  const rect=el.getBoundingClientRect();
  const float=document.createElement("div");
  float.className="reaction-float";
  float.id="rxn-float";
  float.style.top=Math.max(8,(rect.top-54))+"px";
- float.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-200))+"px";
- REACTION_EMOJIS.forEach(e=>{
+ float.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-240))+"px";
+ REACTION_QUICK.forEach(e=>{
  const btn=document.createElement("button");
  btn.className="reaction-btn";
+ btn.type="button";
  btn.textContent=e;
- btn.onclick=()=>rxnSave(matchId,predictorUid,e);
+ btn.onclick=(ev)=>{ev.stopPropagation();rxnSave(matchId,predictorUid,e);};
  float.appendChild(btn);
  });
+ // "+" → selector con todos los emojis
+ const more=document.createElement("button");
+ more.className="reaction-btn-more";
+ more.type="button";
+ more.textContent="＋";
+ more.setAttribute("aria-label","Más emojis");
+ more.onclick=(ev)=>{ev.stopPropagation();const fr=float.getBoundingClientRect();openEmojiPicker(matchId,predictorUid,fr);};
+ float.appendChild(more);
  document.body.appendChild(float);
- setTimeout(()=>{document.addEventListener("touchstart",rxnCloseFloat,{once:true,passive:true});document.addEventListener("click",rxnCloseFloat,{once:true});},50);
+ // Reposicionar con el ancho real para no salirse de la pantalla
+ const fw=float.offsetWidth||250;
+ float.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-fw-8))+"px";
+ setTimeout(()=>document.addEventListener("pointerdown",rxnOutside,true),60);
+}
+// Selector completo de emojis. Se abre hacia ARRIBA si hay espacio; si no, hacia abajo.
+function openEmojiPicker(matchId,predictorUid,anchorRect){
+ rxnCloseFloat();
+ const margin=8;
+ const picker=document.createElement("div");
+ picker.className="emoji-picker";
+ picker.id="rxn-float";
+ const grid=document.createElement("div");
+ grid.className="emoji-picker-grid";
+ EMOJI_CATALOG.forEach(g=>{
+ const h=document.createElement("div");h.className="emoji-picker-cat";h.textContent=g.cat;grid.appendChild(h);
+ g.emojis.forEach(e=>{const b=document.createElement("button");b.type="button";b.textContent=e;b.onclick=(ev)=>{ev.stopPropagation();rxnSave(matchId,predictorUid,e);};grid.appendChild(b);});
+ });
+ picker.appendChild(grid);
+ document.body.appendChild(picker);
+ const spaceAbove=anchorRect.top-margin;
+ const spaceBelow=window.innerHeight-anchorRect.bottom-margin;
+ const MAXH=Math.min(330,window.innerHeight-2*margin);
+ // Preferir arriba; abrir abajo solo si no cabe arriba.
+ const openUp = spaceAbove>=Math.min(MAXH,250) ? true : (spaceAbove>spaceBelow);
+ const avail = openUp?spaceAbove:spaceBelow;
+ grid.style.maxHeight=Math.min(MAXH,Math.max(150,avail))+"px";
+ const pw=picker.offsetWidth||300;
+ let left=Math.min(Math.max(margin,anchorRect.left),window.innerWidth-pw-margin);
+ picker.style.left=Math.max(margin,left)+"px";
+ const ph=picker.offsetHeight;
+ let top=openUp?(anchorRect.bottom-ph):anchorRect.top;
+ top=Math.max(margin,Math.min(top,window.innerHeight-ph-margin));
+ picker.style.top=top+"px";
+ setTimeout(()=>document.addEventListener("pointerdown",rxnOutside,true),60);
+}
+function rxnOutside(e){
+ const f=document.getElementById("rxn-float");
+ if(f&&f.contains(e.target))return;
+ const w=document.getElementById("rxn-who");
+ if(w&&w.contains(e.target))return;
+ rxnCloseFloat();
 }
 function rxnCloseFloat(){
+ document.removeEventListener("pointerdown",rxnOutside,true);
  const f=document.getElementById("rxn-float");
  if(f)f.remove();
  const w=document.getElementById("rxn-who");
@@ -5062,7 +5245,7 @@ function renderTab(){
  c.innerHTML=(fns[currentTab]||renderPartidos)();
  if(currentTab==="grupos")initDragDrop();
  if(currentTab==="chat")initChat();
- if(currentTab==="mis_pronos"&&partidosView==="grupos")setTimeout(initReactionListeners,50);
+ if((currentTab==="mis_pronos"&&partidosView==="grupos")||currentTab==="especiales")setTimeout(initReactionListeners,50);
 }
 
 window.addEventListener("load",initFirebase);
