@@ -721,7 +721,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 </div>
 
 <!-- HEAD TO HEAD MODAL -->
-<div id="h2h-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1200;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this&&Date.now()-(window.h2hGuardTs||0)>350){closeH2H();closeBreakdown();}">
+<div id="h2h-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1200;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this&&Date.now()-(window.h2hGuardTs||0)>350)closeH2H()">
  <div style="background:var(--surface);border-radius:18px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;border:2px solid var(--border)">
   <div id="h2h-content" style="padding:20px"></div>
  </div>
@@ -764,6 +764,7 @@ const FIREBASE_CONFIG={
 };
 const BALLDONTLIE_KEY="9c7af450-263d-42e2-8d1c-f2e70036d30d";
 const ADMIN_NAME="ADMIN";
+const ADMIN_UID="BGRX6wt6TpR2srb38VG9gRUjk4g2";
 const TOURNAMENT_LOCKOUT="2026-06-11T19:00:00Z";
 const TOURNAMENT_END="2026-07-19T23:00:00Z";
 
@@ -947,7 +948,7 @@ const MATCHES=[
 let db,auth,currentUser=null,currentTab="mis_pronos",currentGroup="A",currentElimPhase="r32",partidosView="grupos";
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
 let pendingName=null,pendingPollaAction=null;
-let isAdmin=false,prevRanking={};
+let isAdmin=false,isCreator=false,prevRanking={};
 const expandedMatches=new Set();
 const expandedEspeciales=new Set();
 let currentPollaId=null,currentPolla=null,myPollas={};
@@ -1230,20 +1231,20 @@ function initFirebase(){
  if(snap.exists()){
  const u=snap.val();
  currentUser={uid:user.uid,name:u.name,email:user.email||""};
- isAdmin=u.name.toUpperCase()===ADMIN_NAME.toUpperCase();
+ isAdmin=user.uid===ADMIN_UID;
  await loadPollas();return;
  }
  const nameToUse=pendingName||user.displayName||"";
  if(nameToUse){
  await db.ref(`users/${user.uid}`).set({name:nameToUse,email:user.email||""});
  currentUser={uid:user.uid,name:nameToUse,email:user.email||""};
- isAdmin=false;
+ isAdmin=user.uid===ADMIN_UID;
  await loadPollas();return;
  }
  renderPickName(async(name)=>{
  await db.ref(`users/${user.uid}`).set({name,email:user.email||""});
  currentUser={uid:user.uid,name,email:user.email||""};
- isAdmin=false;
+ isAdmin=user.uid===ADMIN_UID;
  await loadPollas();
  });
  return;
@@ -1313,7 +1314,7 @@ function loadData(){
  }
  });
  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
- db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};const ae=document.activeElement,typing=ae&&(ae.tagName==="INPUT"||ae.tagName==="TEXTAREA");if(!typing&&(currentTab==="mis_pronos"||currentTab==="especiales"))renderTab();});
+ db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};});
  prefetchH2H();
  iniciarMasterPolling();
  setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
@@ -2851,8 +2852,8 @@ function render(){
  if(!currentUser){renderLanding();return;}
  setFabs(!!currentPollaId);
  const countdown=getCountdown();
- const isCreator=currentPolla&&currentPolla.creadorUid===currentUser.uid;
- isAdmin=isCreator;
+ isCreator=!!(currentPolla&&currentPolla.creadorUid===currentUser.uid);
+ isAdmin=!!(currentUser&&currentUser.uid===ADMIN_UID);
  const tabs=[["mis_pronos",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"298 53 108 162\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/></svg> Partidos'],...((currentPolla?.rules?.incluirClasificacion!==false)?[["grupos",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"288 416 136 142\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m412.33,469.08l-54.27,34.27c-1.73,1.1-3.95,1.1-5.68,0l-54.27-34.27c-3.27-2.07-3.31-6.83-.07-8.95l54.27-35.54c1.77-1.16,4.06-1.16,5.83,0l54.27,35.54c3.24,2.12,3.2,6.88-.07,8.95Z\"/><path d=\"m355.23,523.77c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.35,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.37-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/><path d=\"m355.23,543.76c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.36,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.36-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/></svg> Clasificación']]:[]),...((currentPolla?.rules?.incluirEspeciales!==false)?[["especiales",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"118 410 150 140\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m193.28,423.11l16.12,32.66c.55,1.12,1.62,1.9,2.86,2.08l36.04,5.24c3.12.45,4.36,4.28,2.11,6.48l-26.08,25.42c-.9.87-1.3,2.13-1.09,3.36l6.16,35.89c.53,3.1-2.73,5.47-5.51,4.01l-32.23-16.95c-1.11-.58-2.43-.58-3.54,0l-32.23,16.95c-2.79,1.47-6.05-.9-5.51-4.01l6.16-35.89c.21-1.23-.2-2.49-1.09-3.36l-26.08-25.42c-2.26-2.2-1.01-6.03,2.11-6.48l36.04-5.24c1.24-.18,2.31-.96,2.86-2.08l16.12-32.66c1.39-2.82,5.42-2.82,6.82,0Z\"/></svg> Especiales']]:[]),["ranking",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"110 55 140 165\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><rect x=\"128.77\" y=\"102.87\" width=\"29.53\" height=\"100.41\" rx=\"14.77\" ry=\"14.77\"/><rect x=\"199.65\" y=\"139.35\" width=\"29.53\" height=\"63.93\" rx=\"14.77\" ry=\"14.77\"/><rect x=\"164.21\" y=\"68.47\" width=\"29.53\" height=\"134.81\" rx=\"14.77\" ry=\"14.77\"/></svg> Ranking'],["chat",'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"112 237 142 138\" width=\"15\" height=\"15\" fill=\"currentColor\" aria-hidden=\"true\" style=\"vertical-align:-2px;margin-right:4px;flex-shrink:0\"><path d=\"m183.37,246.05h0c-32.89,0-59.55,26.66-59.55,59.55v59.55h59.55c32.89,0,59.55-26.66,59.55-59.55h0c0-32.89-26.66-59.55-59.55-59.55Zm-26.78,74.46c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Zm27.34,0c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Zm26.22,0c-5.86,0-10.61-4.75-10.61-10.61s4.75-10.61,10.61-10.61,10.61,4.75,10.61,10.61-4.75,10.61-10.61,10.61Z\"/></svg> Chat']];
  const tabsEl=document.querySelector(".tabs");
  const savedScroll=tabsEl?tabsEl.scrollLeft:0;
@@ -3254,13 +3255,11 @@ function matchScoreBlock(m,pred,res){
  return`<div style="display:flex;gap:4px;align-items:center">
  <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}"
    data-match="${m.id}" data-side="h"
-   oninput="scoreClamp(this)"
    onchange="savePred(${m.id},'h',this.value)"
    onkeydown="scoreInputKey(event,${m.id},'h')"/>
  <span class="score-sep">:</span>
  <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}"
    data-match="${m.id}" data-side="a"
-   oninput="scoreClamp(this)"
    onchange="savePred(${m.id},'a',this.value)"
    onkeydown="scoreInputKey(event,${m.id},'a')"/>
  </div>`;
@@ -3346,7 +3345,7 @@ function spectatorBlock(m, res, opts){
  <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)};text-align:center;white-space:nowrap">${pred.h} — ${pred.a}</span>
  <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">
   ${rxnBadges}${ptsInline}${badge(pts)}
-  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
+  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar">🙂</button>
  </span>
  </div>`;
  }).join('');
@@ -3578,13 +3577,13 @@ function renderBracketPhase(phase){
  <div class="bm-team">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" oninput="scoreClamp(this)" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-sep"></div>
  <div class="bm-team">
  <span style="min-width:20px">${flag(awayTeam)}</span>
  <span style="flex:1;font-size:12px">${awayTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" oninput="scoreClamp(this)" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
+ <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-meta">
  <span> ${localMatchDate(m.kickoff)}</span>
@@ -3673,27 +3672,19 @@ function renderEspeciales(){
   const answers=Object.entries(allUsers).map(([uid,u])=>{if(uid===currentUser.uid)return null;const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v}:null;}).filter(Boolean);
   if(!answers.length)return "";
   const expE=expandedEspeciales.has(f.id);
-  const rxnKey='esp_'+f.id;
-  const espRxns=allReactions[rxnKey]||{};
   return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:8px auto 0;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 12px">${expE?'▴':'▾'}</button>`+
    (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
      const color=avatarColor(a.name);
      const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
-     const predRxns=espRxns[a.uid]||{};
-     const rxnByEmoji={};
-     Object.entries(predRxns).forEach(([reactorUid,e])=>{(rxnByEmoji[e]=rxnByEmoji[e]||[]).push(reactorUid);});
-     const myRxn=predRxns[currentUser.uid]||null;
-     const rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{const c=uids.length;return `<span class="pred-reaction-badge" onclick="event.stopPropagation();showWhoReacted('${rxnKey}','${a.uid}','${e}',event)" style="cursor:pointer;${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`;}).join('');
-     return `<div class="spectator-pred" data-match="${rxnKey}" data-uid="${a.uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:5px 0;font-size:12px;position:relative">
+     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;font-size:12px">
       <span style="display:flex;align-items:center;gap:6px;min-width:0;font-weight:800;color:${color}"><span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(a.name||'?')}</span></span>
-      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text)'};text-align:center;white-space:nowrap">${escHtml(a.val)}</span>
-      <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">${rxnBadges}<button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button></span>
+      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text-muted)'};text-align:right">${escHtml(a.val)}</span>
      </div>`;
     }).join('')}</div>`:"");
  })()}
  </div>`;
  }).join("")}
- ${currentUser.name.toUpperCase()===ADMIN_NAME.toUpperCase()?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
+ ${currentUser.uid===ADMIN_UID?`<div class="card" style="margin-top:16px;border-left:3px solid #7c3aed">
  <div style="font-weight:700;margin-bottom:12px;color:#a78bfa"> Admin — Resultados oficiales</div>
  ${ESPECIALES_FIELDS.map(f=>`<div style="margin-bottom:10px">
  <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${f.label}</div>
@@ -3793,7 +3784,7 @@ const STICKERS=[
 
 function renderChat(){
  return`<div class="chat-wrap">
- <div class="chat-messages" id="chat-messages"></div>
+ <div class="chat-messages" id="chat-messages"><div class="chat-empty">¡Abre la conversación!</div></div>
  <div id="sticker-tray" style="display:none;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px;margin:0 0 8px">
   <div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Stickers</div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
@@ -3802,23 +3793,13 @@ function renderChat(){
  </div>
  <div class="chat-input-row">
  <button class="chat-stickers-btn" onclick="toggleStickerTray()" style="background:var(--surface-2);border:2px solid var(--border);color:var(--text-muted);border-radius:50%;width:40px;height:40px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Stickers"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
- <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="420" rows="1"
+ <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="280" rows="1"
  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
- oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';chatCharCount(this)"></textarea>
+ oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
  <button class="chat-send" onclick="sendChat()">↑</button>
  </div>
- <div id="chat-charcount" style="display:none;text-align:right;font-size:10px;font-weight:800;color:var(--text-dim);padding:2px 6px 0"></div>
  </div>`;
 }
-window.chatCharCount=function(el){
- const c=document.getElementById("chat-charcount");
- if(!c)return;
- const n=el.value.length,max=420;
- if(n<360){c.style.display="none";return;}
- c.style.display="block";
- if(n>=max){c.textContent="Llegaste al límite de 420 caracteres";c.style.color="var(--danger)";}
- else{c.textContent=n+"/"+max;c.style.color="var(--text-dim)";}
-};
 function stickerOutsideClick(e){
  const t=document.getElementById("sticker-tray");
  if(!t){document.removeEventListener("click",stickerOutsideClick,true);return;}
@@ -3915,7 +3896,6 @@ window.sendChat=async function(){
  const text=(inp?.value||"").trim();
  if(!text||!currentPollaId||!currentUser)return;
  inp.value="";inp.style.height="auto";
- const cc=document.getElementById("chat-charcount");if(cc)cc.style.display="none";
  track('chat_message_sent');
  await db.ref(`pollas/${currentPollaId}/chat`).push({uid:currentUser.uid,name:currentUser.name,text,ts:Date.now()});
 };
@@ -4188,18 +4168,8 @@ window.closeCarta=function(){document.getElementById("carta-overlay").style.disp
 // ─── ACCIONES ─────────────────────────────────────────────
 const pollaBase=()=>`pollas/${currentPollaId}`;
 const _predTrackTimer={};
-window.scoreClamp=function(el){
- if(el.value==="")return;
- let n=parseInt(el.value,10);
- if(isNaN(n)){el.value="";return;}
- if(n>99){n=99;showToast("Máximo 99","#ef4444",1500);}
- if(n<0)n=0;
- el.value=String(n);
-};
-function clampScoreVal(v){if(v===""||v==null)return v;let n=parseInt(v,10);if(isNaN(n))return"";return String(Math.max(0,Math.min(99,n)));}
 window.savePred=async function(matchId,side,val){
  if(isLocked(MATCHES.find(m=>m.id===matchId)))return;
- val=clampScoreVal(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myPredictions[matchId]={...(myPredictions[matchId]||{}),[side]:val};
  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val});
@@ -4220,7 +4190,6 @@ window.saveGroupPred=async function(group,order){
 };
 window.saveElimPred=async function(matchId,side,val){
  const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
- val=clampScoreVal(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
  await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val});
@@ -4253,7 +4222,7 @@ window.saveRealGroupPos=async function(group,team,pos){
 window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).set(true);showToast("Fase desbloqueada ");};
 window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).remove();showToast("Fase bloqueada ");};
 window.deleteUser=async function(uid,name){
- if(!isAdmin)return;
+ if(!isCreator)return;
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; ya no se pueden eliminar participantes.","#ef4444",4000);return;}
  showConfirmModal(
  "",`Eliminar a "${name}"`,
@@ -4263,7 +4232,7 @@ window.deleteUser=async function(uid,name){
  );
 };
 window.openManageParticipants=function(){
- if(!isAdmin)return;
+ if(!isCreator)return;
  renderParticipantsList();
  document.getElementById("modal-participants").style.display="flex";
 };
@@ -4542,12 +4511,12 @@ window.openRules=function(){
 </div>
 ${incClasif?`<div class="rules-section">
 <h3 style="display:flex;align-items:center;gap:6px;">${tpIcon("clasificacion",16)} CLASIFICACIÓN DE GRUPOS</h3>
-<p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea cuando arranca el primer partido del Mundial (${localMatchDate(TOURNAMENT_LOCKOUT)} · ${localMatchTime(TOURNAMENT_LOCKOUT)}).</p>
+<p>Ordena los 4 equipos de cada grupo según crees que terminarán. Se bloquea el 11 de junio.</p>
 <ul><li><strong style="color:#22c55e">${r.ptsPosGrupo??2} pts</strong> — por cada equipo en la posición exacta</li></ul>
 </div>`:''}
 ${incEsp?`<div class="rules-section">
 <h3 style="display:flex;align-items:center;gap:6px;">${tpIcon("especiales",16)} ESPECIALES</h3>
-<p>Pronostica antes de que arranque el Mundial. Se bloquean cuando empieza el primer partido (${localMatchDate(TOURNAMENT_LOCKOUT)} · ${localMatchTime(TOURNAMENT_LOCKOUT)}).</p>
+<p>Pronostica antes del inicio del torneo (se bloquean el 11 de junio).</p>
 <ul>
 <li><strong style="color:#22c55e">${r.espCampeon??10} pts</strong> — Campeón</li>
 <li><strong style="color:#facc15">${r.espBotaOro??5} pts</strong> — Bota de Oro</li>
@@ -4680,7 +4649,7 @@ window.openBreakdown=function(uid){
  <span class="rb-total">${total} pts</span>
  </div>
  ${logrosHtml}
- ${!isMine?`<button onclick="event.stopPropagation();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif">Ver duelo Tú vs ${escHtml(u.name)} →</button>`:''}
+ ${!isMine?`<button onclick="event.stopPropagation();closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif">Ver duelo Tú vs ${escHtml(u.name)} →</button>`:''}
  <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px">Cerrar</button>
  `;
  document.getElementById("breakdown-overlay").style.display="flex";
@@ -4803,8 +4772,8 @@ window.openH2H=function(opponentUid){
  const themName=opp.name;
  document.getElementById("h2h-content").innerHTML=`
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-  <button onclick="event.stopPropagation();window.breakdownGuardTs=Date.now();closeH2H()" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
-  <button onclick="closeH2H();closeBreakdown()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0;width:28px;height:28px">✕</button>
+  <button onclick="event.stopPropagation();closeH2H();openBreakdown('${opponentUid}')" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
+  <button onclick="closeH2H()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0;width:28px;height:28px">✕</button>
  </div>
  <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:18px">
   <div style="flex:1;background:var(--surface-2);border-radius:12px;padding:14px;text-align:center;border:2px solid ${myStats.total>=themStats.total?'var(--primary)':'var(--border)'}">
@@ -4861,7 +4830,7 @@ window.openH2H=function(opponentUid){
   }).join("")}
  </div>`:`<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Aún no hay partidos donde hayan diferido sus pronósticos.</div>`}
 
- <button onclick="closeH2H();closeBreakdown()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Nunito',sans-serif">Cerrar</button>
+ <button onclick="closeH2H()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Nunito',sans-serif">Cerrar</button>
  `;
  document.getElementById("h2h-overlay").style.display="flex";
  window.h2hGuardTs=Date.now();
@@ -5002,7 +4971,7 @@ function rxnTouchEnd(){
 window.rxnShowFromTrigger=function(btn){const el=btn.closest(".spectator-pred");if(el)rxnShow(el);};
 function rxnShow(el){
  rxnCloseFloat();
- const matchId=el.dataset.match;
+ const matchId=parseInt(el.dataset.match);
  const predictorUid=el.dataset.uid;
  const rect=el.getBoundingClientRect();
  const float=document.createElement("div");
@@ -5086,7 +5055,6 @@ function renderTab(){
  if(currentTab==="grupos")initDragDrop();
  if(currentTab==="chat")initChat();
  if(currentTab==="mis_pronos"&&partidosView==="grupos")setTimeout(initReactionListeners,50);
- if(currentTab==="especiales")setTimeout(initReactionListeners,50);
 }
 
 window.addEventListener("load",initFirebase);
