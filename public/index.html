@@ -963,6 +963,26 @@ let currentPollaId=null,currentPolla=null,myPollas={};
 const h2hCache={};
 let showOnlyMissing=false;
 let allReactions={}; // {matchId: {predictorUid: {reactorUid: emoji}}}
+// Las reacciones se guardan dentro del nodo de cada usuario (participantes/{uid}/reactions)
+// porque ahí sí tienen permiso de escritura. Aquí las juntamos en allReactions para pintarlas.
+function rebuildReactions(){
+ const agg={};
+ const users=allUsers||{};
+ Object.keys(users).forEach(uid=>{
+  const rx=users[uid]&&users[uid].reactions;
+  if(!rx)return;
+  Object.keys(rx).forEach(matchId=>{
+   const preds=rx[matchId];if(!preds)return;
+   Object.keys(preds).forEach(predictorUid=>{
+    const emoji=preds[predictorUid];if(!emoji)return;
+    (agg[matchId]=agg[matchId]||{});
+    (agg[matchId][predictorUid]=agg[matchId][predictorUid]||{});
+    agg[matchId][predictorUid][uid]=emoji;
+   });
+  });
+ });
+ allReactions=agg;
+}
 
 // ─── ANALYTICS ────────────────────────────────────────────
 function track(event,data={}){try{window.va?.('event',{name:event,...(Object.keys(data).length?{data}:{})});}catch(e){}}
@@ -1309,6 +1329,7 @@ function loadData(){
  const oldRanked=getRankedUsers();
  oldRanked.forEach((r,i)=>{prevRanking[r.uid]=i+1;});
  allUsers=snap.val()||{};
+ rebuildReactions();
  const me=allUsers[currentUser.uid]||{};
  myPredictions=me.predictions||{};
  myGroupPreds=me.groupPredictions||{};
@@ -1322,7 +1343,6 @@ function loadData(){
  });
  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
  db.ref(`${base}/rules`).on("value",snap=>{const rv=snap.val();if(rv){currentPolla=currentPolla||{};currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)render();}});
- db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};if(currentPollaId)render();});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
  prefetchH2H();
  iniciarMasterPolling();
@@ -3378,7 +3398,7 @@ function spectatorBlock(m, res, opts){
  const myRxn=predRxns[currentUser.uid]||null;
  const rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{
   const c=uids.length;
-  return `<span class="pred-reaction-badge" data-match="${m.id}" data-uid="${uid}" data-emoji="${e}" onclick="event.stopPropagation();showWhoReacted(${m.id},'${uid}','${e}',event)" style="cursor:pointer;${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`;
+  return `<span class="pred-reaction-badge" data-match="${m.id}" data-uid="${uid}" data-emoji="${e}" onclick="event.stopPropagation();showWhoReacted(${m.id},'${uid}','${e}',event)" style="cursor:pointer;${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?`<span style="font-size:10px;font-weight:800;color:var(--text-muted);margin-left:2px">${c}</span>`:''}</span>`;
  }).join('');
  const ptsInline=(pts!==null&&pts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(pts)}">${pts>0?'+'+pts:'0'}</span>`:'';
  return `<div class="spectator-pred" data-match="${m.id}" data-uid="${uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);position:relative">
@@ -3386,11 +3406,12 @@ function spectatorBlock(m, res, opts){
   <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span>
   <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(user.name||'?')}</span>
  </span>
- <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)};text-align:center;white-space:nowrap">${pred.h} — ${pred.a}</span>
- <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">
-  ${rxnBadges}${ptsInline}${badge(pts)}
-  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
+ <span style="display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap">
+  <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)}">${pred.h} — ${pred.a}</span>
+  ${rxnBadges}
+  <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
  </span>
+ <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">${ptsInline}${badge(pts)}</span>
  </div>`;
  }).join('');
 
@@ -3728,11 +3749,15 @@ function renderEspeciales(){
      const rxnByEmoji={};
      Object.entries(predRxns).forEach(([reactorUid,e])=>{(rxnByEmoji[e]=rxnByEmoji[e]||[]).push(reactorUid);});
      const myRxn=predRxns[currentUser.uid]||null;
-     const rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{const c=uids.length;return `<span class="pred-reaction-badge" onclick="event.stopPropagation();showWhoReacted('${rxnKey}','${a.uid}','${e}',event)" style="${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?` ${c}`:''}</span>`;}).join('');
+     const rxnBadges=Object.entries(rxnByEmoji).map(([e,uids])=>{const c=uids.length;return `<span class="pred-reaction-badge" onclick="event.stopPropagation();showWhoReacted('${rxnKey}','${a.uid}','${e}',event)" style="${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?`<span style="font-size:10px;font-weight:800;color:var(--text-muted);margin-left:2px">${c}</span>`:''}</span>`;}).join('');
      return `<div class="spectator-pred" data-match="${rxnKey}" data-uid="${a.uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:5px 0;font-size:12px;position:relative">
       <span style="display:flex;align-items:center;gap:6px;min-width:0;font-weight:800;color:${color}"><span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(a.name||'?')}</span></span>
-      <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text)'};text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${escHtml(a.val)}</span>
-      <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">${rxnBadges}<button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button></span>
+      <span style="display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap">
+       <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text)'};overflow:hidden;text-overflow:ellipsis;max-width:120px">${escHtml(a.val)}</span>
+       ${rxnBadges}
+       <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
+      </span>
+      <span></span>
      </div>`;
     }).join('')}</div>`:"");
  })():""}
@@ -5107,11 +5132,11 @@ function rxnShow(el,anchorEl){
  more.onclick=(ev)=>{ev.stopPropagation();const fr=float.getBoundingClientRect();openEmojiPicker(matchId,predictorUid,fr);};
  float.appendChild(more);
  document.body.appendChild(float);
- // Posicionar pegadito al pronóstico: justo encima del ancla (la carita), alineado a su derecha.
+ // Posicionar pegadito al pronóstico: justo encima del ancla (la carita), centrado sobre ella.
  const fw=float.offsetWidth||250, fh=float.offsetHeight||44;
  let top=anchor.top-fh-8;
- if(top<8) top=anchor.bottom+8;                  // sin espacio arriba → debajo
- let left=anchor.right-fw;                        // alinear a la derecha del ancla
+ if(top<8) top=anchor.bottom+8;                              // sin espacio arriba → debajo
+ let left=anchor.left+anchor.width/2-fw/2;                   // centrado sobre el ancla (el pronóstico)
  left=Math.max(8,Math.min(left,window.innerWidth-fw-8));
  float.style.top=top+"px";
  float.style.left=left+"px";
@@ -5140,8 +5165,9 @@ function openEmojiPicker(matchId,predictorUid,anchorRect){
  const avail = openUp?spaceAbove:spaceBelow;
  grid.style.maxHeight=Math.min(MAXH,Math.max(150,avail))+"px";
  const pw=picker.offsetWidth||300;
- let left=Math.min(Math.max(margin,anchorRect.left),window.innerWidth-pw-margin);
- picker.style.left=Math.max(margin,left)+"px";
+ let left=anchorRect.left+anchorRect.width/2-pw/2;
+ left=Math.max(margin,Math.min(left,window.innerWidth-pw-margin));
+ picker.style.left=left+"px";
  const ph=picker.offsetHeight;
  let top=openUp?(anchorRect.bottom-ph):anchorRect.top;
  top=Math.max(margin,Math.min(top,window.innerHeight-ph-margin));
@@ -5198,20 +5224,22 @@ async function rxnSave(matchId,predictorUid,emoji){
  rxnCloseFloat();
  if(!currentPollaId||!currentUser)return;
  const myUid=currentUser.uid;
- const path=`pollas/${currentPollaId}/reactions/${matchId}/${predictorUid}/${myUid}`;
- // ¿Ya tenía esta misma reacción? → quitarla (toggle, estilo WhatsApp).
+ // Se guarda dentro de mi propio nodo de participante (ruta con permiso de escritura).
+ const path=`pollas/${currentPollaId}/participantes/${myUid}/reactions/${matchId}/${predictorUid}`;
  const current=((allReactions[matchId]||{})[predictorUid]||{})[myUid];
- const remove=(current===emoji);
- // Actualización optimista para que la reacción aparezca (y se quede) al instante.
- allReactions[matchId]=allReactions[matchId]||{};
- allReactions[matchId][predictorUid]=allReactions[matchId][predictorUid]||{};
- if(remove)delete allReactions[matchId][predictorUid][myUid];
- else allReactions[matchId][predictorUid][myUid]=emoji;
+ const remove=(current===emoji); // tocar el mismo emoji lo quita (toggle)
+ // Optimista: actualizar mi nodo local y reconstruir, para que aparezca y SE QUEDE al instante.
+ allUsers[myUid]=allUsers[myUid]||{};
+ allUsers[myUid].reactions=allUsers[myUid].reactions||{};
+ allUsers[myUid].reactions[matchId]=allUsers[myUid].reactions[matchId]||{};
+ if(remove)delete allUsers[myUid].reactions[matchId][predictorUid];
+ else allUsers[myUid].reactions[matchId][predictorUid]=emoji;
+ rebuildReactions();
  render();
  try{
   if(remove)await db.ref(path).remove();
   else await db.ref(path).set(emoji);
- }catch(_){ /* la confirmación del servidor llegará por el listener */ }
+ }catch(_){ /* la confirmación llega por el listener de participantes */ }
 }
 
 function renderPartidos(){
