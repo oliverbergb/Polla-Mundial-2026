@@ -949,6 +949,7 @@ let db,auth,currentUser=null,currentTab="mis_pronos",currentGroup="A",currentEli
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
 let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,isCreator=false,prevRanking={};
+let globalWorld={especiales:{},groupOverride:{}},_worldHooked=false;
 const expandedMatches=new Set();
 const expandedEspeciales=new Set();
 let currentPollaId=null,currentPolla=null,myPollas={};
@@ -1046,15 +1047,14 @@ function totalPoints(u){
  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
  const preds=u.predictions||{},esp=u.especiales||{},grp=u.groupPredictions||{},elim=u.elimPredictions||{};
  const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPointsR(preds[m.id],allResults[m.id],r)||0),0);
- const adminEsp=allResults["especiales"]||{};
+ const adminEsp=globalWorld.especiales||{};
  const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
  const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
  const pts=r[ruleKey]??f.pts;
  const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
  return s+(p&&rv&&p===rv?pts:0);
  },0):0;
- const realGrp=allResults["groupOrder"]||{};
- const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0):0;
+ const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
  return matchPts+espPts+grpPts+elimPts;
 }
@@ -1315,6 +1315,7 @@ function loadData(){
  });
  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
  db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};});
+ if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
  prefetchH2H();
  iniciarMasterPolling();
  setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";}},1000);
@@ -2918,16 +2919,24 @@ function calcGroupTable(g){
  });
  return Object.entries(stats).map(([t,s])=>({team:t,...s,dif:s.gf-s.gc})).sort((a,b)=>b.pts-a.pts||b.dif-a.dif||b.gf-a.gf);
 }
+function officialGroupOrder(g){
+ const ov=(globalWorld.groupOverride||{})[g];
+ if(ov&&ov.length)return ov;
+ const gm=MATCHES.filter(m=>m.group===g);
+ if(!gm.length)return undefined;
+ const done=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null;});
+ if(!done)return undefined;
+ return calcGroupTable(g).map(r=>r.team);
+}
 function renderGrupos(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
- const realGrp=allResults["groupOrder"]||{};
  const incClasif=currentPolla?.rules?.incluirClasificacion!==false;
- const myTotalPts=incClasif?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(myGroupPreds[g],realGrp[g]),0):0;
+ const myTotalPts=incClasif?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(myGroupPreds[g],officialGroupOrder(g)),0):0;
  const posColors=["#22c55e","#22c55e","var(--primary)","#ef4444"];
  const posTips=["Clasifica","Clasifica","Posible clasificación","Eliminado"];
  const table=calcGroupTable(currentGroup);
  const userOrder=myGroupPreds[currentGroup]||[...GROUPS[currentGroup]];
- const realOrder=realGrp[currentGroup];
+ const realOrder=officialGroupOrder(currentGroup);
 
  return`
  ${incClasif?`<div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -3632,7 +3641,7 @@ function renderBracketPhase(phase){
 function renderEspeciales(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  const myEsp=allUsers[currentUser.uid]?.especiales||{};
- const adminEsp=allResults["especiales"]||{};
+ const adminEsp=globalWorld.especiales||{};
  const rules=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
  const fpts=f=>rules["esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1)]??f.pts;
  let espPts=0;
@@ -4003,7 +4012,7 @@ function buildPolliRecap(ymd,dayMatches){
 function renderAdmin(){
  if(!isAdmin)return`<div class="card"><p style="color:#ef4444">Acceso denegado.</p></div>`;
  const rows=Object.entries(allUsers).sort((a,b)=>a[1].name.localeCompare(b[1].name));
- const realGrp=allResults["groupOrder"]||{};
+ const realGrp=globalWorld.groupOverride||{};
  return`
  <div class="card" style="margin-bottom:14px">
  <div style="font-weight:700;margin-bottom:4px"> Panel de Administración</div>
@@ -4208,15 +4217,15 @@ window.saveEspecial=async function(field,val){
 };
 window.saveEspecialResult=async function(field,val){
  if(!isAdmin)return;
- await db.ref(`${pollaBase()}/results/especiales/${field}`).set(val);showToast("Guardado ");
+ await db.ref(`world/especiales/${field}`).set(val);showToast("Guardado · aplica a todas las pollas ");
 };
 window.saveRealGroupPos=async function(group,team,pos){
  if(!isAdmin||!pos)return;
- const realGrp=allResults["groupOrder"]||{};
+ const realGrp=globalWorld.groupOverride||{};
  let arr=realGrp[group]||new Array(4).fill(null);
  arr=arr.map(t=>t===team?null:t);
  arr[parseInt(pos)-1]=team;
- await db.ref(`${pollaBase()}/results/groupOrder/${group}`).set(arr);
+ await db.ref(`world/groupOverride/${group}`).set(arr);
  showToast(`${team} → ${pos}° en Grupo ${group} `);
 };
 window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).set(true);showToast("Fase desbloqueada ");};
@@ -4588,8 +4597,7 @@ window.openBreakdown=function(uid){
  track('breakdown_opened',{isSelf:uid===currentUser.uid});
  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
  const preds=u.predictions||{},esp=u.especiales||{},grp=u.groupPredictions||{},elim=u.elimPredictions||{};
- const adminEsp=allResults["especiales"]||{};
- const realGrp=allResults["groupOrder"]||{};
+ const adminEsp=globalWorld.especiales||{};
  const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPointsR(preds[m.id],allResults[m.id],r)||0),0);
  const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
  const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
@@ -4597,7 +4605,7 @@ window.openBreakdown=function(uid){
  const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
  return s+(p&&rv&&p===rv?pts:0);
  },0):0;
- const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0):0;
+ const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
  const total=matchPts+espPts+grpPts+elimPts;
  const isMine=uid===currentUser.uid;
@@ -4723,10 +4731,10 @@ window.openH2H=function(opponentUid){
 
  function statsFor(u){
   const preds=u.predictions||{},esp=u.especiales||{},grp=u.groupPredictions||{},elim=u.elimPredictions||{};
-  const adminEsp=allResults["especiales"]||{},realGrp=allResults["groupOrder"]||{};
+  const adminEsp=globalWorld.especiales||{};
   const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPointsR(preds[m.id],allResults[m.id],r)||0),0);
   const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
-  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],realGrp[g],r),0):0;
+  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g),r),0):0;
   const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
    const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
    const pts=r[ruleKey]??f.pts;
