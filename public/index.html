@@ -255,9 +255,10 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .reaction-btn{font-size:22px;background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:10px;transition:transform .12s;line-height:1}
 .reaction-btn:hover,.reaction-btn:active{transform:scale(1.35);background:var(--surface-3)}
 .pred-reaction-badge{font-size:12px;display:inline-flex;align-items:center;gap:2px;background:var(--surface-3);border:1px solid var(--border-soft);border-radius:10px;padding:2px 6px;cursor:pointer;font-weight:800;line-height:1.2}
-.rxn-trigger{opacity:.55;background:var(--surface-2);border:1px solid var(--border-soft);border-radius:50%;width:26px;height:26px;padding:0;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);transition:opacity .12s,transform .12s,color .12s}
-.rxn-trigger:hover,.rxn-trigger:active{opacity:1;transform:scale(1.12);color:var(--primary)}
+.rxn-trigger{opacity:0;background:var(--surface-2);border:1px solid var(--border-soft);border-radius:50%;width:24px;height:24px;padding:0;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);transition:opacity .12s,transform .12s,color .12s}
+.rxn-trigger:hover,.rxn-trigger:active{transform:scale(1.12);color:var(--primary)}
 .spectator-pred:hover .rxn-trigger,.esp-pred-row:hover .rxn-trigger{opacity:1}
+.spectator-pred:hover .rxn-trigger:hover{opacity:1}
 .reaction-btn-more{font-size:16px;background:var(--surface-2);border:none;cursor:pointer;padding:6px 9px;border-radius:10px;transition:transform .12s,background .12s;line-height:1;color:var(--text-muted);font-weight:900;display:flex;align-items:center;justify-content:center}
 .reaction-btn-more:hover{transform:scale(1.15);background:var(--surface-3);color:var(--primary)}
 .emoji-picker{position:fixed;background:var(--surface);border:1px solid var(--border-soft);border-radius:16px;z-index:2100;box-shadow:0 12px 40px rgba(0,0,0,.28);width:302px;max-width:calc(100vw - 16px);display:flex;flex-direction:column;overflow:hidden;animation:popIn .14s ease}
@@ -1320,6 +1321,7 @@ function loadData(){
  }
  });
  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
+ db.ref(`${base}/rules`).on("value",snap=>{const rv=snap.val();if(rv){currentPolla=currentPolla||{};currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)render();}});
  db.ref(`${base}/reactions`).on("value",snap=>{allReactions=snap.val()||{};if(currentPollaId)render();});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
  prefetchH2H();
@@ -2379,8 +2381,8 @@ function renderCrearPolla(){
  <div style="flex:1;text-align:center;font-size:16px;font-weight:900;color:var(--text)"> Crear polla</div>
  <div style="width:32px"></div>
  </div>
- <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">
- <div style="width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center">
+ <div style="flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:64px 20px 40px">
+ <div style="margin:auto 0;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center">
  <div style="position:relative;width:340px;max-width:100%;margin:0 auto 8px">
  <svg id="pollaChick" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="54 113 432 404" style="position:absolute;left:18px;top:-53px;width:64px;height:auto;z-index:5;pointer-events:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.12))">
   <defs>
@@ -2484,31 +2486,20 @@ ${s.id==="incluirPartidosGrupos"?`<span style="flex-shrink:0;font-size:10px;font
    <span style="font-size:9px;font-weight:900;color:#fff;background:var(--accent-light);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.5px">Privacidad</span>
    <span style="font-size:11px;font-weight:700;color:var(--accent-light)">No afecta el puntaje</span>
   </div>
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px;gap:12px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:6px 14px 14px;gap:12px">
    <div>
     <div style="font-size:13px;font-weight:800;color:var(--text)">¿Ver los pronósticos de los demás?</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Activado: cada quien puede espiar lo que pronosticaron los demás. Apagado: los pronósticos quedan privados hasta el final.</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.5">
+     <div><b style="color:var(--accent-light)">Activado:</b> cada quien puede espiar los pronósticos de los demás antes de los partidos.</div>
+     <div style="margin-top:5px"><b style="color:var(--text)">Apagado:</b> los pronósticos quedan privados hasta que empiece el partido.</div>
+    </div>
    </div>
-   <label style="position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer">
+   <label style="position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer;margin-top:2px">
     <input type="checkbox" id="verPronosticos" checked style="opacity:0;width:0;height:0;position:absolute"
-     onchange="document.getElementById('toggle-track-verPronosticos').style.background=this.checked?'var(--accent)':'var(--border)';document.getElementById('toggle-dot-verPronosticos').style.transform=this.checked?'translateX(18px)':'translateX(0)';document.getElementById('vp-ej-on').style.display=this.checked?'block':'none';document.getElementById('vp-ej-off').style.display=this.checked?'none':'block'"/>
+     onchange="document.getElementById('toggle-track-verPronosticos').style.background=this.checked?'var(--accent)':'var(--border)';document.getElementById('toggle-dot-verPronosticos').style.transform=this.checked?'translateX(18px)':'translateX(0)'"/>
     <div id="toggle-track-verPronosticos" style="position:absolute;inset:0;background:var(--accent);border-radius:11px;transition:background .2s"></div>
     <div id="toggle-dot-verPronosticos" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;transform:translateX(18px)"></div>
    </label>
-  </div>
-  <div style="padding:6px 14px 12px">
-   <div id="vp-ej-on" style="background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 10px">
-    <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Así se vería · activado</div>
-    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-size:12px">
-     <span style="display:flex;align-items:center;gap:5px;font-weight:800;color:#1CB0F6"><span style="width:7px;height:7px;border-radius:50%;background:#1CB0F6"></span>Carla</span><span style="font-family:monospace;font-weight:700;text-align:center;color:var(--text)">2 — 1</span><span></span>
-    </div>
-   </div>
-   <div id="vp-ej-off" style="display:none;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 10px">
-    <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Así se vería · apagado</div>
-    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-size:12px">
-     <span style="display:flex;align-items:center;gap:5px;font-weight:800;color:#1CB0F6"><span style="width:7px;height:7px;border-radius:50%;background:#1CB0F6"></span>Carla</span><span style="font-family:monospace;font-weight:700;text-align:center;color:var(--text-dim)">🔒 Oculto</span><span></span>
-    </div>
-   </div>
   </div>
  </div>
  </div>
@@ -3342,7 +3333,8 @@ function matchHasAnyPrediction(m){
 }
 function spectatorBlock(m, res, opts){
  opts=opts||{};
- if(currentPolla?.rules?.verPronosticos===false) return '';
+ // Privacidad: si está apagada, los pronósticos quedan ocultos solo HASTA que empieza el partido.
+ if(currentPolla?.rules?.verPronosticos===false && !isLocked(m)) return '';
  const isLiveState=!!opts.live; // true if we're framing as live (potential points)
  const allEntries = Object.entries(allUsers);
  if(!allEntries.length) return '';
@@ -3545,7 +3537,7 @@ function renderMisPronos(){
   : '';
 
  // Morbo: before kickoff (open/blocked) let anyone peek at others' predictions when at least one exists
- const morboToggleBtn = ((cardState==='open'||cardState==='blocked') && anyPred && currentPolla?.rules?.verPronosticos!==false)
+ const morboToggleBtn = (anyPred && ((cardState==='blocked')||(cardState==='open'&&currentPolla?.rules?.verPronosticos!==false)))
   ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" aria-label="Ver pronósticos" style="display:block;margin:6px auto 0;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 12px">${isExpanded?'▴':'▾'}</button>`
   : '';
 
@@ -3683,7 +3675,8 @@ function renderBracketPhase(phase){
 // ─── TAB: ESPECIALES ──────────────────────────────────────
 function renderEspeciales(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
- const verPronos=(currentPolla?.rules?.verPronosticos!==false);
+ // Privacidad: si está apagada, se ocultan los pronósticos de los demás hasta que arranque el Mundial (lockout).
+ const verPronos=(currentPolla?.rules?.verPronosticos!==false)||locked;
  const myEsp=allUsers[currentUser.uid]?.especiales||{};
  const adminEsp=globalWorld.especiales||{};
  const rules=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
@@ -4061,22 +4054,22 @@ function buildPolliRecap(ymd,dayMatches){
  // Build HTML (uses safe text — names come from db but escape just in case)
  const esc=escHtml;
  const lines=[];
- lines.push(`<div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">🗞️ Resumen · ${dateLabel}</div>`);
+ lines.push(`<div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Resumen · ${dateLabel}</div>`);
  lines.push(`<div style="font-size:12px;color:var(--text);margin-bottom:10px">Cerró otra jornada del Mundial. Esto fue lo más destacado:</div>`);
  if(top&&top.total>0){
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">🔝 Mejor del día:</strong> ${esc(top.name)} con <strong>+${top.total} pts</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Mejor del día:</strong> ${esc(top.name)} con <strong>+${top.total} pts</strong></div>`);
  }
  if(bestSingleAll&&bestSingleAll.best&&bestSingleAll.best.match){
   const bm=bestSingleAll.best.match;
   const bp=bestSingleAll.best.pred;
   const bres=allResults[bm.id];
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">🎯 Pronóstico del día:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico del día:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
  }
  // Racha activa — show top streak holder if any
  const streakRanking=Object.keys(allUsers).map(uid=>({uid,name:allUsers[uid].name,streak:getStreak(uid)})).filter(x=>x.streak>=3).sort((a,b)=>b.streak-a.streak);
  if(streakRanking.length){
   const top=streakRanking[0];
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">🔥 Racha activa:</strong> ${esc(top.name)} con ${top.streak} partidos seguidos con puntos</div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Racha activa:</strong> ${esc(top.name)} con ${top.streak} partidos seguidos con puntos</div>`);
  }
  return {html:lines.join(""),ts:Date.parse(`${ymd}T23:59:00`)};
 }
@@ -4364,10 +4357,13 @@ window.openEditRules=function(){
    <span style="font-size:9px;font-weight:900;color:#fff;background:var(--accent-light);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.5px">Privacidad</span>
    <span style="font-size:11px;font-weight:700;color:var(--accent-light)">No afecta el puntaje</span>
   </div>
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
    <div>
     <div style="font-size:13px;font-weight:800;color:var(--text)">¿Ver los pronósticos de los demás?</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Apagado: los pronósticos quedan privados hasta el final.</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.5">
+     <div><b style="color:var(--accent-light)">Activado:</b> cada quien puede espiar los pronósticos de los demás antes de los partidos.</div>
+     <div style="margin-top:5px"><b style="color:var(--text)">Apagado:</b> los pronósticos quedan privados hasta que empiece el partido.</div>
+    </div>
    </div>
    <label style="position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer">
     <input type="checkbox" id="erule_verPronosticos" ${vpOn?'checked':''} style="opacity:0;width:0;height:0;position:absolute"
@@ -4404,8 +4400,8 @@ window.saveEditRules=async function(){
   }
   if(vpChanged){
    const html=vpChanged==="on"
-    ? `<b>${escHtml(currentUser.name)}</b> activó <b>ver los pronósticos de los demás</b>. Ahora todos pueden espiar lo que pronosticó cada quien. 👀`
-    : `<b>${escHtml(currentUser.name)}</b> apagó <b>ver los pronósticos de los demás</b>. Los pronósticos quedan privados hasta el final. 🔒`;
+    ? `<b>${escHtml(currentUser.name)}</b> activó <b>ver los pronósticos de los demás</b>. Ahora cada quien puede espiar los pronósticos de los demás antes de los partidos.`
+    : `<b>${escHtml(currentUser.name)}</b> apagó <b>ver los pronósticos de los demás</b>. Los pronósticos quedan privados hasta que empiece cada partido.`;
    await db.ref(`pollas/${currentPollaId}/chat`).push({uid:POLLI_UID,name:POLLI_NAME,html,ts:Date.now()});
   }
   currentPolla.rules=currentPolla.rules||{};
@@ -4658,7 +4654,7 @@ ${incEsp?`<div class="rules-section">
 <li>Los pronósticos bloqueados no se pueden editar</li>
 <li>Los resultados se actualizan automáticamente</li>
 <li>En caso de empate en el ranking, gana quien acertó más marcadores exactos</li>
-<li>${(r.verPronosticos!==false)?"Puedes ver los pronósticos de los demás":"Los pronósticos de los demás son privados hasta el final"}</li>
+<li>${(r.verPronosticos!==false)?"Puedes ver los pronósticos de los demás antes de los partidos":"Los pronósticos de los demás son privados hasta que empiece cada partido"}</li>
 </ul>
 </div>`;
  modal.style.display="flex";
@@ -4937,29 +4933,6 @@ window.openH2H=function(opponentUid){
 
  ${renderRankChart(buildRankTimeline(currentUser.uid,opponentUid),themName)}
 
- ${differMatches.length>0?`
- <div style="margin-bottom:14px">
-  <div style="font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Partidos donde difieren ${wonRows.length>0?`<span style="color:var(--text);text-transform:none;letter-spacing:0;font-size:11px;margin-left:6px">· ${myWins} - ${theirWins}</span>`:''}</div>
-  ${differMatches.map(m=>{
-   const myP=m.phase==="groups"?(myPredictions||{})[m.id]:(myElimPreds||{})[m.id];
-   const themP=m.phase==="groups"?(opp.predictions||{})[m.id]:(opp.elimPredictions||{})[m.id];
-   const res=allResults[m.id];
-   const hasR=res&&res.h!==undefined&&res.h!=="";
-   const myPts=hasR?(m.phase==="groups"?calcMatchPointsR(myP,res,r):calcElimPointsR(myP,res,r)):null;
-   const thPts=hasR?(m.phase==="groups"?calcMatchPointsR(themP,res,r):calcElimPointsR(themP,res,r)):null;
-   const winner=hasR?(myPts>thPts?'me':thPts>myPts?'them':'tie'):null;
-   const homeTeam=resolveElimTeam(m.home),awayTeam=resolveElimTeam(m.away);
-   return `<div style="padding:8px 10px;border-radius:8px;background:var(--surface-2);margin-bottom:6px;font-size:12px">
-    <div style="font-weight:700;color:var(--text);margin-bottom:4px">${flag(homeTeam)} ${homeTeam} vs ${awayTeam} ${flag(awayTeam)}</div>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:monospace">
-     <span style="color:${winner==='me'?'var(--primary)':'var(--text-muted)'};${winner==='me'?'font-weight:900':''}">Tú ${myP.h}-${myP.a}${myPts!==null?` <span style="color:${myPts>=1?'var(--primary-hover)':'#ef4444'};font-weight:900">+${myPts}</span>`:''}</span>
-     ${hasR?`<span style="color:var(--text-muted);font-size:10px">Real ${res.h}-${res.a}</span>`:'<span style="color:var(--text-dim);font-size:10px">aún no jugado</span>'}
-     <span style="color:${winner==='them'?'var(--primary)':'var(--text-muted)'};${winner==='them'?'font-weight:900':''}">${themName} ${themP.h}-${themP.a}${thPts!==null?` <span style="color:${thPts>=1?'var(--primary-hover)':'#ef4444'};font-weight:900">+${thPts}</span>`:''}</span>
-    </div>
-   </div>`;
-  }).join("")}
- </div>`:`<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Aún no hay partidos donde hayan diferido sus pronósticos.</div>`}
-
  <button onclick="closeH2H()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Nunito',sans-serif">Cerrar</button>
  `;
  document.getElementById("h2h-overlay").style.display="flex";
@@ -5108,17 +5081,15 @@ function rxnTouchEnd(){
  clearTimeout(_rxnTimer);
  _rxnEl=null;
 }
-window.rxnShowFromTrigger=function(btn){const el=btn.closest(".spectator-pred");if(el)rxnShow(el);};
-function rxnShow(el){
+window.rxnShowFromTrigger=function(btn){const el=btn.closest(".spectator-pred");if(el)rxnShow(el,btn);};
+function rxnShow(el,anchorEl){
  rxnCloseFloat();
  const matchId=el.dataset.match;            // string key (match id o "esp_xxx")
  const predictorUid=el.dataset.uid;
- const rect=el.getBoundingClientRect();
+ const anchor=(anchorEl||el).getBoundingClientRect();
  const float=document.createElement("div");
  float.className="reaction-float";
  float.id="rxn-float";
- float.style.top=Math.max(8,(rect.top-54))+"px";
- float.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-240))+"px";
  REACTION_QUICK.forEach(e=>{
  const btn=document.createElement("button");
  btn.className="reaction-btn";
@@ -5136,9 +5107,14 @@ function rxnShow(el){
  more.onclick=(ev)=>{ev.stopPropagation();const fr=float.getBoundingClientRect();openEmojiPicker(matchId,predictorUid,fr);};
  float.appendChild(more);
  document.body.appendChild(float);
- // Reposicionar con el ancho real para no salirse de la pantalla
- const fw=float.offsetWidth||250;
- float.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-fw-8))+"px";
+ // Posicionar pegadito al pronóstico: justo encima del ancla (la carita), alineado a su derecha.
+ const fw=float.offsetWidth||250, fh=float.offsetHeight||44;
+ let top=anchor.top-fh-8;
+ if(top<8) top=anchor.bottom+8;                  // sin espacio arriba → debajo
+ let left=anchor.right-fw;                        // alinear a la derecha del ancla
+ left=Math.max(8,Math.min(left,window.innerWidth-fw-8));
+ float.style.top=top+"px";
+ float.style.left=left+"px";
  setTimeout(()=>document.addEventListener("pointerdown",rxnOutside,true),60);
 }
 // Selector completo de emojis. Se abre hacia ARRIBA si hay espacio; si no, hacia abajo.
@@ -5221,9 +5197,21 @@ window.showWhoReacted=function(matchId,predictorUid,emoji,ev){
 async function rxnSave(matchId,predictorUid,emoji){
  rxnCloseFloat();
  if(!currentPollaId||!currentUser)return;
- const path=`pollas/${currentPollaId}/reactions/${matchId}/${predictorUid}/${currentUser.uid}`;
- await db.ref(path).set(emoji);
- showToast(emoji+" Reacción guardada");
+ const myUid=currentUser.uid;
+ const path=`pollas/${currentPollaId}/reactions/${matchId}/${predictorUid}/${myUid}`;
+ // ¿Ya tenía esta misma reacción? → quitarla (toggle, estilo WhatsApp).
+ const current=((allReactions[matchId]||{})[predictorUid]||{})[myUid];
+ const remove=(current===emoji);
+ // Actualización optimista para que la reacción aparezca (y se quede) al instante.
+ allReactions[matchId]=allReactions[matchId]||{};
+ allReactions[matchId][predictorUid]=allReactions[matchId][predictorUid]||{};
+ if(remove)delete allReactions[matchId][predictorUid][myUid];
+ else allReactions[matchId][predictorUid][myUid]=emoji;
+ render();
+ try{
+  if(remove)await db.ref(path).remove();
+  else await db.ref(path).set(emoji);
+ }catch(_){ /* la confirmación del servidor llegará por el listener */ }
 }
 
 function renderPartidos(){
