@@ -2900,6 +2900,23 @@ function showGoalNotif(match,newH,newA){
  _gnTimer=setTimeout(()=>{bar.style.transform="translateX(-50%) translateY(-100%)";},isExact?5000:4000);
 }
 
+// ─── SCHEDULE SEED (server-side lockout) ──────────────────
+// Publica matchId -> kickoff(ms) en /schedule para que las reglas de Firebase
+// puedan cerrar cada partido del lado del servidor. Solo el ADMIN puede escribirlo.
+async function seedScheduleIfAdmin(){
+ if(!currentUser||currentUser.uid!==ADMIN_UID)return;
+ try{
+  const snap=await db.ref("schedule").get();
+  const existing=snap.val()||{};
+  const updates={};
+  MATCHES.forEach(m=>{
+   const ms=new Date(m.kickoff).getTime();
+   if(!isNaN(ms)&&existing[m.id]!==ms)updates["schedule/"+m.id]=ms;
+  });
+  if(Object.keys(updates).length)await db.ref().update(updates);
+ }catch(e){console.log("seedSchedule error:",e);}
+}
+
 // ─── MASTER POLLING ───────────────────────────────────────
 function iniciarMasterPolling(){
  // Escuchar scores globales en tiempo real — todos los clientes
@@ -2931,8 +2948,12 @@ function iniciarMasterPolling(){
  }catch(e){console.log("Master check error:",e);}
  }
 
- turnoMaster();
- setInterval(turnoMaster,120000);
+ // Solo el ADMIN escribe liveScores (las reglas de Firebase lo exigen). El resto solo lee el listener de arriba.
+ if(currentUser && currentUser.uid===ADMIN_UID){
+  seedScheduleIfAdmin();
+  turnoMaster();
+  setInterval(turnoMaster,120000);
+ }
 }
 
 async function fetchLiveResults(){
@@ -4425,7 +4446,8 @@ window.savePred=async function(matchId,side,val){
  val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myPredictions[matchId]={...(myPredictions[matchId]||{}),[side]:val};
- await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val});
+ try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val}); }
+ catch(e){ showToast("Este partido ya cerró; no se pudo guardar.","#ef4444",3500); return; }
  // Fire once per match after both sides filled, debounced
  clearTimeout(_predTrackTimer[matchId]);
  _predTrackTimer[matchId]=setTimeout(()=>{
@@ -4437,7 +4459,8 @@ window.savePred=async function(matchId,side,val){
 window.saveGroupPred=async function(group,order){
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT))return;
  myGroupPreds[group]=order;
- await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/groupPredictions/${group}`).set(order);
+ try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/groupPredictions/${group}`).set(order); }
+ catch(e){ showToast("Los pronósticos ya cerraron; no se pudo guardar.","#ef4444",3500); return; }
  track('group_order_saved',{group});
  showToast("Guardado ");
 };
@@ -4446,18 +4469,21 @@ window.saveElimPred=async function(matchId,side,val){
  val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
- await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val});
+ try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val}); }
+ catch(e){ showToast("Este partido ya cerró; no se pudo guardar.","#ef4444",3500); return; }
 };
 window.saveElimWinner=async function(matchId,winner){
  const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),winner};
- await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({winner});
+ try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({winner}); }
+ catch(e){ showToast("Este partido ya cerró; no se pudo guardar.","#ef4444",3500); return; }
  track('elim_winner_saved',{phase:m.phase});
  showToast("Guardado ");
 };
 window.saveEspecial=async function(field,val){
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT))return;
- await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/especiales/${field}`).set(val);
+ try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/especiales/${field}`).set(val); }
+ catch(e){ showToast("Los especiales ya cerraron; no se pudo guardar.","#ef4444",3500); return; }
  if(val)track('especial_saved',{field});
 };
 window.saveEspecialResult=async function(field,val){
