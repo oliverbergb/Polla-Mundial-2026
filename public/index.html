@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Tu Polla </title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22100%2080%20350%20420%22%3E%3Cstyle%3E.f1%7Bfill%3A%23de3d27%7D.f2%7Bfill%3A%23f5a522%7D.f4%7Bfill%3A%231e3dad%7D%3C%2Fstyle%3E%3Cpath%20class%3D%22f1%22%20d%3D%22m154.9%2C266.07l-6.52-6.6c-22.56-22.84-23.47-50.61-6.91-66.97h0s14.12%2C14.3%2C14.12%2C14.3l-.43-.86c-16.19-32.25-4.25-63.91%2C23.17-77.67h0l24.09%2C48.01c6.48-12.55%2C18.19-21.49%2C32.79-24.76l11.57%2C51.73c-37.52%2C4.84-76.56%2C25.56-91.9%2C62.82Z%22%2F%3E%3Cpath%20class%3D%22f2%22%20d%3D%22m407.52%2C300.09c-11.28-50.51-65.88-82.19-126.37-76.08v109.42c39.02-.08%2C77.74-6.99%2C114.34-20.56l13.74-5.09-1.72-7.69Z%22%2F%3E%3Cpath%20class%3D%22f1%22%20d%3D%22m281.15%2C333.49h59.55c32.87%2C0%2C59.55%2C26.68%2C59.55%2C59.55h0c0%2C32.87-26.68%2C59.55-59.55%2C59.55h0c-32.87%2C0-59.55-26.68-59.55-59.55v-59.55h0Z%22%2F%3E%3Cpath%20class%3D%22f4%22%20d%3D%22m308.24%2C262.14l28.15%2C19.55s9.6-35.71%2C42.46-29.18c0%2C0-18.95-16.56-35.04-20.77%2C0%2C0-16.29-1.23-35.57%2C30.41Z%22%2F%3E%3C%2Fsvg%3E"/>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#FF9600">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tu Polla">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script defer src="/_vercel/insights/script.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -404,6 +411,13 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 @keyframes float-big{0%,100%{transform:translateY(0) scaleX(1)}45%,55%{transform:translateY(-10px) scaleX(1.01)}}
 @keyframes bounce-h{0%,100%{transform:translateY(0) scale(1,1)}40%,60%{transform:translateY(-6px) scale(.97,1.03)}}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#FF9600">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tu Polla">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script defer src="/_vercel/insights/script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -5287,6 +5301,13 @@ function renderTab(){
 }
 
 window.addEventListener("load",initFirebase);
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
 </script>
 </body>
 </html>
