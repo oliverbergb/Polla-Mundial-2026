@@ -2598,6 +2598,8 @@ function renderPollaLobby(){
  <a href="#" onclick="event.preventDefault();openLegal('terms')" style="color:var(--text-dim);text-decoration:underline">Términos</a>
  &nbsp;·&nbsp;
  <a href="#" onclick="event.preventDefault();openLegal('privacy')" style="color:var(--text-dim);text-decoration:underline">Privacidad</a>
+ &nbsp;·&nbsp;
+ <a href="#" onclick="event.preventDefault();eliminarCuenta()" style="color:var(--text-dim);text-decoration:underline">Eliminar cuenta</a>
  </div>
  </div>
  </div>`;
@@ -4971,6 +4973,53 @@ document.addEventListener("keydown",function(e){
  else if(e.key==="ArrowRight"&&_crearPreset==="clasica")tpPreset('completa');
 });
 window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
+
+// ─── ELIMINAR CUENTA (requisito de Google Play) ───────────
+window.eliminarCuenta=function(){
+ if(!auth||!auth.currentUser){showToast("Debes iniciar sesión para eliminar tu cuenta","#ef4444");return;}
+ showConfirmModal(
+  "",
+  "Eliminar cuenta",
+  "Se borrarán de forma permanente tu cuenta, tu perfil y tus datos (nombre, pronósticos y mensajes). Esta acción no se puede deshacer.",
+  "Sí, eliminar",
+  "#ef4444",
+  doEliminarCuenta
+ );
+};
+async function reautenticarUsuario(user){
+ try{
+  const providerId=(user.providerData&&user.providerData[0]&&user.providerData[0].providerId)||"password";
+  if(providerId==="google.com"){
+   await user.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
+   return true;
+  }
+  const pass=window.prompt("Por seguridad, confirma tu contraseña para eliminar la cuenta:");
+  if(!pass)return false;
+  const cred=firebase.auth.EmailAuthProvider.credential(user.email,pass);
+  await user.reauthenticateWithCredential(cred);
+  return true;
+ }catch(e){return false;}
+}
+async function doEliminarCuenta(){
+ const user=auth.currentUser;
+ if(!user)return;
+ const uid=user.uid;
+ try{
+  await db.ref(`users/${uid}`).remove();
+  await user.delete();
+  currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;
+  showToast("Tu cuenta fue eliminada");
+  renderLanding();
+ }catch(e){
+  if(e&&e.code==="auth/requires-recent-login"){
+   const ok=await reautenticarUsuario(user);
+   if(ok)return doEliminarCuenta();
+   showToast("Por seguridad, vuelve a iniciar sesión e inténtalo de nuevo.","#ef4444",5000);
+  }else{
+   showToast("No se pudo eliminar la cuenta: "+(e.message||e.code||"error"),"#ef4444",5000);
+  }
+ }
+}
 window.goToLobby=function(){
  // Detach listeners
  if(currentPollaId){
