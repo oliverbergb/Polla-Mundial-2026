@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tu Polla — Pollas creadas</title>
+<style>
+ *{box-sizing:border-box}
+ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#1c1207;color:#f5efe6;margin:0;padding:24px;line-height:1.45}
+ h1{font-size:20px;margin:0 0 4px}
+ .sub{color:#b8a98f;font-size:13px;margin-bottom:20px}
+ button{background:#de3d27;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer}
+ button:disabled{opacity:.5;cursor:default}
+ .stat{display:inline-block;background:#2a1d0f;border-radius:12px;padding:14px 20px;margin:0 10px 14px 0}
+ .stat b{display:block;font-size:28px;color:#de3d27}
+ .stat span{font-size:12px;color:#b8a98f}
+ .polla{background:#2a1d0f;border-radius:12px;padding:14px 16px;margin-bottom:12px;border-left:3px solid #de3d27}
+ .polla h2{font-size:16px;margin:0 0 2px}
+ .meta{font-size:12px;color:#b8a98f;margin-bottom:8px}
+ .part{font-size:13px;padding:4px 0;border-top:1px solid #3a2a18;display:flex;justify-content:space-between;gap:10px}
+ .part:first-of-type{border-top:none}
+ .email{color:#8c7a5e;font-size:11px}
+ .err{color:#ff6b6b}
+ code{background:#3a2a18;padding:1px 5px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+<h1>Tu Polla — Pollas creadas</h1>
+<div class="sub">Inicia sesión con tu cuenta de administrador para ver todas las pollas y sus participantes.</div>
+<button id="loginBtn">Iniciar sesión con Google</button>
+<div id="out"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const FIREBASE_CONFIG={
+ apiKey:"AIzaSyBTkbXyjOiEoY2t-9YRA0b7wlIB0AEUgUA",
+ authDomain:"polla-mundial-2026-e85da.firebaseapp.com",
+ databaseURL:"https://polla-mundial-2026-e85da-default-rtdb.firebaseio.com",
+ projectId:"polla-mundial-2026-e85da",
+ storageBucket:"polla-mundial-2026-e85da.firebasestorage.app",
+ messagingSenderId:"462649925296",
+ appId:"1:462649925296:web:e2bf442f02995699afe575"
+};
+const ADMIN_UID="BGRX6wt6TpR2srb38VG9gRUjk4g2";
+
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth=firebase.auth();
+const db=firebase.database();
+const out=document.getElementById("out");
+const btn=document.getElementById("loginBtn");
+
+btn.onclick=async()=>{
+ try{ await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+ catch(e){ out.innerHTML='<p class="err">No se pudo iniciar sesión: '+(e.code||e.message)+'</p>'; }
+};
+
+function esc(s){return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function fdate(ms){ if(!ms)return "—"; const d=new Date(ms); return d.toLocaleDateString("es-PE")+" "+d.toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}); }
+
+auth.onAuthStateChanged(async user=>{
+ if(!user){ btn.style.display="inline-block"; return; }
+ if(user.uid!==ADMIN_UID){
+  out.innerHTML='<p class="err">Esta cuenta ('+esc(user.email)+') no es la de administrador. Cierra sesión e ingresa con la cuenta admin.</p><button onclick="auth.signOut()">Cerrar sesión</button>';
+  btn.style.display="none"; return;
+ }
+ btn.style.display="none";
+ out.innerHTML='<p>Cargando…</p>';
+ let snap;
+ try{ snap=await db.ref("pollas").get(); }
+ catch(e){ out.innerHTML='<p class="err">No se pudo leer la base de datos: '+(e.code||e.message)+'. Probablemente las reglas de seguridad no permiten leer todo el nodo <code>/pollas</code> al admin. Avísame y te paso la regla a agregar.</p>'; return; }
+
+ const all=snap.val()||{};
+ const entries=Object.entries(all);
+ const uniqueUids=new Set();
+ entries.forEach(([,p])=>Object.keys(p.participantes||{}).forEach(u=>uniqueUids.add(u)));
+
+ entries.sort((a,b)=>(b[1].creadaEn||0)-(a[1].creadaEn||0));
+
+ let html=`
+  <div class="stat"><b>${entries.length}</b><span>pollas creadas</span></div>
+  <div class="stat"><b>${uniqueUids.size}</b><span>usuarios únicos</span></div>
+  <button onclick="auth.signOut()" style="vertical-align:top;margin-top:6px">Cerrar sesión</button>
+ `;
+
+ entries.forEach(([id,p])=>{
+  const parts=Object.entries(p.participantes||{});
+  const creatorName=(p.participantes&&p.creadorUid&&p.participantes[p.creadorUid]&&p.participantes[p.creadorUid].name)||"¿?";
+  html+=`<div class="polla">
+   <h2>${esc(p.nombre||"(sin nombre)")}</h2>
+   <div class="meta">Código <code>${esc(p.code||"—")}</code> · creada ${fdate(p.creadaEn)} · creador: <b>${esc(creatorName)}</b> · ${parts.length} participante${parts.length!==1?"s":""}</div>`;
+  parts.sort((a,b)=>(a[1].name||"").localeCompare(b[1].name||""));
+  parts.forEach(([uid,u])=>{
+   const isCreator=uid===p.creadorUid;
+   html+=`<div class="part"><span>${esc(u.name||"¿?")}${isCreator?" 👑":""}</span><span class="email">${esc(u.email||"")}</span></div>`;
+  });
+  html+=`</div>`;
+ });
+
+ if(!entries.length) html+='<p>Todavía no se ha creado ninguna polla.</p>';
+ out.innerHTML=html;
+});
+</script>
+</body>
+</html>
