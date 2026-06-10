@@ -2451,25 +2451,13 @@ window.doGoogleAuth=async function(){
   }
   return;
  }
- // ---- WEB: en móvil el popup se cierra solo ("rebota"), así que vamos directo a redirect.
- //      En escritorio usamos popup y, si lo bloquean, caemos a redirect.
- const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||"");
- if(isMobile){
-  try{ await auth.signInWithRedirect(provider); }
-  catch(e){
-   if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
-   showToast("Error con Google: "+(e.message||e.code),"#ef4444",4000);
-  }
-  return;
- }
+ // ---- WEB: el handler de auth vive en nuestro propio dominio (tupolla.pe/__/auth),
+ //      así que usamos redirect en TODAS las plataformas. Es el flujo same-origin
+ //      recomendado por Firebase y evita el bug de "storage particionado" en móvil.
  try{
-  await auth.signInWithPopup(provider);
+  await auth.signInWithRedirect(provider);
  }catch(e){
-  if(e.code==="auth/popup-closed-by-user"||e.code==="auth/cancelled-popup-request")return;
   if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
-  if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment"){
-   try{ await auth.signInWithRedirect(provider); return; }catch(_){}
-  }
   showToast("Error con Google: "+(e.message||e.code),"#ef4444",4000);
  }
 };
