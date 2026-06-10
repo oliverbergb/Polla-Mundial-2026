@@ -852,7 +852,7 @@ window.tpPreset=function(kind){_crearPreset=kind;const on=kind==="completa";cons
 // ─── CONFIG ───────────────────────────────────────────────
 const FIREBASE_CONFIG={
  apiKey:"AIzaSyBTkbXyjOiEoY2t-9YRA0b7wlIB0AEUgUA",
- authDomain:"polla-mundial-2026-e85da.firebaseapp.com",
+ authDomain:"tupolla.pe",
  databaseURL:"https://polla-mundial-2026-e85da-default-rtdb.firebaseio.com",
  projectId:"polla-mundial-2026-e85da",
  storageBucket:"polla-mundial-2026-e85da.firebasestorage.app",
@@ -1395,7 +1395,7 @@ function initFirebase(){
  const inviteCode=urlParams.get("polla");
  if(inviteCode)sessionStorage.setItem("pendingPolla",inviteCode);
  // Completa el flujo de Google por redirect (fallback web cuando el popup está bloqueado).
- try{ auth.getRedirectResult().catch(function(e){ if(e&&e.code==="auth/unauthorized-domain"){try{showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);}catch(_){}} }); }catch(_){}
+ try{ auth.getRedirectResult().catch(function(e){ var c=(e&&e.code)||""; if(c==="auth/unauthorized-domain"){try{showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);}catch(_){}} else if(c){try{showToast("Google redirect: "+c,"#ef4444",5000);}catch(_){}} }); }catch(_){}
  auth.onAuthStateChanged(async user=>{
  if(user){
  // An authenticated user must NEVER be dumped on the login screen because of a
