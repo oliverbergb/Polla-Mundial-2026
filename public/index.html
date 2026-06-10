@@ -852,7 +852,7 @@ window.tpPreset=function(kind){_crearPreset=kind;const on=kind==="completa";cons
 // ─── CONFIG ───────────────────────────────────────────────
 const FIREBASE_CONFIG={
  apiKey:"AIzaSyBTkbXyjOiEoY2t-9YRA0b7wlIB0AEUgUA",
- authDomain:"tupolla.pe",
+ authDomain:"polla-mundial-2026-e85da.firebaseapp.com",
  databaseURL:"https://polla-mundial-2026-e85da-default-rtdb.firebaseio.com",
  projectId:"polla-mundial-2026-e85da",
  storageBucket:"polla-mundial-2026-e85da.firebasestorage.app",
@@ -1384,7 +1384,7 @@ function localDeadline(){
 }
 
 // ─── FIREBASE ─────────────────────────────────────────────
-function initFirebase(){
+async function initFirebase(){
  firebase.initializeApp(FIREBASE_CONFIG);
  const appCheck=firebase.appCheck();
  appCheck.activate('6Lco0QUtAAAAJhTQNecGbApGTr4Co2WDebJDWjg',true);
@@ -1394,8 +1394,15 @@ function initFirebase(){
  const urlParams=new URLSearchParams(window.location.search);
  const inviteCode=urlParams.get("polla");
  if(inviteCode)sessionStorage.setItem("pendingPolla",inviteCode);
- // Completa el flujo de Google por redirect (fallback web cuando el popup está bloqueado).
- try{ auth.getRedirectResult().catch(function(e){ var c=(e&&e.code)||""; if(c==="auth/unauthorized-domain"){try{showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);}catch(_){}} else if(c){try{showToast("Google redirect: "+c,"#ef4444",5000);}catch(_){}} }); }catch(_){}
+ // Completa el flujo de Google por redirect ANTES de arrancar el listener,
+ // para que onAuthStateChanged no renderice el landing mientras el redirect está en proceso.
+ try{
+  await auth.getRedirectResult();
+ }catch(e){
+  const c=(e&&e.code)||"";
+  if(c==="auth/unauthorized-domain"){try{showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);}catch(_){}}
+  else if(c&&c!=="auth/null-user"){try{showToast("Google: "+c,"#ef4444",5000);}catch(_){}}
+ }
  auth.onAuthStateChanged(async user=>{
  if(user){
  // An authenticated user must NEVER be dumped on the login screen because of a
