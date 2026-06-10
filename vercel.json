@@ -9,5 +9,9 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/__/auth/:path*", "destination": "https://polla-mundial-2026-e85da.firebaseapp.com/__/auth/:path*" },
+    { "source": "/__/firebase/:path*", "destination": "https://polla-mundial-2026-e85da.firebaseapp.com/__/firebase/:path*" }
   ]
 }
