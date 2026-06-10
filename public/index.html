@@ -900,240 +900,41 @@ const BLUE_ROOSTER='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 548.95 
 // ─── PLAYER LIST (autocomplete especiales) ─────────────────
 const ALL_TEAMS=Object.values(GROUPS).flat();
 const DT_PLAYERS=[
- "Aaron Hickey","Aaron Tshibola","Aaron Wan-Bissaka","Abbosbek Fayzullaev","Abdallah Alfakhori",
- "Abdallah Nasib","Abde Ezzalzouli","Abdoulaye Seck","Abdukodir Khusanov","Abdul Fatawu","Abdul Mumin",
- "Abdulaziz Hatem","Abdulelah Al-Amri","Abdulla Abdullaev","Abdullah Al-Hamddan","Abdullah Al-Khaibari",
- "Abduvohid Nematov","Abdülkerim Bardakcı","Achraf Hakimi","Achref Abada","Adalberto Carrasquilla",
- "Adam Arous","Adam Hložek","Adil Boulbina","Adrien Rabiot","Agustín Canobbio","Ahmed Al-Kassar",
- "Ahmed Alaaeldin","Ahmed Alganehi","Ahmed Basil","Ahmed Fathy","Ahmed Fatouh","Ahmed Maknazi","Ahmed Qasim",
- "Ahmed Reda Tagnaouti","Aiden O'Neill","Aiman Yahya","Aimar Sher","Ajdin Hrustic","Akam Hashim",
- "Akmal Mozgovoy","Akram Afif","Ala Al-Hajji","Alan Franco","Alan Minda","Alban Lafont","Alberto Quintero",
- "Alejandro Romero Gamarra","Aleksandar Pavlović","Alessandro Circati","Alessandro Schöpf","Alex Arce",
- "Alex Freeman","Alex Paulsen","Alex Rufer","Alex Sandro","Alex Zendejas","Alexander Bernhardsson",
- "Alexander Isak","Alexander Nübel","Alexander Prass","Alexander Schlager","Alexander Sørloth",
- "Alexandr Sojka","Alexandre Pierre","Alexandro Maidana","Alexis Mac Allister","Alexis Saelemaekers",
- "Alexis Vega","Alfie Jones","Alhashmi Alhussein","Ali Abdi","Ali Ahmed","Ali Al-Hamadi","Ali Alipour",
- "Ali Azaizeh","Ali Jasim","Ali Lajami","Ali Majrashi","Ali Nemati","Ali Olwan","Ali Yousif","Alidu Seidu",
- "Alireza Beiranvand","Alireza Jahanbakhsh","Alisson","Alistair Johnston","Almoez Ali","Alphonso Davies",
- "Altay Bayındır","Amad Diallo","Amadou Onana","Amar Dedić","Amar Memić","Amer Jamous","Amine Gouiri",
- "Amir Al-Ammari","Amir Hadžiahmetović","Amir Murillo","Amirhossein Hosseinzadeh","Amirmohammad Razaghinia",
- "Anas Badawi","Anass Salah Eddine","Andreas Schjelderup","Andrej Kramarić","Andrés Andrade","Andrés Cubas",
- "Andrés Gómez","Andy Robertson","Ange-Yoan Bonny","Angelo Stiller","Angus Gunn","Anis Hadj Moussa",
- "Anis Slimane","Ante Budimir","Anthony Elanga","Anthony Gordon","Anthony Ralston","Anthony Valencia",
- "Antoine Mendy","Antoine Semenyo","Antonee Robinson","Antonio Nusa","Antonio Rüdiger","Antonio Sanabria",
- "Aníbal Godoy","Ao Tanaka","Ar'jany Martha","Arda Güler","Ardon Jashari","Armando González","Armando Obispo",
- "Armin Gigović","Arthur Masuaku","Arthur Theate","Arya Yousefi","Assan Ouédraogo","Assane Diao",
- "Assim Madibo","Aubrey Modiba","Augustine Boakye","Aurèle Amenda","Aurélien Tchouaméni","Auston Trusty",
- "Avazbek Ulmasaliyev","Awer Mabil","Axel Tuanzebe","Axel Witsel","Ayase Ueda","Aymen Dahmen","Aymen Hussein",
- "Aymeric Laporte","Ayoub Aloui","Ayoub El Kaabi","Ayoube Amaimouni","Ayumu Seko","Ayyoub Bouaddi",
- "Azarías Londoño","Aziz Behich","Azizbek Amonov","Azizjon Ganiev","Azzedine Ounahi","Aïssa Mandi",
- "Baba Rahman","Bae Jun-ho","Bamba Dieng","Bara Sapoko Ndiaye","Bart Verbruggen","Barış Alper Yılmaz",
- "Bazoumana Touré","Behruzjon Karimov","Ben Gannon-Doak","Ben Old","Ben Waine","Benjamin Asare",
- "Benjamin Nygren","Benjamin Tahirović","Bernardo Silva","Besfort Zeneli","Bilal El Khannouss",
- "Borja Iglesias","Botirali Ergashev","Boualem Khoukhi","Bradley Barcola","Bradley Cross","Brahim Díaz",
- "Braian Ojeda","Brandley Kuwas","Brandon Mechele","Brandon Thomas-Asante","Breel Embolo","Bremer",
- "Brenden Aaronson","Brian Brobbey","Brian Cipenga","Brian Gutiérrez","Brian Rodríguez","Brice Samba",
- "Bruno Fernandes","Bruno Guimarães","Bukayo Saka","Caleb Yirenkyi","Callan Elliot","Callum McCowatt",
- "Cameron Burgess","Cameron Devlin","Camilo Vargas","Can Uzun","Carl Sainte","Carl Starfelt","Carlens Arcus",
- "Carlos Acevedo","Carlos Harvey","Carney Chukwuemeka","Casemiro","Cecilio Waterman","Cedric Itten",
- "Chadi Riad","Chancel Mbemba","Charles De Ketelaere","Charles Pickel","Che Adams","Chemsdine Talbi",
- "Cho Gue-sung","Cho Wi-je","Chris Brady","Chris Richards","Chris Wood","Christ Inao Oulai",
- "Christian Fassnacht","Christian Pulisic","Christoph Baumgartner","Christopher Bonsu Baah",
- "Christopher Operi","Chérif Ndiaye","CJ dos Santos","Cody Gakpo","Connor Metcalfe","Craig Gordon",
- "Cristian Martínez","Cristian Roldan","Cristian Romero","Cristian Volpato","Cristiano Ronaldo",
- "Crysencio Summerville","Cucho Hernández","Cyle Larin","Cédric Bakambu","César Blackman","César Huerta",
- "César Montes","César Samudio","César Yanis","Daichi Kamada","Dailon Livramento","Daizen Maeda",
- "Damián Bobadilla","Dan Burn","Dan Ndoye","Dani Olmo","Danial Iri","Daniel Muñoz","Daniel Svensson","Danilo",
- "Danilo Santos","Danley Jean Jacques","Darwin Núñez","David Affengruber","David Alaba","David Douděra",
- "David Jurásek","David Møller Wolfe","David Ospina","David Raum","David Raya","David Zima",
- "Davinson Sánchez","Dayne St. Clair","Dayot Upamecano","Dean Henderson","Declan Rice","Deiver Machado",
- "Denil Castillo","Denis Višinský","Denis Zakaria","Deniz Gül","Deniz Undav","Dennis Dargahi",
- "Dennis Hadžikadunić","Denzel Dumfries","Derek Cornelius","Deroy Duarte","Derrick Etienne Jr",
- "Derrick Luckassen","Deveron Fonville","Diego Gómez","Diego Moreira","Diney Borges","Diogo Costa",
- "Diogo Dalot","Djed Spence","Djibril Sow","Dodi Lukebakio","Dominic Hyam","Dominik Kotarski",
- "Dominik Livaković","Dominique Simon","Donyell Malen","Dostonbek Khamdamov","Douglas Santos","Duckens Nazon",
- "Duje Ćaleta-Car","Dylan Batubinsika","Dylan Bronn","Désiré Doué","Dženis Burnić","Eberechi Eze","Ederson",
- "Edgardo Fariña","Edin Džeko","Edmilson Junior","Edo Kayembe","Edson Álvarez","Egil Selvik","Ehsan Haddad",
- "Ehsan Hajisafi","El Hadji Malick Diouf","Eldor Shomurodov","Elias Achouri","Elias Saad","Elijah Just",
- "Elisha Owusu","Elliot Anderson","Elliot Stroud","Ellyes Skhiri","Eloy Room","Elye Wahi","Emam Ashour",
- "Emiliano Martínez","Emmanuel Agbadou","Endrick","Enner Valencia","Enzo Fernández","Eom Ji-sung",
- "Eray Cömert","Eren Elmalı","Eric Davis","Eric García","Eric Smith","Erik Lira","Erling Haaland",
- "Ermedin Demirović","Ermin Mahmić","Ernest Nuamah","Esmir Bajraktarević","Evan Ndicka","Evann Guessand",
- "Evidence Makgopa","Exequiel Palacios","Ezri Konsa","Fabian Rieder","Fabinho","Fabián Balbuena",
- "Fabián Ruiz","Facundo Medina","Facundo Pellistri","Fahad Talib","Fares Chaibi","Fares Ghedjemis",
- "Farrukh Sayfiev","Federico Valverde","Federico Viñas","Felix Nmecha","Feras Al-Brikan","Ferdi Kadıoğlu",
- "Fernando Muslera","Ferran Torres","Fidel Escobar","Findlay Curtis","Finn Surman","Firas Chaouat",
- "Fiston Mayele","Florian Grillitsch","Florian Wiegele","Florian Wirtz","Folarin Balogun","Francis de Vries",
- "Francisco Conceição","Francisco Trincão","Franck Kessié","Frans Putros","Frantzdy Pierrot",
- "Fredrik André Bjørkan","Fredrik Aursnes","Frenkie de Jong","Félix Torres","Gabriel Gudmundsson",
- "Gabriel Magalhães","Gabriel Martinelli","Gabriel Ávalos","Garry Rodrigues","Gastón Olveira",
- "Gatito Fernández","Gavi","Gaël Kakuta","George Hirst","Gervane Kastaneer","Gerónimo Rulli",
- "Gessime Yassine","Ghislain Konan","Gideon Mensah","Gilberto Mora","Gilson Benchimol",
- "Giorgian de Arrascaeta","Giovani Lo Celso","Giovanni Reyna","Giuliano Simeone","Godfried Roemeratoe",
- "Gonzalo Montiel","Gonzalo Plata","Gonzalo Valle","Gonçalo Guedes","Gonçalo Inácio","Gonçalo Ramos",
- "Granit Xhaka","Grant Hanley","Gregor Kobel","Guillermo Martínez","Guillermo Ochoa","Guillermo Varela",
- "Gustaf Lagerbielke","Gustaf Nilsson","Gustavo Caballero","Gustavo Gómez","Gustavo Puerta",
- "Gustavo Velázquez","Guus Til","Guéla Doué","Gédéon Kalulu","Habib Diarra","Haissem Hassan","Haji Wright",
- "Hakan Çalhanoğlu","Hamdy Fathy","Hamza Abdelkarim","Hannes Delcroix","Hannibal Mejbri","Hans Vanaken",
- "Haris Tabaković","Harry Kane","Harry Souttar","Hassan Al-Haydos","Hassan Al-Tambakti","Hassan Kadish",
- "Hazem Mastouri","Henrik Falchener","Herman Johansson","Hernán Galíndez","Hicham Boudaoui","Hiroki Ito",
- "Hjalmar Ekdal","Homam Ahmed","Hossam Abdelmaguid","Hossein Hosseini","Hossein Kanani","Houssem Aouar",
- "Hugo Sochůrek","Husam Abudahab","Hussein Ali","Hwang Hee-chan","Hwang In-beom","Hélio Varela",
- "Ibrahim Adel","Ibrahim Bayesh","Ibrahim Maza","Ibrahim Mbaye","Ibrahim Sadeh","Ibrahim Sangaré",
- "Ibrahima Konaté","Idrissa Gana Gueye","Igor Matanović","Igor Sergeev","Igor Thiago","Iliman Ndiaye",
- "Ime Okon","Iqraam Rayners","Isak Hien","Isidro Pitta","Ismael Díaz","Ismael Gharbi","Ismael Saibari",
- "Ismail Jakobs","Ismaël Koné","Ismaïla Sarr","Israel Reyes","Issa Diop","Issa Laye","Ivan Bašić",
- "Ivan Perišić","Ivan Toney","Ivan Šunjić","Ivor Pandur","Iñaki Williams","İrfan Can Kahveci","İsmail Yüksek",
- "Jack Hendry","Jackson Irvine","Jackson Porozo","Jacob Italiano","Jacob Shaffelburg",
- "Jacob Widell Zetterström","Jakhongir Urozov","Jalal Hassan","Jaloliddin Masharipov","Jamal Musiala",
- "James Rodríguez","James Trafford","Jamie Leweling","Jaminton Campaz","Jamiro Monteiro","Jamshid Iskanderov",
- "Jan Kuchta","Jan Paul van Hecke","Jaouen Hadjam","Jarell Quansah","Jaroslav Zelený","Jason Geria",
- "Jassem Gaber","Jayden Adams","Jean Michaël Seri","Jean-Kévin Duverne","Jean-Philippe Mateta",
- "Jean-Ricner Bellegarde","Jearl Margaritha","Jefferson Lerma","Jehad Thikri","Jens Castrop",
- "Jens Petter Hauge","Jeremy Antonisse","Jeremy Arévalo","Jerome Opoku","Jesper Karlström","Jesse Randall",
- "Jesús Gallardo","Jhon Arias","Jhon Córdoba","Jhon Lucumí","Jindřich Staněk","Jiovany Ramos","Jo Hyeon-woo",
- "Joan García","Joaquin Seys","Joaquín Piquerez","Joe Bell","Joe Scally","Joel Ordóñez","Joel Waterman",
- "Johan Manzambi","Johan Mojica","Johan Vásquez","John McGinn","John Souttar","John Stones","John Yeboah",
- "Johny Placide","Jonas Adjetey","Jonathan David","Jonathan Osorio","Jonathan Tah","Jordan Ayew","Jordan Bos",
- "Jordan Henderson","Jordan Pickford","Jordy Alcívar","Jordy Caicedo","Jorge Carrascal","Jorge Gutiérrez",
- "Jorge Sánchez","Joris Kayembe","Jorrel Hato","Joseph Anang","Joshua Brenet","Joshua Kimmich",
- "Josip Stanišić","Josip Šutalo","Josué Casimir","Josué Duverger","José Canale","José Córdoba","José Fajardo",
- "José Luis Rodríguez","José Manuel López","José María Giménez","José Sá","Jovane Cabral","Jovo Lukić",
- "João Cancelo","João Félix","João Neves","João Paulo","Joško Gvardiol","Juan José Cáceres",
- "Juan Manuel Sanabria","Juan Musso","Juan Portilla","Juan Quintero","Jude Bellingham","Jules Koundé",
- "Julian Ryerson","Julio Enciso","Julián Quiñones","Julián Álvarez","Juninho Bacuna","Junior Alonso",
- "Junnosuke Suzuki","Junya Ito","Juriën Gaari","Justin Kluivert","Jérémy Doku","Jørgen Strand Larsen",
- "Jürgen Locadia","Kaan Ayhan","Kai Havertz","Kai Trewin","Kaishu Sano","Kalidou Koulibaly",
- "Kamaldeen Sulemana","Kamogelo Sebelebele","Karim Boudiaf","Karim Hafez","Keeto Thermoncy","Keisuke Goto",
- "Keisuke Osako","Keito Nakamura","Kelvin Pires","Ken Sema","Kenan Yıldız","Kendry Páez","Kenji Gorré",
- "Kenny McLean","Kento Shiogai","Kerem Aktürkoğlu","Kerim Alajbegović","Kevin Castaño","Kevin Danso",
- "Kevin De Bruyne","Kevin Felida","Kevin Pina","Kevin Rodríguez","Kevin Yakob","Khalid Al-Ghannam",
- "Khalil Ayari","Khojiakbar Alijonov","Khuliso Mudau","Khulumani Ndamane","Kieran Tierney","Kim Jin-gyu",
- "Kim Min-jae","Kim Moon-hwan","Kim Seung-gyu","Kim Tae-hyeon","Kobbie Mainoo","Kojo Peprah Oppong",
- "Koki Ogawa","Koni De Winter","Konrad Laimer","Kosta Barbarouses","Kou Itakura","Kristian Thorstvedt",
- "Kristijan Jakić","Kristoffer Ajer","Kristoffer Nordfeldt","Krépin Diatta","Kwasi Sibo","Kylian Mbappé",
- "Lachlan Bayliss","Ladislav Krejčí","Lamine Camara","Lamine Yamal","Laros Duarte","Lautaro Martínez",
- "Lawrence Ati Zigi","Lawrence Shankland","Leandro Bacuna","Leandro Paredes","Leandro Trossard",
- "Lee Dong-gyeong","Lee Gi-hyuk","Lee Han-beom","Lee Jae-sung","Lee Kang-in","Lee Tae-seok","Lenny Joseph",
- "Leo Østigård","Leon Goretzka","Leonardo Balerdi","Leroy Sané","Leverton Pierre","Lewis Ferguson",
- "Liam Kelly","Liam Millar","Liberato Cacace","Lionel Messi","Lionel Mpasi","Lisandro Martínez",
- "Livano Comenencia","Logan Costa","Louicius Deedson","Luc de Fougerolles","Luca Jaquez","Luca Zidane",
- "Lucas Bergvall","Lucas Digne","Lucas Hernández","Lucas Herrington","Lucas Mendes","Lucas Paquetá",
- "Luis Chávez","Luis Díaz","Luis Mejía","Luis Romo","Luis Suárez","Luiz Henrique","Luka Modrić","Luka Sučić",
- "Luka Vušković","Lukáš Horníček","Lukáš Provod","Lukáš Červ","Lutsharel Geertruida","Lyle Foster",
- "Lyndon Dykes","Léo Pereira","Maghnes Akliouche","Mahdy Soliman","Mahmoud Abunada","Mahmoud Al-Mardi",
- "Mahmoud Saber","Malick Thiaw","Malik Tillman","Malo Gusto","Mamadou Sarr","Manu Koné","Manuel Akanji",
- "Manuel Neuer","Manuel Ugarte","Marawan Attia","Marc Cucurella","Marc Guéhi","Marc Pubill","Marcel Sabitzer",
- "Marcelo Flores","Marco Friedl","Marco Pašalić","Marcos Llorente","Marcus Holmgren Pedersen",
- "Marcus Rashford","Marcus Thuram","Marin Pongračić","Mario Pašalić","Mark Flekken","Mark McKenzie",
- "Markhus Lacroix","Marko Arnautović","Marko Farji","Marko Stamenic","Marquinhos","Marten de Roon",
- "Martin Baturina","Martin Erlić","Martin Experience","Martin Zlomislić","Martin Ødegaard","Martín Zubimendi",
- "Marvin Keller","Marvin Senaya","Mateo Chávez","Mateo Kovačić","Matheus Cunha","Matheus Nunes",
- "Mathew Leckie","Mathew Ryan","Mathieu Choinière","Mathías Olivera","Matias Fernandez-Pardo","Mats Wieffer",
- "Matt Freese","Matt Turner","Matthew Garbett","Matthieu Epolo","Mattias Svanberg","Matías Galarza",
- "Matías Viña","Matěj Kovář","Mauricio","Max Arfsten","Max Crocombe","Maxence Lacroix","Maxi Araújo",
- "Maxim De Cuyper","Maxime Crépeau","Maximilian Beier","Mbekezeli Mbokazi","Mehdi Ghayedi","Mehdi Taremi",
- "Mehdi Torabi","Melvin Mastil","Memphis Depay","Merchas Doski","Merih Demiral","Mert Günok","Mert Müldür",
- "Meschack Elia","Meshaal Barsham","Michael Boxall","Michael Gregoritsch","Michael Olise","Michael Svoboda",
- "Michael Woud","Michal Sadílek","Michel Aebischer","Micky van de Ven","Miguel Almirón","Mike Maignan",
- "Mike Penders","Mikel Merino","Mikel Oyarzabal","Milad Mohammadi","Miles Robinson","Miloš Degenek",
- "Miro Muheim","Mladen Jurkas","Mohamed Abdelmoneim","Mohamed Alaa","Mohamed Amine Ben Hmida",
- "Mohamed Amine Tougai","Mohamed Amoura","Mohamed Elshenawy","Mohamed Hadj Mahmoud","Mohamed Hany",
- "Mohamed Kanno","Mohamed Koné","Mohamed Manai","Mohamed Salah","Mohamed Toure","Mohammad Abualnadi",
- "Mohammad Abughoush","Mohammad Abuhasheesh","Mohammad Abuzraiq","Mohammad Aldaoud","Mohammad Ghorbani",
- "Mohammad Mohebbi","Mohammed Abu Alshamat","Mohammed Al-Owais","Mohammed Muntari","Mohanad Ali",
- "Mohanad Lashin","Mohannad Abutaha","Moisés Caicedo","Moisés Ramírez","Mojmír Chytil","Montassar Talbi",
- "Morgan Rogers","Mortadha Ben Ouanes","Morten Thorsby","Mory Diaw","Mostafa Shoubir","Mostafa Zico",
- "Moteb Al-Harbi","Mouhib Chamakh","Mousa Al-Tamari","Moussa Niakhaté","Moutaz Neffati","Moïse Bombito",
- "Munaf Younus","Munir El Kajoui","Musab Al-Juwayr","Mustafa Saadoon","Márcio Rosa","N'Golo Kanté",
- "Nabil Bentaleb","Nabil Donga","Nadhir Benbouali","Nadiem Amiri","Nahuel Molina","Nando Pijnaker",
- "Nasser Al-Dawsari","Nathan Aké","Nathan Ngoy","Nathan Patterson","Nathan Saliba","Nathanaël Mbuku",
- "Nathaniel Brown","Nawaf Al-Aqidi","Nawaf Bu Washl","Nayef Aguerd","Neil El Aynaoui","Nestory Irankunda",
- "Neymar Jr","Ngal'ayel Mukau","Nick Woltemade","Nico Elvedi","Nico González","Nico O'Reilly","Nico Paz",
- "Nico Schlotterbeck","Nico Williams","Nicolas Jackson","Nicolas Pépé","Nicolas Raskin","Nicolas Seiwald",
- "Nicolás de la Cruz","Nicolás Otamendi","Nicolás Tagliafico","Nidal Čelik","Nihad Mujakić","Niko Sigur",
- "Nikola Katić","Nikola Moro","Nikola Vasilj","Nikola Vlašić","Nilson Angulo","Nishan Velupillay",
- "Nizar Al-Rashdan","Nkosinathi Sibisi","Noa Lang","Noah Okafor","Noah Sadiki","Noni Madueke",
- "Noor Al-Rawabdeh","Nour Bani Ateyah","Noussair Mazraoui","Nuno da Costa","Nuno Mendes","Nélson Semedo",
- "Obed Vargas","Odeh Fakhoury","Odiljon Xamrobekov","Odilon Kossounou","Oh Hyeon-gyu","Oliver Baumann",
- "Ollie Watkins","Olwethu Makhanya","Omar Alderete","Omar Marmoush","Omar Rekik","Orbelín Pineda",
- "Orkun Kökçü","Orlando Gill","Orlando Mosquera","Oscar Bobb","Oston Urunov","Oswin Appollis",
- "Otabek Shukurov","Oumar Diakité","Ousmane Dembélé","Ousmane Diomandé","Oussama Benbot","Owen Goodman",
- "Ozan Kabak","Oğuz Aydın","Paik Seung-ho","Pape Gueye","Pape Matar Sarr","Parfait Guiagon","Park Jin-seob",
- "Pascal Groß","Pathé Ciss","Patrick Beach","Patrick Berg","Patrick Pentz","Patrick Wimmer","Patrik Schick",
- "Pau Cubarsí","Paul Izzo","Paul Okon-Engstler","Paul Wanner","Pavel Šulc","Payam Niazmand","Pedri",
- "Pedro Miguel","Pedro Neto","Pedro Porro","Pedro Vite","Pervis Estupiñán","Petar Musa","Petar Sučić",
- "Philipp Lienhart","Phillip Mwene","Pico Lopes","Piero Hincapié","Prince Adu","Promise David",
- "Quinten Timber","Raed Chikhaoui","Rafael Leão","Rafik Belghali","Raja'ei Ayed","Ramin Rezaeian",
- "Ramiz Zerrouki","Ramy Bensebaini","Ramy Rabia","Ramón Sosa","Rani Khedira","Raphinha","Rayan",
- "Rayan Aït-Nouri","Rayan Cherki","Rayan Elloumi","Raúl Jiménez","Raúl Rangel","Rebin Sulaka",
- "Redouane Halhal","Reece James","Relebohile Mofokeng","Remo Freuler","Renato Veiga","Ricardo Adé",
- "Ricardo Goss","Ricardo Pepi","Ricardo Rodríguez","Richard Ríos","Richie Laryea","Riechedly Bazoer",
- "Ritsu Doan","Riyad Mahrez","Roberto Alvarado","Robin Hranáč","Robin Risser","Robin Roefs","Roderick Miller",
- "Rodri","Rodrigo Aguirre","Rodrigo Bentancur","Rodrigo De Paul","Rodrigo Zalazar","Roger Ibañez",
- "Romano Schmid","Romelu Lukaku","Ronald Araújo","Ronwen Williams","Roozbeh Cheshmi","Roshon van Eijma",
- "Ross Stewart","Ruben Providence","Rubén Vargas","Rui Silva","Rustam Ashurmatov","Ryan Christie",
- "Ryan Gravenberch","Ryan Mendes","Ryan Thomas","Rúben Dias","Rúben Neves","Sa'ed Al-Rosan",
- "Sabri Ben Hessen","Sadio Mané","Saeid Ezatolahi","Salah Zakaria","Saleem Obaid","Saleh Al-Shehri",
- "Saleh Hardani","Salem Al-Dawsari","Salih Özcan","Saman Ghoddos","Samed Baždar","Samet Akaydın",
- "Samir Chergui","Samir El Mourabet","Samu Costa","Samuel Moutoussamy","Samukele Kabini","Sander Berge",
- "Sander Tangvik","Santiago Arias","Santiago Bueno","Santiago Giménez","Santiago Mele","Sarpreet Singh",
- "Saud Abdulhamid","Saša Kalajdžić","Scott McKenna","Scott McTominay","Sead Kolašinac","Sebastian Berhalter",
- "Sebastian Tounekti","Sebastián Cáceres","Seko Fofana","Senne Lammens","Seol Young-woo","Sergio Rochet",
- "Sergiño Dest","Shahriyar Moghanloo","Sherel Floranus","Sherzod Esanov","Sherzod Nasrullaev",
- "Shogo Taniguchi","Shoja Khalilzadeh","Shurandy Sambo","Sidny Lopes Cabral","Silvan Widmer","Simon Adingra",
- "Simon Banza","Sipho Chaine","Sofyan Amrabat","Son Heung-min","Sondre Langås","Song Bum-keun",
- "Sontje Hansen","Soufiane Rahimi","Sphephelo Sithole","Stefan Posch","Stephen Eustáquio","Steve Kapuadi",
- "Steven Moreira","Stjepan Radeljić","Stopira","Sultan Albrake","Sultan Mandash","Taha Ali","Tahith Chong",
- "Tahsin Mohammed","Tajon Buchanan","Takefusa Kubo","Takehiro Tomiyasu","Tani Oluwaseyi","Tarek Alaa",
- "Tarik Muharemović","Teboho Mokoena","Telmo Arcanjo","Tete Yengi","Teun Koopmeiners","Thabang Matuludi",
- "Thalente Mbatha","Thapelo Maseko","Thelo Aasgaard","Themba Zwane","Theo Bongonda","Thiago Almada",
- "Thibaut Courtois","Thomas Meunier","Thomas Partey","Théo Hernández","Tijjani Reijnders","Tim Payne",
- "Tim Ream","Timothy Castagne","Timothy Fayulu","Timothy Weah","Tino Livramento","Tommy Smith",
- "Tomoki Hayakawa","Tomás Araújo","Tomás Rodríguez","Tomáš Chorý","Tomáš Holeš","Tomáš Souček","Toni Fruk",
- "Torbjørn Heggem","Trevor Doornbusch","Trezeguet","Tshepang Moremi","Tsuyoshi Watanabe","Tyler Adams",
- "Tyler Bindon","Tyler Fletcher","Tyrese Noslin","Tyrick Bodak","Umar Eshmurodov","Unai Simón",
- "Utkir Yusupov","Uğurcan Çakır","Valentín Barco","Victor Lindelöf","Viktor Gyökeres","Viktor Johansson",
- "Vinícius Júnior","Virgil van Dijk","Vitinha","Vladimír Coufal","Vladimír Darida","Vozinha","Víctor Muñoz",
- "Wagner Pina","Waldemar Anton","Warren Zaïre-Emery","Wataru Endo","Weston McKennie","Weverton",
- "Wilfried Singo","Wilguens Paugain","Willer Ditta","William Saliba","Willian Pacho","Willy Semedo",
- "Wilson Isidor","Woodensky Pierre","Wout Weghorst","Xaver Schlager","Yahia Fofana","Yaimar Medina",
- "Yan Diomandé","Yan Valery","Yang Hyun-jun","Yannick Semedo","Yasin Ayari","Yasser Ibrahim","Yassin Fortune",
- "Yassine Bounou","Yassine Titraoui","Yazan Al-Arab","Yazeed Abulaila","Yehvann Diouf","Yeremy Pino",
- "Yerry Mina","Yoane Wissa","Youri Tielemans","Youssef Amyn","Youssef Belammari","Yuito Suzuki",
- "Yukinari Sugawara","Yunus Akgün","Yusuf Abdurisag","Yuto Nagatomo","Yvon Mvogo","Zaid Ismael",
- "Zaid Tahseen","Zakaria El Ouahdi","Zeki Amdouni","Zeki Çelik","Zeno Debast","Zidane Iqbal",
- "Zineddine Belaïd","Zion Suzuki","Ziyad Al-Johani","Zizo","Álex Baena","Álex Grimaldo","Álvaro Fidalgo",
- "Álvaro Montero","Ángelo Preciado","Çağlar Söyüncü","Éderson Silva","Édgar Yoel Bárcenas","Édouard Mendy",
- "Ørjan Nyland","Štěpán Chaloupek",
-];
+ // Delanteros
+ "Kylian Mbappé","Erling Haaland","Harry Kane","Robert Lewandowski","Ciro Immobile","Romelu Lukaku",
+ "Memphis Depay","Raheem Sterling","Gabriel Jesús","Richarlison","Vinícius Jr.","Rodrygo",
+ "Antoine Griezmann","Karim Benzema","Olivier Giroud","Neymar","Lautaro Martínez","Julián Álvarez",
+ "Darwin Núñez","Luis Díaz","Duván Zapata","Bernardo Silva","Diogo Jota","Rafael Leão",
+ "Bukayo Saka","Marcus Rashford","Phil Foden","Jude Bellingham","İlkay Gündoğan","Leroy Sané",
+ "Ferran Torres","Álvaro Morata","Mikel Oyarzabal","Lorenzo Pellegrini","Nicolò Zaniolo",
+ "Sadio Mané","Mohammed Salah","Riyad Mahrez","Achraf Hakimi","Hakim Ziyech",
+ "Son Heung-min","Hwang Hee-chan","Paulo Dybala","Ángel Di María","Rodrigo De Paul",
+ "Takumi Minamino","Kaoru Mitoma","Yuki Soma",
+ // Mediocampistas
+ "Kevin De Bruyne","Luka Modrić","Toni Kroos","Pedri","Gavi","Sergio Busquets",
+ "N'Golo Kanté","Paul Pogba","Aurélien Tchouaméni","Eduardo Camavinga","Marco Verratti",
+ "Frenkie de Jong","Virgil van Dijk","Declan Rice","Jordan Henderson","Bruno Fernandes",
+ "Vitinha","Rubén Neves","Christian Eriksen","Martin Ødegaard","Sandro Tonali",
+ "Nicolo Barella","James Maddison","Alexis Mac Allister","Enzo Fernández","Nicolás Tagliafico",
+ // Defensas
+ "Trent Alexander-Arnold","Reece James","Kyle Walker","João Cancelo","Theo Hernández",
+ "Lucas Hernández","Benjamin Pavard","Jules Koundé","Raphaël Varane","David Alaba",
+ "Antonio Rüdiger","Matthias Ginter","Ronald Araújo","Pau Cubarsí","Aymeric Laporte",
+ "Dayot Upamecano","Dani Alves","Marquinhos","Thiago Silva","Eder Militão",
+ // Porteros
+ "Alisson Becker","Ederson","Manuel Neuer","Marc-André ter Stegen","Keylor Navas",
+ "Gianluigi Donnarumma","Mike Maignan","Jordan Pickford","Lukáš Hrádecký","Unai Simón",
+ "Diogo Costa","Rui Patrício","Gregor Kobel","Yann Sommer","Wojciech Szczęsny",
+ "Thibaut Courtois","Simon Mignolet","Samir Handanović","Jan Oblak",
+].sort();
 
 // Solo arqueros — usado para "Guante de Oro"
 const DT_GOALKEEPERS=[
- "Abdallah Alfakhori","Abduvohid Nematov","Ahmed Al-Kassar","Ahmed Basil","Ahmed Reda Tagnaouti",
- "Alban Lafont","Alex Paulsen","Alexander Nübel","Alexander Schlager","Alexandre Pierre","Alireza Beiranvand",
- "Alisson","Altay Bayındır","Angus Gunn","Aymen Dahmen","Bart Verbruggen","Benjamin Asare",
- "Botirali Ergashev","Brice Samba","Camilo Vargas","Carlos Acevedo","Chris Brady","CJ dos Santos",
- "Craig Gordon","César Samudio","David Ospina","David Raya","Dayne St. Clair","Dean Henderson","Diogo Costa",
- "Dominik Kotarski","Dominik Livaković","Ederson","Egil Selvik","Eloy Room","Emiliano Martínez","Fahad Talib",
- "Fernando Muslera","Florian Wiegele","Gastón Olveira","Gatito Fernández","Gerónimo Rulli","Gonzalo Valle",
- "Gregor Kobel","Guillermo Ochoa","Hernán Galíndez","Hossein Hosseini","Ivor Pandur",
- "Jacob Widell Zetterström","Jalal Hassan","James Trafford","Jindřich Staněk","Jo Hyeon-woo","Joan García",
- "Johny Placide","Jordan Pickford","Joseph Anang","Josué Duverger","José Sá","Juan Musso","Keisuke Osako",
- "Kim Seung-gyu","Kristoffer Nordfeldt","Lawrence Ati Zigi","Liam Kelly","Lionel Mpasi","Luca Zidane",
- "Luis Mejía","Lukáš Horníček","Mahdy Soliman","Mahmoud Abunada","Manuel Neuer","Mark Flekken",
- "Martin Zlomislić","Marvin Keller","Mathew Ryan","Matt Freese","Matt Turner","Matthieu Epolo","Matěj Kovář",
- "Max Crocombe","Maxime Crépeau","Melvin Mastil","Mert Günok","Meshaal Barsham","Michael Woud","Mike Maignan",
- "Mike Penders","Mladen Jurkas","Mohamed Alaa","Mohamed Elshenawy","Mohamed Koné","Mohammed Al-Owais",
- "Moisés Ramírez","Mory Diaw","Mostafa Shoubir","Mouhib Chamakh","Munir El Kajoui","Márcio Rosa",
- "Nawaf Al-Aqidi","Nikola Vasilj","Nour Bani Ateyah","Oliver Baumann","Orlando Gill","Orlando Mosquera",
- "Oussama Benbot","Owen Goodman","Patrick Beach","Patrick Pentz","Paul Izzo","Payam Niazmand","Raúl Rangel",
- "Ricardo Goss","Robin Risser","Robin Roefs","Ronwen Williams","Rui Silva","Sabri Ben Hessen","Salah Zakaria",
- "Sander Tangvik","Santiago Mele","Senne Lammens","Sergio Rochet","Sipho Chaine","Song Bum-keun",
- "Thibaut Courtois","Timothy Fayulu","Tomoki Hayakawa","Trevor Doornbusch","Tyrick Bodak","Unai Simón",
- "Utkir Yusupov","Uğurcan Çakır","Viktor Johansson","Vozinha","Weverton","Yahia Fofana","Yassine Bounou",
- "Yazeed Abulaila","Yehvann Diouf","Yvon Mvogo","Zion Suzuki","Álvaro Montero","Édouard Mendy","Ørjan Nyland",
-];
+ "Alisson Becker","Ederson","Manuel Neuer","Marc-André ter Stegen","Keylor Navas",
+ "Gianluigi Donnarumma","Mike Maignan","Jordan Pickford","Lukáš Hrádecký","Unai Simón",
+ "Diogo Costa","Rui Patrício","Gregor Kobel","Yann Sommer","Wojciech Szczęsny",
+ "Thibaut Courtois","Simon Mignolet","Samir Handanović","Jan Oblak",
+].sort();
 
 const MATCHES=[
  {id:1,date:"11 Jun",time:"14:00",home:"México",away:"Sudáfrica",group:"A",stadium:"Azteca, CDMX",phase:"groups",kickoff:"2026-06-11T19:00:00Z"},
@@ -1574,20 +1375,15 @@ function initFirebase(){
  const appCheck=firebase.appCheck();
  appCheck.activate('6Lco0QUtAAAAJhTQNecGbApGTr4Co2WDebJDWjg',true);
  db=firebase.database();auth=firebase.auth();
+ // Correos de Firebase (verificación, recuperación) en español.
+ auth.languageCode='es';
  // Keep the session alive across reloads / app restarts.
  try{auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);}catch(e){}
  const urlParams=new URLSearchParams(window.location.search);
  const inviteCode=urlParams.get("polla");
  if(inviteCode)sessionStorage.setItem("pendingPolla",inviteCode);
  // Completa el flujo de Google por redirect (fallback web cuando el popup está bloqueado).
- try{ auth.getRedirectResult().catch(function(e){
-   var code=(e&&e.code)||"";
-   try{
-    if(code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",6000);}
-    else if(code==="auth/web-storage-unsupported"||code==="auth/operation-not-supported-in-this-environment"){showToast("Tu navegador bloquea el inicio con Google. Abre tupolla.pe en Chrome o Safari (no dentro de otra app) e inténtalo de nuevo.","#ef4444",7000);}
-    else if(code){showToast("No se pudo iniciar con Google ("+code+"). Prueba de nuevo o usa tu correo.","#ef4444",6000);}
-   }catch(_){}
-  }); }catch(_){}
+ try{ auth.getRedirectResult().catch(function(e){ if(e&&e.code==="auth/unauthorized-domain"){try{showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);}catch(_){}} }); }catch(_){}
  auth.onAuthStateChanged(async user=>{
  if(user){
  // An authenticated user must NEVER be dumped on the login screen because of a
@@ -2649,13 +2445,29 @@ window.doGoogleAuth=async function(){
  }
 };
 
+// Dominios de correo temporales/desechables más comunes. Bloquea el spam evidente.
+const DISPOSABLE_EMAIL_DOMAINS=[
+ "mailinator.com","tempmail.com","temp-mail.org","10minutemail.com","guerrillamail.com",
+ "guerrillamail.info","sharklasers.com","yopmail.com","throwawaymail.com","getnada.com",
+ "trashmail.com","maildrop.cc","mailnesia.com","dispostable.com","fakeinbox.com",
+ "spambog.com","mohmal.com","emailondeck.com","mintemail.com","tempinbox.com",
+ "tmail.com","tmpmail.org","mailcatch.com","inboxbear.com","mail-temp.com",
+ "burnermail.io","33mail.com","spam4.me","grr.la","guerrillamailblock.com"
+];
+
 window.doEmailAuth=async function(){
  const email=(document.getElementById("authEmail").value||"").trim();
  const pass=document.getElementById("authPass").value||"";
  const errEl=document.getElementById("authError"),btn=document.getElementById("authBtn");
  if(!email||!email.includes("@")){errEl.textContent="Escribe un email válido.";return;}
  if(pass.length<6){errEl.textContent="La contraseña debe tener al menos 6 caracteres.";return;}
+ // Bloquea correos desechables/temporales antes de crear la cuenta.
+ const _dom=(email.split("@")[1]||"").toLowerCase();
+ if(DISPOSABLE_EMAIL_DOMAINS.includes(_dom)){
+  errEl.textContent="Usa un correo real, no uno temporal.";return;
+ }
  btn.disabled=true;btn.textContent="Entrando...";
+ let isNewAccount=false;
  try{
  // First try sign in
  try{await auth.signInWithEmailAndPassword(email,pass);}
@@ -2669,6 +2481,7 @@ window.doEmailAuth=async function(){
  if(shouldTryCreate){
  try{
  await auth.createUserWithEmailAndPassword(email,pass);
+ isNewAccount=true;
  }catch(ce){
  // If create fails with email-already-in-use, the password was just wrong
  if(ce.code==="auth/email-already-in-use"){
@@ -2679,6 +2492,13 @@ window.doEmailAuth=async function(){
  throw ce;
  }
  }else{throw le;}
+ }
+ // Cuenta nueva: envía correo de verificación (NO bloquea el acceso).
+ if(isNewAccount&&auth.currentUser&&!auth.currentUser.emailVerified){
+  try{
+   await auth.currentUser.sendEmailVerification();
+   showToast("Te enviamos un correo para verificar tu cuenta. Revisa también tu carpeta de spam.","#22c55e",6000);
+  }catch(_){}
  }
  }catch(e){
  const msg={
