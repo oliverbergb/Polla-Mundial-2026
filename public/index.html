@@ -2444,7 +2444,17 @@ window.doGoogleAuth=async function(){
   }
   return;
  }
- // ---- WEB: popup; si el navegador lo bloquea, fallback a redirect.
+ // ---- WEB: en móvil el popup se cierra solo ("rebota"), así que vamos directo a redirect.
+ //      En escritorio usamos popup y, si lo bloquean, caemos a redirect.
+ const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||"");
+ if(isMobile){
+  try{ await auth.signInWithRedirect(provider); }
+  catch(e){
+   if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
+   showToast("Error con Google: "+(e.message||e.code),"#ef4444",4000);
+  }
+  return;
+ }
  try{
   await auth.signInWithPopup(provider);
  }catch(e){
