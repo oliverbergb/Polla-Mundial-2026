@@ -859,7 +859,7 @@ const FIREBASE_CONFIG={
  messagingSenderId:"462649925296",
  appId:"1:462649925296:web:e2bf442f02995699afe575"
 };
-const BALLDONTLIE_KEY="9c7af450-263d-42e2-8d1c-f2e70036d30d";
+// La API key de BallDontLie ya NO vive aquí. Todas las llamadas pasan por /api/bdl (proxy en Vercel).
 const ADMIN_NAME="ADMIN";
 const ADMIN_UID="BGRX6wt6TpR2srb38VG9gRUjk4g2";
 const TOURNAMENT_LOCKOUT="2026-06-11T19:00:00Z";
@@ -3276,7 +3276,7 @@ function iniciarMasterPolling(){
 
 async function fetchLiveResults(){
  try{
- const res=await fetch("https://api.balldontlie.io/fifa/worldcup/v1/matches?seasons[]=2026&per_page=200",{headers:{Authorization:BALLDONTLIE_KEY}});
+ const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200");
  const data=await res.json();
  if(!data.data)return;
  const updates={};
@@ -3305,7 +3305,7 @@ const _eventsCache={};
 async function fetchMatchEvents(apiMatchId,localMatchId){
  if(_eventsCache[localMatchId]&&Date.now()-_eventsCache[localMatchId].ts<60000)return;
  try{
- const res=await fetch(`https://api.balldontlie.io/fifa/worldcup/v1/match_events?match_id=${apiMatchId}`,{headers:{Authorization:BALLDONTLIE_KEY}});
+ const res=await fetch(`/api/bdl?endpoint=match_events&match_id=${apiMatchId}`);
  if(!res.ok)return;
  const data=await res.json();
  if(!data.data)return;
@@ -3692,7 +3692,7 @@ async function fetchH2H(home,away){
  if(key in h2hCache)return h2hCache[key];
  try{
  const q=encodeURIComponent(`${home} ${away}`);
- const res=await fetch(`https://api.balldontlie.io/fifa/worldcup/v1/matches?per_page=10`,{headers:{Authorization:BALLDONTLIE_KEY}});
+ const res=await fetch(`/api/bdl?endpoint=matches&per_page=10`);
  if(!res.ok){h2hCache[key]=null;return null;}
  const data=await res.json();
  if(!data.data){h2hCache[key]=null;return null;}
