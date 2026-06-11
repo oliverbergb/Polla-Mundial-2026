@@ -3483,7 +3483,7 @@ function iniciarMasterPolling(){
   // Publicar mapa apiId->localId para el poller externo (cron) al arrancar sesión admin.
   (async()=>{
    try{
-    const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200");
+    const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=100");
     const data=await res.json();
     if(!data.data)return;
     const pub={};
@@ -3499,7 +3499,7 @@ function iniciarMasterPolling(){
 
 async function fetchLiveResults(){
  try{
- const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200");
+ const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=100");
  const data=await res.json();
  if(!data.data)return;
  const updates={};
@@ -3914,11 +3914,20 @@ let _apiIdMap=null; // localId -> {apiId,homeId,awayId}
 async function buildApiIdMap(){
  if(_apiIdMap)return _apiIdMap;
  try{
-  const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200");
-  const data=await res.json();
-  if(!data.data)return null;
+  // La API pagina de a 100 máx. con cursor → recorremos todas las páginas.
+  let all=[],cursor=null,guard=0;
+  do{
+   const url="/api/bdl?endpoint=matches&seasons[]=2026&per_page=100"+(cursor!=null?`&cursor=${cursor}`:"");
+   const res=await fetch(url);
+   if(!res.ok)return null;
+   const data=await res.json();
+   if(!data.data)return null;
+   all=all.concat(data.data);
+   cursor=data.meta&&data.meta.next_cursor;
+   guard++;
+  }while(cursor!=null&&guard<10);
   _apiIdMap={};
-  for(const m of data.data){
+  for(const m of all){
    const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
    if(match)_apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id};
   }
