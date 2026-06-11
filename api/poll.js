@@ -1,39 +1,18 @@
-// /api/poll.js — Poller automático de resultados en vivo
-// Corre desde un cron externo (cron-job.org) cada 1-2 min durante los partidos.
-// Así los goles se actualizan AUNQUE nadie tenga la app abierta.
+// /api/poll.js — Poller automático, sin librerías externas
+// Solo usa fetch. No necesita firebase-admin ni package.json.
 //
-// Seguridad:
-//  - Protegido por un token secreto (CRON_SECRET). Sin el token, responde 401.
-//  - Escribe en Firebase con una cuenta de servicio (Admin SDK) que vive SOLO
-//    en las variables de entorno de Vercel. La clave nunca toca el navegador.
-//
-// Variables de entorno requeridas en Vercel:
-//  - BALLDONTLIE_KEY        (ya la tienes)
-//  - CRON_SECRET            (inventa una cadena larga y aleatoria)
-//  - FIREBASE_DB_URL        (ej: https://tupolla-xxxx-default-rtdb.firebaseio.com)
-//  - FIREBASE_SERVICE_ACCOUNT  (el JSON COMPLETO de la cuenta de servicio, en una línea)
+// Variables de entorno en Vercel:
+//  - BALLDONTLIE_KEY     (ya la tienes)
+//  - CRON_SECRET         (ya la tienes)
+//  - FIREBASE_DB_URL     (ya la tienes, ej: https://tupolla-xxxx-default-rtdb.firebaseio.com)
+//  - FIREBASE_DB_SECRET  (nueva — ver instrucciones)
 
-import admin from "firebase-admin";
+const BDL = "https://api.balldontlie.io/fifa/worldcup/v1";
 
-// Inicializar Admin SDK una sola vez (se reutiliza entre invocaciones "calientes")
-function getDb() {
-  if (!admin.apps.length) {
-    const svc = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    admin.initializeApp({
-      credential: admin.credential.cert(svc),
-      databaseURL: process.env.FIREBASE_DB_URL,
-    });
-  }
-  return admin.database();
-}
-
-// Misma normalización/filtrado de eventos que usa el frontend
 function mapEvents(rows) {
   return (rows || [])
-    .filter((e) =>
-      ["goal", "red_card", "own_goal", "penalty", "yellow_card", "substitution"].includes(e.type)
-    )
-    .map((e) => ({
+    .filter(e => ["goal","red_card","own_goal","penalty","yellow_card","substitution"].includes(e.type))
+    .map(e => ({
       min: e.minute ?? e.time ?? 0,
       type: e.type,
       player: e.player?.name || e.player?.short_name || "",
@@ -44,44 +23,59 @@ function mapEvents(rows) {
     .sort((a, b) => a.min - b.min);
 }
 
-const BDL = "https://api.balldontlie.io/fifa/worldcup/v1";
+async function fbGet(path, secret, dbUrl) {
+  const r = await fetch(`${dbUrl}/${path}.json?auth=${secret}`);
+  if (!r.ok) throw new Error(`Firebase GET ${path} → ${r.status}`);
+  return r.json();
+}
+
+async function fbPatch(path, data, secret, dbUrl) {
+  const r = await fetch(`${dbUrl}/${path}.json?auth=${secret}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error(`Firebase PATCH ${path} → ${r.status}`);
+  return r.json();
+}
 
 export default async function handler(req, res) {
-  // 1) Validar token secreto
+  // 1) Token secreto del cron
   const token = req.query.key || req.headers["x-cron-key"] || "";
   if (!process.env.CRON_SECRET || token !== process.env.CRON_SECRET) {
     return res.status(401).json({ error: "No autorizado" });
   }
 
-  const key = process.env.BALLDONTLIE_KEY;
-  if (!key) return res.status(500).json({ error: "BALLDONTLIE_KEY no configurada" });
+  // 2) Variables de entorno
+  const bdlKey   = process.env.BALLDONTLIE_KEY;
+  const dbUrl    = (process.env.FIREBASE_DB_URL || "").replace(/\/$/, "");
+  const dbSecret = process.env.FIREBASE_DB_SECRET;
+
+  if (!bdlKey)   return res.status(500).json({ error: "Falta BALLDONTLIE_KEY" });
+  if (!dbUrl)    return res.status(500).json({ error: "Falta FIREBASE_DB_URL" });
+  if (!dbSecret) return res.status(500).json({ error: "Falta FIREBASE_DB_SECRET — ve a Firebase → Configuración → Cuentas de servicio → Secrets de base de datos" });
 
   try {
-    const db = getDb();
-
-    // 2) Leer el mapa apiId -> localId que publica la app del admin
-    const mapSnap = await db.ref("apiIdMap").get();
-    const apiIdMap = mapSnap.val() || {}; // { "<apiId>": <localId>, ... }
+    // 3) Leer mapa apiId → localId
+    const apiIdMap = await fbGet("apiIdMap", dbSecret, dbUrl) || {};
     if (!Object.keys(apiIdMap).length) {
       return res.status(200).json({ ok: true, note: "apiIdMap vacío — abre la app del admin una vez para publicarlo" });
     }
 
-    // 3) Leer scores/eventos previos para detectar cambios
-    const [scoreSnap, evSnap] = await Promise.all([
-      db.ref("liveScores").get(),
-      db.ref("liveEvents").get(),
+    // 4) Scores y eventos previos
+    const [prevScores, prevEvents] = await Promise.all([
+      fbGet("liveScores", dbSecret, dbUrl).catch(() => ({})),
+      fbGet("liveEvents", dbSecret, dbUrl).catch(() => ({})),
     ]);
-    const prevScores = scoreSnap.val() || {};
-    const prevEvents = evSnap.val() || {};
 
-    // 4) Traer todos los partidos de la temporada
+    // 5) Traer partidos de BallDontLie
     const r = await fetch(`${BDL}/matches?seasons[]=2026&per_page=200`, {
-      headers: { Authorization: key },
+      headers: { Authorization: bdlKey },
     });
     const data = await r.json();
-    if (!data.data) return res.status(502).json({ error: "Respuesta inesperada de BallDontLie" });
+    if (!data.data) return res.status(502).json({ error: "Respuesta inesperada de BallDontLie", detail: data });
 
-    const updates = {};
+    const scoreUpdates = {};
     const eventFetches = [];
     let touched = 0;
 
@@ -95,19 +89,18 @@ export default async function handler(req, res) {
       const prev = prevScores[localId];
       const changed = !prev || prev.h !== h || prev.a !== a;
 
-      updates[`liveScores/${localId}`] = { h, a, status: m.status || "in_progress" };
+      scoreUpdates[localId] = { h, a, status: m.status || "in_progress" };
       touched++;
 
-      // Bajar eventos si: el marcador cambió, el partido está en juego (tarjetas/cambios),
-      // o aún no tenemos eventos guardados para un partido terminado.
-      const needEvents =
-        changed || m.status === "in_progress" || !prevEvents[localId];
-      if (needEvents) {
+      if (changed || m.status === "in_progress" || !prevEvents[localId]) {
+        const apiId = m.id;
         eventFetches.push(
-          fetch(`${BDL}/match_events?match_id=${m.id}`, { headers: { Authorization: key } })
-            .then((er) => (er.ok ? er.json() : null))
-            .then((ed) => {
-              if (ed && ed.data) updates[`liveEvents/${localId}`] = mapEvents(ed.data);
+          fetch(`${BDL}/match_events?match_id=${apiId}`, { headers: { Authorization: bdlKey } })
+            .then(er => er.ok ? er.json() : null)
+            .then(async ed => {
+              if (ed && ed.data) {
+                await fbPatch(`liveEvents`, { [localId]: mapEvents(ed.data) }, dbSecret, dbUrl);
+              }
             })
             .catch(() => {})
         );
@@ -117,12 +110,13 @@ export default async function handler(req, res) {
     await Promise.all(eventFetches);
 
     if (touched > 0) {
-      updates["liveScores/_lastUpdated"] = Date.now();
-      await db.ref().update(updates);
+      scoreUpdates["_lastUpdated"] = Date.now();
+      await fbPatch("liveScores", scoreUpdates, dbSecret, dbUrl);
     }
 
     return res.status(200).json({ ok: true, partidosActualizados: touched });
+
   } catch (e) {
-    return res.status(500).json({ error: "Fallo en el poller", detail: String(e.message || e) });
+    return res.status(500).json({ error: String(e.message || e) });
   }
 }
