@@ -1561,9 +1561,18 @@ function getCountdown(){
  const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
  return`${d}d ${h}h ${m}m ${s}s`;
 }
-function countdownUrgent(){
+function countdownLevel(){
  const diff=new Date(TOURNAMENT_LOCKOUT)-new Date();
- return diff>0&&diff<86400000;
+ if(diff<=0)return"live";
+ if(diff<86400000)return"red";      // < 24h
+ if(diff>604800000)return"green";   // > 1 semana
+ return"normal";                    // entre 24h y 1 semana
+}
+function countdownStyle(){
+ const lv=countdownLevel();
+ if(lv==="red")return";border-color:#ef4444;color:#ef4444;background:#FFE3E3";
+ if(lv==="green")return";border-color:#22c55e;color:#15803d;background:#DCFCE7";
+ return"";
 }
 
 // ─── TIMEZONE ─────────────────────────────────────────────
@@ -1694,7 +1703,7 @@ function loadData(){
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
  prefetchOdds();startLineupWatcher();
  iniciarMasterPolling();
- setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";const bar=document.getElementById("countdown-bar");if(bar&&countdownUrgent()){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}}},1000);
+ setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";const bar=document.getElementById("countdown-bar");if(bar){const lv=countdownLevel();if(lv==="red"){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}else if(lv==="green"){bar.style.borderColor="#22c55e";bar.style.color="#15803d";bar.style.background="#DCFCE7";}else{bar.style.borderColor="";bar.style.color="";bar.style.background="";}}}},1000);
 }
 
 // ─── LANDING ──────────────────────────────────────────────
@@ -3641,7 +3650,7 @@ function render(){
  </div>
  </div>
  <div style="display:flex;justify-content:center;margin-bottom:4px">
- ${countdown?`<div class="countdown-bar" id="countdown-bar" style="position:relative${countdownUrgent()?';border-color:#ef4444;color:#ef4444;background:#FFE3E3':''}"> <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e"> ¡El Mundial está en curso!</div>`}
+ ${countdown?`<div class="countdown-bar" id="countdown-bar" style="position:relative${countdownStyle()}"> <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e"> ¡El Mundial está en curso!</div>`}
  </div>
  <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" onclick="setTab('${id}')">${label}</button>`).join("")}</div></div>
  <div class="hdr-collapsible" style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)">
