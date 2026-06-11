@@ -3699,6 +3699,13 @@ async function buildApiIdMap(){
    const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
    if(match)_apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id};
   }
+  // Publicar el mapa apiId->localId para que el poller externo (cron) sepa a qué partido escribir.
+  try{
+   if(currentUser&&currentUser.uid===ADMIN_UID&&db){
+    const pub={};Object.entries(_apiIdMap).forEach(([lid,v])=>pub[v.apiId]=Number(lid));
+    db.ref("apiIdMap").set(pub);
+   }
+  }catch(e){}
   return _apiIdMap;
  }catch(e){return null;}
 }
@@ -3714,7 +3721,7 @@ function _storeOdds(rows,rev){
   const ph=p(o.moneyline_home_odds),pa=p(o.moneyline_away_odds),pd=p(o.moneyline_draw_odds);
   if(ph==null||pa==null)continue;
   const tot=ph+pa+(pd||0);
-  oddsCache[lid]={h:ph/tot,a:pa/tot,u:o.updated_at||""};n++;
+  oddsCache[lid]={h:ph/tot,a:pa/tot,d:(pd||0)/tot,u:o.updated_at||""};n++;
  }
  return n;
 }
@@ -3757,14 +3764,27 @@ async function prefetchOdds(){
  }
 }
 setInterval(prefetchOdds,30*60000); // refrescar favoritos cada 30 min
-function oddsDot(m,side){
+function oddsBar(m){
  const o=oddsCache[m.id];
  if(!o)return"";
- const mine=side==="h"?o.h:o.a,other=side==="h"?o.a:o.h;
- let c="#f97316",t="Parejo seg\u00fan las casas";
- if(mine-other>0.08){c="#22c55e";t="Favorito para ganar";}
- else if(other-mine>0.08){c="#ef4444";t="Menos favorito";}
- return` <span onclick="event.stopPropagation();showToast('${t}','${c}')" title="${t}" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${c};vertical-align:1px;cursor:pointer"></span>`;
+ // Porcentajes enteros que suman 100
+ let ph=Math.round(o.h*100),pd=Math.round((o.d||0)*100),pa=Math.round(o.a*100);
+ const diff=100-(ph+pd+pa);
+ if(diff!==0){const mx=Math.max(ph,pd,pa);if(ph===mx)ph+=diff;else if(pa===mx)pa+=diff;else pd+=diff;}
+ const HOME="#16a34a",DRAW="var(--warning)",AWAY="#22c55e";
+ return`<div style="margin:8px 2px 2px;padding:10px 10px 12px;background:var(--surface-2);border-radius:12px">
+ <div style="text-align:center;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--text-muted);margin-bottom:8px">PROBABILIDAD DE VICTORIA</div>
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;margin-bottom:6px;gap:6px">
+  <div style="text-align:left;min-width:0;flex:1"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</div><div style="font-weight:800;font-size:15px;color:${HOME}">${ph}%</div></div>
+  <div style="text-align:center;flex:1"><div style="font-weight:700;color:var(--text-muted)">Empate</div><div style="font-weight:800;font-size:15px;color:var(--warning)">${pd}%</div></div>
+  <div style="text-align:right;min-width:0;flex:1"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</div><div style="font-weight:800;font-size:15px;color:${AWAY}">${pa}%</div></div>
+ </div>
+ <div style="display:flex;gap:3px;height:9px;border-radius:5px;overflow:hidden">
+  <div style="width:${ph}%;background:${HOME}"></div>
+  <div style="width:${pd}%;background:${DRAW}"></div>
+  <div style="width:${pa}%;background:${AWAY}"></div>
+ </div>
+ </div>`;
 }
 
 // ── Alineaciones (XI titular + suplentes) ──
@@ -3919,8 +3939,13 @@ function matchEventsHTML(m){
  const homeAbbr=API_CODE[m.home]||"",awayAbbr=API_CODE[m.away]||"";
  const homeEvs=[],awayEvs=[];
  for(const e of res.events){
- const icon=e.type==="red_card"?"🟥":e.type==="own_goal"?"⚽(P)":"⚽";
- const txt=`${icon} ${e.min}' ${e.player||""}`;
+ let icon,label;
+ if(e.type==="red_card"){icon="🟥";label=e.player||"";}
+ else if(e.type==="yellow_card"){icon="🟨";label=e.player||"";}
+ else if(e.type==="own_goal"){icon="⚽";label=(e.player||"")+" (ag)";}
+ else if(e.type==="substitution"){icon="🔄";label=e.pin?`${e.pin}${e.pout?" ↔ "+e.pout:""}`:(e.player||"cambio");}
+ else {icon="⚽";label=e.player||"";}
+ const txt=`${icon} ${e.min}' ${label}`;
  if(e.team===homeAbbr||(!e.team&&homeEvs.length<=awayEvs.length))homeEvs.push(txt);
  else awayEvs.push(txt);
  }
@@ -4209,10 +4234,11 @@ function renderMisPronos(){
  ${ptsBadge || countdownBadge}
  </div>
  <div class="match-teams">
- <span class="team home">${flag(m.home)} ${m.home}${(cardState==='open'||cardState==='blocked')?oddsDot(m,'h'):''}</span>
+ <span class="team home">${flag(m.home)} ${m.home}</span>
  ${matchScoreBlock(m,pred,res)}
- <span class="team">${(cardState==='open'||cardState==='blocked')?oddsDot(m,'a'):''}${m.away} ${flag(m.away)}</span>
+ <span class="team">${m.away} ${flag(m.away)}</span>
  </div>
+ ${(cardState==='open'||cardState==='blocked')?oddsBar(m):''}
  ${matchEventsHTML(m)}
  ${lineupHTML(m)}
  ${liveHint}
@@ -4291,6 +4317,7 @@ function renderBracketPhase(phase){
  <span> ${localMatchDate(m.kickoff)}</span>
  <span> ${m.stadium}</span>
  </div>
+ <div style="padding:0 10px">${lineupHTML(m)}</div>
  <div style="padding:0 12px 10px">
  <select onchange="saveElimWinner(${m.id},this.value)" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:#fff;padding:6px 10px;font-size:12px">
  <option value="">¿Quién avanza?</option>
@@ -4322,6 +4349,7 @@ function renderBracketPhase(phase){
  ${live?`<span class="live-dot"></span>`:""}
  <span style="margin-left:auto">${ptsBadge}</span>
  </div>
+ <div style="padding:0 10px 6px">${matchEventsHTML(m)}${lineupHTML(m)}</div>
  </div>`;
  }).join("");
  return`<div class="bracket-section">
@@ -4331,6 +4359,38 @@ function renderBracketPhase(phase){
 }
 
 // ─── TAB: ESPECIALES ──────────────────────────────────────
+// ─── Goleadores en vivo (se calcula con los eventos que ya capturamos) ──
+function topScorersHTML(){
+ const tally={};
+ for(const mid in allResults){
+  const evs=(allResults[mid]||{}).events;if(!evs)continue;
+  for(const e of evs){
+   if(e.type!=="goal"&&e.type!=="penalty")continue; // autogol no cuenta para goleador
+   const name=(e.player||"").trim();if(!name)continue;
+   const k=name.toLowerCase();
+   if(!tally[k])tally[k]={name,team:e.team||"",g:0};
+   tally[k].g++;
+  }
+ }
+ const list=Object.values(tally).sort((a,b)=>b.g-a.g).slice(0,10);
+ if(!list.length)return"";
+ const teamByCode={};Object.entries(API_CODE).forEach(([es,code])=>teamByCode[code]=es);
+ const rows=list.map((s,i)=>{
+  const fl=teamByCode[s.team]?flag(teamByCode[s.team]):"";
+  return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:${i?"1px solid var(--border)":"none"}">
+   <span style="width:18px;text-align:center;font-weight:800;color:var(--text-muted);font-size:12px">${i+1}</span>
+   <span style="min-width:18px">${fl}</span>
+   <span style="flex:1;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(s.name)}</span>
+   <span style="font-weight:800;color:#de3d27">${s.g} ${s.g===1?"gol":"goles"}</span>
+  </div>`;
+ }).join("");
+ return`<div class="card" style="margin-bottom:14px">
+  <div style="font-weight:800;font-size:13px;margin-bottom:4px;display:flex;align-items:center;gap:6px">⚽ Goleadores del torneo</div>
+  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">En vivo · útil para tu Bota de Oro</div>
+  ${rows}
+ </div>`;
+}
+
 function renderEspeciales(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  // Privacidad: si está apagada, se ocultan los pronósticos de los demás hasta que arranque el Mundial (lockout).
@@ -4347,6 +4407,7 @@ function renderEspeciales(){
  <div style="font-size:28px;font-weight:900;color:#de3d27">${espPts} pts</div></div>
  <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">${localDeadline()}</span></div>
  </div>
+ ${topScorersHTML()}
  ${ESPECIALES_FIELDS.map(f=>{
  const pred=myEsp[f.id]||"",real=(adminEsp[f.id]||"").trim();
  const correct=real&&pred.trim().toLowerCase()===real.toLowerCase();
