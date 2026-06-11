@@ -3488,6 +3488,7 @@ function iniciarMasterPolling(){
     if(!data.data)return;
     const pub={};
     for(const m of data.data){
+     if(!m.season||m.season.year!==2026)continue;
      const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
      if(match)pub[m.id]=Number(match.id);
     }
@@ -3504,6 +3505,7 @@ async function fetchLiveResults(){
  if(!data.data)return;
  const updates={};
  for(const m of data.data){
+ if(!m.season||m.season.year!==2026)continue;
  if(m.status!=="completed"&&m.status!=="in_progress")continue;
  if(m.home_score==null||m.away_score==null)continue;
  const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
@@ -3928,6 +3930,8 @@ async function buildApiIdMap(){
   }while(cursor!=null&&guard<10);
   _apiIdMap={};
   for(const m of all){
+   // Solo edición 2026: el cursor a veces trae partidos de 2018/2022 y nos pisaría el ID correcto.
+   if(!m.season||m.season.year!==2026)continue;
    const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
    if(match)_apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id};
   }
