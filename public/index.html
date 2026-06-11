@@ -3271,6 +3271,20 @@ function iniciarMasterPolling(){
   seedScheduleIfAdmin();
   turnoMaster();
   setInterval(turnoMaster,120000);
+  // Publicar mapa apiId->localId para el poller externo (cron) al arrancar sesión admin.
+  (async()=>{
+   try{
+    const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200");
+    const data=await res.json();
+    if(!data.data)return;
+    const pub={};
+    for(const m of data.data){
+     const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
+     if(match)pub[m.id]=Number(match.id);
+    }
+    if(Object.keys(pub).length)db.ref("apiIdMap").set(pub);
+   }catch(e){}
+  })();
  }
 }
 
