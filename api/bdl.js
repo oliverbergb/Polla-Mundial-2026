@@ -1,1 +1,50 @@
 
+// /api/bdl.js — Proxy seguro para BallDontLie
+// La key vive en una variable de entorno de Vercel, nunca en el HTML.
+// Uso desde el frontend: fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200")
+
+const ALLOWED_ENDPOINTS = new Set(["matches", "match_events", "teams", "group_standings", "stadiums"]);
+
+export default async function handler(req, res) {
+  // Solo GET
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+
+  // Parsear la URL cruda para preservar parámetros como seasons[]
+  const url = new URL(req.url, "http://localhost");
+  const endpoint = url.searchParams.get("endpoint");
+  url.searchParams.delete("endpoint");
+
+  if (!endpoint || !ALLOWED_ENDPOINTS.has(endpoint)) {
+    return res.status(400).json({ error: "Endpoint no permitido" });
+  }
+
+  // Bloqueo básico de abuso: solo aceptar requests que vengan de tu dominio
+  const referer = req.headers.referer || req.headers.origin || "";
+  const esValido =
+    referer.includes("tupolla.pe") ||
+    referer.includes("localhost") ||
+    referer.includes("vercel.app"); // previews de Vercel
+  if (referer && !esValido) {
+    return res.status(403).json({ error: "Origen no permitido" });
+  }
+
+  const key = process.env.BALLDONTLIE_KEY;
+  if (!key) {
+    return res.status(500).json({ error: "BALLDONTLIE_KEY no configurada en Vercel" });
+  }
+
+  try {
+    const target = `https://api.balldontlie.io/fifa/worldcup/v1/${endpoint}?${url.searchParams.toString()}`;
+    const r = await fetch(target, { headers: { Authorization: key } });
+    const data = await r.json();
+
+    // Cache en el edge de Vercel: 20s fresco + 40s stale.
+    // Así, aunque 1000 usuarios pidan lo mismo, BallDontLie recibe ~3 requests/min.
+    res.setHeader("Cache-Control", "s-maxage=20, stale-while-revalidate=40");
+    return res.status(r.status).json(data);
+  } catch (e) {
+    return res.status(502).json({ error: "Error consultando BallDontLie" });
+  }
+}
