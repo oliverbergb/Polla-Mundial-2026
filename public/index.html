@@ -3704,38 +3704,67 @@ async function buildApiIdMap(){
 }
 
 // ── Semáforo de favoritos (las cuotas NUNCA se muestran) ──
+function _storeOdds(rows,rev){
+ let n=0;
+ for(const o of (rows||[])){
+  const lid=rev[o.match_id];
+  if(lid===undefined)continue;
+  if(oddsCache[lid]&&oddsCache[lid].u>=(o.updated_at||""))continue;
+  const p=x=>x==null?null:(x<0?(-x)/((-x)+100):100/(x+100));
+  const ph=p(o.moneyline_home_odds),pa=p(o.moneyline_away_odds),pd=p(o.moneyline_draw_odds);
+  if(ph==null||pa==null)continue;
+  const tot=ph+pa+(pd||0);
+  oddsCache[lid]={h:ph/tot,a:pa/tot,u:o.updated_at||""};n++;
+ }
+ return n;
+}
 async function prefetchOdds(){
  const map=await buildApiIdMap();
  if(!map)return;
  const rev={};Object.entries(map).forEach(([lid,v])=>rev[v.apiId]=lid);
+ let stored=0;
+ // Plan A: traer todo paginado
  try{
   let cursor=null,guard=0;
   do{
    const res=await fetch(`/api/bdl?endpoint=odds&per_page=100${cursor?`&cursor=${cursor}`:""}`);
    if(!res.ok)break;
    const data=await res.json();
-   for(const o of (data.data||[])){
-    const lid=rev[o.match_id];
-    if(lid===undefined)continue;
-    if(oddsCache[lid]&&oddsCache[lid].u>=(o.updated_at||""))continue;
-    const p=x=>x==null?null:(x<0?(-x)/((-x)+100):100/(x+100));
-    const ph=p(o.moneyline_home_odds),pa=p(o.moneyline_away_odds),pd=p(o.moneyline_draw_odds);
-    if(ph==null||pa==null)continue;
-    const tot=ph+pa+(pd||0);
-    oddsCache[lid]={h:ph/tot,a:pa/tot,u:o.updated_at||""};
-   }
+   stored+=_storeOdds(data.data,rev);
    cursor=data.meta?.next_cursor||null;guard++;
   }while(cursor&&guard<5);
  }catch(e){}
+ // Plan B: si vino vacío, pedir por match_ids[] de los partidos de los próximos 7 días
+ if(stored===0){
+  const now=Date.now();
+  const soon=MATCHES.filter(m=>{
+   const ko=new Date(m.kickoff).getTime();
+   return ko>now-3*3600000&&ko-now<7*86400000&&map[m.id];
+  }).map(m=>map[m.id].apiId);
+  for(let i=0;i<soon.length;i+=10){
+   const qs=soon.slice(i,i+10).map(id=>`match_ids[]=${id}`).join("&");
+   try{
+    const res=await fetch(`/api/bdl?endpoint=odds&${qs}&per_page=100`);
+    if(!res.ok)continue;
+    const data=await res.json();
+    stored+=_storeOdds(data.data,rev);
+   }catch(e){}
+  }
+ }
+ // Re-dibujar para que aparezcan los puntos
+ if(stored>0&&typeof renderTab==="function"&&typeof currentTab!=="undefined"&&currentTab==="mis_pronos"){
+  try{renderTab();}catch(e){}
+ }
 }
+setInterval(prefetchOdds,30*60000); // refrescar favoritos cada 30 min
 function oddsDot(m,side){
  const o=oddsCache[m.id];
  if(!o)return"";
  const mine=side==="h"?o.h:o.a,other=side==="h"?o.a:o.h;
- let c="#f97316",t="Parejo";
- if(mine-other>0.08){c="#22c55e";t="Favorito";}
+ let c="#f97316",t="Parejo seg\u00fan las casas";
+ if(mine-other>0.08){c="#22c55e";t="Favorito para ganar";}
  else if(other-mine>0.08){c="#ef4444";t="Menos favorito";}
- return` <span title="${t}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};vertical-align:1px"></span>`;
+ return` <span onclick="event.stopPropagation();showToast('${t}','${c}')" title="${t}" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${c};vertical-align:1px;cursor:pointer"></span>`;
 }
 
 // ── Alineaciones (XI titular + suplentes) ──
