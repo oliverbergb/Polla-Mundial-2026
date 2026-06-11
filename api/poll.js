@@ -112,16 +112,21 @@ export default async function handler(req, res) {
   if (!dbSecret) return res.status(500).json({ error: "Falta FIREBASE_DB_SECRET" });
 
   try {
-    // 2) Traer partidos de BallDontLie
-    const r = await fetch(`${BDL}/matches?seasons[]=2026&per_page=200`, {
-      headers: { Authorization: bdlKey },
-    });
-    const data = await r.json();
-    if (!data.data) return res.status(502).json({ error: "Respuesta inesperada de BallDontLie", detail: data });
+    // 2) Traer partidos de BallDontLie (paginado, máx 100 por página)
+    let allMatches=[], cursor=null, guard=0;
+    do {
+      const url=`${BDL}/matches?seasons[]=2026&per_page=100${cursor?`&cursor=${cursor}`:""}`;
+      const r=await fetch(url,{headers:{Authorization:bdlKey}});
+      const page=await r.json();
+      if(!page.data) return res.status(502).json({error:"Respuesta inesperada de BallDontLie",detail:page});
+      allMatches=allMatches.concat(page.data);
+      cursor=page.meta?.next_cursor||null;
+      guard++;
+    } while(cursor&&guard<5);
 
     // 3) Construir mapa bdl_id -> local_id usando la misma lógica que el frontend
     const bdlToLocal = {};
-    for (const m of data.data) {
+    for (const m of allMatches) {
       const match = MATCHES.find(x => apiTeamEq(x.home, m.home_team) && apiTeamEq(x.away, m.away_team));
       if (match) bdlToLocal[m.id] = match.id;
     }
@@ -134,7 +139,7 @@ export default async function handler(req, res) {
     const eventFetches = [];
     let touched = 0;
 
-    for (const m of data.data) {
+    for (const m of allMatches) {
       if (m.status !== "completed" && m.status !== "in_progress") continue;
       if (m.home_score == null || m.away_score == null) continue;
       const localId = bdlToLocal[m.id];
