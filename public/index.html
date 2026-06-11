@@ -1066,7 +1066,7 @@ let globalWorld={especiales:{},groupOverride:{}},_worldHooked=false;
 const expandedMatches=new Set();
 const expandedEspeciales=new Set();
 let currentPollaId=null,currentPolla=null,myPollas={};
-const h2hCache={};
+const lineupCache={};const oddsCache={};
 let showOnlyMissing=false;
 let allReactions={}; // {matchId: {predictorUid: {reactorUid: emoji}}}
 // Las reacciones se guardan dentro del nodo de cada usuario (participantes/{uid}/reactions)
@@ -1492,7 +1492,7 @@ function loadData(){
  db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
  db.ref(`${base}/rules`).on("value",snap=>{const rv=snap.val();if(rv){currentPolla=currentPolla||{};currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)render();}});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
- prefetchH2H();
+ prefetchOdds();startLineupWatcher();
  iniciarMasterPolling();
  setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";const bar=document.getElementById("countdown-bar");if(bar&&countdownUrgent()){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}}},1000);
 }
@@ -3686,63 +3686,152 @@ function initDragDrop(){
  list.addEventListener("touchcancel",endTouch);
 }
 
-// ─── H2H HISTORY ──────────────────────────────────────────
-async function fetchH2H(home,away){
- const key=`${home}_${away}`;
- if(key in h2hCache)return h2hCache[key];
+// ─── ODDS + ALINEACIONES (GOAT tier) ───────────────────────
+let _apiIdMap=null; // localId -> {apiId,homeId,awayId}
+async function buildApiIdMap(){
+ if(_apiIdMap)return _apiIdMap;
  try{
- const q=encodeURIComponent(`${home} ${away}`);
- const res=await fetch(`/api/bdl?endpoint=matches&per_page=10`);
- if(!res.ok){h2hCache[key]=null;return null;}
- const data=await res.json();
- if(!data.data){h2hCache[key]=null;return null;}
- const hn=home.toLowerCase(),an=away.toLowerCase();
- const matches=data.data.filter(m=>{
- return apiTeamEq(home,m.home_team)&&apiTeamEq(away,m.away_team);
- }).slice(0,3);
- h2hCache[key]=matches.length?matches:null;
- return h2hCache[key];
- }catch(e){h2hCache[key]=null;return null;}
+  const res=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=200");
+  const data=await res.json();
+  if(!data.data)return null;
+  _apiIdMap={};
+  for(const m of data.data){
+   const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
+   if(match)_apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id};
+  }
+  return _apiIdMap;
+ }catch(e){return null;}
 }
 
-function h2hHTML(matchId,home,away){
- const key=`${home}_${away}`;
- const matches=h2hCache[key];
- if(!matches||!matches.length)return"";
- const rows=matches.map(m=>{
- const ht=m.home_team?.name||home,at=m.away_team?.name||away;
- const hs=m.home_score??"-",as=m.away_score??"-";
- const date=m.date?new Date(m.date).toLocaleDateString([],{month:"short",year:"numeric"}):"";
- const comp=m.competition||"";
- return`<div class="h2h-row">
- <span style="min-width:52px;font-size:10px;color:var(--text-dim)">${date}</span>
- <span class="h2h-score">${ht} ${hs}–${as} ${at}</span>
- <span class="h2h-comp">${comp}</span>
- </div>`;
- }).join("");
+// ── Semáforo de favoritos (las cuotas NUNCA se muestran) ──
+async function prefetchOdds(){
+ const map=await buildApiIdMap();
+ if(!map)return;
+ const rev={};Object.entries(map).forEach(([lid,v])=>rev[v.apiId]=lid);
+ try{
+  let cursor=null,guard=0;
+  do{
+   const res=await fetch(`/api/bdl?endpoint=odds&per_page=100${cursor?`&cursor=${cursor}`:""}`);
+   if(!res.ok)break;
+   const data=await res.json();
+   for(const o of (data.data||[])){
+    const lid=rev[o.match_id];
+    if(lid===undefined)continue;
+    if(oddsCache[lid]&&oddsCache[lid].u>=(o.updated_at||""))continue;
+    const p=x=>x==null?null:(x<0?(-x)/((-x)+100):100/(x+100));
+    const ph=p(o.moneyline_home_odds),pa=p(o.moneyline_away_odds),pd=p(o.moneyline_draw_odds);
+    if(ph==null||pa==null)continue;
+    const tot=ph+pa+(pd||0);
+    oddsCache[lid]={h:ph/tot,a:pa/tot,u:o.updated_at||""};
+   }
+   cursor=data.meta?.next_cursor||null;guard++;
+  }while(cursor&&guard<5);
+ }catch(e){}
+}
+function oddsDot(m,side){
+ const o=oddsCache[m.id];
+ if(!o)return"";
+ const mine=side==="h"?o.h:o.a,other=side==="h"?o.a:o.h;
+ let c="#f97316",t="Parejo";
+ if(mine-other>0.08){c="#22c55e";t="Favorito";}
+ else if(other-mine>0.08){c="#ef4444";t="Menos favorito";}
+ return` <span title="${t}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};vertical-align:1px"></span>`;
+}
+
+// ── Alineaciones (XI titular + suplentes) ──
+async function fetchLineups(localId){
+ const map=await buildApiIdMap();
+ const info=map&&map[localId];
+ if(!info)return null;
+ if(lineupCache[localId]&&Date.now()-lineupCache[localId].ts<300000)return lineupCache[localId].data;
+ try{
+  const res=await fetch(`/api/bdl?endpoint=match_lineups&match_ids[]=${info.apiId}&per_page=100`);
+  if(!res.ok)return null;
+  const data=await res.json();
+  if(!data.data||!data.data.length)return null;
+  const byTeam={};
+  for(const e of data.data){
+   const side=e.team_id===info.homeId?"home":e.team_id===info.awayId?"away":null;
+   if(!side)continue;
+   byTeam[side]=byTeam[side]||{starters:[],subs:[],formation:null};
+   const pl={n:e.shirt_number??e.player?.jersey_number??"",name:e.player?.short_name||e.player?.name||"",pos:e.position||e.player?.position||""};
+   if(e.is_starter){byTeam[side].starters.push(pl);byTeam[side].formation=byTeam[side].formation||e.formation;}
+   else byTeam[side].subs.push(pl);
+  }
+  if(!byTeam.home||!byTeam.away||byTeam.home.starters.length<11||byTeam.away.starters.length<11)return null;
+  lineupCache[localId]={data:byTeam,ts:Date.now()};
+  return byTeam;
+ }catch(e){return null;}
+}
+
+function pitchHTML(team,label){
+ const isGK=p=>String(p.pos).toUpperCase().startsWith("G");
+ const gk=team.starters.find(isGK)||team.starters[0];
+ const field=team.starters.filter(p=>p!==gk);
+ let rows=null;
+ if(team.formation){
+  const parts=String(team.formation).split("-").map(Number).filter(n=>n>0);
+  if(parts.length&&parts.reduce((a,b)=>a+b,0)===field.length){
+   rows=[];let i=0;
+   for(const n of parts){rows.push(field.slice(i,i+n));i+=n;}
+  }
+ }
+ const dot=(p,gold)=>`<div style="text-align:center;min-width:0;flex:1"><div style="width:30px;height:30px;border-radius:50%;background:${gold?"#fbbf24":"#fff"};color:#14532d;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;margin:0 auto">${p.n}</div><div style="color:#fff;font-size:9.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div></div>`;
+ let inner;
+ if(rows){
+  inner=rows.slice().reverse().map(r=>`<div style="display:flex;justify-content:space-around;gap:4px;margin-bottom:12px">${r.map(p=>dot(p)).join("")}</div>`).join("")+`<div style="display:flex;justify-content:center">${dot(gk,true)}</div>`;
+ }else{
+  // Formación rara o sin datos → lista agrupada por posición (nunca se ve roto)
+  const grp={G:[],D:[],M:[],F:[]};
+  team.starters.forEach(p=>{const k=String(p.pos).toUpperCase()[0];(grp[k]||grp.M).push(p);});
+  const lbl={G:"POR",D:"DEF",M:"MED",F:"DEL"};
+  inner=Object.keys(grp).filter(k=>grp[k].length).map(k=>`<div style="color:#fff;font-size:11px;margin:3px 0"><span style="opacity:.6;font-size:10px">${lbl[k]}</span> ${grp[k].map(p=>`${p.n} ${p.name}`).join(" · ")}</div>`).join("");
+ }
+ const subs=team.subs.length?`<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);font-size:10.5px;line-height:1.7"><strong style="font-size:10px;letter-spacing:.5px">SUPLENTES</strong><br>${team.subs.map(p=>`${p.n} ${p.name}`).join(" · ")}</div>`:"";
+ return`<div style="background:#1d7a52;border-radius:10px;padding:12px 8px;margin-top:8px">
+ <div style="text-align:center;color:#d8f3e6;font-size:11px;font-weight:800;margin-bottom:10px">${label}${team.formation?` · ${team.formation}`:""}</div>
+ ${inner}${subs}</div>`;
+}
+
+function lineupInnerHTML(id,d,m){
  return`<div class="h2h-block">
- <div class="h2h-title" onclick="toggleH2H(${matchId},this)">
- <span>Últimos enfrentamientos</span>
- <span style="font-size:10px;color:var(--text-dim)">▼ ver</span>
+ <div class="h2h-title" onclick="toggleLineup(${id},this)">
+ <span>Alineaciones</span><span style="font-size:10px;color:var(--text-dim)">▼ ver</span>
  </div>
- <div class="h2h-rows" id="h2h-${matchId}">${rows}</div>
- </div>`;
+ <div class="h2h-rows" id="lu-${id}">
+ ${pitchHTML(d.home,`${flag(m.home)} ${m.home}`)}
+ ${pitchHTML(d.away,`${flag(m.away)} ${m.away}`)}
+ </div></div>`;
 }
-
-window.toggleH2H=function(matchId,titleEl){
- const rows=document.getElementById(`h2h-${matchId}`);
+function lineupHTML(m){
+ const c=lineupCache[m.id];
+ return`<div id="lu-slot-${m.id}">${c&&c.data?lineupInnerHTML(m.id,c.data,m):""}</div>`;
+}
+window.toggleLineup=function(id,el){
+ const rows=document.getElementById(`lu-${id}`);
  if(!rows)return;
  const open=rows.style.display==="block";
  rows.style.display=open?"none":"block";
- titleEl.querySelector("span:last-child").textContent=open?"▼ ver":"▲ ocultar";
+ el.querySelector("span:last-child").textContent=open?"▼ ver":"▲ ocultar";
 };
 
-// Prefetch h2h for all group matches in background
-async function prefetchH2H(){
- for(const m of MATCHES.filter(x=>x.phase==="groups")){
- if(!(`${m.home}_${m.away}` in h2hCache))
- await fetchH2H(m.home,m.away);
- }
+// Revisa cada 5 min los partidos a <80 min del pitazo (las alineaciones salen ~1h antes)
+function startLineupWatcher(){
+ const tick=async()=>{
+  const now=Date.now();
+  for(const m of MATCHES){
+   const ko=new Date(m.kickoff).getTime();
+   if(ko-now>80*60000)continue;
+   if(now-ko>150*60000)continue;
+   const had=!!lineupCache[m.id];
+   const d=await fetchLineups(m.id);
+   if(d&&!had){
+    const slot=document.getElementById(`lu-slot-${m.id}`);
+    if(slot)slot.innerHTML=lineupInnerHTML(m.id,d,m);
+   }
+  }
+ };
+ tick();setInterval(tick,5*60000);
 }
 
 // ─── TAB: MIS PRONÓSTICOS ─────────────────────────────────
@@ -4091,12 +4180,12 @@ function renderMisPronos(){
  ${ptsBadge || countdownBadge}
  </div>
  <div class="match-teams">
- <span class="team home">${flag(m.home)} ${m.home}</span>
+ <span class="team home">${flag(m.home)} ${m.home}${(cardState==='open'||cardState==='blocked')?oddsDot(m,'h'):''}</span>
  ${matchScoreBlock(m,pred,res)}
- <span class="team">${m.away} ${flag(m.away)}</span>
+ <span class="team">${(cardState==='open'||cardState==='blocked')?oddsDot(m,'a'):''}${m.away} ${flag(m.away)}</span>
  </div>
  ${matchEventsHTML(m)}
- ${h2hHTML(m.id,m.home,m.away)}
+ ${lineupHTML(m)}
  ${liveHint}
  ${expandToggleBtn}
  ${morboToggleBtn}
