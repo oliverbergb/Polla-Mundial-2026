@@ -4077,7 +4077,9 @@ function lineupInnerHTML(id,d,m){
 }
 function lineupHTML(m){
  const c=lineupCache[m.id];
- return`<div id="lu-slot-${m.id}">${c&&c.data?lineupInnerHTML(m.id,c.data,m):""}</div>`;
+ if(c&&c.data)return`<div id="lu-slot-${m.id}">${lineupInnerHTML(m.id,c.data,m)}</div>`;
+ // Sin caché todavía: mostramos igual el botón, y al tocarlo buscamos las alineaciones.
+ return`<div id="lu-slot-${m.id}"><div class="h2h-block"><div class="h2h-title" onclick="openLineup(${m.id},this)"><span>Alineaciones</span><span style="font-size:10px;color:var(--text-dim)">▼ ver</span></div><div class="h2h-rows" id="lu-${m.id}"></div></div></div>`;
 }
 window.toggleLineup=function(id,el){
  const rows=document.getElementById(`lu-${id}`);
@@ -4085,6 +4087,24 @@ window.toggleLineup=function(id,el){
  const open=rows.style.display==="block";
  rows.style.display=open?"none":"block";
  el.querySelector("span:last-child").textContent=open?"▼ ver":"▲ ocultar";
+};
+window.openLineup=async function(id,el){
+ const rows=document.getElementById(`lu-${id}`);
+ if(!rows)return;
+ const isOpen=rows.style.display==="block";
+ if(isOpen){rows.style.display="none";el.querySelector("span:last-child").textContent="▼ ver";return;}
+ rows.style.display="block";
+ el.querySelector("span:last-child").textContent="▲ ocultar";
+ if(rows.dataset.loaded==="1")return;
+ rows.innerHTML='<div style="padding:10px;text-align:center;color:var(--text-dim);font-size:12px">Cargando alineaciones…</div>';
+ const m=MATCHES.find(x=>x.id===id);
+ const d=await fetchLineups(id);
+ if(d){
+  rows.innerHTML=pitchHTML(d.home,`${flag(m.home)} ${m.home}`)+pitchHTML(d.away,`${flag(m.away)} ${m.away}`);
+  rows.dataset.loaded="1";
+ }else{
+  rows.innerHTML='<div style="padding:10px;text-align:center;color:var(--text-dim);font-size:12px">Alineaciones aún no disponibles (salen ~1h antes del pitazo).</div>';
+ }
 };
 
 // Revisa cada 5 min los partidos a <80 min del pitazo (las alineaciones salen ~1h antes)
@@ -4324,9 +4344,14 @@ function matchCountdown(kickoffIso){
 function matchCountdownUrgency(kickoffIso){
  const diff=new Date(kickoffIso)-new Date();
  if(diff<=0)return "live";
- if(diff<3600000)return "high";   // <1h
- if(diff<21600000)return "med";   // <6h
- return "low";
+ if(diff<86400000)return "red";     // < 24h
+ if(diff>604800000)return "green";  // > 7 días
+ return "normal";                   // entre 24h y 7 días (naranja)
+}
+function matchPillStyle(u){
+ if(u==="green")return"background:#DCFCE7;color:#15803d;border:1px solid #22c55e";
+ if(u==="red"||u==="live")return"background:#fee2e2;color:#991b1b;border:1px solid #ef4444";
+ return"background:#fff8e1;color:#b45309;border:1px solid #facc15"; // naranja
 }
 // Update only the countdown pills in-place, no full re-render
 function updateMatchCountdowns(){
@@ -4339,8 +4364,8 @@ function updateMatchCountdowns(){
   }
   const u=matchCountdownUrgency(k);
   el.dataset.urgency=u;
-  if(u==="high"){el.style.background="#fee2e2";el.style.color="#991b1b";el.style.borderColor="#ef4444";}
-  else if(u==="med"){el.style.background="#fff3d4";el.style.color="#cc7700";el.style.borderColor="#f59e0b";}
+  if(u==="green"){el.style.background="#DCFCE7";el.style.color="#15803d";el.style.borderColor="#22c55e";}
+  else if(u==="red"||u==="live"){el.style.background="#fee2e2";el.style.color="#991b1b";el.style.borderColor="#ef4444";}
   else{el.style.background="#fff8e1";el.style.color="#b45309";el.style.borderColor="#facc15";}
  });
 }
@@ -4413,7 +4438,7 @@ function renderMisPronos(){
 
  // Countdown badge for missing predictions
  const countdownBadge = missing
-  ? `<span class="match-countdown-pill" data-kickoff="${m.kickoff}" style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;background:#fff8e1;color:#b45309;border:1px solid #facc15">Cierra en ${matchCountdown(m.kickoff)}</span>`
+  ? `<span class="match-countdown-pill" data-kickoff="${m.kickoff}" style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;${matchPillStyle(matchCountdownUrgency(m.kickoff))}">Cierra en ${matchCountdown(m.kickoff)}</span>`
   : '';
  // Points badge if finished
  const ptsBadge = hasRes && pts!==null
