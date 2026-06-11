@@ -3930,11 +3930,17 @@ async function buildApiIdMap(){
   }while(cursor!=null&&guard<10);
   _apiIdMap={};
   for(const m of all){
-   // Solo edición 2026: el cursor a veces trae partidos de 2018/2022 y nos pisaría el ID correcto.
+   // Solo edición 2026: el cursor a veces trae partidos de otras ediciones que nos pisarían el ID correcto.
    if(!m.season||m.season.year!==2026)continue;
    const match=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
-   if(match)_apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id};
+   if(!match)continue;
+   // Puede haber duplicados del mismo cruce: nos quedamos con el que coincide en fecha con el kickoff local.
+   const newDelta=Math.abs(new Date(match.kickoff)-new Date(m.datetime));
+   const cur=_apiIdMap[match.id];
+   if(cur&&cur._delta<=newDelta)continue;
+   _apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id,_delta:newDelta};
   }
+  Object.values(_apiIdMap).forEach(v=>delete v._delta); // limpiar campo auxiliar
   // Publicar el mapa apiId->localId para que el poller externo (cron) sepa a qué partido escribir.
   try{
    if(currentUser&&currentUser.uid===ADMIN_UID&&db){
