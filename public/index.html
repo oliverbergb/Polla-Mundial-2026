@@ -111,6 +111,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .hdr-toggle{display:none}
 .hdr-mini-title{display:none}
 .pill{padding:6px 14px;border-radius:20px;border:2px solid var(--border);cursor:pointer;font-size:12px;font-weight:800;transition:all .15s;box-shadow:0 3px 0 var(--border-strong);font-family:'Nunito',sans-serif}
+@keyframes tpLivePillPulse{0%,100%{box-shadow:0 3px 0 var(--border-strong),0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 3px 0 var(--border-strong),0 0 0 5px rgba(239,68,68,0)}}
+.pill.tp-live-pill{border-color:#ef4444!important;animation:tpLivePillPulse 1.6s ease-in-out infinite}
 .rank-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:2px solid var(--border-soft)}
 .rank-row:last-child{border-bottom:none}
 
@@ -1352,6 +1354,29 @@ function liveMinute(m){
  if(sh>78)sh-=3;                              // pausa de hidratación 2T (~75')
  if(sh<=90)return `${sh}'`;
  return "90+'";
+}
+// Convierte el reloj oficial de la API ("68:42" o "90+02:30") al minuto que se muestra,
+// avanzándolo con los segundos transcurridos desde la última lectura (clockTs).
+function _fmtApiClock(disp,ts){
+ const s=String(disp||"").trim();if(!s)return"";
+ const adv=Math.max(0,Math.floor((Date.now()-(ts||Date.now()))/1000));
+ if(s.includes("+")){
+  const[root,rest]=s.split("+");
+  const r=parseInt(root)||90;const p=(rest||"").split(":");
+  const extra=(parseInt(p[0])||0)*60+(parseInt(p[1])||0)+adv;
+  return`${r}+${Math.floor(extra/60)+1}'`;
+ }
+ const p=s.split(":");
+ const tot=(parseInt(p[0])||0)*60+(parseInt(p[1])||0)+adv;
+ return`${Math.floor(tot/60)+1}'`;
+}
+// Minuto a mostrar: reloj oficial de BallDontLie si llegó hace <90s; si no, la estimación local.
+function liveClock(m){
+ const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;
+ if(r&&r.clock&&r.clockTs&&(Date.now()-r.clockTs)<90000){
+  const t=_fmtApiClock(r.clock,r.clockTs);if(t)return t;
+ }
+ return liveMinute(m);
 }
 // Kickoff of first match in each elim phase (UTC) — auto-unlocks at this time
 const PHASE_UNLOCK_TIMES={
@@ -3473,6 +3498,8 @@ function iniciarMasterPolling(){
  allResults[numId].h=score.h;
  allResults[numId].a=score.a;
  allResults[numId].status=score.status||null;
+ if(score.clock!=null)allResults[numId].clock=score.clock;else delete allResults[numId].clock;
+ if(score.clockTs!=null)allResults[numId].clockTs=score.clockTs;
  if(score.gkH)allResults[numId].gkH=score.gkH;
  if(score.gkA)allResults[numId].gkA=score.gkA;
  });
@@ -3562,7 +3589,13 @@ async function fetchLiveResults(){
  fetchMatchEvents(m.id,match.id);
  }
  _prevScores[match.id]={h:newH,a:newA};
- updates[`liveScores/${match.id}`]={h:String(newH),a:String(newA),status:m.status||"in_progress"};
+ updates[`liveScores/${match.id}/h`]=String(newH);
+ updates[`liveScores/${match.id}/a`]=String(newA);
+ updates[`liveScores/${match.id}/status`]=m.status||"in_progress";
+ if(m.status==="in_progress"){
+  updates[`liveScores/${match.id}/clock`]=(m.clock_display!=null)?String(m.clock_display):null;
+  updates[`liveScores/${match.id}/clockTs`]=Date.now();
+ }
  if(m.status==="completed"){
   const cur=allResults[match.id];
   // Si el partido terminó y nunca capturamos sus eventos (poller caído durante el juego), los traemos una vez.
@@ -3759,8 +3792,20 @@ function render(){
 function renderTab_UNUSED(){}
 
 // ─── PILLS ────────────────────────────────────────────────
+function _liveGroupSet(){
+ const s=new Set();
+ for(const m of MATCHES){if(m.phase==="groups"&&m.group&&isLive(m))s.add(m.group);}
+ return s;
+}
 function groupPills(){
- return`<div class="group-pills">${Object.keys(GROUPS).map(g=>`<button class="pill" style="background:${currentGroup===g?GROUP_COLORS[g]:"transparent"};color:${currentGroup===g?"#fff":"var(--text-muted)"};border:1px solid var(--border)" onclick="setGroup('${g}')">${g}</button>`).join("")}</div>`;
+ const liveSet=_liveGroupSet();
+ return`<div class="group-pills">${Object.keys(GROUPS).map(g=>{
+  const sel=currentGroup===g,lv=liveSet.has(g);
+  const bg=sel?GROUP_COLORS[g]:(lv?"rgba(239,68,68,.10)":"transparent");
+  const col=sel?"#fff":(lv?"#ef4444":"var(--text-muted)");
+  const bd=lv?"#ef4444":"var(--border)";
+  return`<button class="pill${lv?" tp-live-pill":""}" style="background:${bg};color:${col};border:1px solid ${bd}" onclick="setGroup('${g}')">${g}</button>`;
+ }).join("")}</div>`;
 }
 function elimPhasePills(){
  return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--surface-3)":"transparent"};color:${currentElimPhase===p.id?"var(--text)":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--text)":"var(--border)"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
@@ -4507,8 +4552,8 @@ setInterval(updateMatchCountdowns,60000);
 function updateLiveMinutes(){
  document.querySelectorAll(".live-min").forEach(el=>{
   const k=el.dataset.kickoff;if(!k)return;
-  const m={kickoff:k};
-  el.textContent=liveMinute(m);
+  const mid=el.dataset.mid?parseInt(el.dataset.mid):null;
+  el.textContent=liveClock({id:mid,kickoff:k});
  });
 }
 setInterval(updateLiveMinutes,30000);
@@ -4516,11 +4561,11 @@ setInterval(updateLiveMinutes,30000);
 let _stateRefreshTick=0;
 setInterval(()=>{
  _stateRefreshTick++;
- // Only re-render visible tab if we're on partidos (mis_pronos), live games need refreshing
- if(currentPollaId && currentTab==="mis_pronos"){
+ // Re-render visible tab so live/locked/finished states (and el indicador EN VIVO de los grupos) se actualicen.
+ if(currentPollaId){
   const hasLive=MATCHES.some(isLive);
-  // Refresh every cycle if there's a live match, otherwise every 2 mins to catch transitions
-  if(hasLive || _stateRefreshTick%2===0)renderTab();
+  const relevant=currentTab==="mis_pronos"||currentTab==="grupos"||currentTab==="especiales";
+  if(relevant&&(hasLive||_stateRefreshTick%2===0))renderTab();
  }
 },60000);
 
@@ -4614,7 +4659,7 @@ function renderMisPronos(){
 
  return`<div class="match-card" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
  <div class="match-meta">
- <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveMinute(m)}</span>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}</span>
+ <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}</span>
  ${ptsBadge || countdownBadge}
  </div>
  <div class="match-teams">
@@ -4768,26 +4813,46 @@ async function loadRostersScorers(){
 }
 function topScorersRowsHTML(){
  const teamByCode={};Object.entries(API_CODE).forEach(([es,code])=>teamByCode[code]=es);
- let list;
+ const norm=s=>(s||"").trim().toLowerCase();
+ const tally={}; // key normalizado -> {name, team, g}
+ // Base: goles acumulados del torneo (rosters), la fuente más confiable.
  if(_rostersScorers&&_rostersScorers.length){
-  // Fuente preferida: goles acumulados del torneo (rosters)
-  list=_rostersScorers.slice(0,10).map(s=>({name:s.name,g:s.g,team:teamByCode[s.cc]||s.cc||""}));
- }else{
-  // Respaldo: eventos en vivo capturados
-  const tally={};
+  for(const s of _rostersScorers){
+   const k=norm(s.name);if(!k)continue;
+   tally[k]={name:s.name,team:teamByCode[s.cc]||s.cc||"",g:s.g};
+  }
+ }
+ // Overlay EN VIVO: rosters casi nunca tiene los goles de un partido en curso,
+ // así que sumamos encima los goles de los partidos que están jugándose ahora.
+ const liveIds=new Set();
+ for(const m of MATCHES){
+  if(!isLive(m))continue;liveIds.add(m.id);
+  const evs=(allResults[m.id]||{}).events;if(!evs)continue;
+  for(const e of evs){
+   if(e.type!=="goal"&&e.type!=="penalty")continue; // autogol no cuenta para goleador
+   const name=(e.player||"").trim();if(!name)continue;
+   const k=norm(name);
+   if(!tally[k])tally[k]={name,team:e.team||"",g:0};
+   if(e.team&&!tally[k].team)tally[k].team=e.team;
+   tally[k].g++;
+  }
+ }
+ // Respaldo: si rosters aún no cargó, usamos los eventos de partidos ya cerrados también.
+ if(!_rostersScorers||!_rostersScorers.length){
   for(const mid in allResults){
+   if(liveIds.has(parseInt(mid)))continue; // los vivos ya se contaron arriba
    const evs=(allResults[mid]||{}).events;if(!evs)continue;
    for(const e of evs){
-    if(e.type!=="goal"&&e.type!=="penalty")continue; // autogol no cuenta para goleador
+    if(e.type!=="goal"&&e.type!=="penalty")continue;
     const name=(e.player||"").trim();if(!name)continue;
-    const k=name.toLowerCase();
+    const k=norm(name);
     if(!tally[k])tally[k]={name,team:e.team||"",g:0};
     if(e.team&&!tally[k].team)tally[k].team=e.team;
     tally[k].g++;
    }
   }
-  list=Object.values(tally).sort((a,b)=>b.g-a.g).slice(0,10);
  }
+ const list=Object.values(tally).filter(x=>x.g>0).sort((a,b)=>b.g-a.g).slice(0,10);
  if(!list.length)return"";
  return list.map((sc,i)=>{
   // s.team puede ser el nombre en español (eventos nuevos) o un código (eventos antiguos)
@@ -4821,7 +4886,7 @@ function cleanSheetsRowsHTML(){
    <span style="width:18px;text-align:center;font-weight:800;color:var(--text-muted);font-size:12px">${i+1}</span>
    <span style="min-width:18px">${flag(t.team)}</span>
    <span style="flex:1;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(t.gk||t.team)}</span>
-   <span style="font-weight:800;color:#1d4ed8">${t.c} ${t.c===1?"valla":"vallas"}</span>
+   <span style="font-weight:800;color:#1d4ed8">${t.c} ${t.c===1?"invicto":"invictos"}</span>
   </div>`).join("");
 }
 
@@ -5661,39 +5726,48 @@ window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
 
 // ─── KEYBOARD NAVIGATION ──────────────────────────────────
+// Se ancla a que la barra de pestañas esté visible (no a currentPollaId), así no
+// "deja de funcionar" si el estado se desincroniza tras un rato sin usar la app.
 document.addEventListener("keydown",function(e){
- if(!currentPollaId)return;
- if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT")return;
+ if(e.key!=="ArrowUp"&&e.key!=="ArrowDown"&&e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
+ const t=e.target;
+ if(t&&(t.isContentEditable||t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.tagName==="SELECT"))return;
+ if(!document.getElementById("main-tabs"))return; // la app (con pestañas) tiene que estar en pantalla
  const isDesktop=window.innerWidth>=900;
  const groupKeys=Object.keys(GROUPS);
  const elimIds=ELIM_PHASES.map(p=>p.id);
  const tabIds=["mis_pronos",...(currentPolla?.rules?.incluirClasificacion!==false?["grupos"]:[]),...(currentPolla?.rules?.incluirEspeciales!==false?["especiales"]:[]),"ranking","chat"];
+ const moveTab=dir=>{const i=tabIds.indexOf(currentTab);setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);};
 
- // On desktop: Up/Down always change tabs; Left/Right change pills when relevant
- // On mobile: Left/Right always change tabs
  if(isDesktop){
-  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+  // Arriba/Abajo: SIEMPRE cambian de pestaña (y solo ellas).
+  if(e.key==="ArrowUp"||e.key==="ArrowDown"){
    e.preventDefault();
-   const dir=e.key==="ArrowDown"?1:-1;
-   const i=tabIds.indexOf(currentTab);
-   setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
-  }else if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
-   const dir=e.key==="ArrowRight"?1:-1;
-   const onGroups=currentTab==="grupos"||(currentTab==="mis_pronos"&&partidosView==="grupos");
-   e.preventDefault();
-   if(onGroups){
-    const i=groupKeys.indexOf(currentGroup);
-    setGroup(groupKeys[(i+dir+groupKeys.length)%groupKeys.length]);
-   }else{
-    const i=tabIds.indexOf(currentTab);
-    setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
-   }
+   moveTab(e.key==="ArrowDown"?1:-1);
+   return;
   }
+  // Izquierda/Derecha: SOLO pastillas; nunca cambian de pestaña.
+  const dir=e.key==="ArrowRight"?1:-1;
+  const onGroups=currentTab==="grupos"||(currentTab==="mis_pronos"&&partidosView==="grupos");
+  const onElim=currentTab==="mis_pronos"&&partidosView==="eliminatorias";
+  if(onGroups){
+   e.preventDefault();
+   const i=groupKeys.indexOf(currentGroup);
+   setGroup(groupKeys[(i+dir+groupKeys.length)%groupKeys.length]);
+  }else if(onElim){
+   e.preventDefault();
+   const i=elimIds.indexOf(currentElimPhase);
+   setElimPhase(elimIds[(i+dir+elimIds.length)%elimIds.length]);
+  }else if(currentTab==="especiales"){
+   e.preventDefault();
+   setEspStatTab(especialesStatTab==="vallas"?"goleadores":"vallas");
+  }
+  // En cualquier otra pestaña, izquierda/derecha no hace nada (no cambia de pestaña).
  }else{
-  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
-   const dir=e.key==="ArrowRight"?1:-1;
-   const i=tabIds.indexOf(currentTab);
-   setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
+  // Móvil: izquierda/derecha cambian de pestaña (como antes).
+  if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+   e.preventDefault();
+   moveTab(e.key==="ArrowRight"?1:-1);
   }
  }
 });
