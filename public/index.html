@@ -142,10 +142,10 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .spin{display:inline-block;animation:spin 1s linear infinite}
 
 /* ── SCORES ── */
-.score-box{background:var(--surface-2);padding:5px 10px;border-radius:12px;font-size:14px;font-weight:800;min-width:30px;text-align:center;border:2px solid var(--border)}
+.score-box{background:var(--surface-2);padding:3px 8px;border-radius:10px;font-size:12px;font-weight:800;min-width:26px;text-align:center;border:2px solid var(--border)}
 .score-box.pred{color:var(--text-muted)}
 .score-box.result{color:var(--text);border-color:var(--border);background:var(--surface-2)}
-.vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:90px}
+.vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:76px}
 .vs-real-lbl{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-top:1px}
 .vs-pred-mini{font-size:10px;color:var(--text-dim);text-align:center;margin-top:2px}
 .vs-pred-mini strong{color:var(--text-muted);font-weight:800}
@@ -857,7 +857,7 @@ window.tpPreset=function(kind){if(kind==="completa"&&new Date()>=new Date(TOURNA
 // ─── CONFIG ───────────────────────────────────────────────
 const FIREBASE_CONFIG={
  apiKey:"AIzaSyBTkbXyjOiEoY2t-9YRA0b7wlIB0AEUgUA",
- authDomain:"tupolla.pe",
+ authDomain:"polla-mundial-2026-e85da.firebaseapp.com",
  databaseURL:"https://polla-mundial-2026-e85da-default-rtdb.firebaseio.com",
  projectId:"polla-mundial-2026-e85da",
  storageBucket:"polla-mundial-2026-e85da.firebasestorage.app",
@@ -1708,10 +1708,14 @@ async function loadPollas(){
  renderPollaLobby();
 }
 
+let _pollaListeners=[];
+function _onPolla(path,cb){const ref=db.ref(path);ref.on("value",cb);_pollaListeners.push({ref,cb});return ref;}
+function detachPollaListeners(){_pollaListeners.forEach(({ref,cb})=>{try{ref.off("value",cb);}catch(e){}});_pollaListeners=[];}
 function loadData(){
  if(!currentPollaId){renderPollaLobby();return;}
+ detachPollaListeners();
  const base=`pollas/${currentPollaId}`;
- db.ref(`${base}/participantes`).on("value",snap=>{
+ _onPolla(`${base}/participantes`,snap=>{
  const oldRanked=getRankedUsers();
  oldRanked.forEach((r,i)=>{prevRanking[r.uid]=i+1;});
  allUsers=snap.val()||{};
@@ -1727,8 +1731,8 @@ function loadData(){
  if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
  }
  });
- db.ref(`${base}/results`).on("value",snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
- db.ref(`${base}/rules`).on("value",snap=>{const rv=snap.val();if(rv){currentPolla=currentPolla||{};currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)render();}});
+ _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
+ _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)render();}});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
  startLineupWatcher();
  // Watcher de chat para el contador de no leídos (independiente de la pestaña)
@@ -2886,38 +2890,41 @@ function renderPollaLobby(){
  // (el swipe se reemplazó por el menú de 3 puntos, también en móvil)
 }
 
+window.closePollaMenus=function(){
+ document.querySelectorAll('.polla-menu-pop,[id^="menu-"]').forEach(m=>m.remove());
+};
 window.togglePollaMenu=function(id,nombre,btn){
- closePollaMenus(id);
- let m=document.getElementById(`menu-${id}`);
- if(!m){
+ const already=document.getElementById(`menu-${id}`);
+ closePollaMenus();
+ if(already)return; // segundo toque cierra
  const polla=myPollas[id];
  const isCreator=polla&&polla.creadorUid===currentUser.uid;
  const canLeave=!isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
  if(!isCreator&&!canLeave)return;
- m=document.createElement('div');
+ const m=document.createElement('div');
  m.id=`menu-${id}`;
+ m.className='polla-menu-pop';
  m.style.cssText='position:fixed;background:var(--surface);border:1px solid var(--text-dim);border-radius:10px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);overflow:hidden';
- const safeName=nombre.replace(/'/g,"\\'");
+ const safeName=String(nombre||'esta polla').replace(/'/g,"\\'");
  const btnStyle='width:100%;background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:\'Inter\',sans-serif';
- const items=[];
  const btnStyleN=btnStyle.replace('#dc2626','var(--text)');
+ const items=[];
  if(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT))items.push(`<button onclick="event.stopPropagation();closePollaMenus();openRenamePolla('${id}');" style="${btnStyleN}" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='none'">Cambiar nombre</button>`);
  if(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT))items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
  if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'"> Salirse</button>`);
+ if(!items.length)return;
  m.innerHTML=items.join('');
  document.body.appendChild(m);
- }
  const rect=btn.getBoundingClientRect();
  m.style.top=(rect.bottom+6)+'px';
  m.style.left=Math.max(8,rect.right-165)+'px';
- m.style.display=m.style.display==='block'?'none':'block';
+ // Cerrar al tocar fuera o al hacer scroll (con captura, sin pelear con el botón)
+ setTimeout(()=>{
+  const off=(e)=>{if(!m.contains(e.target)){m.remove();document.removeEventListener('click',off,true);window.removeEventListener('scroll',off,true);}};
+  document.addEventListener('click',off,true);
+  window.addEventListener('scroll',off,true);
+ },0);
 };
-window.closePollaMenus=function(except){
- document.querySelectorAll('[id^="menu-"]').forEach(m=>{
- if(m.id!==`menu-${except}`)m.style.display='none';
- });
-};
-document.addEventListener('click',()=>closePollaMenus());
 // ─── MODAL CONFIRM ────────────────────────────────────────
 let _confirmCb=null;
 function showConfirmModal(icon,title,body,btnLabel,btnColor,onConfirm){
@@ -3099,7 +3106,7 @@ function renderCrearPolla(){
    ?`<button type="button" disabled style="flex:1;border:2px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:not-allowed;opacity:.6;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px">No disponible</span></button>`
    :`<button type="button" data-preset="completa" onclick="tpPreset('completa')" style="flex:1;border:2px solid var(--primary);background:var(--primary-soft);color:var(--primary);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px;color:var(--primary-dark)">Todo incluido</span></button>`}
  </div>
- ${_postLockCrear?`<div style="padding:0 14px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45">La versión Completa ya no está disponible: el Mundial ya comenzó y las predicciones de Clasificación y Especiales cerraron con el primer partido. Las pollas nuevas se crean en modo Clásico (solo marcadores).</div>`:''}
+ ${_postLockCrear?`<div style="padding:0 14px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45;text-align:center">La versión Completa ya no está disponible: el Mundial ya comenzó y las predicciones de Clasificación y Especiales cerraron con el primer partido. Las pollas nuevas se crean en modo Clásico (solo marcadores).</div>`:''}
  ${[
  {id:"incluirPartidosGrupos", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"298 53 108 162\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/></svg>", label:"Partidos", desc:"Marcadores: fase de grupos y eliminatorias"},
         {id:"incluirClasificacion", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"288 416 136 142\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m412.33,469.08l-54.27,34.27c-1.73,1.1-3.95,1.1-5.68,0l-54.27-34.27c-3.27-2.07-3.31-6.83-.07-8.95l54.27-35.54c1.77-1.16,4.06-1.16,5.83,0l54.27,35.54c3.24,2.12,3.2,6.88-.07,8.95Z\"/><path d=\"m355.23,523.77c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.35,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.37-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/><path d=\"m355.23,543.76c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.36,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.36-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/></svg>", label:"Clasificación grupos", desc:"Orden final de cada grupo"},
@@ -3699,6 +3706,7 @@ window.toggleHeader=function(){
 // ─── RENDER ───────────────────────────────────────────────
 function render(){
  if(!currentUser){renderLanding();return;}
+ if(currentPollaId&&(!currentPolla||!currentPolla.nombre)){renderPollaLobby();return;}
  setFabs(!!currentPollaId);
  const countdown=getCountdown();
  isCreator=!!(currentPolla&&currentPolla.creadorUid===currentUser.uid);
@@ -4726,22 +4734,61 @@ function renderBracketPhase(phase){
 
 // ─── TAB: ESPECIALES ──────────────────────────────────────
 // ─── Goleadores en vivo (se calcula con los eventos que ya capturamos) ──
+// Respaldo de goleadores vía endpoint rosters (goles acumulados del torneo, con
+// nombre y país ya incluidos). Es la fuente más confiable; si falla, se usan los
+// eventos en vivo capturados. No rompe nada si el proxy no permite el endpoint.
+let _rostersScorers=null,_rostersTs=0,_rostersLoading=false;
+async function loadRostersScorers(){
+ if(_rostersLoading)return;
+ if(_rostersScorers&&Date.now()-_rostersTs<120000)return; // cache 2 min
+ _rostersLoading=true;
+ try{
+  const tally={};let cursor=null,pages=0;
+  do{
+   const url="/api/bdl?endpoint=rosters&seasons[]=2026&per_page=100"+(cursor!=null?`&cursor=${cursor}`:"");
+   const res=await fetch(url);
+   if(!res.ok)break;
+   const data=await res.json();
+   if(!data||!data.data||!data.data.length)break;
+   for(const r of data.data){
+    const g=parseInt(r.goals)||0;if(g<=0)continue;
+    const p=r.player||{};
+    const name=(p.short_name||p.name||"").trim();if(!name)continue;
+    const cc=(p.country_code||"").trim();
+    const prev=tally[name];
+    if(!prev||g>prev.g)tally[name]={name,g,cc};
+   }
+   cursor=data.meta&&data.meta.next_cursor;pages++;
+  }while(cursor&&pages<20);
+  _rostersScorers=Object.values(tally).sort((a,b)=>b.g-a.g);
+  _rostersTs=Date.now();
+  if(typeof renderTab==="function"&&typeof currentTab!=="undefined"&&currentTab==="especiales")renderTab();
+ }catch(e){console.log("Rosters scorers error:",e);}
+ finally{_rostersLoading=false;}
+}
 function topScorersRowsHTML(){
- const tally={};
- for(const mid in allResults){
-  const evs=(allResults[mid]||{}).events;if(!evs)continue;
-  for(const e of evs){
-   if(e.type!=="goal"&&e.type!=="penalty")continue; // autogol no cuenta para goleador
-   const name=(e.player||"").trim();if(!name)continue;
-   const k=name.toLowerCase();
-   if(!tally[k])tally[k]={name,team:e.team||"",g:0};
-   if(e.team&&!tally[k].team)tally[k].team=e.team;
-   tally[k].g++;
-  }
- }
- const list=Object.values(tally).sort((a,b)=>b.g-a.g).slice(0,10);
- if(!list.length)return"";
  const teamByCode={};Object.entries(API_CODE).forEach(([es,code])=>teamByCode[code]=es);
+ let list;
+ if(_rostersScorers&&_rostersScorers.length){
+  // Fuente preferida: goles acumulados del torneo (rosters)
+  list=_rostersScorers.slice(0,10).map(s=>({name:s.name,g:s.g,team:teamByCode[s.cc]||s.cc||""}));
+ }else{
+  // Respaldo: eventos en vivo capturados
+  const tally={};
+  for(const mid in allResults){
+   const evs=(allResults[mid]||{}).events;if(!evs)continue;
+   for(const e of evs){
+    if(e.type!=="goal"&&e.type!=="penalty")continue; // autogol no cuenta para goleador
+    const name=(e.player||"").trim();if(!name)continue;
+    const k=name.toLowerCase();
+    if(!tally[k])tally[k]={name,team:e.team||"",g:0};
+    if(e.team&&!tally[k].team)tally[k].team=e.team;
+    tally[k].g++;
+   }
+  }
+  list=Object.values(tally).sort((a,b)=>b.g-a.g).slice(0,10);
+ }
+ if(!list.length)return"";
  return list.map((sc,i)=>{
   // s.team puede ser el nombre en español (eventos nuevos) o un código (eventos antiguos)
   const fl=flag(sc.team)||((teamByCode[sc.team]&&flag(teamByCode[sc.team]))||"");
@@ -4780,6 +4827,7 @@ function cleanSheetsRowsHTML(){
 
 window.setEspStatTab=function(t){especialesStatTab=t;renderTab();};
 function especialesStatsHTML(){
+ loadRostersScorers(); // respaldo de goleadores (no bloquea; re-renderiza al llegar)
  const gol=topScorersRowsHTML();
  const vallas=cleanSheetsRowsHTML();
  if(!gol&&!vallas)return"";
@@ -5631,10 +5679,14 @@ document.addEventListener("keydown",function(e){
    setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
   }else if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
    const dir=e.key==="ArrowRight"?1:-1;
-   if(currentTab==="grupos"||(currentTab==="mis_pronos"&&partidosView==="grupos")){
-    e.preventDefault();
+   const onGroups=currentTab==="grupos"||(currentTab==="mis_pronos"&&partidosView==="grupos");
+   e.preventDefault();
+   if(onGroups){
     const i=groupKeys.indexOf(currentGroup);
     setGroup(groupKeys[(i+dir+groupKeys.length)%groupKeys.length]);
+   }else{
+    const i=tabIds.indexOf(currentTab);
+    setTab(tabIds[(i+dir+tabIds.length)%tabIds.length]);
    }
   }
  }else{
@@ -5655,7 +5707,7 @@ document.addEventListener("keydown",function(e){
  if(e.key==="ArrowLeft"&&_crearPreset==="completa")tpPreset('clasica');
  else if(e.key==="ArrowRight"&&_crearPreset==="clasica")tpPreset('completa');
 });
-window.logout=async function(){await auth.signOut();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
+window.logout=async function(){await auth.signOut();detachPollaListeners();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
 
 // ─── ELIMINAR CUENTA (requisito de Google Play) ───────────
 window.eliminarCuenta=function(){
