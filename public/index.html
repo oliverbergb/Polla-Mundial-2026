@@ -1280,6 +1280,7 @@ let especialesStatTab="goleadores",_podioAnimated=false;
 const _evBackfilled=new Set(),_gkFetched=new Set();
 let showOnlyMissing=false;
 let allReactions={}; // {matchId: {predictorUid: {reactorUid: emoji}}}
+let _countdownTimer=null,_masterPollingHooked=false,_vvHandler=null;
 // Las reacciones se guardan dentro del nodo de cada usuario (participantes/{uid}/reactions)
 // porque ahí sí tienen permiso de escritura. Aquí las juntamos en allReactions para pintarlas.
 function rebuildReactions(){
@@ -1305,7 +1306,10 @@ function rebuildReactions(){
 function track(event,data={}){try{window.va?.('event',{name:event,...(Object.keys(data).length?{data}:{})});}catch(e){}}
 
 // ─── UTILS ────────────────────────────────────────────────
-function calcMatchPoints(pred,res){
+// Tier de un marcador, INDEPENDIENTE de los puntos configurables de cada polla:
+// 3 = exacto · 2 = ganador + misma diferencia · 1 = solo ganador/empate · 0 = sin acierto · null = sin datos.
+// Esto evita que los badges/colores asuman 3/2/1 fijos cuando la polla usa reglas personalizadas.
+function scoreTier(pred,res){
  if(!pred||!res)return null;
  const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
  if(isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra))return null;
@@ -1315,23 +1319,12 @@ function calcMatchPoints(pred,res){
  if(Math.sign(ph-pa)===Math.sign(rh-ra))return 1;
  return 0;
 }
-function calcElimPoints(pred,res){
- // Igual que fase de grupos: solo cuenta el marcador de los 90 minutos.
- if(!pred||!res)return null;
- const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
- if(isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra))return null;
- if(res.h===""||res.a==="")return null;
- if(ph===rh&&pa===ra)return 3;
- if(Math.sign(ph-pa)===Math.sign(rh-ra)&&(ph-pa)===(rh-ra))return 2;
- if(Math.sign(ph-pa)===Math.sign(rh-ra))return 1;
- return 0;
-}
-function calcGroupPredPoints(userOrder,realOrder){
- if(!userOrder||!realOrder)return 0;
- let pts=0;
- for(let i=0;i<4;i++){if(userOrder[i]&&realOrder[i]&&userOrder[i]===realOrder[i])pts+=2;}
- return pts;
-}
+function _activeRules(){return (currentPolla&&currentPolla.rules)||DEFAULT_RULES;}
+// Variantes "sin reglas": ahora delegan en las reglas ACTIVAS de la polla, para que los
+// puntos mostrados en pantalla coincidan SIEMPRE con los que cuenta el ranking.
+function calcMatchPoints(pred,res){return calcMatchPointsR(pred,res,_activeRules());}
+function calcElimPoints(pred,res){return calcElimPointsR(pred,res,_activeRules());}
+function calcGroupPredPoints(userOrder,realOrder){return calcGroupPredPointsR(userOrder,realOrder,_activeRules());}
 function isLocked(m){return new Date()>=new Date(m.kickoff);}
 function isLive(m){
  // Si la API ya lo marcó como terminado, no está en vivo aunque el reloj diga lo contrario.
@@ -1468,24 +1461,18 @@ function totalPoints(u){
  return matchPts+espPts+grpPts+elimPts;
 }
 function calcMatchPointsR(pred,res,r){
- if(!pred||!res)return null;
- const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
- if(isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra))return null;
- if(res.h===""||res.a==="")return null;
- if(ph===rh&&pa===ra)return r.ptsExactoGrupos??3;
- if(Math.sign(ph-pa)===Math.sign(rh-ra)&&(ph-pa)===(rh-ra))return r.ptsGanadorDifGrupos??2;
- if(Math.sign(ph-pa)===Math.sign(rh-ra))return r.ptsSoloGanadorGrupos??1;
+ const t=scoreTier(pred,res);if(t===null)return null;
+ if(t===3)return r.ptsExactoGrupos??3;
+ if(t===2)return r.ptsGanadorDifGrupos??2;
+ if(t===1)return r.ptsSoloGanadorGrupos??1;
  return 0;
 }
 function calcElimPointsR(pred,res,r){
  // Igual que fase de grupos (marcador de 90'): exacto / ganador+diferencia / solo ganador.
- if(!pred||!res)return null;
- const ph=parseInt(pred.h),pa=parseInt(pred.a),rh=parseInt(res.h),ra=parseInt(res.a);
- if(isNaN(ph)||isNaN(pa)||isNaN(rh)||isNaN(ra))return null;
- if(res.h===""||res.a==="")return null;
- if(ph===rh&&pa===ra)return r.ptsExactoElim??3;
- if(Math.sign(ph-pa)===Math.sign(rh-ra)&&(ph-pa)===(rh-ra))return r.ptsExactoSinClasif??2;
- if(Math.sign(ph-pa)===Math.sign(rh-ra))return r.ptsSoloClasif??1;
+ const t=scoreTier(pred,res);if(t===null)return null;
+ if(t===3)return r.ptsExactoElim??3;
+ if(t===2)return r.ptsExactoSinClasif??2;
+ if(t===1)return r.ptsSoloClasif??1;
  return 0;
 }
 function calcGroupPredPointsR(userOrder,realOrder,r){
@@ -1527,9 +1514,9 @@ function jornadasPerfectas(u){
   for(const m of j.matches){
    const res=allResults[m.id];
    const pred=m.phase==="groups"?preds[m.id]:elim[m.id];
-   const pts=m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r);
+   const t=scoreTier(pred,res);
    // null = partido sin resultado aún o sin pronóstico → no cuenta todavía
-   if(pts===null||pts===0){perfecta=false;break;}
+   if(t===null||t===0){perfecta=false;break;}
   }
   if(perfecta)count++;
  }
@@ -1588,8 +1575,9 @@ function getRankedUsers(){
    const res=allResults[m.id];
    if(!pred||!res)return;
    const pts=m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r);
-   if(pts===3)exactos++;else if(pts>=1)ganadores++;
-   if(m.phase!=="groups")elimPts+=pts;
+   const t=scoreTier(pred,res);
+   if(t===3)exactos++;else if(t>=1)ganadores++;
+   if(m.phase!=="groups")elimPts+=(pts||0);
   });
   return {uid,name:u.name,pts:totalPoints(u),exactos,ganadores,elimPts};
  })
@@ -1601,8 +1589,8 @@ function getStreak(uid){
  const played=MATCHES.filter(m=>m.phase==="groups"&&allResults[m.id]?.h!==undefined&&allResults[m.id]?.h!=="");
  let streak=0;
  for(let i=played.length-1;i>=0;i--){
- const pts=calcMatchPoints(preds[played[i].id],allResults[played[i].id]);
- if(pts>=1)streak++;else break;
+ const t=scoreTier(preds[played[i].id],allResults[played[i].id]);
+ if(t>=1)streak++;else break;
  }
  return streak;
 }
@@ -1739,6 +1727,8 @@ function detachPollaListeners(){_pollaListeners.forEach(({ref,cb})=>{try{ref.off
 function loadData(){
  if(!currentPollaId){renderPollaLobby();return;}
  detachPollaListeners();
+ // Evita acumular intervalos del countdown al cambiar de polla (antes se creaba uno nuevo cada vez).
+ if(_countdownTimer){clearInterval(_countdownTimer);_countdownTimer=null;}
  const base=`pollas/${currentPollaId}`;
  _onPolla(`${base}/participantes`,snap=>{
  const oldRanked=getRankedUsers();
@@ -1749,16 +1739,16 @@ function loadData(){
  myPredictions=me.predictions||{};
  myGroupPreds=me.groupPredictions||{};
  myElimPreds=me.elimPredictions||{};
- render();
+ requestRender();
  if(document.getElementById("modal-participants")?.style.display==="flex")renderParticipantsList();
  if(tournamentEnded()&&!sessionStorage.getItem("hofShown")){
  const ranked=getRankedUsers();
  if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
  }
  });
- _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};render();});
- _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)render();}});
- if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)render();});}
+ _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};requestRender();});
+ _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)requestRender();}});
+ if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)requestRender();});}
  startLineupWatcher();
  // Watcher de chat para el contador de no leídos (independiente de la pestaña)
  if(_chatWatch&&_chatWatchPath){try{db.ref(_chatWatchPath).off("value",_chatWatch);}catch(e){}}
@@ -1778,7 +1768,7 @@ function loadData(){
   updateChatBadge();
  });
  iniciarMasterPolling();
- setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";const bar=document.getElementById("countdown-bar");if(bar){const lv=countdownLevel();if(lv==="red"){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}else if(lv==="green"){bar.style.borderColor="#22c55e";bar.style.color="#15803d";bar.style.background="#DCFCE7";}else{bar.style.borderColor="";bar.style.color="";bar.style.background="";}}}},1000);
+ _countdownTimer=setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";const bar=document.getElementById("countdown-bar");if(bar){const lv=countdownLevel();if(lv==="red"){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}else if(lv==="green"){bar.style.borderColor="#22c55e";bar.style.color="#15803d";bar.style.background="#DCFCE7";}else{bar.style.borderColor="";bar.style.color="";bar.style.background="";}}}},1000);
 }
 
 // ─── LANDING ──────────────────────────────────────────────
@@ -3428,8 +3418,9 @@ function showGoalNotif(match,newH,newA){
  const hasPred=pred&&pred.h!==undefined&&pred.h!==""&&pred.a!==undefined&&pred.a!=="";
 
  // calc points with new score
- const pts=hasPred?calcMatchPoints(pred,{h:String(newH),a:String(newA)}):null;
- const isExact=pts===3;
+ const _res={h:String(newH),a:String(newA)};
+ const pts=hasPred?calcMatchPoints(pred,_res):null;
+ const isExact=hasPred&&scoreTier(pred,_res)===3;
 
  const bar=document.getElementById("goal-notif");
  const home=match.home,away=match.away;
@@ -3488,6 +3479,10 @@ async function seedScheduleIfAdmin(){
 
 // ─── MASTER POLLING ───────────────────────────────────────
 function iniciarMasterPolling(){
+ // Se engancha una sola vez por sesión: antes cada cambio de polla volvía a registrar
+ // los listeners globales de liveScores/liveEvents y reiniciaba el loop del admin.
+ if(_masterPollingHooked)return;
+ _masterPollingHooked=true;
  // Escuchar scores globales en tiempo real — todos los clientes
  db.ref("liveScores").on("value",snap=>{
  const live=snap.val()||{};
@@ -3503,7 +3498,7 @@ function iniciarMasterPolling(){
  if(score.gkH)allResults[numId].gkH=score.gkH;
  if(score.gkA)allResults[numId].gkA=score.gkA;
  });
- render();
+ requestRender();
  });
  db.ref("liveEvents").on("value",snap=>{
  const ev=snap.val()||{};
@@ -3512,7 +3507,7 @@ function iniciarMasterPolling(){
  if(!allResults[numId])allResults[numId]={};
  allResults[numId].events=events||[];
  });
- render();
+ requestRender();
  });
 
  // Solo un cliente hace polling a BallDontLie
@@ -3535,7 +3530,7 @@ function iniciarMasterPolling(){
  if(currentUser && currentUser.uid===ADMIN_UID){
   seedScheduleIfAdmin();
   turnoMaster();
-  // Sondeo adaptativo: 25s con partido en vivo, 120s en reposo (marcadores más al día).
+  // Sondeo adaptativo: 10s con partido en vivo, 120s en reposo (marcadores más al día).
   (function loopMaster(){
    const delay=MATCHES.some(isLive)?10000:120000;
    setTimeout(async()=>{await turnoMaster();loopMaster();},delay);
@@ -3739,6 +3734,9 @@ window.toggleHeader=function(){
 // ─── RENDER ───────────────────────────────────────────────
 function render(){
  if(!currentUser){renderLanding();return;}
+ // Sin polla activa → lobby. Protege el repintado diferido (requestRender) cuando se
+ // navega al lobby justo después de una actualización en tiempo real.
+ if(!currentPollaId){renderPollaLobby();return;}
  if(currentPollaId&&(!currentPolla||!currentPolla.nombre)){renderPollaLobby();return;}
  setFabs(!!currentPollaId);
  const countdown=getCountdown();
@@ -3766,7 +3764,7 @@ function render(){
  </div>
  <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
  <div class="hdr-hola" style="position:relative;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:'Nunito',sans-serif;text-align:center">
- Hola, <strong style="color:var(--text)">${currentUser.name}</strong>
+ Hola, <strong style="color:var(--text)">${escHtml(currentUser.name)}</strong>
  </div>
  </div>
  <div style="display:flex;justify-content:center;margin-bottom:4px">
@@ -3787,6 +3785,15 @@ function render(){
  if(newTabs&&savedScroll)newTabs.scrollLeft=savedScroll;
  renderTab();
  if(window.lucide)lucide.createIcons();
+}
+// Coalesce: agrupa varios render() seguidos (p.ej. ráfagas de liveScores/liveEvents
+// durante un partido) en un único repintado por frame. No cambia la semántica.
+let _renderQueued=false;
+function requestRender(){
+ if(_renderQueued)return;
+ _renderQueued=true;
+ const run=()=>{_renderQueued=false;render();};
+ (window.requestAnimationFrame||function(f){return setTimeout(f,16);})(run);
 }
 // renderTab is defined in the features section below
 function renderTab_UNUSED(){}
@@ -4411,16 +4418,16 @@ function spectatorBlock(m, res, opts){
  if(!allEntries.length) return '';
  const hasRes = res?.h!==undefined && res?.h!=='';
 
- function badge(pts){
- if(pts===null||pts===undefined) return '';
- if(pts===3) return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#166534;color:#4ade80">exacto</span>`;
- if(pts>=1) return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--bg);color:var(--primary-hover)">ganador</span>`;
+ function badge(tier){
+ if(tier===null||tier===undefined) return '';
+ if(tier===3) return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#166534;color:#4ade80">exacto</span>`;
+ if(tier>=1) return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--bg);color:var(--primary-hover)">ganador</span>`;
  return `<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#450a0a;color:#f87171">sin puntos</span>`;
  }
- function scoreColor(pts){
- if(pts===3) return '#4ade80';
- if(pts>=1) return 'var(--primary-hover)';
- if(pts===0) return '#f87171';
+ function scoreColor(tier){
+ if(tier===3) return '#4ade80';
+ if(tier>=1) return 'var(--primary-hover)';
+ if(tier===0) return '#f87171';
  return 'var(--text-muted)';
  }
 
@@ -4432,7 +4439,8 @@ function spectatorBlock(m, res, opts){
   const pred = (user.predictions||{})[m.id];
   if(!pred||pred.h===undefined||pred.h===''||pred.a===undefined||pred.a==='') return null;
   const pts = hasRes ? calcMatchPoints(pred, res) : null;
-  return {uid,user,pred,pts};
+  const tier = hasRes ? scoreTier(pred, res) : null;
+  return {uid,user,pred,pts,tier};
  }).filter(Boolean);
  // Sort: hasRes (or isLive with res) → by pts desc; otherwise alphabetically
  if(hasRes){
@@ -4441,7 +4449,7 @@ function spectatorBlock(m, res, opts){
   entries.sort((a,b)=>(a.user.name||'').localeCompare(b.user.name||''));
  }
 
- const rows = entries.map(({uid,user,pred,pts})=>{
+ const rows = entries.map(({uid,user,pred,pts,tier})=>{
  const color=avatarColor(user.name);
  const predRxns=matchReactions[uid]||{};
  const rxnByEmoji={};
@@ -4451,20 +4459,20 @@ function spectatorBlock(m, res, opts){
   const c=uids.length;
   return `<span class="pred-reaction-badge" data-match="${m.id}" data-uid="${uid}" data-emoji="${e}" onclick="event.stopPropagation();showWhoReacted(${m.id},'${uid}','${e}',event)" style="cursor:pointer;${myRxn===e?'border-color:var(--primary);color:var(--primary)':''}">${e}${c>1?`<span style="font-size:10px;font-weight:800;color:var(--text-muted);margin-left:2px">${c}</span>`:''}</span>`;
  }).join('');
- const ptsInline=(pts!==null&&pts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(pts)}">${pts>0?'+'+pts:'0'}</span>`:'';
+ const ptsInline=(pts!==null&&pts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(tier)}">${pts>0?'+'+pts:'0'}</span>`:'';
  return `<div class="spectator-pred" data-match="${m.id}" data-uid="${uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);position:relative">
  <span style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;font-weight:800;color:${color}">
   <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span>
   <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(user.name||'?')}</span>
  </span>
  <span style="position:relative;display:flex;align-items:center;justify-content:center;white-space:nowrap">
-  <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(pts)}">${pred.h} — ${pred.a}</span>
+  <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(tier)}">${pred.h} — ${pred.a}</span>
   <span style="position:absolute;left:100%;margin-left:6px;display:flex;align-items:center;gap:6px">
   ${rxnBadges}
   <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
   </span>
  </span>
- <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">${ptsInline}${badge(pts)}</span>
+ <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">${ptsInline}${badge(tier)}</span>
  </div>`;
  }).join('');
 
@@ -4473,6 +4481,7 @@ function spectatorBlock(m, res, opts){
  let myRowHtml='';
  if(myPred&&myPred.h!==undefined&&myPred.h!==''&&myPred.a!==undefined&&myPred.a!==''){
   const myPts=hasRes?calcMatchPoints(myPred,res):null;
+  const myTier=hasRes?scoreTier(myPred,res):null;
   const myColor=avatarColor(currentUser.name||'Tú');
   const myPredRxns=matchReactions[currentUser.uid]||{};
   const myRxnByEmoji={};
@@ -4481,7 +4490,7 @@ function spectatorBlock(m, res, opts){
    const c=uids.length;
    return `<span class="pred-reaction-badge" data-match="${m.id}" data-uid="${currentUser.uid}" data-emoji="${e}" onclick="event.stopPropagation();showWhoReacted(${m.id},'${currentUser.uid}','${e}',event)" style="cursor:pointer">${e}${c>1?`<span style="font-size:10px;font-weight:800;color:var(--text-muted);margin-left:2px">${c}</span>`:''}</span>`;
   }).join('');
-  const myPtsInline=(myPts!==null&&myPts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(myPts)}">${myPts>0?'+'+myPts:'0'}</span>`:'';
+  const myPtsInline=(myPts!==null&&myPts!==undefined)?`<span style="font-size:11px;font-weight:900;color:${scoreColor(myTier)}">${myPts>0?'+'+myPts:'0'}</span>`:'';
   myRowHtml=`<div class="spectator-pred" data-match="${m.id}" data-uid="${currentUser.uid}" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);position:relative;background:var(--primary-soft);border-radius:8px">
    <span style="display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;font-weight:800;color:${myColor}">
     <span style="width:8px;height:8px;border-radius:50%;background:${myColor};flex-shrink:0"></span>
@@ -4489,10 +4498,10 @@ function spectatorBlock(m, res, opts){
     <span style="font-size:9px;font-weight:800;color:var(--primary);background:var(--surface);border-radius:4px;padding:1px 4px">tú</span>
    </span>
    <span style="position:relative;display:flex;align-items:center;justify-content:center;white-space:nowrap">
-    <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(myPts)}">${myPred.h} — ${myPred.a}</span>
+    <span style="font-size:12px;font-weight:700;font-family:monospace;color:${scoreColor(myTier)}">${myPred.h} — ${myPred.a}</span>
     ${myRxnBadges?`<span style="position:absolute;left:100%;margin-left:6px;display:flex;align-items:center;gap:6px">${myRxnBadges}</span>`:''}
    </span>
-   <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">${myPtsInline}${badge(myPts)}</span>
+   <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">${myPtsInline}${badge(myTier)}</span>
   </div>`;
  }
 
@@ -4605,6 +4614,7 @@ function renderMisPronos(){
  ${allGroupMatches.map(m=>{
  const pred=myPredictions[m.id]||{},res=allResults[m.id];
  const pts=calcMatchPoints(pred,res);
+ const tier=scoreTier(pred,res);
  const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
  const live=isLive(m);
  const hasPred=pred.h!==undefined&&pred.h!==""&&pred.a!==undefined&&pred.a!=="";
@@ -4628,7 +4638,7 @@ function renderMisPronos(){
   : '';
  // Points badge if finished
  const ptsBadge = hasRes && pts!==null
-  ? `<span class="pts-badge pts-${pts}">${pts===3?"+3":pts===2?"+2":pts===1?"+1":"0"}</span>`
+  ? `<span class="pts-badge pts-${tier}">${pts>0?'+'+pts:'0'}</span>`
   : '';
 
  // If LIVE: also show a small "you'd earn" indicator + Ver más button
@@ -4715,17 +4725,18 @@ function renderBracketPhase(phase){
  const pred=(myElimPreds||{})[m.id]||{};
  const res=allResults[m.id];
  const pts=calcElimPoints(pred,res);
+ const tier=scoreTier(pred,res);
  const matchLocked=isLocked(m);
  const hasRes=res?.winner!==undefined;
  const live=isLive(m);
- const borderColor=hasRes?(pts===3?"#22c55e":pts===2?"var(--primary)":"#ef4444"):live?"#ef4444":"var(--border-soft)";
+ const borderColor=hasRes?(tier===3?"#22c55e":tier===2?"var(--primary)":"#ef4444"):live?"#ef4444":"var(--border-soft)";
  const homeIsWinner=hasRes&&res.winner===homeTeam;
  const awayIsWinner=hasRes&&res.winner===awayTeam;
  const predIsHome=pred.winner===homeTeam,predIsAway=pred.winner===awayTeam;
  let ptsBadge="";
  if(hasRes&&pts!==null){
- const cl=pts===3?"background:#166534;color:#4ade80":pts===2?"background:var(--warning-soft);color:var(--warning)":"background:#450a0a;color:#f87171";
- ptsBadge=`<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${cl}">${pts===3?" +3":pts===2?"≈ +2":" 0"}</span>`;
+ const cl=tier===3?"background:#166534;color:#4ade80":tier===2?"background:var(--warning-soft);color:var(--warning)":tier===1?"background:var(--warning-soft);color:var(--warning)":"background:#450a0a;color:#f87171";
+ ptsBadge=`<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${cl}">${pts>0?(tier===3?" +"+pts:"≈ +"+pts):" 0"}</span>`;
  }
  if(!matchLocked){
  // Editable match
@@ -5189,13 +5200,13 @@ function initChat(){
  if(m.type==="sticker"){
   const src=STICKER_SVGS[m.stickerId]||STICKER_SVGS.s1;
   return`<div class="chat-msg ${mine?"mine":"theirs"}">
-  ${!mine?`<div class="chat-meta" style="color:${avatarColor(m.name)};font-weight:700">${m.name}</div>`:""}
+  ${!mine?`<div class="chat-meta" style="color:${avatarColor(m.name)};font-weight:700">${escHtml(m.name)}</div>`:""}
   <div style="padding:4px 0"><img src="${src}" alt="" style="width:120px;height:auto;object-fit:contain" draggable="false"></div>
   <div class="chat-meta">${time}</div>
   </div>`;
  }
  return`<div class="chat-msg ${mine?"mine":"theirs"}">
- ${!mine?`<div class="chat-meta" style="color:${avatarColor(m.name)};font-weight:700">${m.name}</div>`:""}
+ ${!mine?`<div class="chat-meta" style="color:${avatarColor(m.name)};font-weight:700">${escHtml(m.name)}</div>`:""}
  <div class="chat-bubble">${escHtml(m.text)}</div>
  <div class="chat-meta">${time}</div>
  </div>`;
@@ -5215,6 +5226,10 @@ function initChat(){
  const msgs=document.getElementById('chat-messages');
  if(msgs)msgs.scrollTop=msgs.scrollHeight;
  };
+ // Quitar el handler anterior: initChat se llama cada vez que se abre el chat,
+ // así no se acumulan listeners de 'resize' en visualViewport.
+ if(_vvHandler){try{window.visualViewport.removeEventListener('resize',_vvHandler);}catch(e){}}
+ _vvHandler=ajustarAltura;
  window.visualViewport.addEventListener('resize',ajustarAltura);
  ajustarAltura();
  setTimeout(ajustarAltura,350);
@@ -6222,9 +6237,9 @@ window.openH2H=function(opponentUid){
    const pred=m.phase==="groups"?preds[m.id]:elim[m.id];
    const res=allResults[m.id];
    if(!pred||!res)return;
-   const pts=m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r);
-   if(pts===3)exactos++;
-   else if(pts>=1)ganadores++;
+   const t=scoreTier(pred,res);
+   if(t===3)exactos++;
+   else if(t>=1)ganadores++;
   });
   return {total:matchPts+elimPts+grpPts+espPts,exactos,ganadores,streak:getStreak(u.uid||u.name)};
  }
@@ -6319,11 +6334,12 @@ window.openHallOfFame=function(){
   if(!res||res.h===undefined||res.h==="")return;
   const pred=m.phase==="groups"?myPreds[m.id]:myElim[m.id];
   const pts=m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r);
-  if(pts===3)exactos++;
+  const t=scoreTier(pred,res);
+  if(t===3)exactos++;
   const d=new Date(m.kickoff);
   const ymd=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   dayPtsMap[ymd]=(dayPtsMap[ymd]||0)+(pts||0);
-  if(pts>=1){curStreak++;if(curStreak>longestStreak)longestStreak=curStreak;}
+  if(t>=1){curStreak++;if(curStreak>longestStreak)longestStreak=curStreak;}
   else{curStreak=0;}
  });
  bestJornadaPts=Math.max(0,...Object.values(dayPtsMap));
