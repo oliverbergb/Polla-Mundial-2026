@@ -78,28 +78,45 @@ auth.onAuthStateChanged(async user=>{
 
  entries.sort((a,b)=>(b[1].creadaEn||0)-(a[1].creadaEn||0));
 
- let html=`
-  <div class="stat"><b>${entries.length}</b><span>pollas creadas</span></div>
-  <div class="stat"><b>${uniqueUids.size}</b><span>usuarios únicos</span></div>
-  <button onclick="auth.signOut()" style="vertical-align:top;margin-top:6px">Cerrar sesión</button>
- `;
+ // Participantes activos = los que no se salieron (left)
+ const activeParts=p=>Object.entries(p.participantes||{}).filter(([,u])=>u&&!u.left);
 
- entries.forEach(([id,p])=>{
-  const parts=Object.entries(p.participantes||{});
-  const creatorName=(p.participantes&&p.creadorUid&&p.participantes[p.creadorUid]&&p.participantes[p.creadorUid].name)||"¿?";
-  html+=`<div class="polla">
-   <h2>${esc(p.nombre||"(sin nombre)")}</h2>
-   <div class="meta">Código <code>${esc(p.code||"—")}</code> · creada ${fdate(p.creadaEn)} · creador: <b>${esc(creatorName)}</b> · ${parts.length} participante${parts.length!==1?"s":""}</div>`;
-  parts.sort((a,b)=>(a[1].name||"").localeCompare(b[1].name||""));
-  parts.forEach(([uid,u])=>{
-   const isCreator=uid===p.creadorUid;
-   html+=`<div class="part"><span>${esc(u.name||"¿?")}${isCreator?" 👑":""}</span><span class="email">${esc(u.email||"")}</span></div>`;
+ let onlyMulti=false;
+ window._toggleMulti=function(){onlyMulti=!onlyMulti;render();};
+
+ function render(){
+  const multiCount=entries.filter(([,p])=>activeParts(p).length>1).length;
+  const list=onlyMulti?entries.filter(([,p])=>activeParts(p).length>1):entries;
+
+  let html=`
+   <div class="stat"><b>${entries.length}</b><span>pollas creadas</span></div>
+   <div class="stat"><b>${uniqueUids.size}</b><span>usuarios únicos</span></div>
+   <div class="stat"><b>${multiCount}</b><span>pollas con +1 usuario</span></div>
+   <button onclick="auth.signOut()" style="vertical-align:top;margin-top:6px">Cerrar sesión</button>
+   <div style="margin:6px 0 18px">
+    <button onclick="_toggleMulti()" style="background:${onlyMulti?'#1f7a3f':'#3a2a18'}">${onlyMulti?'✓ Mostrando solo pollas con más de 1 usuario':'Ver solo pollas con más de 1 usuario'}</button>
+   </div>
+  `;
+
+  list.forEach(([id,p])=>{
+   const parts=activeParts(p);
+   const creatorName=(p.participantes&&p.creadorUid&&p.participantes[p.creadorUid]&&p.participantes[p.creadorUid].name)||"¿?";
+   html+=`<div class="polla">
+    <h2>${esc(p.nombre||"(sin nombre)")}</h2>
+    <div class="meta">Código <code>${esc(p.code||"—")}</code> · creada ${fdate(p.creadaEn)} · creador: <b>${esc(creatorName)}</b> · ${parts.length} participante${parts.length!==1?"s":""} activo${parts.length!==1?"s":""}</div>`;
+   parts.sort((a,b)=>(a[1].name||"").localeCompare(b[1].name||""));
+   parts.forEach(([uid,u])=>{
+    const isCreator=uid===p.creadorUid;
+    html+=`<div class="part"><span>${esc(u.name||"¿?")}${isCreator?" 👑":""}</span><span class="email">${esc(u.email||"")}</span></div>`;
+   });
+   html+=`</div>`;
   });
-  html+=`</div>`;
- });
 
- if(!entries.length) html+='<p>Todavía no se ha creado ninguna polla.</p>';
- out.innerHTML=html;
+  if(!entries.length) html+='<p>Todavía no se ha creado ninguna polla.</p>';
+  else if(!list.length) html+='<p>Ninguna polla tiene más de 1 usuario activo.</p>';
+  out.innerHTML=html;
+ }
+ render();
 });
 </script>
 </body>
