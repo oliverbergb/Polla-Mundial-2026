@@ -111,8 +111,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .hdr-toggle{display:none}
 .hdr-mini-title{display:none}
 .pill{padding:6px 14px;border-radius:20px;border:2px solid var(--border);cursor:pointer;font-size:12px;font-weight:800;transition:all .15s;box-shadow:0 3px 0 var(--border-strong);font-family:'Nunito',sans-serif}
-@keyframes tpLivePillPulse{0%,100%{box-shadow:0 3px 0 var(--border-strong),0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 3px 0 var(--border-strong),0 0 0 5px rgba(239,68,68,0)}}
-.pill.tp-live-pill{border-color:#ef4444!important;animation:tpLivePillPulse 1.6s ease-in-out infinite}
+@keyframes tpLivePillPulse{0%,100%{box-shadow:0 3px 0 var(--border-strong),0 0 0 0 rgba(239,68,68,.42)}50%{box-shadow:0 3px 0 var(--border-strong),0 0 0 6px rgba(239,68,68,.12)}}
+.pill.tp-live-pill{border-color:#ef4444!important;animation:tpLivePillPulse 2.6s ease-in-out infinite}
 .rank-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:2px solid var(--border-soft)}
 .rank-row:last-child{border-bottom:none}
 
@@ -147,9 +147,10 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .score-box{background:var(--surface-2);padding:3px 8px;border-radius:10px;font-size:12px;font-weight:800;min-width:26px;text-align:center;border:2px solid var(--border)}
 .score-box.pred{color:var(--text-muted)}
 .score-box.result{color:var(--text);border-color:var(--border);background:var(--surface-2)}
-.vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:76px}
+.vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:76px;position:relative}
 .vs-real-lbl{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-top:1px}
 .vs-pred-mini{font-size:10px;color:var(--text-dim);text-align:center;margin-top:2px}
+.vs-sub{position:absolute;top:100%;left:0;right:0;margin-top:2px}
 .vs-pred-mini strong{color:var(--text-muted);font-weight:800}
 .pred-row{display:flex;align-items:center;gap:4px}
 .pts-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;border:2px solid transparent}
@@ -1280,7 +1281,7 @@ let especialesStatTab="goleadores",_podioAnimated=false;
 const _evBackfilled=new Set(),_gkFetched=new Set();
 let showOnlyMissing=false;
 let allReactions={}; // {matchId: {predictorUid: {reactorUid: emoji}}}
-let _countdownTimer=null,_masterPollingHooked=false,_vvHandler=null;
+let _countdownTimer=null,_masterPollingHooked=false,_vvHandler=null,_recapTimer=null;
 // Las reacciones se guardan dentro del nodo de cada usuario (participantes/{uid}/reactions)
 // porque ahí sí tienen permiso de escritura. Aquí las juntamos en allReactions para pintarlas.
 function rebuildReactions(){
@@ -1341,12 +1342,12 @@ function liveMinute(m){
  if(e<0)return "";
  if(e<=33)return `${Math.max(1,e)}'`;        // 1er tiempo antes de la pausa
  if(e<=48)return `${e-3}'`;                  // 1T después de la pausa de hidratación
- if(e<=52)return "45+'";                     // añadido 1T
+ if(e<=52)return `45+${Math.max(1,e-48)}'`;  // añadido 1T: SIEMPRE con número (45+1'…)
  if(e<66)return "ENT";                        // entretiempo (~15')
  let sh=e-20;                                 // 2T: descuenta pausa 1T + añadido + entretiempo
  if(sh>78)sh-=3;                              // pausa de hidratación 2T (~75')
  if(sh<=90)return `${sh}'`;
- return "90+'";
+ return `90+${Math.max(1,sh-90)}'`;           // añadido 2T: SIEMPRE con número (90+1', 90+2'…)
 }
 // Convierte el reloj oficial de la API ("68:42" o "90+02:30") al minuto que se muestra,
 // avanzándolo con los segundos transcurridos desde la última lectura (clockTs).
@@ -1567,6 +1568,7 @@ const LOGRO_COLORS={primer:"#16a34a",exacto:"#2563eb",racha:"#f97316",perfecta:"
 function getRankedUsers(){
  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
  return Object.entries(allUsers)
+ .filter(([uid,u])=>!(u&&u.left)) // quien se salió no aparece en el ranking (sus pronósticos sí siguen visibles)
  .map(([uid,u])=>{
   let exactos=0,ganadores=0,elimPts=0;
   const preds=u.predictions||{},elim=u.elimPredictions||{};
@@ -1700,7 +1702,7 @@ async function loadPollas(){
  const allPollas=snap.val()||{};
  myPollas={};
  Object.entries(allPollas).forEach(([id,p])=>{
- if(p.participantes&&p.participantes[currentUser.uid])myPollas[id]=p;
+ if(p.participantes&&p.participantes[currentUser.uid]&&!p.participantes[currentUser.uid].left)myPollas[id]=p;
  });
  const pending=sessionStorage.getItem("pendingPolla");
  if(pending){
@@ -1729,6 +1731,11 @@ function loadData(){
  detachPollaListeners();
  // Evita acumular intervalos del countdown al cambiar de polla (antes se creaba uno nuevo cada vez).
  if(_countdownTimer){clearInterval(_countdownTimer);_countdownTimer=null;}
+ if(_recapTimer){clearInterval(_recapTimer);_recapTimer=null;}
+ // Resumen de jornada: lo intentamos ya y luego cada 60s, así Polli lo publica solo
+ // ~5 min después del último partido, sin depender de que alguien abra el chat.
+ setTimeout(()=>{try{maybeGenerateDailyRecaps();}catch(_){}},4000);
+ _recapTimer=setInterval(()=>{try{maybeGenerateDailyRecaps();}catch(_){}},60000);
  const base=`pollas/${currentPollaId}`;
  _onPolla(`${base}/participantes`,snap=>{
  const oldRanked=getRankedUsers();
@@ -2863,11 +2870,11 @@ function renderPollaLobby(){
  ${pollaIds.map((id,i)=>{
  const p=myPollas[id];
  const isCreator=p.creadorUid===currentUser.uid;
- const canLeave=!isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
- const n=Object.keys(p.participantes||{}).length;
+ const canLeave=!isCreator; // los no-creadores pueden salirse siempre (antes y después de empezar)
+ const n=Object.values(p.participantes||{}).filter(x=>x&&!x.left).length;
  const notLast=i<pollaIds.length-1;
  const canDeleteP=isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
- const showMenu=isCreator||canLeave;
+ const showMenu=canLeave||(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT));
  return`<div class="polla-swipe-row" style="position:relative;background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;margin-bottom:10px;overflow:hidden">
  <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--surface);transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background='var(--surface)'">
  
@@ -2914,8 +2921,9 @@ window.togglePollaMenu=function(id,nombre,btn){
  if(already)return; // segundo toque cierra
  const polla=myPollas[id];
  const isCreator=polla&&polla.creadorUid===currentUser.uid;
- const canLeave=!isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
- if(!isCreator&&!canLeave)return;
+ const canLeave=!isCreator; // no-creador: puede salirse antes y después de empezar
+ const canEdit=isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
+ if(!canLeave&&!canEdit)return; // creador con torneo ya empezado: sin opciones
  const m=document.createElement('div');
  m.id=`menu-${id}`;
  m.className='polla-menu-pop';
@@ -2987,17 +2995,26 @@ window.deletePolla=async function(pollaId,nombre){
 };
 
 window.leavePolla=async function(pollaId,nombre){
- if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){
- showToast("El torneo ya empezó, no puedes salirte","#ef4444");return;
+ const polla=myPollas[pollaId];
+ if(polla&&polla.creadorUid===currentUser.uid){
+ showToast("El creador no puede salirse de su propia polla","#ef4444",4000);return;
  }
+ const started=new Date()>=new Date(TOURNAMENT_LOCKOUT);
+ const msg=started
+ ? "Saldrás del ranking de esta polla. Tus pronósticos seguirán visibles para el resto y, si vuelves a entrar con el mismo código, regresarás al ranking."
+ : "Saldrás de esta polla. Si vuelves a entrar con el mismo código, regresarás al ranking.";
  showConfirmModal(
  "",
  `Salirse de "${nombre}"`,
- "Perderás todos tus pronósticos en esta polla. Esta acción no se puede deshacer.",
+ msg,
  "Sí, salirme","#f97316",
  async()=>{
- await db.ref(`pollas/${pollaId}/participantes/${currentUser.uid}`).remove();
+ try{
+ // No borramos nada: solo marcamos al participante como "salido".
+ await db.ref(`pollas/${pollaId}/participantes/${currentUser.uid}/left`).set(true);
+ }catch(err){showToast("No se pudo salir. Intenta de nuevo.","#ef4444",4000);return;}
  delete myPollas[pollaId];
+ if(currentPollaId===pollaId){currentPollaId=null;currentPolla=null;}
  showToast("Te saliste de la polla");
  renderPollaLobby();
  }
@@ -3378,7 +3395,12 @@ async function joinPollaByCode(code,silent=false){
  }
  const [pollaId,pollaData]=entry;
  if(pollaData.participantes&&pollaData.participantes[currentUser.uid]){
- // Already in, just enter
+ // Ya es (o fue) participante. Si se había salido, quitamos el flag para que regrese al ranking.
+ if(pollaData.participantes[currentUser.uid].left){
+ try{await db.ref(`pollas/${pollaId}/participantes/${currentUser.uid}/left`).set(null);}catch(_){}
+ pollaData.participantes[currentUser.uid].left=false;
+ if(!silent)showToast(`Volviste a "${pollaData.nombre||"la polla"}"`);
+ }
  currentPollaId=pollaId;currentPolla=pollaData;myPollas[pollaId]=pollaData;
  loadData();return;
  }
@@ -3811,7 +3833,8 @@ function groupPills(){
   const bg=sel?GROUP_COLORS[g]:(lv?"rgba(239,68,68,.10)":"transparent");
   const col=sel?"#fff":(lv?"#ef4444":"var(--text-muted)");
   const bd=lv?"#ef4444":"var(--border)";
-  return`<button class="pill${lv?" tp-live-pill":""}" style="background:${bg};color:${col};border:1px solid ${bd}" onclick="setGroup('${g}')">${g}</button>`;
+  // Solo pulsa el grupo en vivo MIENTRAS no esté seleccionado; al hacer click deja de parpadear.
+  return`<button class="pill${(lv&&!sel)?" tp-live-pill":""}" style="background:${bg};color:${col};border:1px solid ${bd}" onclick="setGroup('${g}')">${g}</button>`;
  }).join("")}</div>`;
 }
 function elimPhasePills(){
@@ -4360,8 +4383,10 @@ function matchScoreBlock(m,pred,res){
  if(locked&&hasRes){
  return`<div class="vs-scores">
  <div class="pred-row"><span class="score-box result">${res.h}</span><span class="score-sep">:</span><span class="score-box result">${res.a}</span></div>
+ <div class="vs-sub">
  <div class="vs-real-lbl">resultado final</div>
  <div class="vs-pred-mini">tu pronóstico <strong>${pred?.h??"-"}-${pred?.a??"-"}</strong></div>
+ </div>
  </div>`;
  }
  if(locked){
@@ -4796,7 +4821,7 @@ function renderBracketPhase(phase){
 let _rostersScorers=null,_rostersTs=0,_rostersLoading=false;
 async function loadRostersScorers(){
  if(_rostersLoading)return;
- if(_rostersScorers&&Date.now()-_rostersTs<120000)return; // cache 2 min
+ if(_rostersScorers&&_rostersScorers.length&&Date.now()-_rostersTs<120000)return; // cache 2 min solo si trajo datos
  _rostersLoading=true;
  try{
   const tally={};let cursor=null,pages=0;
@@ -4848,19 +4873,30 @@ function topScorersRowsHTML(){
    tally[k].g++;
   }
  }
- // Respaldo: si rosters aún no cargó, usamos los eventos de partidos ya cerrados también.
- if(!_rostersScorers||!_rostersScorers.length){
-  for(const mid in allResults){
-   if(liveIds.has(parseInt(mid)))continue; // los vivos ya se contaron arriba
-   const evs=(allResults[mid]||{}).events;if(!evs)continue;
-   for(const e of evs){
-    if(e.type!=="goal"&&e.type!=="penalty")continue;
-    const name=(e.player||"").trim();if(!name)continue;
-    const k=norm(name);
-    if(!tally[k])tally[k]={name,team:e.team||"",g:0};
-    if(e.team&&!tally[k].team)tally[k].team=e.team;
-    tally[k].g++;
-   }
+ // Overlay de PARTIDOS TERMINADOS: sumamos sus goles SIEMPRE (rosters suele venir
+ // vacío o desactualizado en un torneo recién arrancado). Saltamos los vivos (ya contados
+ // arriba) y, si rosters ya trajo a este jugador, preferimos el máximo para no inflar.
+ const finishedTally={};
+ for(const mid in allResults){
+  if(liveIds.has(parseInt(mid)))continue; // los vivos ya se contaron arriba
+  const evs=(allResults[mid]||{}).events;if(!evs)continue;
+  for(const e of evs){
+   if(e.type!=="goal"&&e.type!=="penalty")continue;
+   const name=(e.player||"").trim();if(!name)continue;
+   const k=norm(name);
+   if(!finishedTally[k])finishedTally[k]={name,team:e.team||"",g:0};
+   if(e.team&&!finishedTally[k].team)finishedTally[k].team=e.team;
+   finishedTally[k].g++;
+  }
+ }
+ for(const k in finishedTally){
+  const f=finishedTally[k];
+  if(!tally[k])tally[k]={name:f.name,team:f.team,g:f.g};
+  else{
+   // rosters = acumulado del torneo (incluye estos partidos); eventos = conteo propio.
+   // Nos quedamos con el mayor para cubrir el caso en que rosters venga en 0.
+   tally[k].g=Math.max(tally[k].g,f.g);
+   if(f.team&&!tally[k].team)tally[k].team=f.team;
   }
  }
  const list=Object.values(tally).filter(x=>x.g>0).sort((a,b)=>b.g-a.g).slice(0,10);
@@ -5266,45 +5302,54 @@ window.sendChat=async function(){
 };
 
 // ─── POLLI · RESUMEN DE JORNADA ──────────────────────────
-// Generates a daily recap message per local date if there are finished matches that day.
-// Stored at /pollas/{id}/polliRecaps/{YYYY-MM-DD} so it's generated only once.
+// Genera UN resumen por jornada (bloque de buildJornadas), 5 minutos después de que
+// terminó el último partido de esa jornada. Se guarda en /pollas/{id}/polliRecaps/{j_<lastMatchId>}
+// para generarse una sola vez (transacción anti-carrera). Se dispara solo desde el polling.
+const _JORNADA_FT_MS=125*60000;      // tiempo total estimado de un partido (90' + descanso + añadidos)
+const _JORNADA_MARGIN_MS=5*60000;    // los 5 minutos pedidos tras el último partido
+function _jornadaDateLabel(matches){
+ const monthNames=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+ const times=matches.map(m=>new Date(m.kickoff).getTime());
+ const a=new Date(Math.min(...times)),b=new Date(Math.max(...times));
+ const da=a.getDate(),db_=b.getDate(),ma=a.getMonth(),mb=b.getMonth();
+ if(da===db_&&ma===mb)return `${da} de ${monthNames[ma]}`;
+ if(ma===mb)return `${da}–${db_} de ${monthNames[ma]}`;
+ return `${da} de ${monthNames[ma]} – ${db_} de ${monthNames[mb]}`;
+}
 async function maybeGenerateDailyRecaps(){
  if(!currentPollaId||!currentUser)return;
- // Find all distinct local-date strings of matches that have results
- const finishedMatches=MATCHES.filter(m=>{
-  const r=allResults[m.id];
-  return r&&r.h!==undefined&&r.h!=="";
- });
- if(!finishedMatches.length)return;
- // Group matches by local kickoff date (yyyy-mm-dd)
- const byDate={};
- finishedMatches.forEach(m=>{
-  const d=new Date(m.kickoff);
-  const ymd=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  if(!byDate[ymd])byDate[ymd]=[];
-  byDate[ymd].push(m);
- });
- // Check what recaps already exist
- const existSnap=await db.ref(`pollas/${currentPollaId}/polliRecaps`).once("value");
- const existing=existSnap.val()||{};
- // For each finished day, if no recap exists yet AND that day's matches are all done OR
- // the day is in the past (yesterday or earlier), generate it
- const now=new Date();
- const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
- for(const ymd in byDate){
-  if(existing[ymd])continue;
-  // Only generate if it's a past day (not today, to let games of the day complete)
-  if(ymd>=today)continue;
-  const dayMatches=byDate[ymd];
-  const recap=buildPolliRecap(ymd,dayMatches);
+ const jornadas=buildJornadas();
+ if(!jornadas.length)return;
+ const now=Date.now();
+ let existing=null;
+ for(const j of jornadas){
+  const times=j.matches.map(m=>new Date(m.kickoff).getTime());
+  const lastKickoff=Math.max(...times);
+  // ¿Terminaron TODOS los partidos de la jornada? (resultado + tiempo cumplido o status completed)
+  const allEnded=j.matches.every(m=>{
+   const r=allResults[m.id];
+   const hasRes=r&&r.h!==undefined&&r.h!=="";
+   const ended=r&&(r.status==="completed"||now-new Date(m.kickoff).getTime()>=_JORNADA_FT_MS);
+   return hasRes&&ended;
+  });
+  if(!allEnded)continue;
+  // 5 minutos después de que terminó el último partido de la jornada
+  if(now<lastKickoff+_JORNADA_FT_MS+_JORNADA_MARGIN_MS)continue;
+  const key="j_"+j.matches[j.matches.length-1].id;
+  if(existing===null){
+   const existSnap=await db.ref(`pollas/${currentPollaId}/polliRecaps`).once("value");
+   existing=existSnap.val()||{};
+  }
+  if(existing[key])continue;
+  const recap=buildPolliRecap(j);
   if(!recap)continue;
-  // Mark as generated and push to chat (race-safe: use transaction)
   try{
-   const setOk=await db.ref(`pollas/${currentPollaId}/polliRecaps/${ymd}`).transaction(cur=>{
-    if(cur)return; // abort if someone else already wrote it
+   const setOk=await db.ref(`pollas/${currentPollaId}/polliRecaps/${key}`).transaction(cur=>{
+    if(cur)return; // otro cliente ya lo generó
     return {ts:Date.now(),by:currentUser.uid};
    });
    if(setOk.committed){
+    existing[key]={ts:Date.now()};
     await db.ref(`pollas/${currentPollaId}/chat`).push({
      uid:POLLI_UID,name:POLLI_NAME,html:recap.html,ts:recap.ts
     });
@@ -5313,14 +5358,15 @@ async function maybeGenerateDailyRecaps(){
  }
 }
 
-function buildPolliRecap(ymd,dayMatches){
+function buildPolliRecap(j){
  const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
- // Compute points each user earned from these specific matches
+ const jMatches=j.matches;
+ // Puntos que cada usuario activo ganó en los partidos de ESTA jornada (los que se salieron no entran).
  const userDayPts={};
- const userBestSingle={};
  Object.entries(allUsers).forEach(([uid,u])=>{
-  let total=0,best={pts:-1,match:null};
-  dayMatches.forEach(m=>{
+  if(u&&u.left)return;
+  let total=0,best={pts:-1,match:null,pred:null};
+  jMatches.forEach(m=>{
    const pred=m.phase==="groups"?(u.predictions||{})[m.id]:(u.elimPredictions||{})[m.id];
    const res=allResults[m.id];
    if(!pred||!res)return;
@@ -5333,35 +5379,30 @@ function buildPolliRecap(ymd,dayMatches){
  });
  const entries=Object.values(userDayPts).filter(e=>e.total>0||e.best.pts>0);
  if(!entries.length)return null;
- // Top earner of the day
  const top=[...entries].sort((a,b)=>b.total-a.total)[0];
- // Best single prediction (highest pts in one match)
  const bestSingleAll=[...entries].sort((a,b)=>(b.best.pts||0)-(a.best.pts||0))[0];
- // Format date (e.g. "12 de junio")
- const [y,mo,d]=ymd.split("-").map(Number);
- const monthNames=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
- const dateLabel=`${d} de ${monthNames[mo-1]}`;
- // Build HTML (uses safe text — names come from db but escape just in case)
+ const dateLabel=_jornadaDateLabel(jMatches);
  const esc=escHtml;
  const lines=[];
- lines.push(`<div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Resumen · ${dateLabel}</div>`);
+ lines.push(`<div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Resumen de la jornada · ${dateLabel}</div>`);
  lines.push(`<div style="font-size:12px;color:var(--text);margin-bottom:10px">Cerró otra jornada del Mundial. Esto fue lo más destacado:</div>`);
  if(top&&top.total>0){
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Mejor del día:</strong> ${esc(top.name)} con <strong>+${top.total} pts</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Mejor de la jornada:</strong> ${esc(top.name)} con <strong>+${top.total} pts</strong></div>`);
  }
  if(bestSingleAll&&bestSingleAll.best&&bestSingleAll.best.match){
   const bm=bestSingleAll.best.match;
   const bp=bestSingleAll.best.pred;
   const bres=allResults[bm.id];
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico del día:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico de la jornada:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
  }
- // Racha activa — show top streak holder if any
- const streakRanking=Object.keys(allUsers).map(uid=>({uid,name:allUsers[uid].name,streak:getStreak(uid)})).filter(x=>x.streak>=3).sort((a,b)=>b.streak-a.streak);
+ // Racha activa — mejor racha entre usuarios activos
+ const streakRanking=Object.entries(allUsers).filter(([uid,u])=>!(u&&u.left)).map(([uid,u])=>({uid,name:u.name,streak:getStreak(uid)})).filter(x=>x.streak>=3).sort((a,b)=>b.streak-a.streak);
  if(streakRanking.length){
-  const top=streakRanking[0];
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Racha activa:</strong> ${esc(top.name)} con ${top.streak} partidos seguidos con puntos</div>`);
+  const s=streakRanking[0];
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Racha activa:</strong> ${esc(s.name)} con ${s.streak} partidos seguidos con puntos</div>`);
  }
- return {html:lines.join(""),ts:Date.parse(`${ymd}T23:59:00`)};
+ const ts=Math.max(...jMatches.map(m=>new Date(m.kickoff).getTime()))+_JORNADA_FT_MS+_JORNADA_MARGIN_MS;
+ return {html:lines.join(""),ts};
 }
 
 // ─── TAB: ADMIN ───────────────────────────────────────────
@@ -5857,7 +5898,7 @@ window.goToLobby=function(){
  const allPollas=snap.val()||{};
  myPollas={};
  Object.entries(allPollas).forEach(([id,p])=>{
- if(p.participantes&&p.participantes[currentUser.uid])myPollas[id]=p;
+ if(p.participantes&&p.participantes[currentUser.uid]&&!p.participantes[currentUser.uid].left)myPollas[id]=p;
  });
  renderPollaLobby();
  });
