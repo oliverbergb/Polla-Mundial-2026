@@ -150,7 +150,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:76px;position:relative}
 .vs-real-lbl{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-top:1px}
 .vs-pred-mini{font-size:10px;color:var(--text-dim);text-align:center;margin-top:2px}
-.vs-sub{position:absolute;top:100%;left:0;right:0;margin-top:2px}
+.match-result-sub{text-align:center;font-size:10px;color:var(--text-dim);margin-top:8px;line-height:1.3}
 .vs-pred-mini strong{color:var(--text-muted);font-weight:800}
 .pred-row{display:flex;align-items:center;gap:4px}
 .pts-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;border:2px solid transparent}
@@ -2874,7 +2874,7 @@ function renderPollaLobby(){
  const n=Object.values(p.participantes||{}).filter(x=>x&&!x.left).length;
  const notLast=i<pollaIds.length-1;
  const canDeleteP=isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
- const showMenu=canLeave||(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT));
+ const showMenu=isCreator||canLeave; // siempre hay al menos una opción
  return`<div class="polla-swipe-row" style="position:relative;background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;margin-bottom:10px;overflow:hidden">
  <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--surface);transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background='var(--surface)'">
  
@@ -2922,8 +2922,8 @@ window.togglePollaMenu=function(id,nombre,btn){
  const polla=myPollas[id];
  const isCreator=polla&&polla.creadorUid===currentUser.uid;
  const canLeave=!isCreator; // no-creador: puede salirse antes y después de empezar
- const canEdit=isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
- if(!canLeave&&!canEdit)return; // creador con torneo ya empezado: sin opciones
+ const canEdit=isCreator;   // creador: puede renombrar siempre
+ if(!canLeave&&!canEdit)return;
  const m=document.createElement('div');
  m.id=`menu-${id}`;
  m.className='polla-menu-pop';
@@ -2932,7 +2932,7 @@ window.togglePollaMenu=function(id,nombre,btn){
  const btnStyle='width:100%;background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px;font-weight:700;padding:14px 18px;text-align:left;font-family:\'Inter\',sans-serif';
  const btnStyleN=btnStyle.replace('#dc2626','var(--text)');
  const items=[];
- if(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT))items.push(`<button onclick="event.stopPropagation();closePollaMenus();openRenamePolla('${id}');" style="${btnStyleN}" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='none'">Cambiar nombre</button>`);
+ if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();openRenamePolla('${id}');" style="${btnStyleN}" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='none'">Cambiar nombre</button>`);
  if(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT))items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
  if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'"> Salirse</button>`);
  if(!items.length)return;
@@ -3690,7 +3690,6 @@ window.openRenamePolla=function(pollaId){
  const id=pollaId||currentPollaId;
  const p=(typeof myPollas!=="undefined"&&myPollas[id])||currentPolla;
  if(!p||p.creadorUid!==currentUser.uid){showToast("Solo el creador puede cambiar el nombre","#ef4444");return;}
- if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; el nombre está bloqueado","#ef4444",4000);return;}
  _renameTargetId=id;
  const inp=document.getElementById("renamePollaInput");if(inp)inp.value=p.nombre||"";
  const err=document.getElementById("renamePollaError");if(err)err.textContent="";
@@ -3702,7 +3701,6 @@ window.doRenamePolla=async function(){
  const id=_renameTargetId||currentPollaId;
  const p=(typeof myPollas!=="undefined"&&myPollas[id])||currentPolla;
  if(!id||!p||p.creadorUid!==currentUser.uid){errEl.textContent="Solo el creador puede cambiar el nombre.";return;}
- if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){errEl.textContent="El torneo ya empezó; el nombre está bloqueado.";return;}
  const newName=(document.getElementById("renamePollaInput").value||"").trim().slice(0,30);
  if(!newName||newName.length<2){errEl.textContent="Mínimo 2 caracteres.";return;}
  try{
@@ -4216,25 +4214,49 @@ async function fetchLineups(localId){
 }
 
 function pitchHTML(team,label){
- const isGK=p=>String(p.pos).toUpperCase().startsWith("G");
+ const posKey=p=>String(p.pos||"").toUpperCase();
+ const isGK=p=>posKey(p).startsWith("G");
  const gk=team.starters.find(isGK)||team.starters[0];
  const field=team.starters.filter(p=>p!==gk);
+ // Clasifica a un jugador en línea según su posición REAL (no según el orden del API).
+ // Orden de chequeo importa: mediocampo antes que defensa (DM/AM llevan "M"),
+ // y extremos/delanteros antes que defensa.
+ const classify=pos=>{
+  const k=String(pos||"").toUpperCase();
+  if(!k)return null;
+  if(k.startsWith("G"))return"G";
+  if(/M/.test(k))return"M";                     // CM, DM, AM, LM, RM, M…
+  if((/W/.test(k)&&!/WB/.test(k))||/(ST|CF|FW|^F|^A|^S)/.test(k))return"F"; // extremos y delanteros
+  if(/B/.test(k)||/^D/.test(k))return"D";       // CB, LB, RB, WB, D…
+  return null;
+ };
+ // Lado dentro de la línea: izquierda → centro → derecha (si la posición lo indica).
+ const sideRank=p=>{const k=posKey(p);if(/L/.test(k)&&!/R/.test(k))return 0;if(/R/.test(k))return 2;return 1;};
+ const dot=(p,gold)=>`<div style="text-align:center;min-width:0;flex:1"><div style="width:30px;height:30px;border-radius:50%;background:${gold?"#fbbf24":"#fff"};color:#14532d;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;margin:0 auto">${p.n}</div><div style="color:#fff;font-size:9.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div></div>`;
  let rows=null;
- if(team.formation){
+ // 1) Preferimos ubicar por posición real si el API la trae para (casi) todos.
+ const recognized=field.filter(p=>{const c=classify(p.pos);return c==="D"||c==="M"||c==="F";}).length;
+ if(recognized>=field.length-1&&recognized>=3){
+  const ls={D:[],M:[],F:[]};
+  field.forEach(p=>{const c=classify(p.pos);(ls[c]||ls.M).push(p);});
+  [ls.D,ls.M,ls.F].forEach(l=>l.sort((a,b)=>sideRank(a)-sideRank(b)));
+  rows=[ls.D,ls.M,ls.F].filter(l=>l.length);
+ }
+ // 2) Respaldo: cortar por la formación (asume orden DEF→MED→DEL del API).
+ if(!rows&&team.formation){
   const parts=String(team.formation).split("-").map(Number).filter(n=>n>0);
   if(parts.length&&parts.reduce((a,b)=>a+b,0)===field.length){
    rows=[];let i=0;
    for(const n of parts){rows.push(field.slice(i,i+n));i+=n;}
   }
  }
- const dot=(p,gold)=>`<div style="text-align:center;min-width:0;flex:1"><div style="width:30px;height:30px;border-radius:50%;background:${gold?"#fbbf24":"#fff"};color:#14532d;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;margin:0 auto">${p.n}</div><div style="color:#fff;font-size:9.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div></div>`;
  let inner;
  if(rows){
   inner=rows.slice().reverse().map(r=>`<div style="display:flex;justify-content:space-around;gap:4px;margin-bottom:12px">${r.map(p=>dot(p)).join("")}</div>`).join("")+`<div style="display:flex;justify-content:center">${dot(gk,true)}</div>`;
  }else{
-  // Formación rara o sin datos → lista agrupada por posición (nunca se ve roto)
+  // Sin formación ni posiciones → lista agrupada por posición (nunca se ve roto)
   const grp={G:[],D:[],M:[],F:[]};
-  team.starters.forEach(p=>{const k=String(p.pos).toUpperCase()[0];(grp[k]||grp.M).push(p);});
+  team.starters.forEach(p=>{const c=classify(p.pos)||"M";(grp[c]||grp.M).push(p);});
   const lbl={G:"POR",D:"DEF",M:"MED",F:"DEL"};
   inner=Object.keys(grp).filter(k=>grp[k].length).map(k=>`<div style="color:#fff;font-size:11px;margin:3px 0"><span style="opacity:.6;font-size:10px">${lbl[k]}</span> ${grp[k].map(p=>`${p.n} ${p.name}`).join(" · ")}</div>`).join("");
  }
@@ -4383,10 +4405,6 @@ function matchScoreBlock(m,pred,res){
  if(locked&&hasRes){
  return`<div class="vs-scores">
  <div class="pred-row"><span class="score-box result">${res.h}</span><span class="score-sep">:</span><span class="score-box result">${res.a}</span></div>
- <div class="vs-sub">
- <div class="vs-real-lbl">resultado final</div>
- <div class="vs-pred-mini">tu pronóstico <strong>${pred?.h??"-"}-${pred?.a??"-"}</strong></div>
- </div>
  </div>`;
  }
  if(locked){
@@ -4661,9 +4679,9 @@ function renderMisPronos(){
  const countdownBadge = missing
   ? `<span class="match-countdown-pill" data-kickoff="${m.kickoff}" style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;${matchPillStyle(matchCountdownUrgency(m.kickoff))}">Cierra en ${matchCountdown(m.kickoff)}</span>`
   : '';
- // Points badge if finished
- const ptsBadge = hasRes && pts!==null
-  ? `<span class="pts-badge pts-${tier}">${pts>0?'+'+pts:'0'}</span>`
+ // Points badge if finished — SIEMPRE visible en terminados (0 si no pronosticaste)
+ const ptsBadge = hasRes
+  ? `<span class="pts-badge pts-${tier??0}">${(pts!=null&&pts>0)?'+'+pts:'0'}</span>`
   : '';
 
  // If LIVE: also show a small "you'd earn" indicator + Ver más button
@@ -4702,6 +4720,8 @@ function renderMisPronos(){
  ${matchScoreBlock(m,pred,res)}
  <span class="team">${redCardBadge(redCardCounts(m).away)}${m.away} ${flag(m.away)}</span>
  </div>
+ ${cardState==='finished'?`<div class="match-result-sub">resultado final · tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div>`:''}
+ ${cardState==='live'?`<div class="match-result-sub">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div>`:''}
   ${matchEventsHTML(m)}
  ${lineupHTML(m)}
  ${liveHint}
@@ -4847,6 +4867,61 @@ async function loadRostersScorers(){
  }catch(e){console.log("Rosters scorers error:",e);}
  finally{_rostersLoading=false;}
 }
+
+// Goles traídos DIRECTO del proxy por cualquier cliente (no depende de que el admin
+// haya escrito liveEvents). Cubre el caso recurrente de "no se ven los goleadores".
+let _evScorers={},_evScorersTs=0,_evScorersLoading=false,_evIdMap=null,_evFetched=new Set();
+async function loadEventScorers(){
+ if(_evScorersLoading)return;
+ if(Date.now()-_evScorersTs<60000&&Object.keys(_evScorers).length)return;
+ _evScorersLoading=true;
+ try{
+  // localId -> apiId (lo publica el poller en apiIdMap como apiId->localId)
+  if(!_evIdMap){
+   _evIdMap={};
+   try{const snap=await db.ref("apiIdMap").get();const mp=snap.val()||{};Object.entries(mp).forEach(([apiId,localId])=>{_evIdMap[localId]=apiId;});}catch(_){}
+  }
+  const finished=MATCHES.filter(m=>{const r=allResults[m.id];return r&&r.h!==undefined&&r.h!==""&&!isLive(m);});
+  let nuevos=0;
+  for(const m of finished){
+   if(_evFetched.has(m.id))continue;
+   const apiId=_evIdMap[m.id];
+   if(apiId==null)continue;
+   try{
+    const res=await fetch(`/api/bdl?endpoint=match_events&match_ids[]=${apiId}&per_page=100`);
+    if(!res.ok)continue;
+    const data=await res.json();
+    const evs=(data&&data.data)||[];
+    const goals=[];
+    for(const e of evs){
+     if(e.rescinded===true)continue;
+     const itype=String(e.incident_type||e.type||"").toLowerCase();
+     if(itype!=="goal")continue;
+     const cls=String(e.incident_class||"").toLowerCase();
+     if(/own/.test(cls))continue; // autogol no cuenta para goleador
+     const name=((e.player&&(e.player.short_name||e.player.name))||e.player_name||"").trim();
+     if(!name)continue;
+     const team=e.is_home===true?m.home:(e.is_home===false?m.away:"");
+     goals.push({name,team});
+    }
+    _evScorers[m.id]=goals;
+    _evFetched.add(m.id);
+    nuevos++;
+   }catch(_){}
+  }
+  _evScorersTs=Date.now();
+  if(nuevos&&typeof renderTab==="function"&&typeof currentTab!=="undefined"&&currentTab==="especiales")renderTab();
+ }finally{_evScorersLoading=false;}
+}
+// Mejor fuente de goles para un partido: primero lo que capturó el admin (liveEvents),
+// si no hay, lo que trajimos directo del proxy.
+function matchGoalEvents(m){
+ const live=(allResults[m.id]||{}).events;
+ if(live&&live.length){
+  return live.filter(e=>e.type==="goal"||e.type==="penalty").map(e=>({name:(e.player||"").trim(),team:e.team||""})).filter(x=>x.name);
+ }
+ return _evScorers[m.id]||[];
+}
 function topScorersRowsHTML(){
  const teamByCode={};Object.entries(API_CODE).forEach(([es,code])=>teamByCode[code]=es);
  const norm=s=>(s||"").trim().toLowerCase();
@@ -4863,10 +4938,8 @@ function topScorersRowsHTML(){
  const liveIds=new Set();
  for(const m of MATCHES){
   if(!isLive(m))continue;liveIds.add(m.id);
-  const evs=(allResults[m.id]||{}).events;if(!evs)continue;
-  for(const e of evs){
-   if(e.type!=="goal"&&e.type!=="penalty")continue; // autogol no cuenta para goleador
-   const name=(e.player||"").trim();if(!name)continue;
+  for(const e of matchGoalEvents(m)){
+   const name=(e.name||"").trim();if(!name)continue;
    const k=norm(name);
    if(!tally[k])tally[k]={name,team:e.team||"",g:0};
    if(e.team&&!tally[k].team)tally[k].team=e.team;
@@ -4877,12 +4950,12 @@ function topScorersRowsHTML(){
  // vacío o desactualizado en un torneo recién arrancado). Saltamos los vivos (ya contados
  // arriba) y, si rosters ya trajo a este jugador, preferimos el máximo para no inflar.
  const finishedTally={};
- for(const mid in allResults){
-  if(liveIds.has(parseInt(mid)))continue; // los vivos ya se contaron arriba
-  const evs=(allResults[mid]||{}).events;if(!evs)continue;
-  for(const e of evs){
-   if(e.type!=="goal"&&e.type!=="penalty")continue;
-   const name=(e.player||"").trim();if(!name)continue;
+ for(const m of MATCHES){
+  const r=allResults[m.id];
+  if(!r||r.h===undefined||r.h==="")continue;
+  if(liveIds.has(m.id))continue; // los vivos ya se contaron arriba
+  for(const e of matchGoalEvents(m)){
+   const name=(e.name||"").trim();if(!name)continue;
    const k=norm(name);
    if(!finishedTally[k])finishedTally[k]={name,team:e.team||"",g:0};
    if(e.team&&!finishedTally[k].team)finishedTally[k].team=e.team;
@@ -4940,6 +5013,7 @@ function cleanSheetsRowsHTML(){
 window.setEspStatTab=function(t){especialesStatTab=t;renderTab();};
 function especialesStatsHTML(){
  loadRostersScorers(); // respaldo de goleadores (no bloquea; re-renderiza al llegar)
+ loadEventScorers();   // goles directo del proxy (no depende del admin; re-renderiza al llegar)
  const gol=topScorersRowsHTML();
  const vallas=cleanSheetsRowsHTML();
  if(!gol&&!vallas)return"";
