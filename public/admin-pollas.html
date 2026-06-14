@@ -305,6 +305,7 @@ function fdate(ms){ if(!ms)return "—"; const d=new Date(ms); return d.toLocale
 const sc=v=>(v===""||v==null)?"–":v;
 
 let WORLD={especiales:{},groupOverride:{}};
+let LIVE={};            // marcadores globales del nodo /liveScores
 let POLLAS={};          // id -> polla
 let LEADER=[];          // filas globales de jugadores
 let _spyId=null,_spyUid=null;
@@ -317,10 +318,11 @@ auth.onAuthStateChanged(async user=>{
  }
  btn.style.display="none";
  out.innerHTML='<p>Cargando…</p>';
- let snap,wsnap;
+ let snap,wsnap,lsnap;
  try{ snap=await db.ref("pollas").get(); }
  catch(e){ out.innerHTML='<p class="err">No se pudo leer la base de datos: '+(e.code||e.message)+'. Las reglas de seguridad quizá no permiten leer todo <code>/pollas</code> al admin.</p>'; return; }
  try{ wsnap=await db.ref("world").get(); WORLD=wsnap.val()||{especiales:{},groupOverride:{}}; }catch(e){ WORLD={especiales:{},groupOverride:{}}; }
+ try{ lsnap=await db.ref("liveScores").get(); LIVE=lsnap.val()||{}; }catch(e){ LIVE={}; }
 
  POLLAS=snap.val()||{};
  buildLeaderboard();
@@ -329,7 +331,25 @@ auth.onAuthStateChanged(async user=>{
 
 const activeParts=p=>Object.entries(p.participantes||{}).filter(([,u])=>u&&!u.left);
 
-function pollaResults(p){ const r=p.results||{}; const out={}; Object.keys(r).forEach(k=>{ if(k!=="phase_locks"&&k!=="rankingHistory")out[k]=r[k]; }); return out; }
+// Resultados efectivos de una polla = marcadores globales (/liveScores) como base,
+// y encima lo que tenga la polla en su propio /results (por si hubo carga manual).
+// Esto replica cómo la app fusiona ambos en memoria (liveScores manda en h/a).
+function pollaResults(p){
+ const out={};
+ // 1) base: marcadores globales del Mundial
+ Object.keys(LIVE||{}).forEach(k=>{
+  if(k==="_lastUpdated")return;
+  const v=LIVE[k]; if(!v)return;
+  out[k]={h:v.h,a:v.a,status:v.status||null};
+ });
+ // 2) overlay: results propios de la polla (sin metadatos)
+ const r=p.results||{};
+ Object.keys(r).forEach(k=>{
+  if(k==="phase_locks"||k==="rankingHistory")return;
+  const v=r[k]; if(v&&v.h!=null&&v.h!=="") out[k]={...(out[k]||{}),...v};
+ });
+ return out;
+}
 function pollaRules(p){ return p.rules||DEFAULT_RULES; }
 
 function buildLeaderboard(){
@@ -372,13 +392,14 @@ function render(){
  let rows=LEADER;
  if(lbQuery) rows=rows.filter(r=>r.name.toLowerCase().includes(lbQuery)||r.pollaName.toLowerCase().includes(lbQuery));
  const shown=lbAll?rows:rows.slice(0,30);
- html+=`<table class="lb"><thead><tr><th>#</th><th>Jugador</th><th>Polla</th><th style="text-align:right">Pts</th><th></th></tr></thead><tbody>`;
+ html+=`<table class="lb"><thead><tr><th>#</th><th>Jugador</th><th>Polla</th><th>Código</th><th style="text-align:right">Pts</th><th></th></tr></thead><tbody>`;
  shown.forEach((r,i)=>{
   const rank=lbQuery?"·":(i+1);
   html+=`<tr class="${!lbQuery&&i===0?'gold':''}">
    <td><span class="rk">${rank}</span></td>
    <td>${esc(r.name)}${r.isCreator?" 👑":""}</td>
-   <td style="color:#b8a98f">${esc(r.pollaName)} <span class="pill">${esc(r.code)}</span></td>
+   <td style="color:#b8a98f">${esc(r.pollaName)}</td>
+   <td><code style="cursor:pointer" title="Copiar código" onclick="copyCode(event,'${esc(r.code)}')">${esc(r.code)}</code></td>
    <td class="pts">${r.pts}</td>
    <td><button class="ghost small" onclick="spy('${r.pollaId}','${r.uid}')">👁 Ver</button></td>
   </tr>`;
@@ -400,7 +421,7 @@ function render(){
   parts.sort((a,b)=>totalPoints(b[1],rules,results,WORLD)-totalPoints(a[1],rules,results,WORLD));
   html+=`<div class="polla">
    <h2>${esc(p.nombre||"(sin nombre)")} <button class="ghost small" style="float:right" onclick="spy('${id}','')">👁 Espiar polla</button></h2>
-   <div class="meta">Código <code>${esc(p.code||"—")}</code> · creada ${fdate(p.creadaEn)} · creador: <b>${esc(creatorName)}</b> · ${parts.length} activo${parts.length!==1?"s":""}</div>`;
+   <div class="meta">Código <code style="cursor:pointer" title="Copiar código" onclick="copyCode(event,'${esc(p.code||'')}')">${esc(p.code||"—")}</code> · creada ${fdate(p.creadaEn)} · creador: <b>${esc(creatorName)}</b> · ${parts.length} activo${parts.length!==1?"s":""}</div>`;
   parts.forEach(([uid,u])=>{
    const pts=totalPoints(u,rules,results,WORLD);
    html+=`<div class="part"><span>${esc(u.name||"¿?")}${uid===p.creadorUid?" 👑":""} <span class="email">${esc(u.email||"")}</span></span><span style="font-weight:800;color:#de3d27">${pts} pts</span></div>`;
@@ -417,13 +438,14 @@ function render(){
 window.spy=function(pollaId,uid){ _spyId=pollaId; _spyUid=uid||null; renderSpy(); document.getElementById("overlay").style.display="block"; window.scrollTo(0,0); };
 window.closeSpy=function(){ document.getElementById("overlay").style.display="none"; _spyId=null;_spyUid=null; };
 window.spyPick=function(uid){ _spyUid=uid; renderSpy(); };
+window.copyCode=function(ev,code){ ev.stopPropagation(); navigator.clipboard&&navigator.clipboard.writeText(code); const el=ev.currentTarget; const old=el.textContent; el.textContent="¡copiado!"; setTimeout(()=>{el.textContent=old;},900); };
 
 function renderSpy(){
  const p=POLLAS[_spyId]; if(!p){closeSpy();return;}
  const rules=pollaRules(p),results=pollaResults(p);
  const parts=activeParts(p).sort((a,b)=>totalPoints(b[1],rules,results,WORLD)-totalPoints(a[1],rules,results,WORLD));
  let h=`<div class="note">👁 Modo lectura. Estás viendo <b>${esc(p.nombre||"")}</b> sin entrar como participante — nadie en la polla se entera.</div>`;
- h+=`<h3 style="margin-top:4px">${esc(p.nombre||"(sin nombre)")} <span class="pill">${esc(p.code||"—")}</span></h3>`;
+ h+=`<h3 style="margin-top:4px">${esc(p.nombre||"(sin nombre)")} <code style="cursor:pointer;font-size:13px" title="Copiar código" onclick="copyCode(event,'${esc(p.code||'')}')">${esc(p.code||"—")}</code></h3>`;
  h+=`<div style="margin-bottom:12px">`;
  parts.forEach(([uid,u])=>{ h+=`<span class="chip ${uid===_spyUid?'active':''}" onclick="spyPick('${uid}')">${esc(u.name||"¿?")} · ${totalPoints(u,rules,results,WORLD)}pts</span>`; });
  h+=`</div>`;
