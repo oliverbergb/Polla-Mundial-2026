@@ -452,7 +452,6 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Tu Polla">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<script defer src="/_vercel/insights/script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
@@ -1313,7 +1312,7 @@ function rebuildReactions(){
 }
 
 // ─── ANALYTICS ────────────────────────────────────────────
-function track(event,data={}){try{window.va?.('event',{name:event,...(Object.keys(data).length?{data}:{})});}catch(e){}}
+function track(event,data={}){/* eventos personalizados desactivados para ahorrar cuota de Vercel Analytics */}
 
 // ─── UTILS ────────────────────────────────────────────────
 // Tier de un marcador, INDEPENDIENTE de los puntos configurables de cada polla:
