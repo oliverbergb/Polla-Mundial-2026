@@ -151,6 +151,9 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .vs-real-lbl{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-top:1px}
 .vs-pred-mini{font-size:10px;color:var(--text-dim);text-align:center;margin-top:2px}
 .match-result-sub{text-align:center;font-size:10px;color:var(--text-dim);margin-top:8px;line-height:1.3}
+.match-foot{min-height:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:6px}
+.match-foot .match-result-sub{margin-top:0}
+.match-foot button{margin:0 auto!important}
 .vs-pred-mini strong{color:var(--text-muted);font-weight:800}
 .pred-row{display:flex;align-items:center;gap:4px}
 .pts-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;border:2px solid transparent}
@@ -4763,13 +4766,13 @@ function renderMisPronos(){
  ${matchScoreBlock(m,pred,res)}
  <span class="team">${live?redCardBadge(redCardCounts(m).away):""}${m.away} ${flag(m.away)}</span>
  </div>
- ${cardState==='finished'?`<div class="match-result-sub"><div style="font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-size:9px">resultado final</div><div style="margin-top:2px">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div></div>`:''}
+ ${cardState==='finished'?`<div class="match-foot"><div class="match-result-sub"><div style="font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-size:9px">resultado final</div><div style="margin-top:2px">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div></div></div>`:''}
  ${cardState==='live'?`<div class="match-result-sub">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div>`:''}
+ ${(cardState==='open'||cardState==='blocked')?`<div class="match-foot">${morboToggleBtn}</div>`:''}
   ${matchEventsHTML(m)}
  ${lineupHTML(m)}
  ${liveHint}
  ${expandToggleBtn}
- ${morboToggleBtn}
  ${expandedInside}
  </div>`;
  }).join("")}`;
@@ -5068,7 +5071,7 @@ function especialesStatsHTML(){
    ${tabBtn("goleadores","Goleadores")}
    ${tabBtn("vallas","Vallas invictas")}
   </div>
-  ${body}
+  ${body===empty?body:`<div style="max-height:172px;overflow-y:auto;-webkit-overflow-scrolling:touch">${body}</div>`}
  </div>`;
 }
 
@@ -5083,7 +5086,7 @@ function renderEspeciales(){
  let espPts=0;
  ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&rv&&p===rv)espPts+=fpts(f);});
  return`
- <div class="card" style="padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+ <div class="card" style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
  <div>
  <div style="font-size:28px;font-weight:900;color:#de3d27">${espPts} pts</div></div>
  <div style="font-size:11px;color:var(--text-muted);text-align:right">${locked?`<span style="color:#ef4444"> Cerrado</span>`:`<span style="color:#22c55e">Abierto</span>`}<br/><span style="font-size:10px">${localDeadline()}</span></div>
@@ -5094,14 +5097,14 @@ function renderEspeciales(){
  const wrong=real&&pred.trim()&&!correct;
  const isTeam=f.id==="campeon";
  const suggestions=isTeam?ALL_TEAMS:(f.id==="guanteOro"?DT_GOALKEEPERS:DT_PLAYERS);
- return`<div class="card" style="padding:11px 13px;margin-bottom:8px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"var(--border)"):"#de3d27"}">
- <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+ return`<div class="card" style="padding:8px 12px;margin-bottom:7px;border-left:3px solid ${real?(correct?"#22c55e":wrong?"#ef4444":"var(--border)"):"#de3d27"}">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
  <span style="font-weight:700;font-size:14px">${f.label}</span>
  ${real?`<span class="pts-badge ${correct?"pts-3":"pts-0"}">${correct?` +${fpts(f)}`:" 0"}</span>`:`<span style="font-size:11px;color:var(--text-muted)">${fpts(f)} pts</span>`}
  </div>
  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
  ${locked
- ?`<div style="background:var(--surface-2);border-radius:8px;padding:8px 12px;font-size:14px;flex:1;color:${pred?"var(--text)":"var(--text-dim)"}">${pred||"No ingresaste predicción"}</div>`
+ ?`<div style="background:var(--surface-2);border-radius:8px;padding:5px 11px;font-size:13px;flex:1;color:${pred?"var(--text)":"var(--text-dim)"}">${pred||"No ingresaste predicción"}</div>`
  :`<div class="autocomplete-wrap" id="ac-wrap-${f.id}">
  <input class="autocomplete-input" id="ac-${f.id}" type="text"
  placeholder="${f.placeholder}" value="${pred}" autocomplete="off"
@@ -5119,7 +5122,7 @@ function renderEspeciales(){
   const expE=expandedEspeciales.has(f.id);
   const rxnKey="esp_"+f.id;
   const matchReactions=allReactions[rxnKey]||{};
-  return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:8px auto 0;background:none;border:none;color:var(--primary);opacity:.55;cursor:pointer;font-size:17px;line-height:1;padding:2px 16px">${expE?'▴':'▾'}</button>`+
+  return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:3px auto 0;background:none;border:none;color:var(--primary);opacity:.55;cursor:pointer;font-size:14px;line-height:1;padding:0 16px">${expE?'▴':'▾'}</button>`+
    (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
      const color=avatarColor(a.name);
      const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
