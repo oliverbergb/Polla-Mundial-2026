@@ -100,7 +100,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .match-teams{display:flex;align-items:center;gap:8px;min-height:86px}
 .team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
-.score-input{width:48px;text-align:center;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:6px 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif}
+.score-input{width:48px;height:36px;box-sizing:border-box;text-align:center;line-height:32px;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:0 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;-webkit-appearance:none;appearance:none;-moz-appearance:textfield}
+.score-input::-webkit-outer-spin-button,.score-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .score-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 .score-sep{color:var(--text-muted);font-weight:800;flex-shrink:0}
 .group-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:14px}
@@ -144,7 +145,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .spin{display:inline-block;animation:spin 1s linear infinite}
 
 /* ── SCORES ── */
-.score-box{background:var(--surface-2);padding:6px 4px;border-radius:12px;font-size:15px;font-weight:800;min-width:48px;text-align:center;border:2px solid var(--border)}
+.score-box{display:inline-flex;align-items:center;justify-content:center;width:48px;height:36px;box-sizing:border-box;background:var(--surface-2);padding:0;border-radius:12px;font-size:15px;font-weight:800;text-align:center;border:2px solid var(--border)}
 .score-box.pred{color:var(--text-muted)}
 .score-box.result{color:var(--text);border-color:var(--border);background:var(--surface-2)}
 .vs-scores{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:76px;position:relative}
@@ -1171,8 +1172,8 @@ const MATCHES=[
  {id:2,date:"11 Jun",time:"21:00",home:"Corea del Sur",away:"Rep. Checa",group:"A",stadium:"Guadalajara",phase:"groups",kickoff:"2026-06-12T02:00:00Z"},
  {id:3,date:"12 Jun",time:"14:00",home:"Canadá",away:"Bosnia",group:"B",stadium:"Toronto",phase:"groups",kickoff:"2026-06-12T19:00:00Z"},
  {id:4,date:"12 Jun",time:"20:00",home:"Estados Unidos",away:"Paraguay",group:"D",stadium:"Los Ángeles",phase:"groups",kickoff:"2026-06-13T01:00:00Z"},
- {id:5,date:"13 Jun",time:"17:00",home:"Brasil",away:"Marruecos",group:"C",stadium:"Boston",phase:"groups",kickoff:"2026-06-13T22:00:00Z"},
- {id:6,date:"13 Jun",time:"20:00",home:"Haití",away:"Escocia",group:"C",stadium:"Nueva York",phase:"groups",kickoff:"2026-06-14T01:00:00Z"},
+ {id:5,date:"13 Jun",time:"17:00",home:"Brasil",away:"Marruecos",group:"C",stadium:"Nueva York",phase:"groups",kickoff:"2026-06-13T22:00:00Z"},
+ {id:6,date:"13 Jun",time:"20:00",home:"Haití",away:"Escocia",group:"C",stadium:"Boston",phase:"groups",kickoff:"2026-06-14T01:00:00Z"},
  {id:7,date:"13 Jun",time:"14:00",home:"Qatar",away:"Suiza",group:"B",stadium:"San Francisco",phase:"groups",kickoff:"2026-06-13T19:00:00Z"},
  {id:8,date:"13 Jun",time:"23:00",home:"Australia",away:"Turquía",group:"D",stadium:"Vancouver",phase:"groups",kickoff:"2026-06-14T04:00:00Z"},
  {id:9,date:"14 Jun",time:"12:00",home:"Alemania",away:"Curazao",group:"E",stadium:"Philadelphia",phase:"groups",kickoff:"2026-06-14T17:00:00Z"},
@@ -4309,7 +4310,8 @@ function pitchHTML(team,label,sideMk){
   const lbl={G:"POR",D:"DEF",M:"MED",F:"DEL"};
   inner=Object.keys(grp).filter(k=>grp[k].length).map(k=>`<div style="color:#fff;font-size:11px;margin:3px 0"><span style="opacity:.6;font-size:10px">${lbl[k]}</span> ${grp[k].map(p=>`${p.n} ${p.name}`).join(" · ")}</div>`).join("");
  }
- const subs=team.subs.length?`<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);font-size:10.5px;line-height:1.7"><strong style="font-size:10px;letter-spacing:.5px">SUPLENTES</strong><br>${team.subs.map(p=>`${p.n} ${p.name}`).join(" · ")}</div>`:"";
+ const subBadge=p=>{const mk=sideMk?sideMk[_luLast(p.name)]:null;if(!mk)return"";let s="";if(mk.subIn>0)s+=' <span title="Entró" style="color:#22c55e;font-weight:900">▲</span>';if(mk.goals>0)s+=` ⚽${mk.goals>1?mk.goals:""}`;return s;};
+ const subs=team.subs.length?`<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);font-size:10.5px;line-height:1.7"><strong style="font-size:10px;letter-spacing:.5px">SUPLENTES</strong><br>${team.subs.map(p=>`${p.n} ${p.name}${subBadge(p)}`).join(" · ")}</div>`:"";
  return`<div style="background:#1d7a52;border-radius:10px;padding:12px 8px;margin-top:8px">
  <div style="text-align:center;color:#d8f3e6;font-size:11px;font-weight:800;margin-bottom:10px">${label}${team.formation?` · ${team.formation}`:""}</div>
  ${inner}${subs}</div>`;
