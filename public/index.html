@@ -869,7 +869,7 @@ window.tpPreset=function(kind){if(kind==="completa"&&new Date()>=new Date(TOURNA
 // ─── CONFIG ───────────────────────────────────────────────
 const FIREBASE_CONFIG={
  apiKey:"AIzaSyBTkbXyjOiEoY2t-9YRA0b7wlIB0AEUgUA",
- authDomain:"tupolla.pe",
+ authDomain:"polla-mundial-2026-e85da.firebaseapp.com",
  databaseURL:"https://polla-mundial-2026-e85da-default-rtdb.firebaseio.com",
  projectId:"polla-mundial-2026-e85da",
  storageBucket:"polla-mundial-2026-e85da.firebasestorage.app",
@@ -1728,6 +1728,11 @@ async function loadPollas(){
  }
  const ids=Object.keys(myPollas);
  if(ids.length===0){renderPollaLobby();return;}
+ // Reabrir donde se quedó: recupera la última polla abierta (no mandar siempre a "Mis Pollas").
+ if(!currentPollaId){
+  const last=localStorage.getItem("tpLastPolla");
+  if(last&&myPollas[last])currentPollaId=last;
+ }
  if(ids.length===1&&!currentPollaId){currentPollaId=ids[0];currentPolla=myPollas[ids[0]];}
  if(currentPollaId&&myPollas[currentPollaId]){currentPolla=myPollas[currentPollaId];loadData();return;}
  renderPollaLobby();
@@ -1738,6 +1743,8 @@ function _onPolla(path,cb){const ref=db.ref(path);ref.on("value",cb);_pollaListe
 function detachPollaListeners(){_pollaListeners.forEach(({ref,cb})=>{try{ref.off("value",cb);}catch(e){}});_pollaListeners=[];}
 function loadData(){
  if(!currentPollaId){renderPollaLobby();return;}
+ // Recuerda la última polla abierta para volver a ella al reabrir la app.
+ try{localStorage.setItem("tpLastPolla",currentPollaId);}catch(e){}
  detachPollaListeners();
  // Evita acumular intervalos del countdown al cambiar de polla (antes se creaba uno nuevo cada vez).
  if(_countdownTimer){clearInterval(_countdownTimer);_countdownTimer=null;}
@@ -3029,6 +3036,7 @@ window.leavePolla=async function(pollaId,nombre){
  }catch(err){showToast("No se pudo salir. Intenta de nuevo.","#ef4444",4000);return;}
  delete myPollas[pollaId];
  if(currentPollaId===pollaId){currentPollaId=null;currentPolla=null;}
+ if(localStorage.getItem("tpLastPolla")===pollaId)localStorage.removeItem("tpLastPolla");
  showToast("Te saliste de la polla");
  renderPollaLobby();
  }
@@ -4268,36 +4276,60 @@ function pitchHTML(team,label,sideMk){
  const isGK=p=>posKey(p).startsWith("G");
  const gk=team.starters.find(isGK)||team.starters[0];
  const field=team.starters.filter(p=>p!==gk);
- // Clasifica a un jugador en línea según su posición REAL (no según el orden del API).
- // Orden de chequeo importa: mediocampo antes que defensa (DM/AM llevan "M"),
- // y extremos/delanteros antes que defensa.
- const classify=pos=>{
+ // Profundidad vertical de cada posición (0 = más atrás … 6 = más adelante).
+ // Sirve para repartir a los jugadores en las líneas que dicta la formación
+ // (p. ej. un 4-2-3-1 separa volantes de marca y mediapuntas en líneas distintas).
+ // Acepta códigos cortos (LB, CDM, RW…) y palabras completas (Defender, Midfielder…).
+ const depth=pos=>{
   const k=String(pos||"").toUpperCase();
-  if(!k)return null;
-  if(k.startsWith("G"))return"G";
-  if(/M/.test(k))return"M";                     // CM, DM, AM, LM, RM, M…
-  if((/W/.test(k)&&!/WB/.test(k))||/(ST|CF|FW|^F|^A|^S)/.test(k))return"F"; // extremos y delanteros
-  if(/B/.test(k)||/^D/.test(k))return"D";       // CB, LB, RB, WB, D…
-  return null;
+  if(!k)return 3;
+  if(/^G|GOAL/.test(k))return -1;
+  if(/STRIK|^ST|CF|^FW|FORWARD|^F$/.test(k))return 6;                 // delantero
+  if(/WING.?BACK|^WB|^LWB|^RWB/.test(k))return 1;                     // carrilero
+  if(/WING|^LW|^RW|^W$/.test(k))return 5;                             // extremo
+  if(/ATTACK.*MID|^AM|^CAM|OFFENS.*MID/.test(k))return 4;             // mediapunta
+  if(/DEFENS.*MID|^DM|^CDM|HOLDING/.test(k))return 2;                 // volante de marca
+  if(/MID|^CM|^LM|^RM|^M$/.test(k))return 3;                          // mediocampo
+  if(/BACK|DEFEN|^CB|^LB|^RB|^D/.test(k))return 0;                    // defensa
+  return 3;
  };
- // Lado dentro de la línea: izquierda → centro → derecha (si la posición lo indica).
- const sideRank=p=>{const k=posKey(p);if(/L/.test(k)&&!/R/.test(k))return 0;if(/R/.test(k))return 2;return 1;};
+ // Clasificación gruesa D/M/F (respaldo cuando NO hay formación válida).
+ const classify=pos=>{const d=depth(pos);if(d<0)return"G";if(d<=1)return"D";if(d<=4)return"M";return"F";};
+ // Lado dentro de la línea: izquierda(0) → centro(1) → derecha(2).
+ // Solo cuenta L/R cuando es inicial, palabra LEFT/RIGHT o código de lado (DL/DR/ML/MR);
+ // así "Defender" o "Midfielder" (que contienen una R) ya NO se van a la derecha.
+ const sideRank=p=>{
+  const k=posKey(p);
+  const isL=/^L|LEFT|\bDL\b|\bML\b/.test(k);
+  const isR=/^R|RIGHT|\bDR\b|\bMR\b/.test(k);
+  if(isL&&!isR)return 0;
+  if(isR&&!isL)return 2;
+  return 1;
+ };
  const dot=(p,gold)=>{const mk=sideMk?sideMk[_luLast(p.name)]:null;const badges=_luBadges(mk);return`<div style="text-align:center;min-width:0;flex:1"><div style="position:relative;width:30px;height:30px;border-radius:50%;background:${gold?"#fbbf24":"#fff"};color:#14532d;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;margin:0 auto">${p.n}${badges}</div><div style="color:#fff;font-size:9.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div></div>`;};
  let rows=null;
- // 1) Preferimos ubicar por posición real si el API la trae para (casi) todos.
- const recognized=field.filter(p=>{const c=classify(p.pos);return c==="D"||c==="M"||c==="F";}).length;
- if(recognized>=field.length-1&&recognized>=3){
-  const ls={D:[],M:[],F:[]};
-  field.forEach(p=>{const c=classify(p.pos);(ls[c]||ls.M).push(p);});
-  [ls.D,ls.M,ls.F].forEach(l=>l.sort((a,b)=>sideRank(a)-sideRank(b)));
-  rows=[ls.D,ls.M,ls.F].filter(l=>l.length);
- }
- // 2) Respaldo: cortar por la formación (asume orden DEF→MED→DEL del API).
- if(!rows&&team.formation){
+ // 1) Si tenemos la formación, ella fija cuántas líneas hay y de qué tamaño.
+ //    Repartimos a los jugadores por profundidad de posición (no por el orden del API),
+ //    así un 4-2-3-1 se ve 4-2-3-1 y no 4-5-1.
+ if(team.formation){
   const parts=String(team.formation).split("-").map(Number).filter(n=>n>0);
-  if(parts.length&&parts.reduce((a,b)=>a+b,0)===field.length){
+  if(parts.length>=2&&parts.reduce((a,b)=>a+b,0)===field.length){
+   const ordered=field.slice().sort((a,b)=>depth(a.pos)-depth(b.pos));
    rows=[];let i=0;
-   for(const n of parts){rows.push(field.slice(i,i+n));i+=n;}
+   for(const n of parts){
+    const line=ordered.slice(i,i+n).sort((a,b)=>sideRank(a)-sideRank(b));
+    rows.push(line);i+=n;
+   }
+  }
+ }
+ // 2) Respaldo (sin formación válida): tres líneas D/M/F según posición real.
+ if(!rows){
+  const recognized=field.filter(p=>{const c=classify(p.pos);return c==="D"||c==="M"||c==="F";}).length;
+  if(recognized>=field.length-1&&recognized>=3){
+   const ls={D:[],M:[],F:[]};
+   field.forEach(p=>{const c=classify(p.pos);(ls[c]||ls.M).push(p);});
+   [ls.D,ls.M,ls.F].forEach(l=>l.sort((a,b)=>sideRank(a)-sideRank(b)));
+   rows=[ls.D,ls.M,ls.F].filter(l=>l.length);
   }
  }
  let inner;
@@ -5964,7 +5996,7 @@ document.addEventListener("keydown",function(e){
  if(e.key==="ArrowLeft"&&_crearPreset==="completa")tpPreset('clasica');
  else if(e.key==="ArrowRight"&&_crearPreset==="clasica")tpPreset('completa');
 });
-window.logout=async function(){await auth.signOut();detachPollaListeners();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;renderLanding();};
+window.logout=async function(){await auth.signOut();detachPollaListeners();currentUser=null;currentPollaId=null;currentPolla=null;myPollas={};pendingName=null;pendingPollaAction=null;try{localStorage.removeItem("tpLastPolla");}catch(e){}renderLanding();};
 
 // ─── ELIMINAR CUENTA (requisito de Google Play) ───────────
 window.eliminarCuenta=function(){
