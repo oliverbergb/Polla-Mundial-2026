@@ -2756,18 +2756,28 @@ window.doGoogleAuth=async function(){
   }
   return;
  }
- // ---- WEB (incl. iOS Safari): SOLO popup. NO usamos signInWithRedirect como
- //      fallback porque en Safari/iOS es inestable: al volver de Google, el ITP
- //      borra el estado guardado en sessionStorage y aparece "missing initial
- //      state" → rebote intermitente. El popup mantiene todo en una sola ventana.
+ // ---- WEB ----
+ // En móvil el navegador suele bloquear el popup (Safari iOS lo bloquea por
+ // defecto), así que usamos signInWithRedirect directo, que es lo que funciona
+ // en celular. En escritorio: popup y, si lo bloquea, redirect como respaldo.
+ const isMobileUA=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||"");
+ if(isMobileUA){
+  try{
+   await auth.signInWithRedirect(provider);
+  }catch(e){
+   if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
+   if(/disallowed_useragent|403/i.test(e.message||"")){showToast("Google no permite iniciar sesión en este navegador. Abre tupolla.pe en Chrome o Safari, o entra con email y contraseña.","#ef4444",8000);return;}
+   showToast("Error con Google: "+(e.message||e.code),"#ef4444",4000);
+  }
+  return;
+ }
  try{
   await auth.signInWithPopup(provider);
  }catch(e){
   if(e.code==="auth/popup-closed-by-user"||e.code==="auth/cancelled-popup-request")return;
   if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
   if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment"){
-   showToast("Tu navegador bloqueó la ventana de Google. Vuelve a tocar el botón, o entra con email y contraseña.","#ef4444",6000);
-   return;
+   try{ await auth.signInWithRedirect(provider); return; }catch(_){}
   }
   if(/disallowed_useragent|403/i.test(e.message||"")){
    showToast("Google no permite iniciar sesión en este navegador embebido. Abre tupolla.pe en Chrome o Safari, o usa email y contraseña.","#ef4444",8000);
