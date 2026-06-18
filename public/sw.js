@@ -1,5 +1,5 @@
 // Tu Polla — Service Worker
-const CACHE = "tupolla-v2";
+const CACHE = "tupolla-v3";
 const APP_SHELL = [
   "/",
   "/manifest.json",
