@@ -2756,14 +2756,18 @@ window.doGoogleAuth=async function(){
   }
   return;
  }
- // ---- WEB: popup; si el navegador lo bloquea, fallback a redirect.
+ // ---- WEB (incl. iOS Safari): SOLO popup. NO usamos signInWithRedirect como
+ //      fallback porque en Safari/iOS es inestable: al volver de Google, el ITP
+ //      borra el estado guardado en sessionStorage y aparece "missing initial
+ //      state" → rebote intermitente. El popup mantiene todo en una sola ventana.
  try{
   await auth.signInWithPopup(provider);
  }catch(e){
   if(e.code==="auth/popup-closed-by-user"||e.code==="auth/cancelled-popup-request")return;
   if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
   if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment"){
-   try{ await auth.signInWithRedirect(provider); return; }catch(_){}
+   showToast("Tu navegador bloqueó la ventana de Google. Vuelve a tocar el botón, o entra con email y contraseña.","#ef4444",6000);
+   return;
   }
   if(/disallowed_useragent|403/i.test(e.message||"")){
    showToast("Google no permite iniciar sesión en este navegador embebido. Abre tupolla.pe en Chrome o Safari, o usa email y contraseña.","#ef4444",8000);
@@ -4685,6 +4689,41 @@ function updateMatchCountdowns(){
 }
 // Periodic refresh — every 60s — for countdowns
 setInterval(updateMatchCountdowns,60000);
+// ─── PRÓXIMO CIERRE: cuenta regresiva al inicio del siguiente partido ──────
+// Devuelve {t,m} del partido más próximo cuyo kickoff aún no ha pasado.
+function getNextMatchKickoff(){
+ const now=Date.now();let best=null;
+ for(const m of MATCHES){
+  const t=new Date(m.kickoff).getTime();
+  if(isNaN(t))continue;
+  if(t>now&&(best===null||t<best.t))best={t:t,m:m};
+ }
+ return best;
+}
+// Formato con segundos: "2d 04:13:22" o "04:13:22".
+function nextCloseCountdown(kickoffIso){
+ const diff=new Date(kickoffIso)-new Date();
+ if(diff<=0)return "¡Arrancó!";
+ const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+ const pad=n=>String(n).padStart(2,"0");
+ return (d>0?d+"d ":"")+pad(h)+":"+pad(m)+":"+pad(s);
+}
+// Refresco cada segundo del badge "Próximo cierre" (sin re-renderizar toda la pestaña).
+function updateNextCloseBadge(){
+ const badge=document.getElementById("next-close-badge");
+ if(!badge)return;
+ const k=badge.dataset.kickoff;if(!k)return;
+ const diff=new Date(k)-new Date();
+ const val=document.getElementById("next-close-val");
+ if(val)val.textContent=nextCloseCountdown(k);
+ const u=matchCountdownUrgency(k);
+ if(u==="green"){badge.style.background="#DCFCE7";badge.style.color="#15803d";badge.style.borderColor="#22c55e";}
+ else if(u==="red"||u==="live"){badge.style.background="#fee2e2";badge.style.color="#991b1b";badge.style.borderColor="#ef4444";}
+ else{badge.style.background="#fff8e1";badge.style.color="#b45309";badge.style.borderColor="#facc15";}
+ // Cuando arranca el partido, re-renderiza para que el badge apunte al siguiente.
+ if(diff<=0&&currentTab==="mis_pronos"&&partidosView==="grupos"){renderTab();}
+}
+setInterval(updateNextCloseBadge,1000);
 // Minuto en vivo: refresco en sitio cada 30s para que no falle aunque no re-renderice.
 function updateLiveMinutes(){
  document.querySelectorAll(".live-min").forEach(el=>{
@@ -4729,11 +4768,21 @@ function renderMisPronos(){
  // Per-group missing count (open matches only)
  const grpMissing=allGroupMatches.filter(m=>{const p=myPredictions[m.id];return !isLocked(m)&&(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="");}).length;
 
+ // Próximo cierre: timer al inicio del siguiente partido del torneo.
+ const _nm=getNextMatchKickoff();
+ const nextCloseBadge=_nm?`<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" style="display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 12px;border-radius:14px;${matchPillStyle(matchCountdownUrgency(_nm.m.kickoff))}">
+ <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;opacity:.85">Próximo cierre</span>
+ <span id="next-close-val" style="font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1">${nextCloseCountdown(_nm.m.kickoff)}</span>
+ <span style="font-size:9px;font-weight:700;opacity:.85">${flag(_nm.m.home)} ${_nm.m.home} vs ${_nm.m.away} ${flag(_nm.m.away)}</span>
+ </div>`:'';
+
  return`
  <div class="card" style="margin-bottom:14px">
- <div style="display:flex;justify-content:space-between;align-items:flex-end;${isPostLockout?'':'margin-bottom:10px'}">
- <div>
- <div style="font-size:28px;font-weight:900;color:var(--primary)">${totalMatchPts} pts</div></div>
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
+ <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+ <div style="font-size:28px;font-weight:900;color:var(--primary)">${totalMatchPts} pts</div>
+ ${nextCloseBadge}
+ </div>
  ${!isPostLockout?`<div style="text-align:right"><div style="font-size:12px;color:var(--text-muted)">Pronosticados</div><div style="font-size:16px;font-weight:900;color:${_done===_tot?'#22c55e':'var(--text)'}">${_done}/${_tot}</div></div>`:''}
  </div>
  ${!isPostLockout?`<div style="height:8px;background:var(--surface-2);border-radius:6px;overflow:hidden"><div style="height:100%;width:${_pct}%;background:linear-gradient(90deg,var(--primary),var(--primary-hover));border-radius:6px;transition:width .3s"></div></div>`:''}
