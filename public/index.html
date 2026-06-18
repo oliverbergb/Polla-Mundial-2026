@@ -4708,7 +4708,7 @@ function nextCloseCountdown(kickoffIso){
  const pad=n=>String(n).padStart(2,"0");
  return (d>0?d+"d ":"")+pad(h)+":"+pad(m)+":"+pad(s);
 }
-// Refresco cada segundo del badge "Próximo cierre" (sin re-renderizar toda la pestaña).
+// Refresco cada segundo del badge "Próximo partido" (sin re-renderizar toda la pestaña).
 function updateNextCloseBadge(){
  const badge=document.getElementById("next-close-badge");
  if(!badge)return;
@@ -4716,10 +4716,6 @@ function updateNextCloseBadge(){
  const diff=new Date(k)-new Date();
  const val=document.getElementById("next-close-val");
  if(val)val.textContent=nextCloseCountdown(k);
- const u=matchCountdownUrgency(k);
- if(u==="green"){badge.style.background="#DCFCE7";badge.style.color="#15803d";badge.style.borderColor="#22c55e";}
- else if(u==="red"||u==="live"){badge.style.background="#fee2e2";badge.style.color="#991b1b";badge.style.borderColor="#ef4444";}
- else{badge.style.background="#fff8e1";badge.style.color="#b45309";badge.style.borderColor="#facc15";}
  // Cuando arranca el partido, re-renderiza para que el badge apunte al siguiente.
  if(diff<=0&&currentTab==="mis_pronos"&&partidosView==="grupos"){renderTab();}
 }
@@ -4768,22 +4764,32 @@ function renderMisPronos(){
  // Per-group missing count (open matches only)
  const grpMissing=allGroupMatches.filter(m=>{const p=myPredictions[m.id];return !isLocked(m)&&(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="");}).length;
 
- // Próximo cierre: timer al inicio del siguiente partido del torneo.
+ // Próximo partido: timer al inicio del siguiente partido del torneo.
  const _nm=getNextMatchKickoff();
- const nextCloseBadge=_nm?`<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" style="display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 12px;border-radius:14px;${matchPillStyle(matchCountdownUrgency(_nm.m.kickoff))}">
- <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;opacity:.85">Próximo cierre</span>
- <span id="next-close-val" style="font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1">${nextCloseCountdown(_nm.m.kickoff)}</span>
- <span style="font-size:9px;font-weight:700;opacity:.85">${flag(_nm.m.home)} ${_nm.m.home} vs ${_nm.m.away} ${flag(_nm.m.away)}</span>
- </div>`:'';
+ let nextCloseBadge='';
+ if(_nm){
+  const _isGrp=_nm.m.phase==="groups";
+  const _p=_isGrp?(myPredictions[_nm.m.id]||{}):((myElimPreds||{})[_nm.m.id]||{});
+  const _predDone=_p.h!==undefined&&_p.h!==""&&_p.a!==undefined&&_p.a!=="";
+  const _ctx=_isGrp?("Grupo "+_nm.m.group):(((ELIM_PHASES.find(p=>p.id===_nm.m.phase)||{}).label)||"");
+  const _go=_isGrp?`setGroup('${_nm.m.group}')`:`setPartidosView('eliminatorias')`;
+  const _sc=_predDone?"#15803d":"#dc2626";
+  nextCloseBadge=`<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" onclick="${_go}" style="cursor:pointer;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.2">
+  <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted)">Próximo partido</span>
+  <span id="next-close-val" style="font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;color:${_sc}">${nextCloseCountdown(_nm.m.kickoff)}</span>
+  <span style="font-size:10px;font-weight:700;color:var(--text-muted)">${flag(_nm.m.home)} ${_nm.m.home} vs ${_nm.m.away} ${flag(_nm.m.away)}${_ctx?" · "+_ctx:""}</span>
+  <span style="font-size:10px;font-weight:900;color:${_sc}">${_predDone?"Ya pronosticaste":"Falta pronosticar"}</span>
+ </div>`;
+ }
 
  return`
  <div class="card" style="margin-bottom:14px">
- <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
- <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+ <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
  <div style="font-size:28px;font-weight:900;color:var(--primary)">${totalMatchPts} pts</div>
+ <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+ ${!isPostLockout?`<div style="text-align:right"><div style="font-size:12px;color:var(--text-muted)">Pronosticados</div><div style="font-size:16px;font-weight:900;color:${_done===_tot?'#22c55e':'var(--text)'}">${_done}/${_tot}</div></div>`:''}
  ${nextCloseBadge}
  </div>
- ${!isPostLockout?`<div style="text-align:right"><div style="font-size:12px;color:var(--text-muted)">Pronosticados</div><div style="font-size:16px;font-weight:900;color:${_done===_tot?'#22c55e':'var(--text)'}">${_done}/${_tot}</div></div>`:''}
  </div>
  ${!isPostLockout?`<div style="height:8px;background:var(--surface-2);border-radius:6px;overflow:hidden"><div style="height:100%;width:${_pct}%;background:linear-gradient(90deg,var(--primary),var(--primary-hover));border-radius:6px;transition:width .3s"></div></div>`:''}
  </div>
