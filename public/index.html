@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Tu Polla </title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22100%2080%20350%20420%22%3E%3Cstyle%3E.f1%7Bfill%3A%23de3d27%7D.f2%7Bfill%3A%23f5a522%7D.f4%7Bfill%3A%231e3dad%7D%3C%2Fstyle%3E%3Cpath%20class%3D%22f1%22%20d%3D%22m154.9%2C266.07l-6.52-6.6c-22.56-22.84-23.47-50.61-6.91-66.97h0s14.12%2C14.3%2C14.12%2C14.3l-.43-.86c-16.19-32.25-4.25-63.91%2C23.17-77.67h0l24.09%2C48.01c6.48-12.55%2C18.19-21.49%2C32.79-24.76l11.57%2C51.73c-37.52%2C4.84-76.56%2C25.56-91.9%2C62.82Z%22%2F%3E%3Cpath%20class%3D%22f2%22%20d%3D%22m407.52%2C300.09c-11.28-50.51-65.88-82.19-126.37-76.08v109.42c39.02-.08%2C77.74-6.99%2C114.34-20.56l13.74-5.09-1.72-7.69Z%22%2F%3E%3Cpath%20class%3D%22f1%22%20d%3D%22m281.15%2C333.49h59.55c32.87%2C0%2C59.55%2C26.68%2C59.55%2C59.55h0c0%2C32.87-26.68%2C59.55-59.55%2C59.55h0c-32.87%2C0-59.55-26.68-59.55-59.55v-59.55h0Z%22%2F%3E%3Cpath%20class%3D%22f4%22%20d%3D%22m308.24%2C262.14l28.15%2C19.55s9.6-35.71%2C42.46-29.18c0%2C0-18.95-16.56-35.04-20.77%2C0%2C0-16.29-1.23-35.57%2C30.41Z%22%2F%3E%3C%2Fsvg%3E"/>
 <link rel="manifest" href="/manifest.json">
@@ -456,15 +456,27 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
-/* === Detección de entorno: app nativa (Capacitor) o web === */
+/* === Detección de entorno: app nativa (WKWebView/Capacitor) o web === */
 (function(){
  var qs = (location.search||"");
- var isApp = (typeof window.Capacitor !== "undefined")
-          || qs.indexOf("app=1") > -1
-          || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches && qs.indexOf("web=1")===-1 ? false : false);
- // Capacitor o ?app=1 (para probar en navegador) activan el modo app.
- window.IS_APP = !!isApp;
- if(window.IS_APP) document.documentElement.classList.add("is-app");
+ function detectApp(){
+   if(qs.indexOf("web=1") > -1) return false;                 // override manual: forzar web
+   if(qs.indexOf("app=1") > -1) return true;                  // override manual: forzar app (start URL del wrapper)
+   if(typeof window.Capacitor !== "undefined") return true;   // wrapper Capacitor
+   if(window.navigator.standalone === true) return true;      // PWA agregada a inicio (iOS Safari)
+   var ua = navigator.userAgent || "";
+   var isIOS = /iPhone|iPad|iPod/i.test(ua);
+   // Un WKWebView empaquetado en iOS NO incluye el token "Safari" ni CriOS/FxiOS/EdgiOS.
+   if(isIOS && !/Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS/i.test(ua)) return true;
+   return false;
+ }
+ window.IS_APP = !!detectApp();
+ if(window.IS_APP){
+   document.documentElement.classList.add("is-app");
+   // En modo app: bloquear zoom doble-tap y asegurar viewport-fit=cover (safe areas).
+   var vp = document.querySelector('meta[name="viewport"]');
+   if(vp) vp.setAttribute("content","width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover");
+ }
 })();
 </script>
 <style>
@@ -503,6 +515,48 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .tp-ob-code-go{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-bottom:3px solid var(--primary-dark);border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';line-height:1}
 .tp-ob-code-link{background:none;border:none;color:var(--text-muted);font-weight:800;font-size:14px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;padding:8px;text-align:center}
 .tp-ob-code-link b{color:var(--primary-dark)}
+</style>
+<style>
+/* ================= CAPA NATIVA iOS (scoped .is-app) ================= */
+/* Requiere viewport-fit=cover para que env(safe-area-inset-*) sea != 0 */
+
+/* — Safe area superior: empuja el contenido debajo del notch/Dynamic Island — */
+.is-app .app{padding-top:env(safe-area-inset-top,0)}
+/* Relleno sólido detrás de la barra de estado (que no quede un hueco raro) */
+.is-app::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0);background:var(--surface);z-index:60;pointer-events:none}
+
+/* — Barra inferior estilo iOS: blur translúcido + hairline — */
+.is-app .tabs-wrap{
+  background:color-mix(in srgb, var(--surface) 82%, transparent)!important;
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid var(--border-soft)!important;
+}
+@media(max-width:768px){
+  .is-app .tab{padding-top:9px!important;padding-bottom:9px!important}
+  .is-app .tab.active{background:var(--primary-soft)!important}
+}
+
+/* — Comportamientos táctiles nativos — */
+.is-app, .is-app *{-webkit-tap-highlight-color:transparent}
+.is-app{-webkit-touch-callout:none}
+/* Sin selección de texto en el "chrome" de la UI… */
+.is-app button,.is-app .tab,.is-app .header,.is-app .match-card,.is-app .card{
+  -webkit-user-select:none;user-select:none;
+}
+/* …pero sí permitir seleccionar en inputs y chat */
+.is-app input,.is-app textarea,.is-app [contenteditable],.is-app .chat-msg,.is-app .chat-bubble{
+  -webkit-user-select:text;user-select:text;
+}
+
+/* — Press states táctiles (sensación nativa) — */
+.is-app button:active,.is-app .tab:active{transform:scale(.96);transition:transform .08s ease}
+
+/* — Scroll con inercia tipo iOS — */
+.is-app .content,.is-app .chat-scroll,.is-app .tabs{-webkit-overflow-scrolling:touch}
+
+/* — Ocultar elementos solo-web dentro de la app (banners de instalar, etc.) — */
+.is-app .web-only{display:none!important}
 </style>
 </head>
 <body>
