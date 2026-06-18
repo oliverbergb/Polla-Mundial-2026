@@ -51,21 +51,21 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:#edf6ff}
-body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;position:relative}
+body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";min-height:100vh;position:relative}
 .app{max-width:680px;margin:0 auto;padding-bottom:80px;position:relative;z-index:1}
 
 /* ── HEADER ── */
 .header{position:relative;padding:20px 16px 0;text-align:center;overflow:hidden;background:var(--surface);border-radius:20px;margin:8px 8px 4px;border:2px solid var(--border);box-shadow:0 4px 0 var(--border-strong)}
 .header::before{display:none}
 .header-bg{display:none}
-.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.3px;margin:6px 0 2px;text-transform:uppercase;font-family:'Nunito',sans-serif;color:var(--text)}
-.header-sub{position:relative;color:var(--text-muted);font-size:11px;margin-bottom:4px;font-family:'Nunito',sans-serif;font-weight:700}
-.countdown-bar{position:relative;background:var(--primary-soft);border-radius:20px;padding:6px 14px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--primary-dark);border:2px solid var(--primary);font-family:'Nunito',sans-serif}
+.header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.3px;margin:6px 0 2px;text-transform:uppercase;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";color:var(--text)}
+.header-sub{position:relative;color:var(--text-muted);font-size:11px;margin-bottom:4px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:700}
+.countdown-bar{position:relative;background:var(--primary-soft);border-radius:20px;padding:6px 14px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--primary-dark);border:2px solid var(--primary);font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"}
 .tabs-wrap{position:relative;display:flex;justify-content:center}
 .tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,var(--surface));pointer-events:none;z-index:2}
 .tabs{display:flex;overflow-x:auto;gap:5px;scrollbar-width:none;position:relative;justify-content:center;flex-wrap:nowrap;width:100%;padding:8px 6px 6px}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:7px 14px;font-size:11px;font-weight:800;border:2px solid transparent;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif;transition:all .15s}
+.tab{flex:0 0 auto;padding:7px 14px;font-size:11px;font-weight:800;border:2px solid transparent;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";transition:all .15s}
 .tab.active{background:var(--primary);color:#fff;border-color:var(--primary-dark);box-shadow:0 3px 0 var(--primary-dark)}
 .tab:not(.active){background:var(--surface-2);color:var(--text-muted);border-color:var(--border)}
 
@@ -100,7 +100,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .match-teams{display:flex;align-items:center;gap:8px;min-height:86px}
 .team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
-.score-input{width:48px;height:36px;box-sizing:border-box;text-align:center;line-height:32px;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:0 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;-webkit-appearance:none;appearance:none;-moz-appearance:textfield}
+.score-input{width:48px;height:36px;box-sizing:border-box;text-align:center;line-height:32px;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:0 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";-webkit-appearance:none;appearance:none;-moz-appearance:textfield}
 .score-input::-webkit-outer-spin-button,.score-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .score-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 .score-sep{color:var(--text-muted);font-weight:800;flex-shrink:0}
@@ -111,7 +111,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .hdr-collapsible{display:block}
 .hdr-toggle{display:none}
 .hdr-mini-title{display:none}
-.pill{padding:6px 14px;border-radius:20px;border:2px solid var(--border);cursor:pointer;font-size:12px;font-weight:800;transition:all .15s;box-shadow:0 3px 0 var(--border-strong);font-family:'Nunito',sans-serif}
+.pill{padding:6px 14px;border-radius:20px;border:2px solid var(--border);cursor:pointer;font-size:12px;font-weight:800;transition:all .15s;box-shadow:0 3px 0 var(--border-strong);font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"}
 @keyframes tpLivePillPulse{0%,100%{box-shadow:0 3px 0 var(--border-strong),0 0 0 0 rgba(239,68,68,.42)}50%{box-shadow:0 3px 0 var(--border-strong),0 0 0 6px rgba(239,68,68,.12)}}
 .pill.tp-live-pill{border-color:#ef4444!important;animation:tpLivePillPulse 2.6s ease-in-out infinite}
 .rank-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:2px solid var(--border-soft)}
@@ -119,20 +119,20 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 
 /* ── LOGIN ── */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;background:transparent}
-.login-screen h1{font-size:28px;font-weight:900;margin:12px 0 4px;font-family:'Nunito',sans-serif;letter-spacing:-0.3px}
-.input{width:100%;max-width:340px;background:var(--surface);border:2px solid var(--border);border-radius:16px;color:var(--text);padding:14px 18px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Nunito',sans-serif;font-weight:700;transition:border-color .15s}
+.login-screen h1{font-size:28px;font-weight:900;margin:12px 0 4px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";letter-spacing:-0.3px}
+.input{width:100%;max-width:340px;background:var(--surface);border:2px solid var(--border);border-radius:16px;color:var(--text);padding:14px 18px;font-size:16px;margin-bottom:12px;outline:none;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:700;transition:border-color .15s}
 .input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
-.btn{width:100%;max-width:340px;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .1s;letter-spacing:0.2px}
+.btn{width:100%;max-width:340px;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";transition:all .1s;letter-spacing:0.2px}
 .btn:hover{background:var(--primary-hover)}
 .btn:active{border-bottom-width:0;transform:translateY(4px)}
 .btn:disabled{background:var(--surface-3);color:var(--text-dim);cursor:not-allowed;border-bottom-color:var(--border-strong)}
-.btn-secondary{width:100%;max-width:340px;background:var(--surface);color:var(--text-muted);border:2px solid var(--border);border-bottom:4px solid var(--border-strong);border-radius:16px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px;transition:all .1s}
+.btn-secondary{width:100%;max-width:340px;background:var(--surface);color:var(--text-muted);border:2px solid var(--border);border-bottom:4px solid var(--border-strong);border-radius:16px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-bottom:10px;transition:all .1s}
 .btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
 .btn-secondary:active{border-bottom-width:0;transform:translateY(4px)}
-.link-btn{background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;font-family:'Nunito',sans-serif;text-decoration:underline;padding:0;font-weight:800}
+.link-btn{background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";text-decoration:underline;padding:0;font-weight:800}
 .remember-row{display:flex;align-items:center;gap:8px;max-width:340px;width:100%;margin-bottom:12px;cursor:pointer}
 .remember-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
-.remember-row span{font-size:13px;color:var(--text-muted);font-family:'Nunito',sans-serif;font-weight:700}
+.remember-row span{font-size:13px;color:var(--text-muted);font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:700}
 .error{color:var(--danger);font-size:13px;margin-bottom:10px;max-width:340px;font-weight:800}
 .lock-badge{font-size:10px;background:var(--surface-2);color:var(--text-muted);padding:3px 8px;border-radius:20px;margin-left:4px;border:2px solid var(--border);font-weight:800}
 .admin-badge{background:var(--secondary);color:#ffffff;font-size:10px;padding:3px 10px;border-radius:20px;margin-left:8px;font-weight:800}
@@ -224,13 +224,13 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .legal-doc li{margin-bottom:4px}
 .legal-doc a{color:var(--primary-hover);text-decoration:underline}
 .legal-doc .legal-rev{font-size:11px;color:var(--text-dim);margin-bottom:14px}
-.modal-box h2{font-size:18px;font-weight:900;margin-bottom:16px;text-align:center;font-family:'Nunito',sans-serif}
+.modal-box h2{font-size:18px;font-weight:900;margin-bottom:16px;text-align:center;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"}
 .rules-section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-soft)}
 .rules-section:last-of-type{border-bottom:none}
 .rules-section h3{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:.5px}
 .rules-section p,.rules-section li{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:3px}
 .rules-section ul{padding-left:16px}
-.modal-close{width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:13px;font-size:15px;font-weight:900;cursor:pointer;margin-top:12px;font-family:'Nunito',sans-serif;transition:all .1s}.modal-close:active{border-bottom-width:0;transform:translateY(4px)}
+.modal-close{width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:13px;font-size:15px;font-weight:900;cursor:pointer;margin-top:12px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";transition:all .1s}.modal-close:active{border-bottom-width:0;transform:translateY(4px)}
 
 /* ── CARTA CAMPEÓN ── */
 .carta-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -246,7 +246,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .carta-text p{margin-bottom:10px}
 .carta-text p:last-child{margin-bottom:0}
 .carta-firma{margin-top:14px;text-align:right;font-size:11px;color:var(--text-muted);font-style:italic}
-.carta-close{margin-top:18px;width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:12px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .1s}.carta-close:active{border-bottom-width:0;transform:translateY(4px)}
+.carta-close{margin-top:18px;width:100%;background:var(--primary);color:#fff;border:none;border-bottom:4px solid var(--primary-dark);border-radius:16px;padding:12px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";transition:all .1s}.carta-close:active{border-bottom-width:0;transform:translateY(4px)}
 
 /* ── CHAT ── */
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:280px}
@@ -263,7 +263,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .chat-msg.theirs .chat-bubble{background:var(--surface-2);color:var(--text);border-bottom-left-radius:4px;border:2px solid var(--border)}
 .chat-meta{font-size:10px;color:var(--text-dim);padding:0 4px}
 .chat-input-row{display:flex;gap:8px;padding:10px 0 0;border-top:1px solid var(--border-soft);margin-top:6px}
-.chat-input{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:16px;color:var(--text);padding:10px 14px;font-size:14px;outline:none;font-family:'Nunito',sans-serif;font-weight:700;resize:none;min-height:44px;max-height:80px}
+.chat-input{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:16px;color:var(--text);padding:10px 14px;font-size:14px;outline:none;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:700;resize:none;min-height:44px;max-height:80px}
 .chat-input:focus{border-color:var(--primary)}
 .chat-send{background:var(--primary);color:#fff;border:none;border-bottom:3px solid var(--primary-dark);border-radius:16px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;transition:all .1s}
 .chat-send:hover{background:var(--primary-hover)}
@@ -342,7 +342,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 
 /* ── AUTOCOMPLETE ── */
 .autocomplete-wrap{position:relative;flex:1}
-.autocomplete-input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:14px;outline:none;font-family:'Nunito',sans-serif}
+.autocomplete-input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:14px;outline:none;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"}
 .autocomplete-input:focus{border-color:var(--primary)}
 .autocomplete-drop{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border-soft);border-radius:8px;z-index:500;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);margin-top:2px}
 .autocomplete-item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border-soft)}
@@ -366,8 +366,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 /* margin-bottom negativo compensa el descenso extra del texto grande:
    valor ≈ (fontSize_tu - fontSize_polla) * lineHeight / 2
    sm: (22-16)*1.2/2 ≈ 3.6 → 4px  |  base: (36-26)*1.2/2 = 6px  |  lg: (54-40)*1.2/2 = 8.4 → 8px */
-.brand-tu{font-family:'Nunito',sans-serif;font-size:36px;color:var(--primary);font-weight:900;display:inline-block;margin-right:2px;margin-bottom:-6px}
-.brand-polla{font-family:'Nunito',sans-serif;font-size:26px;color:var(--primary);letter-spacing:-0.5px;text-transform:uppercase;font-weight:900}
+.brand-tu{font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:36px;color:var(--primary);font-weight:900;display:inline-block;margin-right:2px;margin-bottom:-6px}
+.brand-polla{font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:26px;color:var(--primary);letter-spacing:-0.5px;text-transform:uppercase;font-weight:900}
 .brand-trophy{width:22px;height:28px;color:var(--primary);flex-shrink:0;margin-bottom:1px;filter:drop-shadow(1px 1px 0 var(--secondary))}
 .brand-logo.lg .brand-tu{font-size:54px;margin-bottom:-8px}
 .brand-logo.lg .brand-polla{font-size:40px}
@@ -484,14 +484,14 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .tp-ob-slide{flex:0 0 100%;width:100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 10px) 30px 140px;text-align:center}
 .tp-ob-art{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative}
 .tp-ob-disc{position:absolute;top:0;right:0;bottom:0;left:0;border-radius:50%;z-index:0}
-.tp-ob-title{font-size:23px;font-weight:900;color:var(--text);margin:0 0 10px;letter-spacing:-.3px;font-family:'Nunito',sans-serif;line-height:1.2}
-.tp-ob-sub{font-size:15px;font-weight:700;color:var(--text-muted);line-height:1.45;max-width:300px;margin:0;font-family:'Nunito',sans-serif}
+.tp-ob-title{font-size:23px;font-weight:900;color:var(--text);margin:0 0 10px;letter-spacing:-.3px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";line-height:1.2}
+.tp-ob-sub{font-size:15px;font-weight:700;color:var(--text-muted);line-height:1.45;max-width:300px;margin:0;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"}
 .tp-ob-bottom{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:linear-gradient(to top,#fff 80%,rgba(255,255,255,0))}
 .tp-ob-dots{display:flex;gap:8px;justify-content:center;padding:6px 0 12px}
 .tp-ob-dot{width:8px;height:8px;border-radius:50%;background:var(--border-strong);transition:all .25s ease}
 .tp-ob-dot.active{width:26px;background:var(--primary)}
 .tp-ob-actions{padding:0 22px calc(env(safe-area-inset-bottom) + 16px);display:flex;flex-direction:column;gap:11px}
-.tp-ob-btn{width:100%;padding:16px;border-radius:16px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;transition:transform .12s ease,border-bottom-width .12s ease}
+.tp-ob-btn{width:100%;padding:16px;border-radius:16px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:16px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;transition:transform .12s ease,border-bottom-width .12s ease}
 .tp-ob-btn-primary{background:var(--primary);color:#fff;border:none;border-bottom:5px solid var(--primary-dark)}
 .tp-ob-btn-primary:active{border-bottom-width:0;transform:translateY(5px)}
 .tp-ob-btn-ghost{background:var(--surface);color:var(--text-muted);border:2px solid var(--border);border-bottom:5px solid var(--border-strong)}
@@ -499,9 +499,9 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .tp-ob-code{display:none;flex-direction:column;gap:8px;align-items:center;margin-top:2px}
 .tp-ob-code.open{display:flex}
 .tp-ob-code-row{position:relative;width:100%}
-.tp-ob-code-input{width:100%;background:var(--surface);border:2px solid var(--border);border-radius:14px;color:var(--text);padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase}
-.tp-ob-code-go{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-bottom:3px solid var(--primary-dark);border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1}
-.tp-ob-code-link{background:none;border:none;color:var(--text-muted);font-weight:800;font-size:14px;font-family:'Nunito',sans-serif;cursor:pointer;padding:8px;text-align:center}
+.tp-ob-code-input{width:100%;background:var(--surface);border:2px solid var(--border);border-radius:14px;color:var(--text);padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";outline:none;box-sizing:border-box;text-transform:uppercase}
+.tp-ob-code-go{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-bottom:3px solid var(--primary-dark);border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";line-height:1}
+.tp-ob-code-link{background:none;border:none;color:var(--text-muted);font-weight:800;font-size:14px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";cursor:pointer;padding:8px;text-align:center}
 .tp-ob-code-link b{color:var(--primary-dark)}
 </style>
 </head>
@@ -725,7 +725,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
  <div style="padding:18px 18px 14px">
  <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
  <div id="invite-code" onclick="copyText(this.textContent,'Código copiado')"
- style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:8px;padding-left:8px;font-family:'Nunito',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all"
+ style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:8px;padding-left:8px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-bottom:4px;cursor:pointer;user-select:all"
  title="Toca para copiar"></div>
  <div style="font-size:10px;color:var(--text-dim);margin-bottom:14px">toca para copiar</div>
  </div>
@@ -1693,7 +1693,7 @@ function initFirebase(){
  }
  // Still failing but the user IS logged in: show a recoverable error, not the login screen.
  const root=document.getElementById("root");
- if(root)root.innerHTML=`<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:14px"><div style="font-size:17px;font-weight:900;color:var(--text)">No pudimos cargar tus datos</div><div style="font-size:13px;color:var(--text-muted);max-width:300px">Parece un problema de conexión. Sigues con sesión iniciada.</div><button onclick="location.reload()" style="background:var(--primary);color:#fff;border:none;border-radius:14px;padding:14px 30px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif">Reintentar</button></div>`;
+ if(root)root.innerHTML=`<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:14px"><div style="font-size:17px;font-weight:900;color:var(--text)">No pudimos cargar tus datos</div><div style="font-size:13px;color:var(--text-muted);max-width:300px">Parece un problema de conexión. Sigues con sesión iniciada.</div><button onclick="location.reload()" style="background:var(--primary);color:#fff;border:none;border-radius:14px;padding:14px 30px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Reintentar</button></div>`;
  return;
  }
  renderLanding();
@@ -1807,12 +1807,12 @@ function renderLanding(){
  }
  setFabs(false);
  document.getElementById("root").innerHTML=`
-<div style="font-family:'Nunito',-apple-system,sans-serif;background:#fff;overflow-x:hidden">
+<div style="font-family:'Nunito',-apple-system,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";background:#fff;overflow-x:hidden">
 
 <!-- NAV -->
 <nav style="display:flex;align-items:center;justify-content:flex-end;padding:16px 40px;background:#fff;position:sticky;top:0;z-index:100">
  <div style="position:relative">
-  <button onclick="var p=document.getElementById('tp-torneo-pop');p.style.display=p.style.display==='block'?'none':'block'" style="display:inline-flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:10px;font-weight:900;letter-spacing:3px;color:#bbb;text-transform:uppercase">Mundial 2026 <span style="font-size:8px">&#9662;</span></button>
+  <button onclick="var p=document.getElementById('tp-torneo-pop');p.style.display=p.style.display==='block'?'none':'block'" style="display:inline-flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:10px;font-weight:900;letter-spacing:3px;color:#bbb;text-transform:uppercase">Mundial 2026 <span style="font-size:8px">&#9662;</span></button>
   <div id="tp-torneo-pop" style="display:none;position:absolute;right:0;top:30px;background:#fff;border:2px solid #e5e5e5;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:12px 14px;min-width:190px;z-index:200;text-align:left">
    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:800;color:#3C3C3C">&#9917; Mundial 2026 <span style="font-size:9px;font-weight:900;color:#3d9100;background:#e8ffd4;border:1.5px solid #58CC02;border-radius:8px;padding:1px 7px;text-transform:uppercase;letter-spacing:.5px">Activo</span></div>
    <div style="height:1px;background:#f0f0f0;margin:9px 0"></div>
@@ -1832,11 +1832,11 @@ function renderLanding(){
   <p style="font-size:12px;font-weight:900;letter-spacing:4px;color:#bbb;text-transform:uppercase;margin:0 0 14px">Mundial 2026</p>
   <h1 style="font-size:30px;font-weight:900;color:#3C3C3C;line-height:1.2;margin:0 0 32px;letter-spacing:-0.3px">¡La forma más<br>divertida de vivir<br>el Mundial!</h1>
   <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
-   <button onclick="renderCrearPolla()" style="width:100%;padding:17px;background:#FF9600;color:#fff;border:none;border-bottom:5px solid #CC7700;border-radius:16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#E68600'" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='';this.style.background='#FF9600'">Crear una polla</button>
-   <button onclick="renderAuthScreen(null)" style="width:100%;padding:15px;background:#fff;color:#777;border:2px solid #e5e5e5;border-bottom:5px solid #ccc;border-radius:16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#f5f5f5'" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='';this.style.background='#fff'">Ya tengo una cuenta</button>
+   <button onclick="renderCrearPolla()" style="width:100%;padding:17px;background:#FF9600;color:#fff;border:none;border-bottom:5px solid #CC7700;border-radius:16px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#E68600'" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='';this.style.background='#FF9600'">Crear una polla</button>
+   <button onclick="renderAuthScreen(null)" style="width:100%;padding:15px;background:#fff;color:#777;border:2px solid #e5e5e5;border-bottom:5px solid #ccc;border-radius:16px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#f5f5f5'" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='';this.style.background='#fff'">Ya tengo una cuenta</button>
    <div style="position:relative">
-    <input id="landingCode" type="text" placeholder="¿Tienes un código?" maxlength="6" style="width:100%;background:#fff;border:2px solid #e5e5e5;border-radius:14px;color:#3C3C3C;padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'" onkeydown="if(event.key==='Enter')doJoinFromLanding()" onfocus="this.style.borderColor='#FF9600'" onblur="this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'"/>
-    <button onclick="doJoinFromLanding()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#FF9600;border:none;border-bottom:3px solid #CC7700;border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1">→</button>
+    <input id="landingCode" type="text" placeholder="¿Tienes un código?" maxlength="6" style="width:100%;background:#fff;border:2px solid #e5e5e5;border-radius:14px;color:#3C3C3C;padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'" onkeydown="if(event.key==='Enter')doJoinFromLanding()" onfocus="this.style.borderColor='#FF9600'" onblur="this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'"/>
+    <button onclick="doJoinFromLanding()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#FF9600;border:none;border-bottom:3px solid #CC7700;border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";line-height:1">→</button>
    </div>
    <div id="landingError" style="color:#FF4B4B;font-size:13px;font-weight:800;min-height:18px"></div>
   </div>
@@ -2375,11 +2375,11 @@ function renderLanding(){
 <!-- ── SECCIÓN 5: CTA FINAL ───────────────────────────────── -->
 <section style="background:#FF9600;padding:80px 40px;text-align:center">
  <div style="font-size:10px;font-weight:900;letter-spacing:3px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-bottom:10px">Mundial 2026 · USA · México · Canadá</div>
- <h2 style="font-size:38px;font-weight:900;color:#fff;line-height:1.1;margin:0 0 12px;font-family:'Nunito',sans-serif">¿Listo para jugar?</h2>
+ <h2 style="font-size:38px;font-weight:900;color:#fff;line-height:1.1;margin:0 0 12px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">¿Listo para jugar?</h2>
  <p style="font-size:16px;color:rgba(255,255,255,.85);font-weight:700;margin-bottom:32px">Crea tu polla gratis y comparte el código con tus amigos.</p>
  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-  <button onclick="renderCrearPolla()" style="background:#fff;border:none;border-bottom:5px solid rgba(0,0,0,.2);border-radius:16px;padding:17px 40px;font-size:17px;font-weight:900;color:#FF9600;cursor:pointer;font-family:'Nunito',sans-serif" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform=''">Crear una polla</button>
-  <button onclick="renderAuthScreen(null)" style="background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);border-radius:16px;padding:15px 32px;font-size:15px;font-weight:900;color:#fff;cursor:pointer;font-family:'Nunito',sans-serif">Ya tengo cuenta</button>
+  <button onclick="renderCrearPolla()" style="background:#fff;border:none;border-bottom:5px solid rgba(0,0,0,.2);border-radius:16px;padding:17px 40px;font-size:17px;font-weight:900;color:#FF9600;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform=''">Crear una polla</button>
+  <button onclick="renderAuthScreen(null)" style="background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);border-radius:16px;padding:15px 32px;font-size:15px;font-weight:900;color:#fff;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Ya tengo cuenta</button>
  </div>
 </section>
 
@@ -2661,15 +2661,15 @@ function renderPickName(onDone, onBack){
  <input id="pickNameInput" type="text" placeholder="Tu nombre en la polla"
  maxlength="15" autocomplete="off" autocorrect="off" spellcheck="false"
  value="${savedName}"
- style="width:100%;max-width:340px;background:var(--surface);border:2px solid var(--primary);border-radius:14px;color:var(--text);padding:16px 18px;font-size:22px;font-weight:700;font-family:'Nunito',sans-serif;outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
+ style="width:100%;max-width:340px;background:var(--surface);border:2px solid var(--primary);border-radius:14px;color:var(--text);padding:16px 18px;font-size:22px;font-weight:700;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";outline:none;box-sizing:border-box;text-align:center;margin-bottom:10px"
  onkeydown="if(event.key==='Enter')doPickName()"
  oninput="pendingName=this.value.trim()"
  />
  <div id="pickNameError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:12px"></div>
- <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif">
+ <button id="pickNameBtn" onclick="doPickName()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">
  Continuar →
  </button>
- <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:16px">← Volver</button>
+ <button onclick="_pickNameBack?_pickNameBack():renderLanding()" style="background:none;border:none;color:var(--border);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-top:16px">← Volver</button>
  </div>`;
  setTimeout(()=>{const el=document.getElementById("pickNameInput");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},100);
 }
@@ -2690,7 +2690,7 @@ function renderAuthScreen(name){
  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
  ${name?`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px">Hola, ${name} </div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Entra a Tu Polla</div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;max-width:320px;line-height:1.4">Pon tu email y contraseña. Si es tu primera vez te creamos la cuenta al instante; si ya tienes una, inicias sesión.</div>`}
 
- <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
+ <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
  <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
  Continuar con Google
  </button>
@@ -2702,21 +2702,21 @@ function renderAuthScreen(name){
  </div>
 
  <input id="authEmail" type="email" placeholder="Email" autocomplete="email"
- style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif;box-sizing:border-box"/>
+ style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";box-sizing:border-box"/>
  <div style="position:relative;width:100%;max-width:340px;margin-bottom:10px">
  <input id="authPass" type="password" placeholder="Contraseña" autocomplete="current-password"
- style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Nunito',sans-serif;box-sizing:border-box"
+ style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 44px 12px 16px;font-size:15px;outline:none;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";box-sizing:border-box"
  onkeydown="if(event.key==='Enter')doEmailAuth()"/>
  <button type="button" onclick="togglePass('authPass',this)" style="position:absolute;right:12px;top:0;bottom:0;margin:auto;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:0;line-height:1"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
  </div>
  <div id="authError" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px;text-align:left"></div>
- <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:14px;transition:background .15s" onmouseenter="this.style.background='var(--primary-hover)'" onmouseleave="this.style.background='var(--primary)'">
+ <button id="authBtn" onclick="doEmailAuth()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-bottom:14px;transition:background .15s" onmouseenter="this.style.background='var(--primary-hover)'" onmouseleave="this.style.background='var(--primary)'">
  Entrar
  </button>
- <button onclick="renderForgot()" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
+ <button onclick="renderForgot()" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";text-decoration:underline;text-underline-offset:3px;margin-bottom:10px">
  ¿Olvidaste tu contraseña?
  </button>
- <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px">← Volver</button>
+ <button onclick="pendingName?renderPickName(_pickNameCallback,_pickNameBack):renderLanding()" style="background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-top:4px">← Volver</button>
  <div style="max-width:340px;margin:22px auto 0;font-size:11px;line-height:1.5;color:var(--text-dim)">
  Al continuar, aceptas nuestros <a href="#" onclick="event.preventDefault();openLegal('terms')" style="color:var(--text-muted);text-decoration:underline">Términos</a> y la <a href="#" onclick="event.preventDefault();openLegal('privacy')" style="color:var(--text-muted);text-decoration:underline">Política de Privacidad</a>.<br>
  Este sitio está protegido por reCAPTCHA; aplican la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:underline">Política de Privacidad</a> y los <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:underline">Términos</a> de Google.
@@ -2842,11 +2842,11 @@ function renderForgot(){
  <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Recuperar contraseña</div>
  <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Te enviaremos un link por email</div>
  <input id="forgotEmail" type="email" placeholder="Tu email" autocomplete="email"
- style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif;box-sizing:border-box"
+ style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";box-sizing:border-box"
  onkeydown="if(event.key==='Enter')doForgot()"/>
  <div id="forgotMsg" style="font-size:13px;min-height:20px;margin-bottom:10px;width:100%;max-width:340px"></div>
- <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:14px">Enviar link </button>
- <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif">← Volver</button>
+ <button id="forgotBtn" onclick="doForgot()" style="width:100%;max-width:340px;background:var(--primary);color:#ffffff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-bottom:14px">Enviar link </button>
+ <button onclick="renderAuthScreen(null)" style="background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">← Volver</button>
  </div>`;
 }
 
@@ -2885,7 +2885,7 @@ function renderPollaLobby(){
  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
  <div style="width:40px"></div>
  <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:var(--border);text-transform:uppercase">MUNDIAL 2026</div>
- <button onclick="logout()" style="background:var(--surface);border:none;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Nunito',sans-serif">Salir</button>
+ <button onclick="logout()" style="background:var(--surface);border:none;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Salir</button>
  </div>
 
  <!-- HERO -->
@@ -2931,8 +2931,8 @@ function renderPollaLobby(){
  </div>`}
 
  <div style="display:flex;flex-direction:column;gap:10px">
- <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(255,179,16,0.25);transition:filter .15s" onmouseenter="this.style.filter='brightness(0.93)'" onmouseleave="this.style.filter=''"> Crear una polla</button>
- <button onclick="renderUnirse()" style="width:100%;background:var(--surface);color:var(--text-muted);border:1px solid var(--border-soft);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .15s" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='var(--surface)'"> Unirme a una polla</button>
+ <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";box-shadow:0 4px 16px rgba(255,179,16,0.25);transition:filter .15s" onmouseenter="this.style.filter='brightness(0.93)'" onmouseleave="this.style.filter=''"> Crear una polla</button>
+ <button onclick="renderUnirse()" style="width:100%;background:var(--surface);color:var(--text-muted);border:1px solid var(--border-soft);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";transition:background .15s" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='var(--surface)'"> Unirme a una polla</button>
  </div>
  <div style="text-align:center;margin-top:24px;font-size:11px;color:var(--text-dim)">
  <a href="#" onclick="event.preventDefault();openLegal('terms')" style="color:var(--text-dim);text-decoration:underline">Términos</a>
@@ -3078,7 +3078,7 @@ function ruleRow(id,label,val){
  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
  <span style="font-size:13px;color:var(--text)">${label}</span>
  <div style="display:flex;align-items:center;gap:6px">
- <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif"/>
+ <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji""/>
  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span>
  </div>
  </div>`;
@@ -3169,10 +3169,10 @@ function renderCrearPolla(){
  <div style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
  <div style="padding:12px 14px 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase">Configurar polla</div>
  <div style="padding:4px 14px 10px;display:flex;gap:8px">
-  <button type="button" data-preset="clasica" onclick="tpPreset('clasica')" style="flex:1;border:2px solid ${_postLockCrear?'var(--primary)':'var(--border)'};background:${_postLockCrear?'var(--primary-soft)':'var(--surface)'};color:${_postLockCrear?'var(--primary)':'var(--text-muted)'};border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Clásica<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Solo marcadores</span></button>
+  <button type="button" data-preset="clasica" onclick="tpPreset('clasica')" style="flex:1;border:2px solid ${_postLockCrear?'var(--primary)':'var(--border)'};background:${_postLockCrear?'var(--primary-soft)':'var(--surface)'};color:${_postLockCrear?'var(--primary)':'var(--text-muted)'};border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Clásica<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Solo marcadores</span></button>
   ${_postLockCrear
-   ?`<button type="button" disabled style="flex:1;border:2px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:not-allowed;opacity:.6;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px">No disponible</span></button>`
-   :`<button type="button" data-preset="completa" onclick="tpPreset('completa')" style="flex:1;border:2px solid var(--primary);background:var(--primary-soft);color:var(--primary);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px;color:var(--primary-dark)">Todo incluido</span></button>`}
+   ?`<button type="button" disabled style="flex:1;border:2px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:800;font-size:12px;cursor:not-allowed;opacity:.6;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px">No disponible</span></button>`
+   :`<button type="button" data-preset="completa" onclick="tpPreset('completa')" style="flex:1;border:2px solid var(--primary);background:var(--primary-soft);color:var(--primary);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px;color:var(--primary-dark)">Todo incluido</span></button>`}
  </div>
  ${_postLockCrear?`<div style="padding:0 14px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45;text-align:center">La versión Completa ya no está disponible: el Mundial ya comenzó y las predicciones de Clasificación y Especiales cerraron con el primer partido. Las pollas nuevas se crean en modo Clásico (solo marcadores).</div>`:''}
  ${[
@@ -3199,7 +3199,7 @@ ${s.id==="incluirPartidosGrupos"?`<span style="flex-shrink:0;font-size:10px;font
  </label>`}
  </div>`).join("")}
  <div style="border-top:1px solid var(--border-soft);padding:10px 14px;text-align:center">
- <button onclick="toggleRules()" style="background:none;border:none;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif"> Cambiar puntaje</button>
+ <button onclick="toggleRules()" style="background:none;border:none;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji""> Cambiar puntaje</button>
  </div>
  </div>
  <div style="width:100%;background:var(--accent-soft);border:2px solid var(--accent);border-radius:14px;overflow:hidden;margin-top:12px">
@@ -3265,7 +3265,7 @@ ${s.id==="incluirPartidosGrupos"?`<span style="flex-shrink:0;font-size:10px;font
  <div style="display:flex;align-items:center;gap:6px">
  <input type="number" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
  oninput="document.getElementById('ex-ptsPosGrupo').textContent=this.value||'?'"
- style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif"/>
+ style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji""/>
  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span>
  </div>
  </div>
@@ -3282,7 +3282,7 @@ ${s.id==="incluirPartidosGrupos"?`<span style="flex-shrink:0;font-size:10px;font
  ${ruleRow("espGuanteOro","Guante de Oro",r.espGuanteOro)}
  ${ruleRow("espMejorJugador","Mejor Jugador",r.espMejorJugador)}
  </div>`:''}
- <button onclick="closeRulesModal()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Listo </button>
+ <button onclick="closeRulesModal()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Listo </button>
  </div>
  </div>
  </div>`;
@@ -3366,7 +3366,7 @@ function renderInvite(pollaId,nombre,code){
  <div style="background:var(--surface);border-radius:14px;overflow:hidden;margin-bottom:16px">
  <div style="padding:20px 20px 14px">
  <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
- <div onclick="copyText('${code}','Código copiado')" style="font-size:40px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Nunito',sans-serif;margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
+ <div onclick="copyText('${code}','Código copiado')" style="font-size:40px;font-weight:900;color:var(--text);letter-spacing:8px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-bottom:4px;cursor:pointer;user-select:all" title="Toca para copiar">${code}</div>
  <div style="font-size:10px;color:var(--text-dim);margin-bottom:14px">toca para copiar</div>
  </div>
  <div style="border-top:1px solid var(--border);padding:14px 20px">
@@ -3816,10 +3816,10 @@ function render(){
  <div class="header ${hdrExpanded?'hdr-open':''}">
  <div class="header-bg"></div>
  <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
- <button onclick="goToLobby()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:5px;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6c-3 2-5 4-7 6 2 2 4 4 7 6"/></svg> Mis pollas</button>
+ <button onclick="goToLobby()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";display:flex;align-items:center;gap:5px;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6c-3 2-5 4-7 6 2 2 4 4 7 6"/></svg> Mis pollas</button>
  <span class="hdr-mini-title">${(currentPolla?.nombre||"Mi Polla")}</span>
  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
- <button onclick="showInvite()" style="background:rgba(20,184,166,0.12);border:1.5px solid #14b8a6;color:#0f766e;cursor:pointer;font-size:10px;font-weight:800;font-family:'Nunito',sans-serif;border-radius:16px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;transition:all .15s" onmouseenter="this.style.background='#14b8a6';this.style.color='#fff'" onmouseleave="this.style.background='rgba(20,184,166,0.12)';this.style.color='#0f766e'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M19 8v6M22 11h-6"/></svg>Invitar</button>
+ <button onclick="showInvite()" style="background:rgba(20,184,166,0.12);border:1.5px solid #14b8a6;color:#0f766e;cursor:pointer;font-size:10px;font-weight:800;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";border-radius:16px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;transition:all .15s" onmouseenter="this.style.background='#14b8a6';this.style.color='#fff'" onmouseleave="this.style.background='rgba(20,184,166,0.12)';this.style.color='#0f766e'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M19 8v6M22 11h-6"/></svg>Invitar</button>
  <button class="hdr-toggle" onclick="toggleHeader()" aria-label="Mostrar más"><svg id="hdr-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg></button>
  </div>
  </div>
@@ -3829,7 +3829,7 @@ function render(){
  <span style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--text-dim);text-transform:uppercase;border-left:1.5px solid var(--border);padding-left:10px;line-height:26px;align-self:center">Mundial 2026</span>
  </div>
  <h1>${(currentPolla?.nombre||"Mi Polla").toUpperCase()}</h1>
- <div class="hdr-hola" style="position:relative;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:'Nunito',sans-serif;text-align:center">
+ <div class="hdr-hola" style="position:relative;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";text-align:center">
  Hola, <strong style="color:var(--text)">${escHtml(currentUser.name)}</strong>
  </div>
  </div>
@@ -3838,11 +3838,11 @@ function render(){
  </div>
  <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" style="position:relative" onclick="setTab('${id}')">${label}${id==="chat"?`<span id="chat-tab-badge" class="chat-unread-badge" style="${chatUnread>0?"":"display:none"}">${chatUnread>9?"9+":(chatUnread||"")}</span>`:""}</button>`).join("")}</div></div>
  <div class="hdr-collapsible" style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)">
- <button onclick="openRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+ <button onclick="openRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";display:flex;align-items:center;gap:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
  <i data-lucide="help-circle" style="width:15px;height:15px;flex-shrink:0"></i> Reglas de la polla
  </button>
- ${isCreator?`<button onclick="openManageParticipants()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="users" style="width:15px;height:15px;flex-shrink:0"></i> Participantes</button>`:''}
- ${isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT)?`<button onclick="openEditRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="sliders-horizontal" style="width:15px;height:15px;flex-shrink:0"></i> Editar reglas</button>`:''}
+ ${isCreator?`<button onclick="openManageParticipants()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="users" style="width:15px;height:15px;flex-shrink:0"></i> Participantes</button>`:''}
+ ${isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT)?`<button onclick="openEditRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";display:flex;align-items:center;gap:8px;margin-top:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i data-lucide="sliders-horizontal" style="width:15px;height:15px;flex-shrink:0"></i> Editar reglas</button>`:''}
  </div>
  </div>
  <div class="content" id="tab-content"></div>
@@ -4367,7 +4367,7 @@ function lineupInnerHTML(id,d,m){
  const open=openLineups.has(id);
  const mk=isLive(m)?lineupMarkers(m):{home:null,away:null};
  return`<div style="margin-top:6px;text-align:left">
- <button onclick="event.stopPropagation();toggleLineup(${id},this)" style="background:none;border:none;padding:2px 0;color:var(--text-dim);font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif">Alineaciones ${open?"▴":"▾"}</button>
+ <button onclick="event.stopPropagation();toggleLineup(${id},this)" style="background:none;border:none;padding:2px 0;color:var(--text-dim);font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Alineaciones ${open?"▴":"▾"}</button>
  <div id="lu-${id}" style="display:${open?"block":"none"}">
  ${pitchHTML(d.home,`${flag(m.home)} ${m.home}`,mk.home)}
  ${pitchHTML(d.away,`${flag(m.away)} ${m.away}`,mk.away)}
@@ -4847,7 +4847,7 @@ function renderMisPronos(){
 
  // Expand toggle button (LIVE only)
  const expandToggleBtn = (cardState==='live')
-  ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" style="width:100%;margin-top:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif">${isExpanded?'Ocultar ▲':'Ver más ▼'}</button>`
+  ? `<button onclick="event.stopPropagation();toggleMatchExpand(${m.id})" style="width:100%;margin-top:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">${isExpanded?'Ocultar ▲':'Ver más ▼'}</button>`
   : '';
 
  // Morbo: before kickoff (open/blocked) let anyone peek at others' predictions when at least one exists
@@ -5167,7 +5167,7 @@ function especialesStatsHTML(){
  const gol=topScorersRowsHTML();
  const vallas=cleanSheetsRowsHTML();
  if(!gol&&!vallas)return"";
- const tabBtn=(id,label)=>`<button onclick="setEspStatTab('${id}')" style="flex:1;padding:8px 6px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;background:${especialesStatTab===id?"var(--primary)":"transparent"};color:${especialesStatTab===id?"#fff":"var(--text-muted)"}">${label}</button>`;
+ const tabBtn=(id,label)=>`<button onclick="setEspStatTab('${id}')" style="flex:1;padding:8px 6px;border:none;border-radius:9px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;background:${especialesStatTab===id?"var(--primary)":"transparent"};color:${especialesStatTab===id?"#fff":"var(--text-muted)"}">${label}</button>`;
  const empty=`<div style="padding:14px;text-align:center;color:var(--text-dim);font-size:12px">Aún no hay datos.</div>`;
  const body=especialesStatTab==="vallas"?(vallas||empty):(gol||empty);
  return`<div class="card" style="margin-bottom:14px">
@@ -5780,7 +5780,7 @@ function renderCartaSlide(){
  const nav=document.getElementById("carta-nav");
  nav.innerHTML=_cartaFinishers.map((x,i)=>{
   const active=i===_cartaIdx;
-  return `<button onclick="gotoCarta(${i})" style="font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;padding:6px 12px;border-radius:20px;cursor:pointer;border:2px solid ${active?'var(--primary)':'var(--border)'};background:${active?'var(--primary)':'var(--surface-2)'};color:${active?'#fff':'var(--text-muted)'}">${CARTA_META[x.rank].pill}</button>`;
+  return `<button onclick="gotoCarta(${i})" style="font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";font-size:12px;font-weight:800;padding:6px 12px;border-radius:20px;cursor:pointer;border:2px solid ${active?'var(--primary)':'var(--border)'};background:${active?'var(--primary)':'var(--surface-2)'};color:${active?'#fff':'var(--text-muted)'}">${CARTA_META[x.rank].pill}</button>`;
  }).join("");
  generateCartaText(f);
 }
@@ -5894,7 +5894,7 @@ window.openEditRules=function(){
  const row=(id,label,val)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-soft)">
   <span style="font-size:13px;color:var(--text)">${label}</span>
   <div style="display:flex;align-items:center;gap:6px">
-  <input type="number" id="erule_${id}" value="${val}" min="1" max="20" style="width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif"/>
+  <input type="number" id="erule_${id}" value="${val}" min="1" max="20" style="width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji""/>
   <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span></div></div>`;
  const hdr=t=>`<div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin:14px 0 4px">${t}</div>`;
  const clasifOn=r.incluirClasificacion!==false, espOn=r.incluirEspeciales!==false;
@@ -5998,7 +5998,7 @@ function renderParticipantsList(){
  <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
  <div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;background:${avatarColor(u.name)};color:#fff;flex-shrink:0">${avatarInitial(u.name)}</div>
  <div style="flex:1;min-width:0"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(u.name)}${uid===currentUser.uid?` <span style="font-size:10px;color:var(--primary)">(tú)</span>`:""}</div></div>
- ${uid!==currentUser.uid&&canDelete?`<button onclick="deleteUser('${uid}','${(u.name||'').replace(/'/g,"\\'")}')" style="background:var(--danger-soft);color:var(--danger-text);border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;flex-shrink:0">Eliminar</button>`:uid===currentUser.uid?`<span style="font-size:11px;color:var(--text-dim);flex-shrink:0">eres tú</span>`:""}
+ ${uid!==currentUser.uid&&canDelete?`<button onclick="deleteUser('${uid}','${(u.name||'').replace(/'/g,"\\'")}')" style="background:var(--danger-soft);color:var(--danger-text);border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";flex-shrink:0">Eliminar</button>`:uid===currentUser.uid?`<span style="font-size:11px;color:var(--text-dim);flex-shrink:0">eres tú</span>`:""}
  </div>`).join("");
 }
 window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";if(t==="chat"&&currentPollaId){localStorage.setItem("tpChatSeen_"+currentPollaId,String(Date.now()));chatUnread=0;}track('tab_viewed',{tab:t});render();};
@@ -6410,7 +6410,7 @@ window.openBreakdown=function(uid,skipAnim){
  <span class="rb-total">${total} pts</span>
  </div>
  ${logrosHtml}
- ${!isMine?`<button onclick="event.stopPropagation();closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif;transition:background .15s" onmouseenter="this.style.background='var(--primary-soft)'" onmouseleave="this.style.background='var(--surface-2)'">Ver duelo Tú vs ${escHtml(u.name)}</button>`:''}
+ ${!isMine?`<button onclick="event.stopPropagation();closeBreakdown();openH2H('${uid}')" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--primary);border-radius:10px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:14px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";transition:background .15s" onmouseenter="this.style.background='var(--primary-soft)'" onmouseleave="this.style.background='var(--surface-2)'">Ver duelo Tú vs ${escHtml(u.name)}</button>`:''}
  <button onclick="closeBreakdown()" style="width:100%;background:var(--primary);color:#ffffff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:background .15s" onmouseenter="this.style.background='var(--primary-hover)'" onmouseleave="this.style.background='var(--primary)'">Cerrar</button>
  `;
  const _bov=document.getElementById("breakdown-overlay");
@@ -6540,7 +6540,7 @@ window.openH2H=function(opponentUid){
  const themName=opp.name;
  document.getElementById("h2h-content").innerHTML=`
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-  <button onclick="event.stopPropagation();closeH2H();openBreakdown('${opponentUid}',true)" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif">← Volver</button>
+  <button onclick="event.stopPropagation();closeH2H();openBreakdown('${opponentUid}',true)" style="display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--text-muted);font-size:13px;font-weight:800;cursor:pointer;padding:0;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">← Volver</button>
   <button onclick="closeH2H()" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0;width:28px;height:28px">✕</button>
  </div>
  <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:18px">
@@ -6569,7 +6569,7 @@ window.openH2H=function(opponentUid){
 
  ${renderRankChart(buildRankTimeline(currentUser.uid,opponentUid),themName)}
 
- <button onclick="closeH2H()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Nunito',sans-serif">Cerrar</button>
+ <button onclick="closeH2H()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Cerrar</button>
  `;
  document.getElementById("h2h-overlay").style.display="flex";
  window.h2hGuardTs=Date.now();
@@ -6665,8 +6665,8 @@ window.openHallOfFame=function(){
   ${podioHtml}
   ${restHtml}
   ${personalHtml}
-  <button onclick="shareHallOfFame()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:8px;box-shadow:0 4px 0 var(--primary-dark)">📤 Compartir mi resumen</button>
-  <button onclick="closeHallOfFame()" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--border);border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Cerrar</button>
+  <button onclick="shareHallOfFame()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";margin-bottom:8px;box-shadow:0 4px 0 var(--primary-dark)">📤 Compartir mi resumen</button>
+  <button onclick="closeHallOfFame()" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--border);border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"">Cerrar</button>
  `;
  document.getElementById("hof-overlay").style.display="flex";
 };
@@ -6813,7 +6813,7 @@ window.showWhoReacted=function(matchId,predictorUid,emoji,ev){
  const rect=target?.getBoundingClientRect()||{top:100,left:100,bottom:120};
  const pop=document.createElement("div");
  pop.id="rxn-who";
- pop.style.cssText=`position:fixed;background:var(--surface);border:2px solid var(--border-soft);border-radius:12px;padding:10px 14px;z-index:2200;box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:160px;max-width:220px;font-family:'Nunito',sans-serif`;
+ pop.style.cssText=`position:fixed;background:var(--surface);border:2px solid var(--border-soft);border-radius:12px;padding:10px 14px;z-index:2200;box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:160px;max-width:220px;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"`;
  pop.innerHTML=`<div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${emoji} ${names.length===1?'Reaccionó':'Reaccionaron'}</div>`+names.map(n=>`<div style="font-size:13px;font-weight:700;color:var(--text);padding:3px 0">• ${n}</div>`).join("");
  document.body.appendChild(pop);
  const popH=pop.offsetHeight,popW=pop.offsetWidth;
@@ -6861,8 +6861,8 @@ function groupStageOver(){
 function renderPartidos(){
  if(!_partidosViewTouched&&groupStageOver())partidosView="eliminatorias";
  const toggle=`<div style="display:flex;gap:6px;margin-bottom:14px;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:4px">
-  <button onclick="setPartidosView('grupos')" style="flex:1;padding:9px 8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:${partidosView==='grupos'?'var(--primary)':'transparent'};color:${partidosView==='grupos'?'#fff':'var(--text-muted)'};${partidosView==='grupos'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('partidos',13,partidosView==='grupos'?'#fff':'var(--text-muted)')} Fase de grupos</button>
-  <button onclick="setPartidosView('eliminatorias')" style="flex:1;padding:9px 8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:${partidosView==='eliminatorias'?'var(--primary)':'transparent'};color:${partidosView==='eliminatorias'?'#fff':'var(--text-muted)'};${partidosView==='eliminatorias'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('eliminatoria',13,partidosView==='eliminatorias'?'#fff':'var(--text-muted)')} Eliminatorias</button>
+  <button onclick="setPartidosView('grupos')" style="flex:1;padding:9px 8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";cursor:pointer;border:none;background:${partidosView==='grupos'?'var(--primary)':'transparent'};color:${partidosView==='grupos'?'#fff':'var(--text-muted)'};${partidosView==='grupos'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('partidos',13,partidosView==='grupos'?'#fff':'var(--text-muted)')} Fase de grupos</button>
+  <button onclick="setPartidosView('eliminatorias')" style="flex:1;padding:9px 8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji";cursor:pointer;border:none;background:${partidosView==='eliminatorias'?'var(--primary)':'transparent'};color:${partidosView==='eliminatorias'?'#fff':'var(--text-muted)'};${partidosView==='eliminatorias'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('eliminatoria',13,partidosView==='eliminatorias'?'#fff':'var(--text-muted)')} Eliminatorias</button>
  </div>`;
  return toggle+(partidosView==='eliminatorias'?renderEliminatorias():renderMisPronos());
 }
