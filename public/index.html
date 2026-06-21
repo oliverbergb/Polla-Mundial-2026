@@ -5584,8 +5584,11 @@ function initChat(){
  const headerBottom=header?Math.max(header.getBoundingClientRect().bottom,0):0;
  const isMobile=window.matchMedia('(max-width:768px)').matches;
  const tabbar=document.querySelector('.tabs-wrap');
- const tabbarH=(isMobile&&tabbar)?tabbar.offsetHeight:0;
- const disponible=vh-headerBottom-tabbarH-8;
+ const tabbarH=(isMobile&&tabbar)?tabbar.getBoundingClientRect().height:0;
+ // Margen extra para que el composer quede JUSTO encima de la barra de tabs,
+ // sin que la línea de pestañas lo tape ni un poco.
+ const gap=isMobile?18:8;
+ const disponible=vh-headerBottom-tabbarH-gap;
  wrap.style.height=Math.max(disponible,220)+'px';
  wrap.style.minHeight='0';
  const msgs=document.getElementById('chat-messages');
