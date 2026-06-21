@@ -557,6 +557,36 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 
 /* — Ocultar elementos solo-web dentro de la app (banners de instalar, etc.) — */
 .is-app .web-only{display:none!important}
+
+/* ===== RONDA 2: transiciones + detalles finos ===== */
+
+/* — Transición al cambiar de tab (one-shot; NO se dispara en updates en vivo) — */
+.is-app .tp-tab-anim{animation:tpTabIn .28s cubic-bezier(.22,.61,.36,1) both}
+@keyframes tpTabIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* — Pop sutil del tab activo en la barra inferior — */
+@media(max-width:768px){
+  .is-app .tab.active{animation:tpTabPop .26s cubic-bezier(.34,1.56,.64,1) both}
+}
+@keyframes tpTabPop{0%{transform:scale(.82)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+/* — Modales como bottom-sheet estilo iOS (suben desde abajo, grabber, esquinas top) — */
+.is-app .modal-overlay{align-items:flex-end!important;padding:0!important;animation:tpFadeIn .22s ease both}
+.is-app .modal-box{
+  max-width:100%!important;width:100%!important;
+  border-radius:22px 22px 0 0!important;
+  border-bottom:none!important;
+  box-shadow:0 -10px 34px rgba(0,0,0,.20)!important;
+  max-height:92vh!important;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom,0))!important;
+  animation:tpSheetUp .34s cubic-bezier(.22,.61,.36,1) both;
+}
+.is-app .modal-box::before{
+  content:"";display:block;width:38px;height:5px;border-radius:3px;
+  background:var(--border-strong);margin:-6px auto 16px;flex:none;
+}
+@keyframes tpFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes tpSheetUp{from{transform:translateY(100%)}to{transform:none}}
 </style>
 </head>
 <body>
@@ -6055,7 +6085,7 @@ function renderParticipantsList(){
  ${uid!==currentUser.uid&&canDelete?`<button onclick="deleteUser('${uid}','${(u.name||'').replace(/'/g,"\\'")}')" style="background:var(--danger-soft);color:var(--danger-text);border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';flex-shrink:0">Eliminar</button>`:uid===currentUser.uid?`<span style="font-size:11px;color:var(--text-dim);flex-shrink:0">eres tú</span>`:""}
  </div>`).join("");
 }
-window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";if(t==="chat"&&currentPollaId){localStorage.setItem("tpChatSeen_"+currentPollaId,String(Date.now()));chatUnread=0;}track('tab_viewed',{tab:t});render();};
+window.setTab=function(t){currentTab=t;currentGroup="A";currentElimPhase="r32";if(t==="chat"&&currentPollaId){localStorage.setItem("tpChatSeen_"+currentPollaId,String(Date.now()));chatUnread=0;}track('tab_viewed',{tab:t});render();if(window.IS_APP){var _c=document.getElementById("tab-content");if(_c)_c.classList.add("tp-tab-anim");}};
 window.setGroup=function(g){currentGroup=g;renderTab();};
 window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
 
