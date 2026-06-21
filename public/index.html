@@ -3144,7 +3144,18 @@ window.leavePolla=async function(pollaId,nombre){
 window.enterPolla=function(id){
  currentPollaId=id;currentPolla=myPollas[id];
  currentTab=tpFirstTab();currentGroup="A";currentElimPhase="r32";
- allUsers={};allResults={};myPredictions={};myGroupPreds={};myElimPreds={};
+ // Sembramos el estado desde el snapshot que YA está en memoria (myPollas se cargó
+ // con sus results + participantes). Antes vaciábamos todo a {} y dependíamos del
+ // listener async para repoblar: en ese instante el ranking se pintaba con allResults={}
+ // y TODOS salían en 0 pts hasta refrescar. Con esto el primer pintado ya trae resultados.
+ const snap=myPollas[id]||{};
+ allUsers=snap.participantes||{};
+ allResults=snap.results||{};
+ phaseLocks=(snap.results&&snap.results.phase_locks)||{};
+ const _me=allUsers[currentUser.uid]||{};
+ myPredictions=_me.predictions||{};
+ myGroupPreds=_me.groupPredictions||{};
+ myElimPreds=_me.elimPredictions||{};
  loadData();
 };
 
@@ -3901,7 +3912,7 @@ function render(){
  <div class="header-bg"></div>
  <div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
  <button onclick="goToLobby()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';display:flex;align-items:center;gap:5px;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6c-3 2-5 4-7 6 2 2 4 4 7 6"/></svg> Mis pollas</button>
- <span class="hdr-mini-title">${(currentPolla?.nombre||"Mi Polla")}</span>
+ <span class="hdr-mini-title" onclick="toggleHeader()" role="button" tabindex="0" title="Ver detalles de la polla" style="cursor:pointer"><span style="display:inline-flex;align-items:center;gap:5px;max-width:100%;overflow:hidden"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(currentPolla?.nombre||"Mi Polla")}</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.5"><path d="M6 9l6 6 6-6"/></svg></span></span>
  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
  <button onclick="showInvite()" style="background:rgba(20,184,166,0.12);border:1.5px solid #14b8a6;color:#0f766e;cursor:pointer;font-size:10px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';border-radius:16px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;transition:all .15s" onmouseenter="this.style.background='#14b8a6';this.style.color='#fff'" onmouseleave="this.style.background='rgba(20,184,166,0.12)';this.style.color='#0f766e'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M19 8v6M22 11h-6"/></svg>Invitar</button>
  <button class="hdr-toggle" onclick="toggleHeader()" aria-label="Mostrar más"><svg id="hdr-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -5559,25 +5570,44 @@ function initChat(){
  if(atBottom||msgs[msgs.length-1]?.[1]?.uid===currentUser.uid)el.scrollTop=el.scrollHeight;
  });
 
- // Ajustar altura cuando el teclado abre en iOS
- if(window.visualViewport){
+ // Altura del chat: el contenedor llena EXACTAMENTE el hueco entre el header y la
+ // barra de tabs inferior. Los mensajes hacen scroll por dentro y el cuadro
+ // "Escribe algo…" queda fijo abajo (estilo WhatsApp): visible sin scrollear y sigue
+ // ahí aunque subas a leer mensajes viejos. Antes solo se restaban 32px y el input
+ // quedaba escondido tras la barra de tabs (había que scrollear para verlo).
  const ajustarAltura=()=>{
  const wrap=document.querySelector('.chat-wrap');
  if(!wrap)return;
- const headerH=document.querySelector('.header')?.offsetHeight||0;
- const disponible=window.visualViewport.height-headerH-32;
- wrap.style.height=Math.max(disponible,200)+'px';
+ const vv=window.visualViewport;
+ const vh=vv?vv.height:window.innerHeight;
+ const header=document.querySelector('.header');
+ const headerBottom=header?Math.max(header.getBoundingClientRect().bottom,0):0;
+ const isMobile=window.matchMedia('(max-width:768px)').matches;
+ const tabbar=document.querySelector('.tabs-wrap');
+ const tabbarH=(isMobile&&tabbar)?tabbar.offsetHeight:0;
+ const disponible=vh-headerBottom-tabbarH-8;
+ wrap.style.height=Math.max(disponible,220)+'px';
+ wrap.style.minHeight='0';
  const msgs=document.getElementById('chat-messages');
  if(msgs)msgs.scrollTop=msgs.scrollHeight;
  };
- // Quitar el handler anterior: initChat se llama cada vez que se abre el chat,
- // así no se acumulan listeners de 'resize' en visualViewport.
- if(_vvHandler){try{window.visualViewport.removeEventListener('resize',_vvHandler);}catch(e){}}
- _vvHandler=ajustarAltura;
- window.visualViewport.addEventListener('resize',ajustarAltura);
- ajustarAltura();
- setTimeout(ajustarAltura,350);
+ // Re-bind limpio (initChat corre cada vez que se abre el chat) para no acumular handlers.
+ if(_vvHandler){
+ try{window.visualViewport&&window.visualViewport.removeEventListener('resize',_vvHandler);}catch(e){}
+ try{window.visualViewport&&window.visualViewport.removeEventListener('scroll',_vvHandler);}catch(e){}
+ try{window.removeEventListener('resize',_vvHandler);}catch(e){}
+ try{window.removeEventListener('orientationchange',_vvHandler);}catch(e){}
  }
+ _vvHandler=ajustarAltura;
+ if(window.visualViewport){
+ window.visualViewport.addEventListener('resize',ajustarAltura);
+ try{window.visualViewport.addEventListener('scroll',ajustarAltura);}catch(e){}
+ }
+ window.addEventListener('resize',ajustarAltura);
+ window.addEventListener('orientationchange',ajustarAltura);
+ ajustarAltura();
+ requestAnimationFrame(ajustarAltura);
+ setTimeout(ajustarAltura,350);
 }
 
 function escHtml(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
