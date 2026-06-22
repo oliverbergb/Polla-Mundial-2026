@@ -102,7 +102,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
    el contenido inferior empuja el centro visual. Bajamos la fila de equipos para que la
    distancia entre su techo y su piso sea pareja. */
 .match-card.mc-finished .match-teams{padding-top:18px}
-.match-card.mc-live .match-teams{padding-top:8px}
+.match-card.mc-live .match-teams{padding-top:31px}
 .team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
 .score-input{width:48px;height:36px;box-sizing:border-box;text-align:center;line-height:32px;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:0 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';-webkit-appearance:none;appearance:none;-moz-appearance:textfield}
@@ -1544,7 +1544,15 @@ function calcGroupPredPoints(userOrder,realOrder){return calcGroupPredPointsR(us
 function isLocked(m){return new Date()>=new Date(m.kickoff);}
 // Estados en los que el partido NO está corriendo (suspendido/aplazado/cancelado/abandonado).
 const _STOPPED_RE=/suspend|postpon|cancel|abandon|interrupt|delay/i;
-function matchStatusRaw(m){const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;return r?String(r.status||""):"";}
+function matchStatusRaw(m){
+ const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;
+ if(!r)return "";
+ // Un fin real (completed) manda sobre cualquier override manual viejo.
+ if(r.status==="completed")return "completed";
+ // El admin puede marcar un partido como suspendido (clima, etc.) aunque la API
+ // de datos lo siga reportando "en juego": ese override manual tiene prioridad.
+ return String(r.manualStatus||r.status||"");
+}
 function matchSuspended(m){return _STOPPED_RE.test(matchStatusRaw(m));}
 function suspendedLabel(m){
  const s=matchStatusRaw(m).toLowerCase();
@@ -1564,10 +1572,10 @@ function applyLiveScores(){
  }
 }
 function isLive(m){
- // Si la API ya lo marcó como terminado o suspendido, no está en vivo aunque el reloj diga lo contrario.
- const r=(typeof allResults!=="undefined")?allResults[m.id]:null;
- if(r&&r.status==="completed")return false;
- if(r&&_STOPPED_RE.test(String(r.status||"")))return false;
+ // Estado efectivo: respeta override manual (suspendido) y el fin real (completed).
+ const st=matchStatusRaw(m);
+ if(st==="completed")return false;
+ if(_STOPPED_RE.test(st))return false;
  const now=new Date(),start=new Date(m.kickoff),end=new Date(start.getTime()+125*60000);
  return now>=start&&now<=end;
 }
@@ -3803,6 +3811,7 @@ function iniciarMasterPolling(){
  allResults[numId].h=score.h;
  allResults[numId].a=score.a;
  allResults[numId].status=score.status||null;
+ allResults[numId].manualStatus=score.manualStatus||null;
  if(score.clock!=null)allResults[numId].clock=score.clock;else delete allResults[numId].clock;
  if(score.clockTs!=null)allResults[numId].clockTs=score.clockTs;
  if(score.endedTs!=null)allResults[numId].endedTs=score.endedTs;
@@ -5128,6 +5137,7 @@ function renderMisPronos(){
  <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:(susp?`<strong style="color:#f59e0b">⚠ ${suspendedLabel(m)}</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff))} · ${m.stadium}</span>
  ${ptsBadge || countdownBadge}
  </div>
+ ${(isAdmin&&(live||susp))?`<div style="margin:-2px 0 6px;text-align:right"><button onclick="event.stopPropagation();toggleMatchSuspend(${m.id},${live?'true':'false'})" style="font-size:10px;font-weight:800;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Nunito',sans-serif">${live?'Suspender':'Reanudar'}</button></div>`:''}
  <div class="match-teams">
  <span class="team home">${flag(m.home)} ${m.home}${live?redCardBadge(redCardCounts(m).home):""}</span>
  ${matchScoreBlock(m,pred,res)}
@@ -6156,6 +6166,16 @@ window.saveRealGroupPos=async function(group,team,pos){
 };
 window.unlockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).set(true);showToast("Fase desbloqueada ");};
 window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaBase()}/results/phase_locks/${phase}`).remove();showToast("Fase bloqueada ");};
+// Override manual de estado (solo admin). Marca/quita "suspendido" en el nodo global liveScores,
+// que ya es escribible por el admin y legible por todos, sin depender de la API de datos.
+window.toggleMatchSuspend=async function(matchId,suspend){
+ if(!isAdmin)return;
+ try{
+  if(suspend)await db.ref("liveScores/"+matchId+"/manualStatus").set("suspended");
+  else await db.ref("liveScores/"+matchId+"/manualStatus").remove();
+  showToast(suspend?"Partido marcado como suspendido":"Partido reanudado");
+ }catch(e){showToast("No se pudo actualizar el estado","#ef4444",3000);}
+};
 window.deleteUser=async function(uid,name){
  if(!isCreator)return;
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){showToast("El torneo ya empezó; ya no se pueden eliminar participantes.","#ef4444",4000);return;}
