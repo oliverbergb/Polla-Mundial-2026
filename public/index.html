@@ -98,6 +98,11 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .match-card[onclick]:active{transform:scale(.98)}
 .match-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-weight:700;min-height:22px}
 .match-teams{display:flex;align-items:center;gap:8px;min-height:86px}
+/* En tarjetas con pie (terminado / en vivo) el marcador quedaba "medio arriba" porque
+   el contenido inferior empuja el centro visual. Bajamos la fila de equipos para que la
+   distancia entre su techo y su piso sea pareja. */
+.match-card.mc-finished .match-teams{padding-top:18px}
+.match-card.mc-live .match-teams{padding-top:8px}
 .team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
 .score-input{width:48px;height:36px;box-sizing:border-box;text-align:center;line-height:32px;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:0 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';-webkit-appearance:none;appearance:none;-moz-appearance:textfield}
@@ -1475,6 +1480,9 @@ const MATCHES=[
 // ─── STATE ────────────────────────────────────────────────
 let db,auth,currentUser=null,currentTab="mis_pronos",currentGroup="A",currentElimPhase="r32",partidosView="grupos",_partidosViewTouched=false;
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
+// Caché de marcadores en vivo (nodo global liveScores). Sobrevive al cambio de polla
+// para que, al reentrar a otra polla, los puntajes no se pierdan hasta refrescar.
+let _liveScoresCache={};
 let pendingName=null,pendingPollaAction=null;
 let isAdmin=false,isCreator=false,prevRanking={};
 let globalWorld={especiales:{},groupOverride:{}},_worldHooked=false;
@@ -1534,10 +1542,32 @@ function calcMatchPoints(pred,res){return calcMatchPointsR(pred,res,_activeRules
 function calcElimPoints(pred,res){return calcElimPointsR(pred,res,_activeRules());}
 function calcGroupPredPoints(userOrder,realOrder){return calcGroupPredPointsR(userOrder,realOrder,_activeRules());}
 function isLocked(m){return new Date()>=new Date(m.kickoff);}
+// Estados en los que el partido NO está corriendo (suspendido/aplazado/cancelado/abandonado).
+const _STOPPED_RE=/suspend|postpon|cancel|abandon|interrupt|delay/i;
+function matchStatusRaw(m){const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;return r?String(r.status||""):"";}
+function matchSuspended(m){return _STOPPED_RE.test(matchStatusRaw(m));}
+function suspendedLabel(m){
+ const s=matchStatusRaw(m).toLowerCase();
+ if(/postpon|delay/.test(s))return "APLAZADO";
+ if(/cancel/.test(s))return "CANCELADO";
+ if(/abandon/.test(s))return "ABANDONADO";
+ return "SUSPENDIDO";
+}
+// Reaplica los marcadores en vivo (globales) sobre allResults tras un reseteo del nodo
+// /results de la polla. Evita que al cambiar de polla los puntajes salgan en 0.
+function applyLiveScores(){
+ if(typeof _liveScoresCache!=="object"||!_liveScoresCache)return;
+ for(const id in _liveScoresCache){
+  const n=+id,c=_liveScoresCache[id];if(!c)continue;
+  if(!allResults[n])allResults[n]={};
+  Object.assign(allResults[n],c);
+ }
+}
 function isLive(m){
- // Si la API ya lo marcó como terminado, no está en vivo aunque el reloj diga lo contrario.
+ // Si la API ya lo marcó como terminado o suspendido, no está en vivo aunque el reloj diga lo contrario.
  const r=(typeof allResults!=="undefined")?allResults[m.id]:null;
  if(r&&r.status==="completed")return false;
+ if(r&&_STOPPED_RE.test(String(r.status||"")))return false;
  const now=new Date(),start=new Date(m.kickoff),end=new Date(start.getTime()+125*60000);
  return now>=start&&now<=end;
 }
@@ -1715,6 +1745,18 @@ function buildJornadas(){
   if(acc.matches.length>=2){jornadas.push(acc);acc=null;}
  }
  return jornadas; // un acc final con <2 partidos se descarta
+}
+// Agrupa partidos por día local (para el resumen diario de Polli: uno por día).
+function buildDias(){
+ const elegibles=MATCHES.filter(m=>m.phase!=="third"&&m.phase!=="final").slice().sort((a,b)=>a.kickoff<b.kickoff?-1:1);
+ const dias=[];
+ for(const m of elegibles){
+  const key=_localDayKey(m.kickoff);
+  const ult=dias[dias.length-1];
+  if(ult&&ult.date===key)ult.matches.push(m);
+  else dias.push({date:key,matches:[m]});
+ }
+ return dias;
 }
 // Cuántas jornadas perfectas completó el usuario (no falló ningún pronóstico).
 function jornadasPerfectas(u){
@@ -1968,7 +2010,7 @@ function loadData(){
  if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
  }
  });
- _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};requestRender();});
+ _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};applyLiveScores();requestRender();});
  _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)requestRender();}});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)requestRender();});}
  startLineupWatcher();
@@ -3270,6 +3312,7 @@ window.enterPolla=function(id){
  myPredictions=_me.predictions||{};
  myGroupPreds=_me.groupPredictions||{};
  myElimPreds=_me.elimPredictions||{};
+ applyLiveScores();
  loadData();
 };
 
@@ -3765,6 +3808,7 @@ function iniciarMasterPolling(){
  if(score.endedTs!=null)allResults[numId].endedTs=score.endedTs;
  if(score.gkH)allResults[numId].gkH=score.gkH;
  if(score.gkA)allResults[numId].gkA=score.gkA;
+ _liveScoresCache[numId]=Object.assign({},allResults[numId]);
  });
  requestRender();
  });
@@ -3774,6 +3818,7 @@ function iniciarMasterPolling(){
  const numId=parseInt(id);
  if(!allResults[numId])allResults[numId]={};
  allResults[numId].events=events||[];
+ _liveScoresCache[numId]=Object.assign({},allResults[numId]);
  });
  requestRender();
  });
@@ -3837,8 +3882,10 @@ async function fetchLiveResults(){
  const bestByLocal={};
  for(const m of all){
   if(!m.season||m.season.year!==2026)continue;
-  if(m.status!=="completed"&&m.status!=="in_progress")continue;
-  if(m.home_score==null||m.away_score==null)continue;
+  const _st=String(m.status||"").toLowerCase();
+  const _stopped=_STOPPED_RE.test(_st);
+  if(m.status!=="completed"&&m.status!=="in_progress"&&!_stopped)continue;
+  if(!_stopped&&(m.home_score==null||m.away_score==null))continue;
   const mm=MATCHES.find(x=>apiTeamEq(x.home,m.home_team)&&apiTeamEq(x.away,m.away_team));
   if(!mm)continue;
   const delta=Math.abs(new Date(mm.kickoff)-new Date(m.datetime));
@@ -3847,9 +3894,11 @@ async function fetchLiveResults(){
  }
  const updates={};
  for(const {m,match} of Object.values(bestByLocal)){
+ const _st=String(m.status||"").toLowerCase();
+ const _stopped=_STOPPED_RE.test(_st);
  const newH=m.home_score,newA=m.away_score;
  const prev=_prevScores[match.id];
- if(prev!==undefined&&(prev.h!==newH||prev.a!==newA)){
+ if(!_stopped&&prev!==undefined&&(prev.h!==newH||prev.a!==newA)){
  // Fetch events when score changes
  fetchMatchEvents(m.id,match.id);
  showGoalNotif(match,newH,newA);
@@ -3860,10 +3909,14 @@ async function fetchLiveResults(){
  fetchMatchEvents(m.id,match.id);
  }
  _prevScores[match.id]={h:newH,a:newA};
- updates[`liveScores/${match.id}/h`]=String(newH);
- updates[`liveScores/${match.id}/a`]=String(newA);
- updates[`liveScores/${match.id}/status`]=m.status||"in_progress";
- if(m.status==="in_progress"){
+ // Suspendido/aplazado: registramos el estado para que la app NO lo muestre como "EN VIVO".
+ // El marcador parcial se guarda solo si la API lo trae.
+ if(newH!=null)updates[`liveScores/${match.id}/h`]=String(newH);
+ if(newA!=null)updates[`liveScores/${match.id}/a`]=String(newA);
+ updates[`liveScores/${match.id}/status`]=m.status||(_stopped?"suspended":"in_progress");
+ if(_stopped){
+  updates[`liveScores/${match.id}/clock`]=null;
+ }else if(m.status==="in_progress"){
   updates[`liveScores/${match.id}/clock`]=(m.clock_display!=null)?String(m.clock_display):null;
   updates[`liveScores/${match.id}/clockTs`]=Date.now();
  }
@@ -5019,16 +5072,17 @@ function renderMisPronos(){
  const tier=scoreTier(pred,res);
  const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
  const live=isLive(m);
+ const susp=matchSuspended(m);
  const hasPred=pred.h!==undefined&&pred.h!==""&&pred.a!==undefined&&pred.a!=="";
  const missing=!locked&&!hasPred;
- const color=live?"#ef4444":hasRes?"var(--border-soft)":GROUP_COLORS[m.group];
+ const color=live?"#ef4444":(susp?"#f59e0b":(hasRes?"var(--border-soft)":GROUP_COLORS[m.group]));
 
  // Card state classification
  // - !locked → editable, no expansion needed
  // - locked && live → LIVE: show "Ver más" button, expandable
  // - locked && hasRes → FINISHED: tappable to expand, no button
  // - locked && !live && !hasRes → BLOCKED-NOT-PLAYED: no expansion, hide spectator
- const cardState = !locked ? 'open' : (live ? 'live' : (hasRes ? 'finished' : 'blocked'));
+ const cardState = !locked ? 'open' : (live ? 'live' : (susp ? 'suspended' : (hasRes ? 'finished' : 'blocked')));
  const isExpanded = expandedMatches.has(m.id);
  const anyPred = matchHasAnyPrediction(m);
  const showExpandedContent = isExpanded && anyPred;
@@ -5069,9 +5123,9 @@ function renderMisPronos(){
   ? `<div>${spectatorBlock(m,res,{live:cardState==='live'})}${isPostLockout?collectiveBar(m):''}</div>`
   : '';
 
- return`<div class="match-card" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
+ return`<div class="match-card mc-${cardState}" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
  <div class="match-meta">
- <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff)} · ${m.stadium}</span>
+ <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:(susp?`<strong style="color:#f59e0b">⚠ ${suspendedLabel(m)}</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff))} · ${m.stadium}</span>
  ${ptsBadge || countdownBadge}
  </div>
  <div class="match-teams">
@@ -5773,12 +5827,12 @@ function _jornadaDateLabel(matches){
 }
 async function maybeGenerateDailyRecaps(){
  if(!currentPollaId||!currentUser)return;
- const jornadas=buildJornadas();
- if(!jornadas.length)return;
+ const dias=buildDias();
+ if(!dias.length)return;
  const now=Date.now();
  let existing=null;
- for(const j of jornadas){
-  // ¿Terminaron TODOS los partidos de la jornada? (resultado + tiempo cumplido o status completed)
+ for(const j of dias){
+  // ¿Terminaron TODOS los partidos del día? (resultado + tiempo cumplido o status completed)
   const allEnded=j.matches.every(m=>{
    const r=allResults[m.id];
    const hasRes=r&&r.h!==undefined&&r.h!=="";
@@ -5788,9 +5842,9 @@ async function maybeGenerateDailyRecaps(){
   if(!allEnded)continue;
   // Fin REAL del último partido en terminar (endedTs); si falta, estimamos kickoff+125'.
   const lastEnd=Math.max(...j.matches.map(m=>{const r=allResults[m.id];return (r&&r.endedTs)?r.endedTs:new Date(m.kickoff).getTime()+_JORNADA_FT_MS;}));
-  // 5 minutos después de que terminó el último partido de la jornada
+  // 5 minutos después de que terminó el último partido del día
   if(now<lastEnd+_JORNADA_MARGIN_MS)continue;
-  const key="j_"+j.matches[j.matches.length-1].id;
+  const key="d_"+j.date;   // una sola entrada por día → un solo resumen diario
   if(existing===null){
    const existSnap=await db.ref(`pollas/${currentPollaId}/polliRecaps`).once("value");
    existing=existSnap.val()||{};
@@ -5839,16 +5893,16 @@ function buildPolliRecap(j){
  const dateLabel=_jornadaDateLabel(jMatches);
  const esc=escHtml;
  const lines=[];
- lines.push(`<div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Resumen de la jornada · ${dateLabel}</div>`);
- lines.push(`<div style="font-size:12px;color:var(--text);margin-bottom:10px">Cerró otra jornada del Mundial. Esto fue lo más destacado:</div>`);
+ lines.push(`<div style="font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Resumen del día · ${dateLabel}</div>`);
+ lines.push(`<div style="font-size:12px;color:var(--text);margin-bottom:10px">Cerró otro día del Mundial. Esto fue lo más destacado:</div>`);
  if(top&&top.total>0){
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Mejor de la jornada:</strong> ${esc(top.name)} con <strong>+${top.total} pts</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Mejor del día:</strong> ${esc(top.name)} con <strong>+${top.total} pts</strong></div>`);
  }
  if(bestSingleAll&&bestSingleAll.best&&bestSingleAll.best.match){
   const bm=bestSingleAll.best.match;
   const bp=bestSingleAll.best.pred;
   const bres=allResults[bm.id];
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico de la jornada:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico del día:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
  }
  // Racha activa — mejor racha entre usuarios activos
  const streakRanking=Object.entries(allUsers).filter(([uid,u])=>!(u&&u.left)).map(([uid,u])=>({uid,name:u.name,streak:getStreak(uid)})).filter(x=>x.streak>=3).sort((a,b)=>b.streak-a.streak);
