@@ -588,6 +588,120 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 @keyframes tpFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes tpSheetUp{from{transform:translateY(100%)}to{transform:none}}
 </style>
+<style>
+/* ============================================================
+   CAPA SENIOR — solo modo app (.is-app). No toca web ni móvil.
+   Disciplina aplicada sobre la marca (naranja + mascotas):
+   · tipografía a 4 tamaños / 2 pesos
+   · números en monospace tabular
+   · color plano, rojo reservado solo a lo semántico
+   · espaciado deliberado y consistente
+   · micro-interacciones en cards y modales
+   ============================================================ */
+.is-app{
+  /* 4 tamaños */
+  --tp-fs-1:12px;   /* meta / caption */
+  --tp-fs-2:14px;   /* cuerpo */
+  --tp-fs-3:17px;   /* énfasis / subtítulo */
+  --tp-fs-4:22px;   /* título / número grande */
+  /* 2 pesos */
+  --tp-w:700;
+  --tp-wb:900;
+  /* fuente monospace para cifras */
+  --tp-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  /* ritmo de espaciado (múltiplos de 4) */
+  --tp-s1:4px; --tp-s2:8px; --tp-s3:12px; --tp-s4:16px; --tp-s5:20px;
+  /* sombra-borde unificada (más sobria que el 0 4px original) */
+  --tp-edge:var(--border-strong);
+}
+
+/* ── Tipografía: colapsar a 4 tamaños / 2 pesos ───────────── */
+.is-app .header h1{font-size:var(--tp-fs-4)!important;font-weight:var(--tp-wb)!important;letter-spacing:-.4px}
+.is-app .header-sub{font-size:var(--tp-fs-1)!important;font-weight:var(--tp-w)!important;letter-spacing:.2px}
+.is-app .card,.is-app .match-card{font-size:var(--tp-fs-2)}
+.is-app .team{font-size:var(--tp-fs-2)!important;font-weight:var(--tp-wb)!important;letter-spacing:-.1px}
+.is-app .match-meta{font-size:var(--tp-fs-1)!important;font-weight:var(--tp-w)!important}
+.is-app .modal-box h2{font-size:var(--tp-fs-3)!important;font-weight:var(--tp-wb)!important;letter-spacing:-.2px}
+.is-app .podio-name{font-size:var(--tp-fs-1)!important;font-weight:var(--tp-w)!important}
+.is-app .rank-row{font-size:var(--tp-fs-2)}
+.is-app .pill{font-size:var(--tp-fs-1)!important;font-weight:var(--tp-wb)!important}
+
+/* ── Números en monospace tabular (lo que pidió el video) ─── */
+.is-app .score-input,
+.is-app .score-box,
+.is-app .countdown-bar,
+.is-app .podio-pts,
+.is-app .tp-num,
+.is-app #next-close-val{
+  font-family:var(--tp-mono)!important;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+  letter-spacing:-.5px;
+}
+.is-app .score-input,.is-app .score-box{font-size:var(--tp-fs-3)!important;font-weight:var(--tp-wb)!important}
+.is-app .podio-pts,.is-app .tp-num{font-size:var(--tp-fs-4)!important;font-weight:var(--tp-wb)!important}
+.is-app .countdown-bar{font-size:var(--tp-fs-1)!important}
+
+/* ── Color plano: rojo reservado solo a lo semántico ──────── */
+/* El acento naranja se mantiene; matamos degradados incidentales */
+.is-app [style*="linear-gradient(135deg,var(--primary)"],
+.is-app [style*="linear-gradient(135deg,var(--primary-hover)"]{
+  background:var(--primary)!important;
+  box-shadow:none!important;
+}
+.is-app [style*="linear-gradient(90deg,var(--primary)"]{
+  background:var(--primary)!important;
+}
+/* El rojo (--danger) solo vive en: pill EN VIVO, errores y la gráfica.
+   Nada decorativo en rojo dentro de la app. */
+
+/* ── Espaciado deliberado y bordes sobrios ────────────────── */
+.is-app .header{padding:var(--tp-s5) var(--tp-s4) 0;margin:var(--tp-s2) var(--tp-s2) var(--tp-s1);box-shadow:0 3px 0 var(--tp-edge)}
+.is-app .card{padding:var(--tp-s4);margin-bottom:var(--tp-s3);box-shadow:0 3px 0 var(--tp-edge);border-color:var(--border-soft)}
+.is-app .match-card{padding:var(--tp-s3);margin-bottom:var(--tp-s3);box-shadow:0 3px 0 var(--tp-edge);border-color:var(--border-soft)}
+.is-app .match-meta{margin-bottom:var(--tp-s2)}
+.is-app .countdown-bar{margin:var(--tp-s2) 0;border-width:1px}
+.is-app .rank-row{padding:var(--tp-s3) 0;border-bottom-width:1px}
+.is-app .podio-card{box-shadow:0 3px 0 var(--tp-edge)}
+.is-app .podio-card.p1{box-shadow:0 3px 0 var(--primary-dark)}
+
+/* Botones: conservan el “press” de la marca pero radio y borde unificados */
+.is-app .btn,.is-app .modal-close{border-radius:14px!important;border-bottom-width:4px}
+.is-app .btn-secondary{border-radius:14px!important}
+.is-app .pill{border-width:1px;box-shadow:0 2px 0 var(--tp-edge)}
+
+/* ── Micro-interacciones (cards + modales) ────────────────── */
+/* Press sutil en superficies tocables (sensación física, no juguetona) */
+.is-app .match-card,.is-app .card,.is-app .rank-row,.is-app .podio-card{
+  transition:transform .14s cubic-bezier(.2,.7,.3,1),box-shadow .14s ease;
+}
+.is-app .match-card:active,.is-app .card:active,.is-app .rank-row:active{
+  transform:scale(.99);
+}
+.is-app .podio-card:active{transform:scale(1.03)}
+
+/* Foco de input más limpio (anillo fino, no “grito”) */
+.is-app .score-input:focus,.is-app .input:focus{
+  box-shadow:0 0 0 2px var(--primary-soft)!important;
+}
+
+/* ── Película: el contenido entra, los modales respiran ───── */
+/* Stagger suave del contenido del bottom-sheet al abrir */
+.is-app .modal-box > *{animation:tpSheetItem .4s cubic-bezier(.22,.61,.36,1) both}
+.is-app .modal-box > *:nth-child(1){animation-delay:.02s}
+.is-app .modal-box > *:nth-child(2){animation-delay:.06s}
+.is-app .modal-box > *:nth-child(3){animation-delay:.10s}
+.is-app .modal-box > *:nth-child(4){animation-delay:.14s}
+.is-app .modal-box > *:nth-child(n+5){animation-delay:.16s}
+@keyframes tpSheetItem{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Overlay del sheet: oscurecido más cálido y suave */
+.is-app .modal-overlay{background:rgba(20,16,8,.55)!important;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+
+/* Transición de tab un poco más cinematográfica (curva continua) */
+.is-app .tp-tab-anim{animation:tpTabIn .32s cubic-bezier(.22,.61,.36,1) both}
+</style>
+
 </head>
 <body>
 <div id="root"><div class="spinner"><span class="spin"></span> Cargando...</div></div>
@@ -5421,7 +5535,7 @@ function renderRanking(){
  <span style="flex:1;font-weight:700;color:${r.uid===currentUser.uid?"var(--primary-hover)":"var(--text)"}">${r.name}</span>
  ${streak>=5?`<span style="font-size:11px">×${streak}</span>`:""}
  ${arrow}
- <span style="font-size:18px;font-weight:900;color:var(--text)">${r.pts}</span>
+ <span class="tp-num" style="font-size:18px;font-weight:900;color:var(--text)">${r.pts}</span>
  <span style="font-size:11px;color:var(--text-muted)">pts</span>
  <span style="font-size:14px;color:var(--border)">›</span>
  </div>`;
