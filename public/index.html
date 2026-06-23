@@ -1544,14 +1544,20 @@ function calcGroupPredPoints(userOrder,realOrder){return calcGroupPredPointsR(us
 function isLocked(m){return new Date()>=new Date(m.kickoff);}
 // Estados en los que el partido NO está corriendo (suspendido/aplazado/cancelado/abandonado).
 const _STOPPED_RE=/suspend|postpon|cancel|abandon|interrupt|delay/i;
+// Auto-suspensión: si el reloj oficial se congela >7 min FUERA de las zonas de descanso
+// (entretiempo ~45', final ~90'), es casi seguro una suspensión real (clima, etc.).
+const _AUTO_SUSPEND_MS=7*60000;
+const _CLOCK_FREEZE_MS=75000; // el reloj se considera "congelado" si no avanza hace >75s
 function matchStatusRaw(m){
  const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;
  if(!r)return "";
- // Un fin real (completed) manda sobre cualquier override manual viejo.
+ // Un fin real (completed) manda sobre cualquier override.
  if(r.status==="completed")return "completed";
- // El admin puede marcar un partido como suspendido (clima, etc.) aunque la API
- // de datos lo siga reportando "en juego": ese override manual tiene prioridad.
- return String(r.manualStatus||r.status||"");
+ // Override manual del admin (prioridad), luego la auto-suspensión por reloj congelado,
+ // luego el estado de la API (que puede traer postponed/cancelled).
+ if(r.manualStatus)return String(r.manualStatus);
+ if(r.autoSuspended)return "suspended";
+ return String(r.status||"");
 }
 function matchSuspended(m){return _STOPPED_RE.test(matchStatusRaw(m));}
 function suspendedLabel(m){
@@ -1560,6 +1566,14 @@ function suspendedLabel(m){
  if(/cancel/.test(s))return "CANCELADO";
  if(/abandon/.test(s))return "ABANDONADO";
  return "SUSPENDIDO";
+}
+// Minuto en que quedó el partido suspendido (congelado, NO avanza con reloj de pared).
+// Prioridad: minuto guardado al suspender → reloj oficial congelado → reloj en vivo.
+function suspendedMinuteText(m){
+ const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;
+ if(r&&r.suspendMinute){const v=String(r.suspendMinute).trim();if(v)return v.replace(/'+$/,"")+"'";}
+ if(r&&r.clock){const t=_fmtApiClockStatic(r.clock);if(t)return t;}
+ return "";
 }
 // Reaplica los marcadores en vivo (globales) sobre allResults tras un reseteo del nodo
 // /results de la polla. Evita que al cambiar de polla los puntajes salgan en 0.
@@ -1609,11 +1623,35 @@ function _fmtApiClock(disp,ts){
  const tot=(parseInt(p[0])||0)*60+(parseInt(p[1])||0)+adv;
  return`${Math.floor(tot/60)+1}'`;
 }
+// Igual que _fmtApiClock pero SIN avanzar con el tiempo de pared: para relojes congelados
+// (entretiempo, VAR, suspensión). Devuelve el minuto exacto que reporta la API.
+function _fmtApiClockStatic(disp){
+ const s=String(disp||"").trim();if(!s)return"";
+ if(s.includes("+")){
+  const[root,rest]=s.split("+");
+  const r=parseInt(root)||90;const p=(rest||"").split(":");
+  const extra=(parseInt(p[0])||0)*60+(parseInt(p[1])||0);
+  return`${r}+${Math.floor(extra/60)+1}'`;
+ }
+ const p=s.split(":");
+ const tot=(parseInt(p[0])||0)*60+(parseInt(p[1])||0);
+ return`${Math.floor(tot/60)+1}'`;
+}
 // Minuto a mostrar: reloj oficial de BallDontLie si llegó hace <90s; si no, la estimación local.
+// Si el reloj oficial está CONGELADO (no avanza), lo mostramos fijo en vez de avanzarlo
+// (así una suspensión queda en su minuto real y el entretiempo muestra "ENT").
 function liveClock(m){
  const r=(typeof allResults!=="undefined"&&m&&m.id!=null)?allResults[m.id]:null;
- if(r&&r.clock&&r.clockTs&&(Date.now()-r.clockTs)<90000){
-  const t=_fmtApiClock(r.clock,r.clockTs);if(t)return t;
+ if(r&&r.clock){
+  const frozen=r.clockStableTs&&(Date.now()-r.clockStableTs)>_CLOCK_FREEZE_MS;
+  if(frozen){
+   const cs=r.clockSeconds;
+   if(cs!=null&&cs>=44*60&&cs<=50*60)return "ENT"; // congelado en zona de descanso = entretiempo
+   const t=_fmtApiClockStatic(r.clock);if(t)return t;
+  }
+  if(r.clockTs&&(Date.now()-r.clockTs)<90000){
+   const t=_fmtApiClock(r.clock,r.clockTs);if(t)return t;
+  }
  }
  return liveMinute(m);
 }
@@ -3729,6 +3767,7 @@ async function joinPollaByCode(code,silent=false){
 }
 // ─── GOAL NOTIFICATION ────────────────────────────────────
 const _prevScores={};
+const _prevClock={};
 let _gnTimer=null;
 
 function showGoalNotif(match,newH,newA){
@@ -3812,6 +3851,10 @@ function iniciarMasterPolling(){
  allResults[numId].a=score.a;
  allResults[numId].status=score.status||null;
  allResults[numId].manualStatus=score.manualStatus||null;
+ allResults[numId].autoSuspended=score.autoSuspended||null;
+ allResults[numId].suspendMinute=(score.suspendMinute!=null)?score.suspendMinute:null;
+ allResults[numId].clockSeconds=(score.clockSeconds!=null)?score.clockSeconds:null;
+ allResults[numId].clockStableTs=score.clockStableTs||null;
  if(score.clock!=null)allResults[numId].clock=score.clock;else delete allResults[numId].clock;
  if(score.clockTs!=null)allResults[numId].clockTs=score.clockTs;
  if(score.endedTs!=null)allResults[numId].endedTs=score.endedTs;
@@ -3926,8 +3969,36 @@ async function fetchLiveResults(){
  if(_stopped){
   updates[`liveScores/${match.id}/clock`]=null;
  }else if(m.status==="in_progress"){
-  updates[`liveScores/${match.id}/clock`]=(m.clock_display!=null)?String(m.clock_display):null;
+  const disp=(m.clock_display!=null)?String(m.clock_display):null;
+  const cs=(m.clock_seconds!=null)?m.clock_seconds:null;
+  // ¿Hace cuánto que el reloj no avanza? (clockStableTs = momento del último cambio real)
+  const pc=_prevClock[match.id];
+  let stableTs=Date.now();
+  if(pc&&pc.seconds===cs)stableTs=pc.stableTs; // sigue congelado desde antes
+  _prevClock[match.id]={seconds:cs,stableTs};
+  updates[`liveScores/${match.id}/clock`]=disp;
   updates[`liveScores/${match.id}/clockTs`]=Date.now();
+  updates[`liveScores/${match.id}/clockSeconds`]=cs;
+  updates[`liveScores/${match.id}/clockStableTs`]=stableTs;
+  // AUTO-SUSPENSIÓN: la API FIFA no expone "suspended" en pleno juego; el único indicio
+  // es que el reloj se congele. Si lleva >7 min sin avanzar y NO es entretiempo (~45') ni
+  // final (~90'), lo marcamos como suspendido y fijamos el minuto real congelado.
+  const cur=allResults[match.id]||{};
+  if(cs!=null){
+   const frozenMs=Date.now()-stableTs;
+   const inHalf=cs>=44*60&&cs<=50*60, nearFull=cs>=89*60;
+   if(frozenMs>_AUTO_SUSPEND_MS&&!inHalf&&!nearFull){
+    if(!cur.autoSuspended)updates[`liveScores/${match.id}/autoSuspended`]=true;
+    if(!cur.manualStatus&&!cur.suspendMinute){
+     const mn=(disp?_fmtApiClockStatic(disp):"");
+     if(mn)updates[`liveScores/${match.id}/suspendMinute`]=mn;
+    }
+   }else if(cur.autoSuspended){
+    // el reloj volvió a correr (o entró a zona de descanso) → reanudar automáticamente
+    updates[`liveScores/${match.id}/autoSuspended`]=null;
+    if(!cur.manualStatus)updates[`liveScores/${match.id}/suspendMinute`]=null;
+   }
+  }
  }
  if(m.status==="completed"){
   const cur=allResults[match.id];
@@ -5134,7 +5205,7 @@ function renderMisPronos(){
 
  return`<div class="match-card mc-${cardState}" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
  <div class="match-meta">
- <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:(susp?`<strong style="color:#f59e0b">⚠ ${suspendedLabel(m)}</strong>`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff))} · ${m.stadium}</span>
+ <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:(susp?`<strong style="color:#f59e0b">⚠ ${suspendedLabel(m)}</strong>${(()=>{const sm=suspendedMinuteText(m);return sm?`<span style="color:#f59e0b;font-weight:800;margin-left:5px">${sm}</span>`:"";})()}`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff))} · ${m.stadium}</span>
  ${ptsBadge || countdownBadge}
  </div>
  ${(isAdmin&&(live||susp))?`<div style="margin:-2px 0 6px;text-align:right"><button onclick="event.stopPropagation();toggleMatchSuspend(${m.id},${live?'true':'false'})" style="font-size:10px;font-weight:800;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Nunito',sans-serif">${live?'Suspender':'Reanudar'}</button></div>`:''}
@@ -6171,9 +6242,21 @@ window.lockPhase=async function(phase){if(!isAdmin)return;await db.ref(`${pollaB
 window.toggleMatchSuspend=async function(matchId,suspend){
  if(!isAdmin)return;
  try{
-  if(suspend)await db.ref("liveScores/"+matchId+"/manualStatus").set("suspended");
-  else await db.ref("liveScores/"+matchId+"/manualStatus").remove();
-  showToast(suspend?"Partido marcado como suspendido":"Partido reanudado");
+  if(suspend){
+   const r=allResults[matchId]||{};
+   // Sugerimos el minuto SOLO si la API trae el reloj real congelado; si no, lo deja vacío
+   // para que el admin escriba el minuto real (el estimado por reloj de pared sería el equivocado).
+   let def=(r.clock?_fmtApiClockStatic(r.clock):"")||"";
+   def=String(def).replace(/'+$/,"");
+   let min=prompt("¿En qué minuto se suspendió el partido? (ej. 41)",def);
+   if(min===null)return; // canceló
+   min=String(min).trim().replace(/[^0-9+]/g,"");
+   await db.ref("liveScores/"+matchId).update({manualStatus:"suspended",suspendMinute:min||def||""});
+   showToast(min?("Suspendido en el "+min+"'"):"Partido marcado como suspendido");
+  }else{
+   await db.ref("liveScores/"+matchId).update({manualStatus:null,suspendMinute:null,autoSuspended:null});
+   showToast("Partido reanudado");
+  }
  }catch(e){showToast("No se pudo actualizar el estado","#ef4444",3000);}
 };
 window.deleteUser=async function(uid,name){
