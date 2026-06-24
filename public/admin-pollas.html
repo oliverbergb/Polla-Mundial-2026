@@ -308,7 +308,7 @@ let WORLD={especiales:{},groupOverride:{}};
 let LIVE={};            // marcadores globales del nodo /liveScores
 let POLLAS={};          // id -> polla
 let LEADER=[];          // filas globales de jugadores
-let _spyId=null,_spyUid=null;
+let _spyId=null,_spyUid=null,_spyEdit=false;
 
 auth.onAuthStateChanged(async user=>{
  if(!user){ btn.style.display="inline-block"; return; }
@@ -435,16 +435,47 @@ function render(){
 }
 
 /* ════════════ ESPIAR (solo lectura, no escribe NADA) ════════════ */
-window.spy=function(pollaId,uid){ _spyId=pollaId; _spyUid=uid||null; renderSpy(); document.getElementById("overlay").style.display="block"; window.scrollTo(0,0); };
-window.closeSpy=function(){ document.getElementById("overlay").style.display="none"; _spyId=null;_spyUid=null; };
-window.spyPick=function(uid){ _spyUid=uid; renderSpy(); };
+window.spy=function(pollaId,uid){ _spyId=pollaId; _spyUid=uid||null; _spyEdit=false; renderSpy(); document.getElementById("overlay").style.display="block"; window.scrollTo(0,0); };
+window.closeSpy=function(){ document.getElementById("overlay").style.display="none"; _spyId=null;_spyUid=null; _spyEdit=false; };
+window.spyPick=function(uid){ _spyUid=uid; _spyEdit=false; renderSpy(); };
+window.toggleSpyEdit=function(){ _spyEdit=!_spyEdit; renderSpy(); };
+
+// Toast simple para el panel de espía
+function spyToast(msg,err){
+ let t=document.getElementById("spyToast");
+ if(!t){t=document.createElement("div");t.id="spyToast";t.style.cssText="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99999;padding:10px 16px;border-radius:10px;color:#fff;font-weight:700;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:opacity .3s";document.body.appendChild(t);}
+ t.style.background=err?"#ef4444":"#1f7a3f";t.textContent=msg;t.style.opacity="1";
+ clearTimeout(t._tmr);t._tmr=setTimeout(()=>{t.style.opacity="0";},2400);
+}
+
+// Guarda (como ADMIN) el pronóstico de un jugador. isGroups=true => predictions, false => elimPredictions.
+window.adminSavePred=async function(matchId,isGroups){
+ if(!_spyId||!_spyUid)return;
+ const hEl=document.getElementById(`sp_${matchId}_h`), aEl=document.getElementById(`sp_${matchId}_a`);
+ if(!hEl||!aEl)return;
+ const clean=v=>{v=(v||"").replace(/[^0-9]/g,"").slice(0,2); if(v!==""&&parseInt(v,10)>99)v="99"; return v;};
+ const h=clean(hEl.value), a=clean(aEl.value);
+ const node=isGroups?"predictions":"elimPredictions";
+ const path=`pollas/${_spyId}/participantes/${_spyUid}/${node}/${matchId}`;
+ try{
+  await db.ref(path).update({h,a});
+  // Reflejar en memoria para recalcular puntos y re-render sin recargar
+  const u=(POLLAS[_spyId].participantes||{})[_spyUid]||{};
+  u[node]=u[node]||{}; u[node][matchId]={...(u[node][matchId]||{}),h,a};
+  buildLeaderboard();
+  spyToast(`Guardado: ${h===""?"–":h}-${a===""?"–":a} ✓`);
+  renderSpy();
+ }catch(e){ spyToast("No se pudo guardar: "+(e.code||e.message||"error"),true); }
+};
 window.copyCode=function(ev,code){ ev.stopPropagation(); navigator.clipboard&&navigator.clipboard.writeText(code); const el=ev.currentTarget; const old=el.textContent; el.textContent="¡copiado!"; setTimeout(()=>{el.textContent=old;},900); };
 
 function renderSpy(){
  const p=POLLAS[_spyId]; if(!p){closeSpy();return;}
  const rules=pollaRules(p),results=pollaResults(p);
  const parts=activeParts(p).sort((a,b)=>totalPoints(b[1],rules,results,WORLD)-totalPoints(a[1],rules,results,WORLD));
- let h=`<div class="note">👁 Modo lectura. Estás viendo <b>${esc(p.nombre||"")}</b> sin entrar como participante — nadie en la polla se entera.</div>`;
+ let h=_spyEdit
+  ? `<div class="note" style="background:#fdecea;border-color:#f5b5ad;color:#b71c1c">✏️ Modo edición. Lo que cambies aquí se guarda <b>en vivo</b> en el pronóstico del jugador y recalcula sus puntos. Úsalo solo para corregir errores.</div>`
+  : `<div class="note">👁 Modo lectura. Estás viendo <b>${esc(p.nombre||"")}</b> sin entrar como participante — nadie en la polla se entera.</div>`;
  h+=`<h3 style="margin-top:4px">${esc(p.nombre||"(sin nombre)")} <code style="cursor:pointer;font-size:13px" title="Copiar código" onclick="copyCode(event,'${esc(p.code||'')}')">${esc(p.code||"—")}</code></h3>`;
  h+=`<div style="margin-bottom:12px">`;
  parts.forEach(([uid,u])=>{ h+=`<span class="chip ${uid===_spyUid?'active':''}" onclick="spyPick('${uid}')">${esc(u.name||"¿?")} · ${totalPoints(u,rules,results,WORLD)}pts</span>`; });
@@ -453,7 +484,7 @@ function renderSpy(){
  if(!_spyUid){ h+=`<p style="color:#b8a98f">Toca un jugador para ver todos sus pronósticos (pasados y futuros).</p>`; document.getElementById("overlayPanel").innerHTML=h; return; }
  const u=(p.participantes||{})[_spyUid]||{};
  const preds=u.predictions||{},elim=u.elimPredictions||{},grp=u.groupPredictions||{},esp=u.especiales||{};
- h+=`<div style="font-size:14px;font-weight:800;margin-bottom:6px">${esc(u.name||"¿?")} — <span style="color:#de3d27">${totalPoints(u,rules,results,WORLD)} pts</span></div>`;
+ h+=`<div style="font-size:14px;font-weight:800;margin-bottom:6px">${esc(u.name||"¿?")} — <span style="color:#de3d27">${totalPoints(u,rules,results,WORLD)} pts</span><button onclick="toggleSpyEdit()" style="float:right;font-size:11px;padding:4px 10px;border-radius:7px;border:1px solid ${_spyEdit?'#de3d27':'#caa18f'};background:${_spyEdit?'#de3d27':'#fff'};color:${_spyEdit?'#fff':'#8a3b2e'};cursor:pointer;font-weight:700">${_spyEdit?'✓ Salir de edición':'✏️ Editar pronósticos'}</button></div>`;
 
  const tierClass=t=>t===3?"p3":t===2?"p2":t===1?"p1":t===0?"p0":"pf";
  function matchRow(m){
@@ -467,7 +498,15 @@ function renderSpy(){
   const predTxt=(pred&&pred.h!=null&&pred.h!=="")?`${sc(pred.h)}-${sc(pred.a)}`:'<span style="color:#6b5c44">sin pronóstico</span>';
   const resTxt=(res&&res.h!=null&&res.h!=="")?`res ${sc(res.h)}-${sc(res.a)}`:(future?`<span style="color:#6b5c44">${m.date} ${m.time}</span>`:'<span style="color:#6b5c44">—</span>');
   const ptsTxt=(pts==null)?"":`<span class="${tierClass(t)}">+${pts}</span>`;
-  return `<div class="mrow"><div class="teams">${teams}<div style="font-size:11px;color:#6b5c44">pronóstico: ${predTxt}</div></div><div class="res">${resTxt}</div><div class="ppts">${ptsTxt}</div></div>`;
+  const subline=_spyEdit
+   ? `<div style="display:flex;gap:5px;align-items:center;margin-top:4px">`
+     +`<input id="sp_${m.id}_h" value="${(pred&&pred.h!=null&&pred.h!=="")?esc(pred.h):''}" inputmode="numeric" maxlength="2" placeholder="–" style="width:36px;text-align:center;padding:4px;border:1px solid #caa18f;border-radius:6px;font-weight:700"/>`
+     +`<span style="color:#6b5c44">-</span>`
+     +`<input id="sp_${m.id}_a" value="${(pred&&pred.a!=null&&pred.a!=="")?esc(pred.a):''}" inputmode="numeric" maxlength="2" placeholder="–" style="width:36px;text-align:center;padding:4px;border:1px solid #caa18f;border-radius:6px;font-weight:700"/>`
+     +`<button onclick="adminSavePred('${m.id}',${isGroups})" style="font-size:11px;padding:4px 10px;border:none;border-radius:6px;background:#de3d27;color:#fff;cursor:pointer;font-weight:700">Guardar</button>`
+     +`</div>`
+   : `<div style="font-size:11px;color:#6b5c44">pronóstico: ${predTxt}</div>`;
+  return `<div class="mrow"><div class="teams">${teams}${subline}</div><div class="res">${resTxt}</div><div class="ppts">${ptsTxt}</div></div>`;
  }
 
  // Partidos por fase, ordenados por kickoff
