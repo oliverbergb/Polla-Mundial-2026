@@ -6,7 +6,7 @@
 <title>Tu Polla </title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22100%2080%20350%20420%22%3E%3Cstyle%3E.f1%7Bfill%3A%23de3d27%7D.f2%7Bfill%3A%23f5a522%7D.f4%7Bfill%3A%231e3dad%7D%3C%2Fstyle%3E%3Cpath%20class%3D%22f1%22%20d%3D%22m154.9%2C266.07l-6.52-6.6c-22.56-22.84-23.47-50.61-6.91-66.97h0s14.12%2C14.3%2C14.12%2C14.3l-.43-.86c-16.19-32.25-4.25-63.91%2C23.17-77.67h0l24.09%2C48.01c6.48-12.55%2C18.19-21.49%2C32.79-24.76l11.57%2C51.73c-37.52%2C4.84-76.56%2C25.56-91.9%2C62.82Z%22%2F%3E%3Cpath%20class%3D%22f2%22%20d%3D%22m407.52%2C300.09c-11.28-50.51-65.88-82.19-126.37-76.08v109.42c39.02-.08%2C77.74-6.99%2C114.34-20.56l13.74-5.09-1.72-7.69Z%22%2F%3E%3Cpath%20class%3D%22f1%22%20d%3D%22m281.15%2C333.49h59.55c32.87%2C0%2C59.55%2C26.68%2C59.55%2C59.55h0c0%2C32.87-26.68%2C59.55-59.55%2C59.55h0c-32.87%2C0-59.55-26.68-59.55-59.55v-59.55h0Z%22%2F%3E%3Cpath%20class%3D%22f4%22%20d%3D%22m308.24%2C262.14l28.15%2C19.55s9.6-35.71%2C42.46-29.18c0%2C0-18.95-16.56-35.04-20.77%2C0%2C0-16.29-1.23-35.57%2C30.41Z%22%2F%3E%3C%2Fsvg%3E"/>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#edf6ff">
+<meta name="theme-color" content="#FF9600">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -83,12 +83,11 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
  .hdr-hola{display:none!important}
  .header{padding:12px 12px 0!important;margin:6px 6px 4px!important}
  .header h1{font-size:18px!important;margin:2px 0!important}
- .group-pills--letters{display:grid!important;grid-template-columns:repeat(12,1fr)!important;justify-content:center!important;gap:4px!important}
- .group-pills--letters .pill{padding:7px 0!important;font-size:11px!important;letter-spacing:0!important;box-shadow:0 2px 0 var(--border-strong)!important}
+ .group-pills{display:grid!important;grid-template-columns:repeat(6,auto)!important;justify-content:center!important}
  .hdr-collapsible{display:none!important}
  .header.hdr-open .hdr-collapsible{display:block!important}
  .hdr-toggle{display:inline-flex!important;align-items:center;justify-content:center;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px}
- .hdr-mini-title{display:block!important;flex:1;text-align:center;margin:0 8px;font-size:15px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'}
+ .hdr-mini-title{display:block!important;flex:1;text-align:center;margin:0 8px;font-size:15px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
  .header.hdr-open .hdr-mini-title{display:none!important}
 }
 
@@ -453,7 +452,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 @keyframes bounce-h{0%,100%{transform:translateY(0) scale(1,1)}40%,60%{transform:translateY(-6px) scale(.97,1.03)}}
 </style>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#edf6ff">
+<meta name="theme-color" content="#FF9600">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -516,7 +515,6 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .tp-ob-btn-ghost:active{border-bottom-width:2px;transform:translateY(3px)}
 .tp-ob-code{display:none;flex-direction:column;gap:8px;align-items:center;margin-top:2px}
 .tp-ob-code.open{display:flex}
-.tp-ob-wrap.code-open .tp-ob-slide{padding-bottom:250px}
 .tp-ob-code-row{position:relative;width:100%}
 .tp-ob-code-input{width:100%;background:var(--surface);border:2px solid var(--border);border-radius:14px;color:var(--text);padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';outline:none;box-sizing:border-box;text-transform:uppercase}
 .tp-ob-code-go{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--primary);border:none;border-bottom:3px solid var(--primary-dark);border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';line-height:1}
@@ -530,7 +528,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 /* — Safe area superior: empuja el contenido debajo del notch/Dynamic Island — */
 .is-app .app{padding-top:env(safe-area-inset-top,0)}
 /* Relleno sólido detrás de la barra de estado (que no quede un hueco raro) */
-.is-app::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0);background:var(--bg);z-index:60;pointer-events:none}
+.is-app::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0);background:var(--surface);z-index:60;pointer-events:none}
 
 /* — Barra inferior estilo iOS: blur translúcido + hairline — */
 .is-app .tabs-wrap{
@@ -1824,11 +1822,77 @@ function jornadasPerfectas(u){
  }
  return count;
 }
-// Líder de la semana: permanente. Si en CUALQUIER snapshot del historial el
-// usuario estuvo en la posición 1, el logro queda desbloqueado para siempre.
-function fueLiderSemana(uid){
+// Cortes semanales desde el primer partido hasta ahora (+ el momento actual).
+function _weekCutoffs(){
+ const ks=MATCHES.map(m=>new Date(m.kickoff).getTime()).filter(t=>!isNaN(t));
+ if(!ks.length)return [];
+ const start=Math.min(...ks),now=Date.now();
+ const cuts=[];
+ for(let t=start+7*86400000;t<now;t+=7*86400000)cuts.push(t);
+ cuts.push(now);
+ return cuts;
+}
+// Puntos de un usuario considerando SOLO lo que ya estaba terminado hasta `cutoff`.
+// Refleja el ranking real (totalPoints) pero acotado en el tiempo, para reconstruir
+// quién iba 1º al cierre de cada semana. Especiales se omiten (recién resuelven al final).
+function _pointsAt(u,cutoff,r){
+ const preds=u.predictions||{},grp=u.groupPredictions||{},elim=u.elimPredictions||{};
+ let pts=0;
+ MATCHES.forEach(m=>{
+  if(new Date(m.kickoff).getTime()>cutoff)return;
+  const res=allResults[m.id];
+  if(!res||res.h===""||res.h==null||res.a===""||res.a==null)return;
+  const p=m.phase==="groups"?calcMatchPointsR(preds[m.id],res,r):calcElimPointsR(elim[m.id],res,r);
+  pts+=p||0;
+ });
+ if(r.incluirClasificacion!==false){
+  Object.keys(GROUPS).forEach(g=>{
+   const gm=MATCHES.filter(m=>m.group===g);
+   if(!gm.length)return;
+   const doneBy=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null&&new Date(m.kickoff).getTime()<=cutoff;});
+   if(!doneBy)return;
+   pts+=calcGroupPredPointsR(grp[g],calcGroupTable(g).map(x=>x.team),r);
+  });
+ }
+ return pts;
+}
+// Conjunto de quienes fueron #1 en algún corte semanal (o en un snapshot guardado).
+// Memoizado: recalcula solo cuando cambia el nº de partidos con resultado, los usuarios o la polla.
+let _leaderMemo=null,_leaderMemoKey="";
+function _everLeaders(){
+ const r=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
+ const done=MATCHES.reduce((n,m)=>{const res=allResults[m.id];return n+((res&&res.h!==""&&res.h!=null)?1:0);},0);
+ const key=currentPollaId+"|"+Object.keys(allUsers).length+"|"+done;
+ if(_leaderMemo&&_leaderMemoKey===key)return _leaderMemo;
+ const set=new Set();
+ // 1) Snapshots almacenados (compatibilidad con historial si algún día se guarda).
  const hist=allResults["rankingHistory"]||{};
- return Object.values(hist).some(snap=>snap&&snap[uid]===1);
+ Object.values(hist).forEach(snap=>{if(snap)Object.keys(snap).forEach(uid=>{if(snap[uid]===1)set.add(uid);});});
+ // 2) Reconstrucción retroactiva por semana.
+ for(const c of _weekCutoffs()){
+  const rows=Object.entries(allUsers).filter(([id,u])=>!(u&&u.left)).map(([id,u])=>({id,pts:_pointsAt(u,c,r)}));
+  if(!rows.length)continue;
+  const max=Math.max(...rows.map(x=>x.pts));
+  if(max<=0)continue;               // nadie ha puntuado aún en ese corte
+  rows.forEach(x=>{if(x.pts===max)set.add(x.id);}); // empate en el tope → todos cuentan como líder
+ }
+ _leaderMemo=set;_leaderMemoKey=key;
+ return set;
+}
+// Líder de la semana: permanente. Si el usuario fue 1º al cierre de cualquier semana.
+function fueLiderSemana(uid){return _everLeaders().has(uid);}
+// Racha MÁXIMA histórica (permanente): la mejor cadena de aciertos consecutivos que
+// haya tenido, aunque ahora mismo no esté en racha. (getStreak = racha ACTUAL, en vivo.)
+function maxStreak(uid){
+ const preds=(allUsers[uid]||{}).predictions||{};
+ const played=MATCHES.filter(m=>m.phase==="groups"&&allResults[m.id]?.h!==undefined&&allResults[m.id]?.h!=="")
+  .slice().sort((a,b)=>a.kickoff<b.kickoff?-1:1);
+ let best=0,cur=0;
+ for(const m of played){
+  const t=scoreTier(preds[m.id],allResults[m.id]);
+  if(t>=1){cur++;if(cur>best)best=cur;}else cur=0;
+ }
+ return best;
 }
 // Estado de cada logro para un jugador. PLACEHOLDER: el emoji se reemplaza por
 // el badge de Franco (mismo tamaño ~22px) cuando esté listo.
@@ -1849,7 +1913,7 @@ function getLogros(uid){
  return [
   {id:"primer",  emoji:"📝", label:"Primer pronóstico", unlocked:hasAny},
   {id:"exacto",  emoji:"🎯", label:"Marcador exacto",   unlocked:exacto},
-  {id:"racha",   emoji:"🔥", label:"Racha de 3",        unlocked:getStreak(uid)>=3},
+  {id:"racha",   emoji:"🔥", label:"Racha de 5",        unlocked:maxStreak(uid)>=5},
   {id:"perfecta",emoji:"✅", label:"Jornada perfecta",  unlocked:jornadasPerfectas(u)>0},
   {id:"lider",   emoji:"👑", label:"Líder de la semana", unlocked:fueLiderSemana(uid)},
   {id:"campeon", emoji:"🏆", label:"Campeón",           unlocked:campeon},
@@ -2027,8 +2091,18 @@ async function loadPollas(){
 }
 
 let _pollaListeners=[];
-function _onPolla(path,cb){const ref=db.ref(path);ref.on("value",cb);_pollaListeners.push({ref,cb});return ref;}
-function detachPollaListeners(){_pollaListeners.forEach(({ref,cb})=>{try{ref.off("value",cb);}catch(e){}});_pollaListeners=[];}
+function _onPolla(path,cb){const ref=db.ref(path);ref.on("value",cb);_pollaListeners.push({ref,evt:"value",cb});return ref;}
+// Listener por-hijo: en lugar de re-descargar el nodo COMPLETO en cada cambio,
+// solo baja el hijo que cambió. Clave para no quemar la cuota de descarga.
+function _onPollaChild(path,handlers){
+ const ref=db.ref(path);
+ const reg=(evt,fn)=>{if(!fn)return;ref.on(evt,fn);_pollaListeners.push({ref,evt,cb:fn});};
+ reg("child_added",handlers.added);
+ reg("child_changed",handlers.changed);
+ reg("child_removed",handlers.removed);
+ return ref;
+}
+function detachPollaListeners(){_pollaListeners.forEach(({ref,evt,cb})=>{try{ref.off(evt||"value",cb);}catch(e){}});_pollaListeners=[];}
 function loadData(){
  if(!currentPollaId){renderPollaLobby();return;}
  // Recuerda la última polla abierta para volver a ella al reabrir la app.
@@ -2042,21 +2116,33 @@ function loadData(){
  setTimeout(()=>{try{maybeGenerateDailyRecaps();}catch(_){}},4000);
  _recapTimer=setInterval(()=>{try{maybeGenerateDailyRecaps();}catch(_){}},60000);
  const base=`pollas/${currentPollaId}`;
- _onPolla(`${base}/participantes`,snap=>{
+ // ANTES: un .on("value") sobre TODO participantes. Cada vez que cualquiera de
+ // los ~30 jugadores guardaba un pronostico, se re-descargaba el nodo entero
+ // (todas las predicciones de todos) a todos los conectados. Eso quemo 100+ GB.
+ // AHORA: escuchamos por-hijo => solo baja el participante que cambio (~30x menos).
+ allUsers={};
+ const _applyParticipant=(uid,val)=>{
  const oldRanked=getRankedUsers();
  oldRanked.forEach((r,i)=>{prevRanking[r.uid]=i+1;});
- allUsers=snap.val()||{};
+ if(val==null) delete allUsers[uid]; else allUsers[uid]=val;
  rebuildReactions();
- const me=allUsers[currentUser.uid]||{};
- myPredictions=me.predictions||{};
- myGroupPreds=me.groupPredictions||{};
- myElimPreds=me.elimPredictions||{};
+ if(uid===currentUser.uid){
+  const me=allUsers[currentUser.uid]||{};
+  myPredictions=me.predictions||{};
+  myGroupPreds=me.groupPredictions||{};
+  myElimPreds=me.elimPredictions||{};
+ }
  requestRender();
  if(document.getElementById("modal-participants")?.style.display==="flex")renderParticipantsList();
  if(tournamentEnded()&&!sessionStorage.getItem("hofShown")){
- const ranked=getRankedUsers();
- if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
+  const ranked=getRankedUsers();
+  if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
  }
+ };
+ _onPollaChild(`${base}/participantes`,{
+ added:snap=>_applyParticipant(snap.key,snap.val()),
+ changed:snap=>_applyParticipant(snap.key,snap.val()),
+ removed:snap=>_applyParticipant(snap.key,null)
  });
  _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};applyLiveScores();requestRender();});
  _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)requestRender();}});
@@ -2910,9 +2996,8 @@ window.tpObSync=function(){
 };
 window.tpObToggleCode=function(){
  const c=document.getElementById("tp-ob-code"); if(!c)return;
- const open=c.classList.toggle("open");
- document.querySelector(".tp-ob-wrap")?.classList.toggle("code-open",open);
- if(open) setTimeout(()=>document.getElementById("landingCode")?.focus(),60);
+ c.classList.toggle("open");
+ if(c.classList.contains("open")) setTimeout(()=>document.getElementById("landingCode")?.focus(),60);
 };
 
 window.doJoinFromLanding=async function(){
@@ -2975,27 +3060,20 @@ window.doPickName=async function(){
 // ─── AUTH SCREEN ──────────────────────────────────────────
 function renderAuthScreen(name){
  setFabs(false);
- const IS_CAPACITOR=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
- const showSocial=(!window.IS_APP)||IS_CAPACITOR; // web siempre; app solo si es Capacitor (no PWABuilder)
  document.getElementById("root").innerHTML=`
  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;position:relative;z-index:1">
  ${name?`<div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px">Hola, ${name} </div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">Un último paso para entrar</div>`:`<div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Entra a Tu Polla</div><div style="font-size:13px;color:var(--text-dim);margin-bottom:24px;max-width:320px;line-height:1.4">Pon tu email y contraseña. Si es tu primera vez te creamos la cuenta al instante; si ya tienes una, inicias sesión.</div>`}
 
- ${showSocial?`<button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
+ <button onclick="doGoogleAuth()" style="width:100%;max-width:340px;background:#fff;color:#1c1207;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
  <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
  Continuar con Google
- </button>
-
- <button onclick="doAppleAuth()" style="width:100%;max-width:340px;background:#000;color:#fff;border:none;border-radius:14px;padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3)">
- <svg width="17" height="17" viewBox="0 0 384 512" fill="#fff"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
- Continuar con Apple
  </button>
 
  <div style="display:flex;align-items:center;gap:10px;width:100%;max-width:340px;margin-bottom:16px">
  <div style="flex:1;height:1px;background:var(--surface)"></div>
  <span style="font-size:11px;color:var(--border);font-weight:700">EMAIL Y CONTRASEÑA</span>
  <div style="flex:1;height:1px;background:var(--surface)"></div>
- </div>`:""}
+ </div>
 
  <input id="authEmail" type="email" placeholder="Email" autocomplete="email"
  style="width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 16px;font-size:15px;margin-bottom:10px;outline:none;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';box-sizing:border-box"/>
@@ -3080,46 +3158,6 @@ window.doGoogleAuth=async function(){
    return;
   }
   showToast("Error con Google: "+(e.message||e.code),"#ef4444",4000);
- }
-};
-
-// ─── SIGN IN WITH APPLE ───────────────────────────────────
-// Requerido por Apple (regla 4.8) cuando se ofrece Google en la app.
-window.doAppleAuth=async function(){
- const provider=new firebase.auth.OAuthProvider("apple.com");
- provider.addScope("email"); provider.addScope("name");
- const isNative=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
- // ---- APP (Capacitor): login nativo de Apple → credencial → Firebase web ----
- if(isNative){
-  try{
-   const FbAuth=window.Capacitor.Plugins&&window.Capacitor.Plugins.FirebaseAuthentication;
-   if(!FbAuth){showToast("Falta el plugin nativo (@capacitor-firebase/authentication).","#ef4444",5000);return;}
-   const result=await FbAuth.signInWithApple({skipNativeAuth:false});
-   const idToken=result&&result.credential&&result.credential.idToken;
-   const rawNonce=result&&result.credential&&result.credential.nonce;
-   if(idToken){
-    const cred=provider.credential({idToken,rawNonce});
-    await auth.signInWithCredential(cred);
-   }
-  }catch(e){
-   const m=((e&&(e.message||e.code))||"")+"";
-   if(/cancel|1001|aborted|user_cancelled/i.test(m))return;
-   showToast("Error con Apple: "+m,"#ef4444",4000);
-  }
-  return;
- }
- // ---- WEB ----
- const isMobileUA=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||"");
- try{
-  if(isMobileUA){ await auth.signInWithRedirect(provider); }
-  else { await auth.signInWithPopup(provider); }
- }catch(e){
-  if(e.code==="auth/popup-closed-by-user"||e.code==="auth/cancelled-popup-request")return;
-  if(e.code==="auth/unauthorized-domain"){showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);return;}
-  if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment"){
-   try{ await auth.signInWithRedirect(provider); return; }catch(_){}
-  }
-  showToast("Error con Apple: "+(e.message||e.code),"#ef4444",4000);
  }
 };
 
@@ -3250,7 +3288,7 @@ function renderPollaLobby(){
  <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--surface);transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background='var(--surface)'">
  
  <div style="flex:1;min-width:0">
- <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">${p.nombre||"Polla sin nombre"}</div>
+ <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla sin nombre"}</div>
  <div style="font-size:11px;color:var(--text-dim);margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
  </div>
  <div style="display:flex;align-items:center;gap:4px">
@@ -3896,6 +3934,19 @@ function iniciarMasterPolling(){
  Object.entries(live).forEach(([id,score])=>{
  if(id==="_lastUpdated")return;
  const numId=parseInt(id);
+ // ── GUARDIA ANTI-REGRESIÓN DEL MARCADOR EN VIVO ──
+ // Registros fantasma de la API o respuestas obsoletas a veces mandan un marcador MENOR
+ // (p.ej. 1-0 → 0-0 → 1-0), haciendo "parpadear" el gol. Mientras el partido sigue en juego
+ // el marcador no puede bajar: si llega uno menor, ignoramos ese snapshot y conservamos el anterior.
+ // Al finalizar (status completed) o suspenderse sí aceptamos cualquier valor (corrección por VAR, etc.).
+ const _incSt=String(score.status||"");
+ if(_incSt!=="completed"&&!_STOPPED_RE.test(_incSt)){
+  const _prev=_liveScoresCache[numId];
+  if(_prev){
+   const ph=parseInt(_prev.h),pa=parseInt(_prev.a),nh=parseInt(score.h),na=parseInt(score.a);
+   if(!isNaN(ph)&&!isNaN(pa)&&!isNaN(nh)&&!isNaN(na)&&(nh<ph||na<pa))return;
+  }
+ }
  if(!allResults[numId])allResults[numId]={};
  allResults[numId].h=score.h;
  allResults[numId].a=score.a;
@@ -4225,7 +4276,9 @@ function render(){
  Hola, <strong style="color:var(--text)">${escHtml(currentUser.name)}</strong>
  </div>
  </div>
- ${countdown?`<div style="display:flex;justify-content:center;margin-bottom:4px"><div class="countdown-bar" id="countdown-bar" style="position:relative${countdownStyle()}"> <span id="countdown-val">${countdown}</span> para el inicio</div></div>`:''}
+ <div style="display:flex;justify-content:center;margin-bottom:4px">
+ ${countdown?`<div class="countdown-bar" id="countdown-bar" style="position:relative${countdownStyle()}"> <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e"> ¡El Mundial está en curso!</div>`}
+ </div>
  <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" style="position:relative" onclick="setTab('${id}')">${label}${id==="chat"?`<span id="chat-tab-badge" class="chat-unread-badge" style="${chatUnread>0?"":"display:none"}">${chatUnread>9?"9+":(chatUnread||"")}</span>`:""}</button>`).join("")}</div></div>
  <div class="hdr-collapsible" style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)">
  <button onclick="openRules()" style="width:100%;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-muted);cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';display:flex;align-items:center;gap:8px;transition:all .15s" onmouseenter="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
@@ -4262,7 +4315,7 @@ function _liveGroupSet(){
 }
 function groupPills(allowLive=true){
  const liveSet=_liveGroupSet();
- return`<div class="group-pills group-pills--letters">${Object.keys(GROUPS).map(g=>{
+ return`<div class="group-pills">${Object.keys(GROUPS).map(g=>{
   const sel=currentGroup===g,lv=allowLive&&liveSet.has(g);
   const bg=sel?GROUP_COLORS[g]:(lv?"rgba(239,68,68,.10)":"transparent");
   const col=sel?"#fff":(lv?"#ef4444":"var(--text-muted)");
@@ -4299,32 +4352,6 @@ function officialGroupOrder(g){
  if(!done)return undefined;
  return calcGroupTable(g).map(r=>r.team);
 }
-// Equipos MATEMÁTICAMENTE asegurados como 1°/2° de su grupo.
-// Conservador: nunca marca de más. Cada equipo juega 3 partidos.
-function guaranteedTop2(g){
- const order=officialGroupOrder(g);            // grupo ya cerrado
- if(order)return new Set(order.slice(0,2));
- const table=calcGroupTable(g);
- if(!table.some(r=>r.pj>0))return new Set();   // sin partidos: nada asegurado
- const set=new Set();
- table.forEach(x=>{
-  const px=x.pts;
-  let threats=0; // equipos que TODAVÍA podrían igualar o superar los puntos de x
-  table.forEach(y=>{
-   if(y.team===x.team)return;
-   const rY=3-y.pj;                            // partidos que le quedan a y
-   if((y.pts+3*rY)>=px)threats++;
-  });
-  if(threats<=1)set.add(x.team);               // a lo sumo 1 puede quedar arriba → Top-2 seguro
- });
- return set;
-}
-// Lista [{t,g}] de todos los clasificados seguros, en orden de grupo.
-function allQualifiedTeams(){
- const out=[];
- Object.keys(GROUPS).forEach(g=>{guaranteedTop2(g).forEach(t=>out.push({t,g}));});
- return out;
-}
 function renderGrupos(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  const incClasif=currentPolla?.rules?.incluirClasificacion!==false;
@@ -4332,7 +4359,6 @@ function renderGrupos(){
  const posColors=["#22c55e","#22c55e","var(--primary)","#ef4444"];
  const posTips=["Clasifica","Clasifica","Posible clasificación","Eliminado"];
  const table=calcGroupTable(currentGroup);
- const qSet=guaranteedTop2(currentGroup);
  const liveOrder=table.map(r=>r.team);              // orden según la Tabla Actual (en vivo)
  const groupPlayed=table.some(r=>r.pj>0);           // ¿el grupo ya jugó al menos 1 partido?
  const posPts=(currentPolla?.rules?.ptsPosGrupo)??2; // puntos por equipo en posición exacta
@@ -4350,20 +4376,15 @@ function renderGrupos(){
  <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:700">GRUPO ${currentGroup} — ${locked?"Tu pronóstico de clasificación":"Arrastra para ordenar"}</div>
  ${locked
  ?userOrder.map((t,i)=>{
- const correct=groupPlayed&&liveOrder[i]===t;
- return`<div class="sortable-item" style="cursor:default;border-color:${correct?"#22c55e":"var(--border)"}">
+ const groupDone=!!realOrder;                       // grupo 100% terminado → confirmado
+ const cmp=groupDone?realOrder:liveOrder;           // confirmado usa orden real; preview usa orden en vivo
+ const correct=groupPlayed&&cmp[i]===t;
+ return`<div class="sortable-item" style="cursor:default;border-color:var(--border)">
  <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
  <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
- ${groupPlayed?`<span style="font-size:12px;font-weight:800;color:${correct?"#22c55e":"var(--text-muted)"}">${correct?`(+${posPts})`:`(+0)`}</span>`:""}
+ ${groupPlayed?`<span style="font-size:12px;font-weight:800;color:${(groupDone&&correct)?"#22c55e":"var(--text-muted)"}">${groupDone?(correct?`+${posPts}`:`0`):(correct?`(+${posPts})`:`(+0)`)}</span>`:""}
  </div>`;
- }).join("")+
- (realOrder?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
- <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700">Clasificación real</div>
- ${realOrder.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">
- <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
- <span>${flag(t)} ${t}</span>
- </div>`).join("")}
- </div>`:"")
+ }).join("")
  :`<ul class="sortable-list" id="sortable-${currentGroup}">
  ${userOrder.map((t,i)=>`<li class="sortable-item" draggable="true" data-team="${t}">
  <span style="color:var(--text-dim);font-size:16px;cursor:grab">⠿</span>
@@ -4389,7 +4410,7 @@ function renderGrupos(){
  <tbody>${table.map((r,i)=>`
  <tr style="border-bottom:${i<table.length-1?"1px solid var(--border)":"none"}">
  <td style="padding:8px 6px"><div style="width:5px;height:24px;background:${posColors[i]};border-radius:0"></div></td>
- <td style="padding:8px 4px;font-weight:700;white-space:nowrap">${flag(r.team)} ${r.team}${qSet.has(r.team)?`<span title="Clasificado" style="color:#22c55e;font-weight:900;margin-left:5px">✓</span>`:""}</td>
+ <td style="padding:8px 4px;font-weight:700;white-space:nowrap">${flag(r.team)} ${r.team}</td>
  <td style="padding:8px 0;text-align:center;color:var(--text-muted);width:32px;min-width:32px">${r.pj}</td>
  <td style="padding:8px 0;text-align:center;color:var(--text-muted);width:32px;min-width:32px">${r.pg}</td>
  <td style="padding:8px 0;text-align:center;color:var(--text-muted);width:32px;min-width:32px">${r.pe}</td>
@@ -4714,14 +4735,14 @@ function pitchHTML(team,label,sideMk){
  const depth=pos=>{
   const k=String(pos||"").toUpperCase();
   if(!k)return 3;
-  if(/^G|GOAL/.test(k))return -1;
-  if(/STRIK|^ST|CF|^FW|FORWARD|^F$/.test(k))return 6;                 // delantero
-  if(/WING.?BACK|^WB|^LWB|^RWB/.test(k))return 1;                     // carrilero
-  if(/WING|^LW|^RW|^W$/.test(k))return 5;                             // extremo
-  if(/ATTACK.*MID|^AM|^CAM|OFFENS.*MID/.test(k))return 4;             // mediapunta
-  if(/DEFENS.*MID|^DM|^CDM|HOLDING/.test(k))return 2;                 // volante de marca
-  if(/MID|^CM|^LM|^RM|^M$/.test(k))return 3;                          // mediocampo
-  if(/BACK|DEFEN|^CB|^LB|^RB|^D/.test(k))return 0;                    // defensa
+  if(/^G|GOAL|KEEP/.test(k))return -1;
+  if(/WING.?BACK|^WB|^LWB|^RWB/.test(k))return 1;                    // carrilero (antes que delantero/extremo)
+  if(/ATTACK.*MID|^AM|^CAM|OFFENS.*MID/.test(k))return 4;            // mediapunta (antes que el ATTACK genérico)
+  if(/WING|^LW|^RW|^W$/.test(k))return 5;                            // extremo
+  if(/STRIK|^ST|CF|^FW|FORWARD|ATTACK|^F$|^A$/.test(k))return 6;     // delantero / atacante genérico
+  if(/DEFENS.*MID|^DM|^CDM|HOLDING/.test(k))return 2;                // volante de marca
+  if(/MID|^CM|^LM|^RM|^M$/.test(k))return 3;                         // mediocampo
+  if(/BACK|DEFEN|^CB|^LB|^RB|^D/.test(k))return 0;                   // defensa
   return 3;
  };
  // Clasificación gruesa D/M/F (respaldo cuando NO hay formación válida).
@@ -5211,7 +5232,7 @@ function renderMisPronos(){
 
  return`
  <div class="card" style="margin-bottom:14px">
- <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
+ <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
  <div style="font-size:28px;font-weight:900;color:var(--primary)">${totalMatchPts} pts</div>
  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
  ${!isPostLockout?`<div style="text-align:right"><div style="font-size:12px;color:var(--text-muted)">Pronosticados</div><div style="font-size:16px;font-weight:900;color:${_done===_tot?'#22c55e':'var(--text)'}">${_done}/${_tot}</div></div>`:''}
@@ -5289,7 +5310,7 @@ function renderMisPronos(){
  ${matchScoreBlock(m,pred,res)}
  <span class="team">${live?redCardBadge(redCardCounts(m).away):""}${m.away} ${flag(m.away)}</span>
  </div>
- ${cardState==='finished'?`<div style="text-align:center;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-size:9px;margin-top:2px">resultado final</div><div class="match-foot"><div class="match-result-sub">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div></div>`:''}
+ ${cardState==='finished'?`<div class="match-foot"><div class="match-result-sub"><div style="font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-size:9px">resultado final</div><div style="margin-top:2px">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div></div></div>`:''}
  ${cardState==='live'?`<div class="match-result-sub">tu pronóstico <span style="color:var(--text-muted)">${pred.h??'-'}-${pred.a??'-'}</span></div>`:''}
  ${(cardState==='open'||cardState==='blocked')?`<div class="match-foot">${morboToggleBtn}</div>`:''}
   ${matchEventsHTML(m)}
@@ -5305,21 +5326,11 @@ function renderMisPronos(){
 function renderEliminatorias(){
  const myPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints((myElimPreds||{})[m.id],allResults[m.id])||0),0);
  const phasesHtml=ELIM_PHASES.map(phase=>renderBracketPhase(phase)).join("");
- const qual=allQualifiedTeams();
- const qualPanel=qual.length?`
- <div class="card" style="margin-bottom:14px;border-left:3px solid #22c55e">
-  <div style="font-size:11px;font-weight:800;letter-spacing:.5px;color:#22c55e;text-transform:uppercase;margin-bottom:8px">Ya clasificados · ${qual.length}</div>
-  <div style="display:flex;flex-wrap:wrap;gap:6px">
-   ${qual.map(it=>`<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.32);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:800;color:var(--text)">${flag(it.t)} ${it.t} <span style="color:var(--text-dim);font-weight:700">${it.g}</span></span>`).join("")}
-  </div>
-  <div style="font-size:10px;color:var(--text-dim);margin-top:8px">Equipos asegurados como 1°/2° de su grupo. Los cruces se completan al cerrarse los grupos.</div>
- </div>`:"";
  return`
  <div class="card" style="margin-bottom:14px">
  
  <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div>
  </div>
- ${qualPanel}
  <div class="bracket-outer">${phasesHtml}</div>`;
 }
 
@@ -5650,18 +5661,13 @@ function renderEspeciales(){
  ${real?`<div style="font-size:12px;color:var(--text-muted);text-align:right;min-width:80px">Real:<br/><strong style="color:var(--text)">${real}</strong></div>`:""}
  </div>
  ${verPronos?(()=>{
+  const answers=Object.entries(allUsers).map(([uid,u])=>{if(uid===currentUser.uid)return null;const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v}:null;}).filter(Boolean);
+  if(!answers.length)return "";
+  const expE=expandedEspeciales.has(f.id);
   const rxnKey="esp_"+f.id;
   const matchReactions=allReactions[rxnKey]||{};
-  const others=Object.entries(allUsers).map(([uid,u])=>{if(uid===currentUser.uid)return null;const v=((u.especiales||{})[f.id]||"").trim();return v?{uid,name:u.name,val:v,self:false}:null;}).filter(Boolean).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-  let myVal=((allUsers[currentUser.uid]||{}).especiales||{})[f.id];
-  myVal&&(myVal=String(myVal).trim());
-  const myHasRxns=!!myVal&&Object.keys(matchReactions[currentUser.uid]||{}).length>0;
-  if(!others.length && !myHasRxns)return "";
-  const selfRow=myVal?[{uid:currentUser.uid,name:"Tú",val:myVal,self:true}]:[];
-  const answers=selfRow.concat(others);
-  const expE=expandedEspeciales.has(f.id);
   return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:3px auto 0;background:none;border:none;color:var(--primary);opacity:.55;cursor:pointer;font-size:14px;line-height:1;padding:0 16px">${expE?'▴':'▾'}</button>`+
-   (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.map(a=>{
+   (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
      const color=avatarColor(a.name);
      const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
      const predRxns=matchReactions[a.uid]||{};
@@ -5675,7 +5681,7 @@ function renderEspeciales(){
        <span style="font-weight:700;color:${isCorrect?'#22c55e':'var(--text)'};overflow:hidden;text-overflow:ellipsis;max-width:120px">${escHtml(a.val)}</span>
        <span style="position:absolute;left:100%;margin-left:6px;display:flex;align-items:center;gap:6px">
        ${rxnBadges}
-       ${a.self?'':`<button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>`}
+       <button class="rxn-trigger" onclick="event.stopPropagation();rxnShowFromTrigger(this)" title="Reaccionar" aria-label="Reaccionar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
        </span>
       </span>
       <span></span>
@@ -5926,7 +5932,7 @@ function initChat(){
  const tabbarH=(isMobile&&tabbar)?tabbar.getBoundingClientRect().height:0;
  // Margen extra para que el composer quede JUSTO encima de la barra de tabs,
  // sin que la línea de pestañas lo tape ni un poco.
- const gap=isMobile?(document.documentElement.classList.contains('is-app')?32:18):8;
+ const gap=isMobile?18:8;
  const disponible=vh-headerBottom-tabbarH-gap;
  wrap.style.height=Math.max(disponible,220)+'px';
  wrap.style.minHeight='0';
@@ -6254,6 +6260,23 @@ window.closeCarta=function(){document.getElementById("carta-overlay").style.disp
 // ─── ACCIONES ─────────────────────────────────────────────
 const pollaBase=()=>`pollas/${currentPollaId}`;
 const _predTrackTimer={};
+// Buffers de escritura con debounce. Cada pulsacion ya NO escribe en Firebase;
+// se junta y se escribe una sola vez ~700ms despues de dejar de teclear.
+const _predWriteTimer={},_predWriteBuf={},_elimWriteTimer={},_elimWriteBuf={};
+function _flushPred(matchId){
+ const buf=_predWriteBuf[matchId];if(!buf)return;delete _predWriteBuf[matchId];
+ db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update(buf)
+  .catch(()=>{showToast("Este partido ya cerro; no se pudo guardar.","#ef4444",3500);});
+}
+function _flushElim(matchId){
+ const buf=_elimWriteBuf[matchId];if(!buf)return;delete _elimWriteBuf[matchId];
+ db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update(buf)
+  .catch(()=>{showToast("Este partido ya cerro; no se pudo guardar.","#ef4444",3500);});
+}
+function _flushAllPreds(){Object.keys(_predWriteBuf).forEach(_flushPred);Object.keys(_elimWriteBuf).forEach(_flushElim);}
+// Red de seguridad: si el usuario cierra o esconde la app antes del flush, guardamos ya.
+window.addEventListener("beforeunload",_flushAllPreds);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")_flushAllPreds();});
 window.clampScoreInput=function(el){
  let v=(el.value||"").replace(/[^0-9]/g,"");
  if(v.length>2)v=v.slice(0,2);
@@ -6272,8 +6295,10 @@ window.savePred=async function(matchId,side,val){
  val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myPredictions[matchId]={...(myPredictions[matchId]||{}),[side]:val};
- try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/predictions/${matchId}`).update({[side]:val}); }
- catch(e){ showToast("Este partido ya cerró; no se pudo guardar.","#ef4444",3500); return; }
+ // Debounce: junta los digitos (y h+a) y escribe UNA sola vez al dejar de teclear.
+ _predWriteBuf[matchId]={...(_predWriteBuf[matchId]||{}),[side]:val};
+ clearTimeout(_predWriteTimer[matchId]);
+ _predWriteTimer[matchId]=setTimeout(()=>_flushPred(matchId),700);
  // Fire once per match after both sides filled, debounced
  clearTimeout(_predTrackTimer[matchId]);
  _predTrackTimer[matchId]=setTimeout(()=>{
@@ -6295,8 +6320,9 @@ window.saveElimPred=async function(matchId,side,val){
  val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
- try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({[side]:val}); }
- catch(e){ showToast("Este partido ya cerró; no se pudo guardar.","#ef4444",3500); return; }
+ _elimWriteBuf[matchId]={...(_elimWriteBuf[matchId]||{}),[side]:val};
+ clearTimeout(_elimWriteTimer[matchId]);
+ _elimWriteTimer[matchId]=setTimeout(()=>_flushElim(matchId),700);
 };
 window.saveElimWinner=async function(matchId,winner){
  const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
