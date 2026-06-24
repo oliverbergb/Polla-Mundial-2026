@@ -467,6 +467,25 @@ window.adminSavePred=async function(matchId,isGroups){
   renderSpy();
  }catch(e){ spyToast("No se pudo guardar: "+(e.code||e.message||"error"),true); }
 };
+// Guarda (como ADMIN) el orden de clasificación de un grupo.
+window.adminSaveGroup=async function(g){
+ if(!_spyId||!_spyUid)return;
+ const teams=GROUPS[g]||[]; const order=[];
+ for(let i=0;i<teams.length;i++){
+  const el=document.getElementById(`grp_${g}_${i}`); if(!el)return;
+  order.push(el.value);
+ }
+ if(new Set(order).size!==order.length){ spyToast("Hay equipos repetidos en el orden",true); return; }
+ const path=`pollas/${_spyId}/participantes/${_spyUid}/groupPredictions/${g}`;
+ try{
+  await db.ref(path).set(order);
+  const u=(POLLAS[_spyId].participantes||{})[_spyUid]||{};
+  u.groupPredictions=u.groupPredictions||{}; u.groupPredictions[g]=order;
+  buildLeaderboard();
+  spyToast(`Grupo ${g} guardado ✓`);
+  renderSpy();
+ }catch(e){ spyToast("No se pudo guardar: "+(e.code||e.message||"error"),true); }
+};
 window.copyCode=function(ev,code){ ev.stopPropagation(); navigator.clipboard&&navigator.clipboard.writeText(code); const el=ev.currentTarget; const old=el.textContent; el.textContent="¡copiado!"; setTimeout(()=>{el.textContent=old;},900); };
 
 function renderSpy(){
@@ -521,10 +540,27 @@ function renderSpy(){
  if(rules.incluirClasificacion!==false){
   h+=`<div class="phaseh">Clasificación de grupos (pronóstico de orden)</div>`;
   Object.keys(GROUPS).forEach(g=>{
+   const teams=GROUPS[g]||[];
    const userOrder=grp[g], realOrder=officialGroupOrder(g,results,WORLD);
    const gp=calcGroupPredPointsR(userOrder,realOrder,rules);
    const ordTxt=userOrder?userOrder.map((t,i)=>`${i+1}.${esc(t)}`).join("  "):'<span style="color:#6b5c44">sin orden</span>';
-   h+=`<div class="mrow"><div class="teams"><b>Grupo ${g}</b><div style="font-size:11px;color:#6b5c44">${ordTxt}</div></div><div class="res">${realOrder?'definido':'<span style="color:#6b5c44">pendiente</span>'}</div><div class="ppts"><span class="${gp>0?'p3':'p0'}">+${gp}</span></div></div>`;
+   let grpBody;
+   if(_spyEdit){
+    const base=(userOrder&&userOrder.length===teams.length)?userOrder:teams;
+    let sel="";
+    for(let i=0;i<teams.length;i++){
+     const cur=base[i]||teams[i];
+     sel+=`<div style="display:flex;align-items:center;gap:4px;margin:2px 0">`
+        +`<span style="width:16px;color:#6b5c44;font-size:11px">${i+1}.</span>`
+        +`<select id="grp_${g}_${i}" style="flex:1;padding:3px;border:1px solid #caa18f;border-radius:6px;font-size:12px">`
+        +teams.map(t=>`<option value="${esc(t)}" ${t===cur?'selected':''}>${esc(t)}</option>`).join("")
+        +`</select></div>`;
+    }
+    grpBody=`<div style="margin-top:5px">${sel}<button onclick="adminSaveGroup('${g}')" style="font-size:11px;padding:4px 10px;border:none;border-radius:6px;background:#de3d27;color:#fff;cursor:pointer;font-weight:700;margin-top:3px">Guardar orden</button></div>`;
+   } else {
+    grpBody=`<div style="font-size:11px;color:#6b5c44">${ordTxt}</div>`;
+   }
+   h+=`<div class="mrow"><div class="teams"><b>Grupo ${g}</b>${grpBody}</div><div class="res">${realOrder?'definido':'<span style="color:#6b5c44">pendiente</span>'}</div><div class="ppts"><span class="${gp>0?'p3':'p0'}">+${gp}</span></div></div>`;
   });
  }
 
