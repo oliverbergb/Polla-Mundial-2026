@@ -98,11 +98,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .match-card[onclick]:active{transform:scale(.98)}
 .match-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-weight:700;min-height:22px}
 .match-teams{display:flex;align-items:center;gap:8px;min-height:86px}
-/* En tarjetas con pie (terminado / en vivo) el marcador quedaba "medio arriba" porque
-   el contenido inferior empuja el centro visual. Bajamos la fila de equipos para que la
-   distancia entre su techo y su piso sea pareja. */
-.match-card.mc-finished .match-teams{padding-top:18px}
-.match-card.mc-live .match-teams{padding-top:31px}
+/* El marcador va centrado en la fila de equipos (sin empuje hacia abajo). */
 .team{flex:1;font-weight:800;font-size:13px}
 .team.home{text-align:right}
 .score-input{width:48px;height:36px;box-sizing:border-box;text-align:center;line-height:32px;background:var(--surface-2);border:2px solid var(--border);border-radius:12px;color:var(--text);padding:0 4px;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';-webkit-appearance:none;appearance:none;-moz-appearance:textfield}
@@ -1849,7 +1845,7 @@ function _pointsAt(u,cutoff,r){
   Object.keys(GROUPS).forEach(g=>{
    const gm=MATCHES.filter(m=>m.group===g);
    if(!gm.length)return;
-   const doneBy=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null&&new Date(m.kickoff).getTime()<=cutoff;});
+   const doneBy=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null&&!isLive(m)&&new Date(m.kickoff).getTime()<=cutoff;});
    if(!doneBy)return;
    pts+=calcGroupPredPointsR(grp[g],calcGroupTable(g).map(x=>x.team),r);
   });
@@ -4348,7 +4344,9 @@ function officialGroupOrder(g){
  if(ov&&ov.length)return ov;
  const gm=MATCHES.filter(m=>m.group===g);
  if(!gm.length)return undefined;
- const done=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null;});
+ // Confirmado = TODOS los partidos del grupo tienen resultado Y ya NO están en vivo.
+ // (Un marcador parcial en vivo NO confirma posiciones, aunque haya h/a cargados.)
+ const done=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null&&!isLive(m);});
  if(!done)return undefined;
  return calcGroupTable(g).map(r=>r.team);
 }
@@ -4377,12 +4375,16 @@ function renderGrupos(){
  ${locked
  ?userOrder.map((t,i)=>{
  const groupDone=!!realOrder;                       // grupo 100% terminado → confirmado
- const cmp=groupDone?realOrder:liveOrder;           // confirmado usa orden real; preview usa orden en vivo
+ const cmp=groupDone?realOrder:liveOrder;           // confirmado: orden real · preview: orden en vivo
  const correct=groupPlayed&&cmp[i]===t;
- return`<div class="sortable-item" style="cursor:default;border-color:var(--border)">
+ // Verde en el texto cuando aciertas (preview y confirmado). Borde verde SOLO al confirmar acierto.
+ const txtCol=correct?"#22c55e":"var(--text-muted)";
+ const bdCol=(groupDone&&correct)?"#22c55e":"var(--border)";
+ const txt=groupDone?(correct?`+${posPts}`:`0`):(correct?`(+${posPts})`:`(+0)`);
+ return`<div class="sortable-item" style="cursor:default;border-color:${bdCol}">
  <div class="pos-num" style="background:${POS_COLORS[i]}">${POS_LABELS[i]}</div>
  <span style="flex:1;font-weight:700;font-size:13px">${flag(t)} ${t}</span>
- ${groupPlayed?`<span style="font-size:12px;font-weight:800;color:${(groupDone&&correct)?"#22c55e":"var(--text-muted)"}">${groupDone?(correct?`+${posPts}`:`0`):(correct?`(+${posPts})`:`(+0)`)}</span>`:""}
+ ${groupPlayed?`<span style="font-size:12px;font-weight:800;color:${txtCol}">${txt}</span>`:""}
  </div>`;
  }).join("")
  :`<ul class="sortable-list" id="sortable-${currentGroup}">
@@ -5334,13 +5336,21 @@ function renderEliminatorias(){
  <div class="bracket-outer">${phasesHtml}</div>`;
 }
 
-// Resolves "G74" → the actual winner of match 74 once that result is known
+// Resuelve los rótulos de cruce a equipos reales cuando ya se conocen:
+//  · "G74" → ganador del partido 74
+//  · "1º Grupo A" / "2º Grupo B" → equipo confirmado en esa posición del grupo (cuando el grupo terminó)
+// Los rótulos de mejores terceros ("3º varios", "3º C/D/F") se dejan tal cual.
 function resolveElimTeam(name){
  if(!name)return name;
- const m=name.match(/^G(\d+)$/);
- if(!m)return name;
- const prevRes=allResults[parseInt(m[1])];
- return prevRes?.winner||name; // fallback to placeholder if not yet known
+ const gm=name.match(/^\s*(\d)\s*º\s*Grupo\s*([A-L])\s*$/i);
+ if(gm){
+  const pos=parseInt(gm[1])-1,g=gm[2].toUpperCase();
+  const order=officialGroupOrder(g);
+  return (order&&order[pos])?order[pos]:name; // solo si el grupo ya está confirmado
+ }
+ const wm=name.match(/^G(\d+)$/);
+ if(wm){const prevRes=allResults[parseInt(wm[1])];return prevRes?.winner||name;}
+ return name;
 }
 function renderBracketPhase(phase){
  const locked=isPhaseLocked(phase.id);
