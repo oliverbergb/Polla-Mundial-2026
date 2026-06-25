@@ -327,6 +327,23 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .bm-sep{height:1px;background:var(--border-soft);margin:0 12px}
 .bm-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
 .bm-meta{font-size:10px;color:var(--text-dim);padding:4px 12px 7px;display:flex;gap:8px}
+.obr-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 6px;margin:0 -4px}
+.obr-grid{display:flex;gap:12px;min-width:max-content;align-items:stretch;padding:0 4px}
+.obr-col{display:flex;flex-direction:column;justify-content:space-around;gap:8px;min-width:148px}
+.obr-col-hdr{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--primary);text-transform:uppercase;text-align:center;padding-bottom:4px}
+.obr-tie{background:var(--surface);border:2px solid var(--border-soft);border-radius:12px;overflow:hidden;box-shadow:0 3px 0 var(--border-strong)}
+.obr-row{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:12px;font-weight:700}
+.obr-row.win{background:rgba(34,197,94,.12);color:var(--success-text)}
+.obr-row.lose{color:var(--text-dim)}
+.obr-fl{min-width:18px;text-align:center}
+.obr-row .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:92px}
+.obr-row .nm.obr-ph{color:var(--text-dim);font-weight:600;font-style:italic}
+.obr-row .sc{margin-left:auto;font-weight:900;min-width:14px;text-align:right}
+.obr-divider{height:1px;background:var(--border-soft);margin:0 8px}
+.obr-dot{opacity:.4}
+.obr-date{font-size:9px;color:var(--text-dim);padding:3px 8px 5px;text-align:center}
+.obr-third{margin-top:14px;max-width:220px}
+.obr-hint{font-size:10px;color:var(--text-dim);text-align:center;margin-top:6px}
 
 /* ── COLLECTIVE BAR ── */
 .coll-bar-wrap{margin-top:10px;padding:10px 12px;background:var(--surface-2);border-radius:14px;border:2px solid var(--border)}
@@ -1479,6 +1496,7 @@ const MATCHES=[
 
 // ─── STATE ────────────────────────────────────────────────
 let db,auth,currentUser=null,currentTab="mis_pronos",currentGroup="A",currentElimPhase="r32",partidosView="grupos",_partidosViewTouched=false;
+let elimView="bracket";
 let allUsers={},allResults={},myPredictions={},myGroupPreds={},myElimPreds={},phaseLocks={};
 // Caché de marcadores en vivo (nodo global liveScores). Sobrevive al cambio de polla
 // para que, al reentrar a otra polla, los puntajes no se pierdan hasta refrescar.
@@ -5239,7 +5257,7 @@ function renderMisPronos(){
 
  return`
  <div class="card" style="margin-bottom:14px">
- <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;${isPostLockout?'':'margin-bottom:10px'}">
  <div style="font-size:28px;font-weight:900;color:var(--primary)">${totalMatchPts} pts</div>
  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
  ${!isPostLockout?`<div style="text-align:right"><div style="font-size:12px;color:var(--text-muted)">Pronosticados</div><div style="font-size:16px;font-weight:900;color:${_done===_tot?'#22c55e':'var(--text)'}">${_done}/${_tot}</div></div>`:''}
@@ -5330,12 +5348,65 @@ function renderMisPronos(){
 }
 
 // ─── TAB: ELIMINATORIAS ───────────────────────────────────
+// ─── BRACKET OFICIAL (solo lectura, informativo) ──────────────────
+// Ordena el arbol desde la final hacia atras siguiendo los rotulos "G<id>"
+// (ganador del partido <id>) y "SF1/SF2", para que cada columna quede en orden
+// de arbol y se lea como un bracket clasico de izquierda a derecha.
+function _brFeederId(label){
+ let mm=String(label||"").match(/^G(\d+)$/);if(mm)return parseInt(mm[1]);
+ mm=String(label||"").match(/SF\s*([12])/i);if(mm)return mm[1]==="1"?101:102;
+ return null;
+}
+function bracketTreeOrder(){
+ const byId={};MATCHES.forEach(m=>byId[m.id]=m);
+ const order={r32:[],r16:[],qf:[],sf:[],final:[]};
+ const seen={};
+ (function walk(id){
+  const m=byId[id];if(!m||seen[id])return;seen[id]=1;
+  if(order[m.phase])order[m.phase].push(m);
+  [m.home,m.away].forEach(lbl=>{const c=_brFeederId(lbl);if(c)walk(c);});
+ })(104);
+ return order;
+}
+// Etiqueta de un slot: equipo real si ya se conoce, o placeholder legible si no.
+function bracketSlot(raw){
+ const t=resolveElimTeam(raw);
+ if(t&&t!==raw)return{name:t,resolved:true};
+ let nm=String(raw||"").replace(/^G(\d+)$/,"Ganador P$1");
+ return{name:nm,resolved:false};
+}
+function _brTie(m){
+ const res=allResults[m.id];
+ const hasRes=res&&res.winner!==undefined&&res.winner!==null&&res.winner!=="";
+ const live=isLive(m);
+ const H=bracketSlot(m.home),A=bracketSlot(m.away);
+ const hWin=hasRes&&res.winner===H.name,aWin=hasRes&&res.winner===A.name;
+ const row=(o,win,score)=>{
+  const mark=o.resolved?flag(o.name):'<span class="obr-dot">&bull;</span>';
+  return '<div class="obr-row '+(hasRes?(win?'win':'lose'):'')+'"><span class="obr-fl">'+mark+'</span><span class="nm '+(o.resolved?'':'obr-ph')+'">'+o.name+'</span><span class="sc">'+(hasRes?(score!=null?score:'-'):'')+'</span></div>';
+ };
+ return '<div class="obr-tie" style="'+(live?'border-color:#ef4444':'')+'">'
+  +row(H,hWin,res&&res.h)
+  +'<div class="obr-divider"></div>'
+  +row(A,aWin,res&&res.a)
+  +'<div class="obr-date">'+localMatchDate(m.kickoff)+(live?' <span class="live-dot"></span>':'')+'</div>'
+  +'</div>';
+}
+function renderOfficialBracket(){
+ const order=bracketTreeOrder();
+ const cols=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"final",label:"Final"}];
+ const colsHtml=cols.map(c=>'<div class="obr-col"><div class="obr-col-hdr">'+c.label+'</div>'+(order[c.id]||[]).map(_brTie).join("")+'</div>').join("");
+ const third=MATCHES.find(m=>m.phase==="third");
+ const thirdHtml=third?'<div class="obr-third"><div class="obr-col-hdr">3er Puesto</div>'+_brTie(third)+'</div>':"";
+ return '<div class="obr-scroll"><div class="obr-grid">'+colsHtml+'</div></div>'+thirdHtml+'<div class="obr-hint">Desliza para ver todas las rondas &rarr;</div>';
+}
 function renderEliminatorias(){
+ const subToggle=`<div style="display:flex;gap:6px;margin-bottom:14px;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:4px"><button onclick="setElimView('bracket')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;border:none;background:${elimView==='bracket'?'var(--primary)':'transparent'};color:${elimView==='bracket'?'#fff':'var(--text-muted)'};${elimView==='bracket'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('eliminatoria',13,elimView==='bracket'?'#fff':'var(--text-muted)')} Bracket</button><button onclick="setElimView('pronos')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;border:none;background:${elimView==='pronos'?'var(--primary)':'transparent'};color:${elimView==='pronos'?'#fff':'var(--text-muted)'};${elimView==='pronos'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('partidos',13,elimView==='pronos'?'#fff':'var(--text-muted)')} Mis pronósticos</button></div>`;
+ if(elimView==='bracket')return subToggle+renderOfficialBracket();
  const myPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints((myElimPreds||{})[m.id],allResults[m.id])||0),0);
  const phasesHtml=ELIM_PHASES.map(phase=>renderBracketPhase(phase)).join("");
- return`
+ return subToggle+`
  <div class="card" style="margin-bottom:14px">
- 
  <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div>
  </div>
  <div class="bracket-outer">${phasesHtml}</div>`;
@@ -7399,6 +7470,7 @@ function renderPartidos(){
  return toggle+(partidosView==='eliminatorias'?renderEliminatorias():renderMisPronos());
 }
 window.setPartidosView=function(v){partidosView=v;_partidosViewTouched=true;renderTab();};
+window.setElimView=function(v){elimView=v;renderTab();};
 
 // ─── RENDER TAB (with reactions init) ────────────────────
 function renderTab(){
