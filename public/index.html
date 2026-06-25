@@ -7418,7 +7418,27 @@ window.addEventListener("load",initFirebase);
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js");
+    navigator.serviceWorker.register("/sw.js").then((reg) => {
+      // Fuerza comprobar si hay una versión nueva en cada carga.
+      reg.update();
+      reg.addEventListener("updatefound", () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener("statechange", () => {
+          // Nueva versión lista mientras ya hay una activa → actívala.
+          if (nw.state === "installed" && navigator.serviceWorker.controller) {
+            nw.postMessage({ type: "SKIP_WAITING" });
+          }
+        });
+      });
+    }).catch(() => {});
+    // Cuando el SW nuevo toma control, recargamos una sola vez para ver el código fresco.
+    let _swReloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (_swReloaded) return;
+      _swReloaded = true;
+      location.reload();
+    });
   });
 }
 </script>
