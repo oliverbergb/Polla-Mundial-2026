@@ -1740,7 +1740,7 @@ function totalPoints(u){
  const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
  return s+(p&&rv&&p===rv?pts:0);
  },0):0;
- const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g),r),0):0;
+ const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g]||GROUPS[g],officialGroupOrder(g),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
  return matchPts+espPts+grpPts+elimPts;
 }
@@ -1851,7 +1851,7 @@ function _pointsAt(u,cutoff,r){
    if(!gm.length)return;
    const doneBy=gm.every(m=>{const res=allResults[m.id];return res&&res.h!==""&&res.h!=null&&res.a!==""&&res.a!=null&&!isLive(m)&&new Date(m.kickoff).getTime()<=cutoff;});
    if(!doneBy)return;
-   pts+=calcGroupPredPointsR(grp[g],calcGroupTable(g).map(x=>x.team),r);
+   pts+=calcGroupPredPointsR(grp[g]||GROUPS[g],calcGroupTable(g).map(x=>x.team),r);
   });
  }
  return pts;
@@ -4358,7 +4358,7 @@ function officialGroupOrder(g){
 function renderGrupos(){
  const locked=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  const incClasif=currentPolla?.rules?.incluirClasificacion!==false;
- const myTotalPts=incClasif?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(myGroupPreds[g],officialGroupOrder(g)),0):0;
+ const myTotalPts=incClasif?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPoints(myGroupPreds[g]||GROUPS[g],officialGroupOrder(g)),0):0;
  const posColors=["#22c55e","#22c55e","var(--primary)","#ef4444"];
  const posTips=["Clasifica","Clasifica","Posible clasificación","Eliminado"];
  const table=calcGroupTable(currentGroup);
@@ -6890,7 +6890,7 @@ window.openBreakdown=function(uid,skipAnim){
  const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
  return s+(p&&rv&&p===rv?pts:0);
  },0):0;
- const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g),r),0):0;
+ const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g]||GROUPS[g],officialGroupOrder(g),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
  const total=matchPts+espPts+grpPts+elimPts;
  const isMine=uid===currentUser.uid;
@@ -7026,7 +7026,7 @@ window.openH2H=function(opponentUid){
   const adminEsp=globalWorld.especiales||{};
   const matchPts=MATCHES.filter(m=>m.phase==="groups").reduce((s,m)=>s+(calcMatchPointsR(preds[m.id],allResults[m.id],r)||0),0);
   const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
-  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g),r),0):0;
+  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g]||GROUPS[g],officialGroupOrder(g),r),0):0;
   const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
    const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
    const pts=r[ruleKey]??f.pts;
