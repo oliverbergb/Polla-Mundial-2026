@@ -293,7 +293,7 @@ function totalPoints(u,rules,results,world){
   const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
   return s+(p&&rv&&p===rv?pts:0);
  },0):0;
- const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g]||GROUPS[g],officialGroupOrder(g,results,world),r),0):0;
+ const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g],officialGroupOrder(g,results,world),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],results[m.id],r)||0),0);
  return matchPts+espPts+grpPts+elimPts;
 }
@@ -541,7 +541,7 @@ function renderSpy(){
   h+=`<div class="phaseh">Clasificación de grupos (pronóstico de orden)</div>`;
   Object.keys(GROUPS).forEach(g=>{
    const teams=GROUPS[g]||[];
-   const userOrder=grp[g]||GROUPS[g], realOrder=officialGroupOrder(g,results,WORLD);
+   const userOrder=grp[g], realOrder=officialGroupOrder(g,results,WORLD);
    const gp=calcGroupPredPointsR(userOrder,realOrder,rules);
    const ordTxt=userOrder?userOrder.map((t,i)=>`${i+1}.${esc(t)}`).join("  "):'<span style="color:#6b5c44">sin orden</span>';
    let grpBody;
