@@ -461,7 +461,7 @@ function renderPresence(){
  if(!panel)return;
  const seen={},list=[];
  Object.values(POLLAS).forEach(p=>{
-  if((p.nombre||"").trim().toLowerCase()!=="rica polla")return;
+  if(!(p.nombre||"").toLowerCase().includes("rica polla"))return;
   Object.entries(p.participantes||{}).forEach(([uid,u])=>{
    if(!u||u.left||seen[uid])return; seen[uid]=1;
    list.push({uid,name:u.name||"¿?"});
