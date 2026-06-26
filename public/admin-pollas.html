@@ -48,6 +48,11 @@
  .phaseh{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#8c7a5e;margin:14px 0 4px}
  .note{font-size:12px;color:#8c7a5e;background:#241809;border-radius:8px;padding:8px 11px;margin:10px 0}
  input.search{background:#2a1d0f;border:1px solid #3a2a18;border-radius:10px;color:#f5efe6;padding:10px 12px;font-size:14px;width:100%;max-width:340px;margin-bottom:12px}
+ .presence{display:flex;flex-direction:column;gap:2px;margin:4px 0 14px}
+ .pres-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#241809;border-radius:8px}
+ .pres-dot{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(0,0,0,.25)}
+ .pres-name{font-weight:700;color:#f5efe6;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .pres-when{font-size:12px;color:#b8a98f;flex:none}
 </style>
 </head>
 <body>
@@ -307,6 +312,7 @@ const sc=v=>(v===""||v==null)?"–":v;
 let WORLD={especiales:{},groupOverride:{}};
 let LIVE={};            // marcadores globales del nodo /liveScores
 let POLLAS={};          // id -> polla
+let STATUS={};          // uid -> {online,lastSeen}  (presencia)
 let LEADER=[];          // filas globales de jugadores
 let _spyId=null,_spyUid=null,_spyEdit=false;
 
@@ -327,6 +333,8 @@ auth.onAuthStateChanged(async user=>{
  POLLAS=snap.val()||{};
  buildLeaderboard();
  render();
+ // Presencia en vivo: solo refresca el panel, no re-renderiza todo.
+ try{ db.ref("status").on("value",function(s){ STATUS=s.val()||{}; renderPresence(); }); }catch(e){}
 });
 
 const activeParts=p=>Object.entries(p.participantes||{}).filter(([,u])=>u&&!u.left);
@@ -386,6 +394,9 @@ function render(){
   <div class="stat"><b>${LEADER.length}</b><span>jugadores activos</span></div>
   <button class="ghost" onclick="auth.signOut()" style="vertical-align:top;margin-top:6px">Cerrar sesión</button>`;
 
+ /* ── PRESENCIA RICA POLLA ── */
+ html+=`<div id="presencePanel"></div>`;
+
  /* ── TOP GLOBAL ── */
  html+=`<h3>🏆 Top jugadores — todas las pollas</h3>`;
  html+=`<input class="search" placeholder="Buscar jugador o polla…" oninput="_lbSearch(this.value)" value="${esc(lbQueryRaw)}"/>`;
@@ -432,6 +443,41 @@ function render(){
  else if(!list.length) html+='<p>Ninguna polla tiene más de 1 usuario activo.</p>';
 
  out.innerHTML=html;
+ renderPresence();
+}
+
+/* ── Presencia: solo jugadores de "Rica Polla" ── */
+function _ago(ts){
+ if(!ts)return"sin registro";
+ const s=Math.floor((Date.now()-ts)/1000);
+ if(s<60)return"hace instantes";
+ const m=Math.floor(s/60); if(m<60)return"hace "+m+" min";
+ const h=Math.floor(m/60); if(h<24)return"hace "+h+" h";
+ const d=Math.floor(h/24); if(d<30)return"hace "+d+(d>1?" días":" día");
+ const mo=Math.floor(d/30); return"hace "+mo+(mo>1?" meses":" mes");
+}
+function renderPresence(){
+ const panel=document.getElementById("presencePanel");
+ if(!panel)return;
+ const seen={},list=[];
+ Object.values(POLLAS).forEach(p=>{
+  if((p.nombre||"").trim().toLowerCase()!=="rica polla")return;
+  Object.entries(p.participantes||{}).forEach(([uid,u])=>{
+   if(!u||u.left||seen[uid])return; seen[uid]=1;
+   list.push({uid,name:u.name||"¿?"});
+  });
+ });
+ if(!list.length){panel.innerHTML="";return;}
+ list.forEach(r=>{const st=STATUS[r.uid]||{};r.online=!!st.online;r.lastSeen=st.lastSeen||0;});
+ list.sort((a,b)=>(b.online-a.online)||(b.lastSeen-a.lastSeen)||a.name.localeCompare(b.name));
+ const on=list.filter(r=>r.online).length;
+ let h=`<h3>🟢 Rica Polla — en línea (${on}/${list.length})</h3><div class="presence">`;
+ list.forEach(r=>{
+  const dot=r.online?'#22c55e':'#5a4a32';
+  const txt=r.online?'en línea':_ago(r.lastSeen);
+  h+=`<div class="pres-row"><span class="pres-dot" style="background:${dot}"></span><span class="pres-name">${esc(r.name)}</span><span class="pres-when">${esc(txt)}</span></div>`;
+ });
+ panel.innerHTML=h+`</div>`;
 }
 
 /* ════════════ ESPIAR (solo lectura, no escribe NADA) ════════════ */
