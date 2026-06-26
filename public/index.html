@@ -2023,6 +2023,23 @@ function initFirebase(){
  const appCheck=firebase.appCheck();
  appCheck.activate('6Lco0QUtAAAAJhTQNecGbApGTr4Co2WDebJDWjg',true);
  db=firebase.database();auth=firebase.auth();
+ // ── Presencia (online / última vez) ──────────────────────────────
+ // El propio cliente marca su estado en /status/{uid}. onDisconnect deja
+ // online:false + lastSeen cuando se cae la conexión (cierra app, sin red…).
+ function setupPresence(uid){
+  if(!uid||window._presenceUid===uid)return;
+  window._presenceUid=uid;
+  try{
+   const ref=db.ref("status/"+uid);
+   const TS=firebase.database.ServerValue.TIMESTAMP;
+   db.ref(".info/connected").on("value",function(snap){
+    if(snap.val()===false)return;
+    ref.onDisconnect().set({online:false,lastSeen:TS}).then(function(){
+     ref.set({online:true,lastSeen:TS});
+    });
+   });
+  }catch(e){}
+ }
  // Keep the session alive across reloads / app restarts.
  try{auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);}catch(e){}
  const urlParams=new URLSearchParams(window.location.search);
@@ -2032,6 +2049,7 @@ function initFirebase(){
  try{ auth.getRedirectResult().catch(function(e){ if(e&&e.code==="auth/unauthorized-domain"){try{showToast("Dominio no autorizado. Agrégalo en Firebase → Authentication → Authorized domains.","#ef4444",5000);}catch(_){}} }); }catch(_){}
  auth.onAuthStateChanged(async user=>{
  if(user){
+ setupPresence(user.uid);
  // An authenticated user must NEVER be dumped on the login screen because of a
  // transient read failure (network blip / App Check token). Retry before giving up.
  for(let attempt=0;attempt<3;attempt++){
