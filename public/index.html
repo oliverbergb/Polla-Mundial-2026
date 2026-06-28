@@ -5460,7 +5460,7 @@ function resolveElimTeam(name){
  return name;
 }
 function renderBracketPhase(phase){
- const locked=isPhaseLocked(phase.id);
+ const locked=true;// FIX: eliminatorias SIEMPRE abiertas para pronosticar (cierre por partido lo maneja isLocked)
  const matches=MATCHES.filter(m=>m.phase===phase.id);
  if(!locked){
  return`<div class="bracket-section">
@@ -6433,7 +6433,7 @@ window.saveGroupPred=async function(group,order){
  showToast("Guardado ");
 };
 window.saveElimPred=async function(matchId,side,val){
- const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
+ const m=MATCHES.find(x=>x.id===matchId);if(!m||isLocked(m))return;
  val=clampScore(val);
  if(val!==""&&val!=null&&navigator.vibrate)navigator.vibrate(8);
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),[side]:val};
@@ -6442,7 +6442,7 @@ window.saveElimPred=async function(matchId,side,val){
  _elimWriteTimer[matchId]=setTimeout(()=>_flushElim(matchId),700);
 };
 window.saveElimWinner=async function(matchId,winner){
- const m=MATCHES.find(x=>x.id===matchId);if(!m||!isPhaseLocked(m.phase)||isLocked(m))return;
+ const m=MATCHES.find(x=>x.id===matchId);if(!m||isLocked(m))return;
  myElimPreds[matchId]={...(myElimPreds[matchId]||{}),winner};
  try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/elimPredictions/${matchId}`).update({winner}); }
  catch(e){ showToast("Este partido ya cerró; no se pudo guardar.","#ef4444",3500); return; }
