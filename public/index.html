@@ -1132,6 +1132,21 @@ const API_CODE={"México":"MEX","Sudáfrica":"RSA","Corea del Sur":"KOR","Rep. C
 // Nombre en inglés normalizado = match de respaldo si no llega abreviatura.
 const API_NAME={"México":"mexico","Sudáfrica":"southafrica","Corea del Sur":"southkorea","Rep. Checa":"czechia","Brasil":"brazil","Marruecos":"morocco","Haití":"haiti","Escocia":"scotland","Canadá":"canada","Qatar":"qatar","Suiza":"switzerland","Bosnia":"bosnia","Estados Unidos":"unitedstates","Paraguay":"paraguay","Australia":"australia","Turquía":"turkiye","Alemania":"germany","Costa de Marfil":"ivorycoast","Ecuador":"ecuador","Curazao":"curacao","Países Bajos":"netherlands","Japón":"japan","Túnez":"tunisia","Suecia":"sweden","Bélgica":"belgium","Egipto":"egypt","Irán":"iran","Nueva Zelanda":"newzealand","España":"spain","Cabo Verde":"capeverde","Arabia Saudita":"saudiarabia","Uruguay":"uruguay","Francia":"france","Senegal":"senegal","Noruega":"norway","Irak":"iraq","Argentina":"argentina","Argelia":"algeria","Austria":"austria","Jordania":"jordan","Portugal":"portugal","Uzbekistán":"uzbekistan","Colombia":"colombia","RD Congo":"congo","Inglaterra":"england","Croacia":"croatia","Ghana":"ghana","Panamá":"panama"};
 const _norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
+// Mapas inversos API->app (para resolver cruces reales de eliminatoria desde la API).
+const _API_BY_CODE={},_API_BY_NAME={};
+Object.keys(API_CODE).forEach(es=>{_API_BY_CODE[API_CODE[es]]=es;});
+Object.keys(API_NAME).forEach(es=>{_API_BY_NAME[API_NAME[es]]=es;});
+function apiTeamToApp(t){
+ if(!t)return null;
+ const code=t.abbreviation&&String(t.abbreviation).toUpperCase();
+ if(code&&_API_BY_CODE[code])return _API_BY_CODE[code];
+ const n=_norm(t.name);
+ if(n&&_API_BY_NAME[n])return _API_BY_NAME[n];
+ for(const k in _API_BY_NAME){if(n&&k&&(n===k||n.includes(k)||k.includes(n)))return _API_BY_NAME[k];}
+ return null;
+}
+// localId -> {home?:appName, away?:appName} con los equipos reales resueltos vía API (terceros, etc.)
+let elimRealTeams={};
 function apiTeamEq(appName,apiTeam){
  if(!apiTeam)return false;
  const code=API_CODE[appName];
@@ -1141,8 +1156,8 @@ function apiTeamEq(appName,apiTeam){
  return false;
 }
 // Para mapear con la API se usa el equipo REAL: en eliminatorias el rótulo ("2º Grupo A","G74") se resuelve al país.
-function _apiHome(x){return (x.phase&&x.phase!=="groups")?resolveElimTeam(x.home):x.home;}
-function _apiAway(x){return (x.phase&&x.phase!=="groups")?resolveElimTeam(x.away):x.away;}
+function _apiHome(x){if(x.phase&&x.phase!=="groups"){const o=elimRealTeams[x.id];return (o&&o.home)||resolveElimTeam(x.home);}return x.home;}
+function _apiAway(x){if(x.phase&&x.phase!=="groups"){const o=elimRealTeams[x.id];return (o&&o.away)||resolveElimTeam(x.away);}return x.away;}
 const PHASE_LABELS={groups:"Grupos",r32:"16avos",r16:"Octavos",qf:"Cuartos",sf:"Semis",third:"3er Puesto",final:"Final"};
 const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"third",label:"3er Puesto"},{id:"final",label:"Final"}];
 const POS_COLORS=["#22c55e","#22c55e","var(--primary)","#ef4444"];
@@ -4632,6 +4647,41 @@ async function buildApiIdMap(){
    _apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id,_delta:newDelta};
   }
   Object.values(_apiIdMap).forEach(v=>delete v._delta); // limpiar campo auxiliar
+  // ── Resolver equipos reales de eliminatoria (mejores terceros y rivales) desde la API ──
+  // Para cada partido de eliminatoria con un lado ya conocido (ej. "1º Grupo E"=Alemania) y el otro
+  // como rótulo ("3º varios"), buscamos en la API el fixture de ese equipo y tomamos al rival real.
+  try{
+   elimRealTeams={};
+   for(const m of MATCHES){
+    if(!m.phase||m.phase==="groups")continue;
+    const hR=resolveElimTeam(m.home),aR=resolveElimTeam(m.away);
+    const hReal=!!API_CODE[hR],aReal=!!API_CODE[aR];
+    if(hReal&&aReal)continue;          // ambos resueltos: nada que rellenar
+    if(!hReal&&!aReal)continue;        // sin ancla (octavos+ aún sin definir): se resuelve luego
+    const anchor=hReal?hR:aR;
+    let best=null,bestDelta=Infinity;
+    for(const am of all){
+     if(!am.season||am.season.year!==2026)continue;
+     const ha=apiTeamToApp(am.home_team),aa=apiTeamToApp(am.away_team);
+     if(ha!==anchor&&aa!==anchor)continue;
+     const d=Math.abs(new Date(m.kickoff)-new Date(am.datetime));
+     if(d<bestDelta){bestDelta=d;best={am,ha,aa};}
+    }
+    if(!best||bestDelta>60*3600000)continue; // sin fixture cercano: no arriesgamos
+    const anchorIsApiHome=(best.ha===anchor);
+    const opp=anchorIsApiHome?best.aa:best.ha;
+    if(!opp)continue;
+    const rec=elimRealTeams[m.id]||{};
+    if(!hReal)rec.home=opp; if(!aReal)rec.away=opp;
+    elimRealTeams[m.id]=rec;
+    // Bonus: registrar apiId para que marcador en vivo y alineaciones también funcionen en estos cruces.
+    if(!_apiIdMap[m.id]){
+     const anchorId=anchorIsApiHome?best.am.home_team?.id:best.am.away_team?.id;
+     const oppId=anchorIsApiHome?best.am.away_team?.id:best.am.home_team?.id;
+     _apiIdMap[m.id]={apiId:best.am.id,homeId:hReal?anchorId:oppId,awayId:hReal?oppId:anchorId};
+    }
+   }
+  }catch(e){}
   // Publicar el mapa apiId->localId para que el poller externo (cron) sepa a qué partido escribir.
   try{
    if(currentUser&&currentUser.uid===ADMIN_UID&&db){
@@ -5390,8 +5440,17 @@ function bracketTreeOrder(){
  return order;
 }
 // Etiqueta de un slot: equipo real si ya se conoce, o placeholder legible si no.
-function bracketSlot(raw){
- const t=resolveElimTeam(raw);
+function elimTeamFor(m,side){
+ const label=side==='home'?m.home:m.away;
+ const base=resolveElimTeam(label);
+ if(API_CODE[base])return base;
+ const ov=elimRealTeams[m.id];
+ if(ov&&ov[side])return ov[side];
+ return base;
+}
+function bracketSlot(raw,m,side){
+ let t=resolveElimTeam(raw);
+ if(m&&side&&!API_CODE[t]){const ov=elimRealTeams[m.id];if(ov&&ov[side])t=ov[side];}
  if(t&&t!==raw)return{name:t,resolved:true};
  let nm=String(raw||"").replace(/^G(\d+)$/,"Ganador P$1");
  return{name:nm,resolved:false};
@@ -5400,7 +5459,7 @@ function _brTie(m){
  const res=allResults[m.id];
  const hasRes=res&&res.winner!==undefined&&res.winner!==null&&res.winner!=="";
  const live=isLive(m);
- const H=bracketSlot(m.home),A=bracketSlot(m.away);
+ const H=bracketSlot(m.home,m,"home"),A=bracketSlot(m.away,m,"away");
  const hWin=hasRes&&res.winner===H.name,aWin=hasRes&&res.winner===A.name;
  const row=(o,win,score)=>{
   const mark=o.resolved?flag(o.name):'<span class="obr-dot">&bull;</span>';
@@ -5546,8 +5605,8 @@ function renderBracketPhase(phase){
  </div>`;
  }
  const matchesHtml=matches.map(m=>{
- const homeTeam=resolveElimTeam(m.home);
- const awayTeam=resolveElimTeam(m.away);
+ const homeTeam=elimTeamFor(m,'home');
+ const awayTeam=elimTeamFor(m,'away');
  const pred=(myElimPreds||{})[m.id]||{};
  const res=allResults[m.id];
  const pts=calcElimPoints(pred,res);
