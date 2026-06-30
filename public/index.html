@@ -5525,8 +5525,8 @@ function nextMatchBadgeHtml(){
  const _p=_isGrp?(myPredictions[_nm.m.id]||{}):((myElimPreds||{})[_nm.m.id]||{});
  const _predDone=_p.h!==undefined&&_p.h!==""&&_p.a!==undefined&&_p.a!=="";
  const _ctx=_isGrp?("Grupo "+_nm.m.group):(((ELIM_PHASES.find(p=>p.id===_nm.m.phase)||{}).label)||"");
- const _hn=_isGrp?_nm.m.home:resolveElimTeam(_nm.m.home);
- const _an=_isGrp?_nm.m.away:resolveElimTeam(_nm.m.away);
+ const _hn=_isGrp?_nm.m.home:elimTeamFor(_nm.m,"home");
+ const _an=_isGrp?_nm.m.away:elimTeamFor(_nm.m,"away");
  const _go=_isGrp?`setPartidosView('grupos');setGroup('${_nm.m.group}')`:`setElimPhase('${_nm.m.phase}');setPartidosView('eliminatorias');setElimView('pronos')`;
  const _sc=_predDone?"#15803d":"#dc2626";
  return `<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" onclick="${_go}" style="cursor:pointer;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.2">
@@ -5900,6 +5900,7 @@ function topScorersRowsHTML(){
  const teamByCode={};Object.entries(API_CODE).forEach(([es,code])=>teamByCode[code]=es);
  const norm=s=>(s||"").trim().toLowerCase();
  const tally={}; // key normalizado -> {name, team, g}
+ const evTeam={}; // key normalizado -> país (en español) tomado de eventos, respaldo de bandera
  // Base: goles acumulados del torneo (rosters), la fuente más confiable.
  if(_rostersScorers&&_rostersScorers.length){
   for(const s of _rostersScorers){
@@ -5917,6 +5918,7 @@ function topScorersRowsHTML(){
    const k=norm(name);
    if(!tally[k])tally[k]={name,team:e.team||"",g:0};
    if(e.team&&!tally[k].team)tally[k].team=e.team;
+   if(e.team&&FLAG_ISO[e.team])evTeam[k]=e.team;
    tally[k].g++;
   }
  }
@@ -5933,6 +5935,7 @@ function topScorersRowsHTML(){
    const k=norm(name);
    if(!finishedTally[k])finishedTally[k]={name,team:e.team||"",g:0};
    if(e.team&&!finishedTally[k].team)finishedTally[k].team=e.team;
+   if(e.team&&FLAG_ISO[e.team])evTeam[k]=e.team;
    finishedTally[k].g++;
   }
  }
@@ -5950,7 +5953,8 @@ function topScorersRowsHTML(){
  if(!list.length)return"";
  return list.map((sc,i)=>{
   // s.team puede ser el nombre en español (eventos nuevos) o un código (eventos antiguos)
-  const fl=flag(sc.team)||((teamByCode[sc.team]&&flag(teamByCode[sc.team]))||"");
+  const _k=norm(sc.name);
+  const fl=flag(sc.team)||((teamByCode[sc.team]&&flag(teamByCode[sc.team]))||"")||flag(evTeam[_k]||"");
   return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:${i?"1px solid var(--border)":"none"}">
    <span style="width:18px;text-align:center;font-weight:800;color:var(--text-muted);font-size:12px">${i+1}</span>
    <span style="min-width:18px">${fl}</span>
