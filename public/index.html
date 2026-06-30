@@ -354,6 +354,32 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .obr-grid{gap:22px}
 .obr-col:not(:last-child) .obr-tie::after{content:"";position:absolute;left:100%;top:50%;width:11px;height:2px;background:var(--border-strong)}
 .obr-col:not(:first-child) .obr-tie::before{content:"";position:absolute;right:100%;top:50%;width:11px;height:2px;background:var(--border-strong)}
+.brkt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 8px;margin:0 -4px}
+.brkt{display:flex;align-items:stretch;min-width:max-content;padding:0 4px}
+.rd{display:flex;flex-direction:column;width:188px;min-width:188px}
+.rd+.rd{margin-left:30px}
+.rd-hdr{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--primary);text-transform:uppercase;text-align:center;height:22px;line-height:22px;margin-bottom:6px}
+.rd-body{flex:1;display:flex;flex-direction:column}
+.mt{flex:1 1 0;display:flex;flex-direction:column;justify-content:center;position:relative;min-height:76px}
+.brc{background:var(--surface-2);border:1px solid var(--border-soft);border-radius:14px;padding:8px 11px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.brc-live{border-color:#ef4444}
+.brc-top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px}
+.brc-when{font-size:10px;color:var(--text-dim);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brc-pill{font-size:9px;font-weight:800;padding:1px 8px;border-radius:10px;background:var(--border);color:var(--text-muted);flex-shrink:0}
+.brc-pill.live{background:#ef4444;color:#fff}
+.brc-row{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:13px;font-weight:700;color:var(--text)}
+.brc-row.lose{color:var(--text-dim);font-weight:600}
+.brc-fl{width:22px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.brc-shield{display:inline-block;width:14px;height:16px;background:var(--text-dim);opacity:.4;clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%)}
+.brc-nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brc-nm.ph{color:var(--text-dim);font-weight:600}
+.brc-sc{font-weight:900;font-variant-numeric:tabular-nums;min-width:12px;text-align:right}
+.brc-pen{font-size:11px;color:var(--text-dim);font-weight:800;margin-left:2px}
+.brc-arw{width:9px;color:var(--primary);font-size:11px;font-weight:900;text-align:center;flex-shrink:0}
+.brc-third{margin-top:16px;max-width:230px}
+/* fork connectors: each child draws lines to its two parents */
+.rd:not(:first-child) .mt::before{content:"";position:absolute;right:100%;width:15px;top:50%;height:2px;background:var(--border-strong)}
+.rd:not(:first-child) .mt::after{content:"";position:absolute;right:calc(100% + 15px);width:15px;top:25%;bottom:25%;border:2px solid var(--border-strong);border-left:0}
 
 /* ── COLLECTIVE BAR ── */
 .coll-bar-wrap{margin-top:10px;padding:10px 12px;background:var(--surface-2);border-radius:14px;border:2px solid var(--border)}
@@ -3933,7 +3959,7 @@ function showGoalNotif(match,newH,newA){
  const isExact=hasPred&&scoreTier(pred,_res)===3;
 
  const bar=document.getElementById("goal-notif");
- const home=match.home,away=match.away;
+ const home=teamName(match,"home"),away=teamName(match,"away");
  document.getElementById("gn-icon").textContent=isExact?"🎯":"⚽";
  const scoreEl=document.getElementById("gn-score");
  scoreEl.textContent=`${home} ${newH} — ${newA} ${away}`;
@@ -4778,9 +4804,9 @@ function oddsBar(m){
  return`<div style="margin:8px 2px 2px;padding:10px 10px 12px;background:var(--surface-2);border-radius:12px">
  <div style="text-align:center;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--text-muted);margin-bottom:8px">PROBABILIDAD DE VICTORIA</div>
  <div style="display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;margin-bottom:6px;gap:6px">
-  <div style="text-align:left;min-width:0;flex:1"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</div><div style="font-weight:800;font-size:15px;color:${HOME}">${ph}%</div></div>
+  <div style="text-align:left;min-width:0;flex:1"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${teamName(m,"home")}</div><div style="font-weight:800;font-size:15px;color:${HOME}">${ph}%</div></div>
   <div style="text-align:center;flex:1"><div style="font-weight:700;color:var(--text-muted)">Empate</div><div style="font-weight:800;font-size:15px;color:var(--warning)">${pd}%</div></div>
-  <div style="text-align:right;min-width:0;flex:1"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</div><div style="font-weight:800;font-size:15px;color:${AWAY}">${pa}%</div></div>
+  <div style="text-align:right;min-width:0;flex:1"><div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${teamName(m,"away")}</div><div style="font-weight:800;font-size:15px;color:${AWAY}">${pa}%</div></div>
  </div>
  <div style="display:flex;gap:3px;height:9px;border-radius:5px;overflow:hidden">
   <div style="width:${ph}%;background:${HOME}"></div>
@@ -5526,32 +5552,45 @@ function _brTie(m){
  const hWin=win&&win===H.name,aWin=win&&win===A.name;
  const pens=_elimPens(res);
  const row=(o,isWin,score,pen)=>{
-  const mark=o.resolved?flag(o.name):'<span class="obr-dot">&bull;</span>';
-  const penTxt=(pens&&pen!=null)?'<span class="obr-pen">('+pen+')</span>':'';
-  return '<div class="obr-row '+(hasRes?(isWin?'win':'lose'):'')+'"><span class="obr-fl">'+mark+'</span><span class="nm '+(o.resolved?'':'obr-ph')+'">'+o.name+'</span><span class="sc">'+(hasRes?(score!=null&&score!==''?score:'-'):'')+penTxt+'</span></div>';
+  const mark=o.resolved?('<span class="brc-fl">'+flag(o.name)+'</span>'):'<span class="brc-fl"><span class="brc-shield"></span></span>';
+  const nm=o.resolved?o.name:"A definir";
+  const penTxt=(pens&&pen!=null)?'<span class="brc-pen">('+pen+')</span>':'';
+  const sc=hasRes?(score!=null&&score!==''?score:'-'):'';
+  const arw=(hasRes&&isWin)?'<span class="brc-arw">&#9664;</span>':'<span class="brc-arw"></span>';
+  return '<div class="brc-row '+(hasRes?(isWin?'win':'lose'):'')+'">'+mark
+   +'<span class="brc-nm '+(o.resolved?'':'ph')+'">'+nm+'</span>'
+   +'<span class="brc-sc">'+sc+penTxt+'</span>'+arw+'</div>';
  };
- const clickable=hasRes&&!live&&elimMatchHasAnyPrediction(m);
- const exp=expandedMatches.has(m.id);
- const onclick=clickable?' onclick="toggleMatchExpand('+m.id+')"':'';
- const spec=(clickable&&exp)?'<div class="obr-spec">'+elimSpectatorBlock(m,res)+'</div>':'';
- const metaRight=live?'<span class="live-dot"></span>'+liveClock(m):(localMatchDate(m.kickoff)+' · '+localMatchTime(m.kickoff));
- const advance='';
- return '<div class="obr-tie'+(clickable?' obr-clk':'')+(live?' obr-live':'')+'"'+onclick+'>'
+ let pill='',whenTxt;
+ if(live){pill='<span class="brc-pill live">En Vivo</span>';whenTxt='<span class="live-dot"></span>'+liveClock(m);}
+ else if(hasRes){pill='<span class="brc-pill">'+(pens?'Fin (P)':'Fin')+'</span>';whenTxt=localMatchDate(m.kickoff);}
+ else {whenTxt=localMatchDate(m.kickoff)+' · '+localMatchTime(m.kickoff);}
+ return '<div class="brc'+(live?' brc-live':'')+'">'
+  +'<div class="brc-top"><span class="brc-when">'+whenTxt+'</span>'+pill+'</div>'
   +row(H,hWin,res&&res.h,pens&&pens.h)
-  +'<div class="obr-divider"></div>'
   +row(A,aWin,res&&res.a,pens&&pens.a)
-  +'<div class="obr-date">'+metaRight+'</div>'
-  +advance
-  +spec
   +'</div>';
 }
+// Orden vertical del bracket — calcado del bracket oficial (como el de Google):
+// cada partido va arriba del que sigue, y cada par alimenta al de la ronda siguiente.
+const BRACKET_ORDER={
+ r32:[73,75,74,77,82,81,84,83,76,78,79,80,85,87,88,86],
+ r16:[90,89,94,93,91,92,96,95],
+ qf:[97,98,99,100],
+ sf:[101,102],
+ final:[104]
+};
 function renderOfficialBracket(){
- const order=bracketTreeOrder();
+ const byId={};MATCHES.forEach(m=>byId[m.id]=m);
  const cols=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"final",label:"Final"}];
- const colsHtml=cols.map(c=>'<div class="obr-col"><div class="obr-col-hdr">'+c.label+'</div>'+(order[c.id]||[]).map(_brTie).join("")+'</div>').join("");
+ const colsHtml=cols.map(c=>{
+  const body=(BRACKET_ORDER[c.id]||[]).map(id=>byId[id]).filter(Boolean)
+    .map(m=>'<div class="mt">'+_brTie(m)+'</div>').join("");
+  return '<div class="rd"><div class="rd-hdr">'+c.label+'</div><div class="rd-body">'+body+'</div></div>';
+ }).join("");
  const third=MATCHES.find(m=>m.phase==="third");
- const thirdHtml=third?'<div class="obr-third"><div class="obr-col-hdr">3er Puesto</div>'+_brTie(third)+'</div>':"";
- return '<div class="obr-scroll"><div class="obr-grid">'+colsHtml+'</div></div>'+thirdHtml+'<div class="obr-hint">Desliza para ver todas las rondas &rarr;</div>';
+ const thirdHtml=third?'<div class="brc-third"><div class="rd-hdr">3er Puesto</div>'+_brTie(third)+'</div>':"";
+ return '<div class="brkt-scroll"><div class="brkt">'+colsHtml+'</div></div>'+thirdHtml+'<div class="obr-hint">Desliza para ver todas las rondas &rarr;</div>';
 }
 function renderEliminatorias(){
  const subToggle=`<div style="display:flex;gap:6px;margin-bottom:14px;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:4px"><button onclick="setElimView('bracket')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;border:none;background:${elimView==='bracket'?'var(--primary)':'transparent'};color:${elimView==='bracket'?'#fff':'var(--text-muted)'};${elimView==='bracket'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('eliminatoria',13,elimView==='bracket'?'#fff':'var(--text-muted)')} Bracket</button><button onclick="setElimView('pronos')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;border:none;background:${elimView==='pronos'?'var(--primary)':'transparent'};color:${elimView==='pronos'?'#fff':'var(--text-muted)'};${elimView==='pronos'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('partidos',13,elimView==='pronos'?'#fff':'var(--text-muted)')} Mis pronósticos</button></div>`;
@@ -5603,6 +5642,7 @@ function resolveElimTeam(name){
  if(lw){const pm=MATCHES.find(x=>x.id===(lw[1]==="1"?101:102));const w=pm?elimLoser(pm):null;return w||name;}
  return name;
 }
+function teamName(m,side){return (m&&m.phase&&m.phase!=="groups")?elimTeamFor(m,side):(side==="home"?m.home:m.away);}
 function elimMatchHasAnyPrediction(m){
  return Object.entries(allUsers).some(([uid,u])=>{if(uid===currentUser.uid)return false;const p=((u||{}).elimPredictions||{})[m.id];return p&&p.h!==undefined&&p.h!==""&&p.a!==undefined&&p.a!=="";});
 }
@@ -5676,7 +5716,7 @@ function elimSpectatorBlock(m,res){
 }
 function renderBracketPhase(phase){
  const locked=true;// FIX: eliminatorias SIEMPRE abiertas para pronosticar (cierre por partido lo maneja isLocked)
- const matches=MATCHES.filter(m=>m.phase===phase.id);
+ const matches=MATCHES.filter(m=>m.phase===phase.id).slice().sort((a,b)=>new Date(a.kickoff)-new Date(b.kickoff));
  if(!locked){
  return`<div class="bracket-section">
  <div class="bracket-phase-hdr">${phase.label}</div>
@@ -6423,7 +6463,7 @@ function buildPolliRecap(j){
   const bm=bestSingleAll.best.match;
   const bp=bestSingleAll.best.pred;
   const bres=allResults[bm.id];
-  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico del día:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(bm.home)} ${esc(bm.home)} vs ${esc(bm.away)} ${flag(bm.away)} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
+  lines.push(`<div style="margin:6px 0"><strong style="color:var(--primary)">Pronóstico del día:</strong> ${esc(bestSingleAll.name)} clavó ${bp.h}-${bp.a} en ${flag(teamName(bm,"home"))} ${esc(teamName(bm,"home"))} vs ${esc(teamName(bm,"away"))} ${flag(teamName(bm,"away"))} (real ${bres.h}-${bres.a}) → <strong>+${bestSingleAll.best.pts}</strong></div>`);
  }
  // Racha activa — mejor racha entre usuarios activos
  const streakRanking=Object.entries(allUsers).filter(([uid,u])=>!(u&&u.left)).map(([uid,u])=>({uid,name:u.name,streak:getStreak(uid)})).filter(x=>x.streak>=3).sort((a,b)=>b.streak-a.streak);
