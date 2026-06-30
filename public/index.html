@@ -318,8 +318,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .bracket-section{margin-bottom:20px}
 .bracket-phase-hdr{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--primary);text-transform:uppercase;padding:4px 0 10px;border-bottom:1px solid var(--border-soft);margin-bottom:10px}
 .bracket-match{background:var(--surface);border:2px solid var(--border);border-radius:18px;margin-bottom:10px;overflow:hidden;transition:border-color .15s,box-shadow .15s;position:relative;box-shadow:0 4px 0 var(--border-strong)}
-.bracket-match:not(.locked):hover{border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark);cursor:pointer}
-.bracket-match.locked{cursor:default}
+.bracket-match.bm-clickable{cursor:pointer}
+.bracket-match.bm-clickable:hover{border-color:var(--primary);box-shadow:0 4px 0 var(--primary-dark)}
 .bm-team{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;font-weight:700;position:relative}
 .bm-team.winner{background:rgba(34,197,94,.1);color:var(--success-text)}
 .bm-team.loser{color:var(--text-dim)}
@@ -344,6 +344,16 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .obr-date{font-size:9px;color:var(--text-dim);padding:3px 8px 5px;text-align:center}
 .obr-third{margin-top:14px;max-width:220px}
 .obr-hint{font-size:10px;color:var(--text-dim);text-align:center;margin-top:6px}
+.obr-tie{position:relative}
+.obr-clk{cursor:pointer}
+.obr-clk:hover{border-color:var(--primary)}
+.obr-live{border-color:#ef4444}
+.obr-pen{font-size:10px;color:var(--text-dim);margin-left:3px;font-weight:800}
+.obr-adv{font-size:9px;font-weight:800;color:var(--success-text);background:rgba(34,197,94,.12);padding:3px 8px;text-align:center}
+.obr-spec{padding:2px 8px 8px;border-top:1px solid var(--border-soft)}
+.obr-grid{gap:22px}
+.obr-col:not(:last-child) .obr-tie::after{content:"";position:absolute;left:100%;top:50%;width:11px;height:2px;background:var(--border)}
+.obr-col:not(:first-child) .obr-tie::before{content:"";position:absolute;right:100%;top:50%;width:11px;height:2px;background:var(--border)}
 
 /* ── COLLECTIVE BAR ── */
 .coll-bar-wrap{margin-top:10px;padding:10px 12px;background:var(--surface-2);border-radius:14px;border:2px solid var(--border)}
@@ -4121,6 +4131,13 @@ async function fetchLiveResults(){
  // El marcador parcial se guarda solo si la API lo trae.
  if(newH!=null)updates[`liveScores/${match.id}/h`]=String(newH);
  if(newA!=null)updates[`liveScores/${match.id}/a`]=String(newA);
+ // Penales en eliminatorias (defensivo: la API puede traerlos con distintos nombres).
+ if(match.phase&&match.phase!=="groups"){
+  const _ph=(m.home_penalty??m.home_penalties??m.penalty_home??m.home_penalty_score??m.home_pens??m.home_shootout??null);
+  const _pa=(m.away_penalty??m.away_penalties??m.penalty_away??m.away_penalty_score??m.away_pens??m.away_shootout??null);
+  if(_ph!=null)updates[`liveScores/${match.id}/pensH`]=String(_ph);
+  if(_pa!=null)updates[`liveScores/${match.id}/pensA`]=String(_pa);
+ }
  updates[`liveScores/${match.id}/status`]=m.status||(_stopped?"suspended":"in_progress");
  if(_stopped){
   updates[`liveScores/${match.id}/clock`]=null;
@@ -5261,7 +5278,7 @@ function updateNextCloseBadge(){
  const val=document.getElementById("next-close-val");
  if(val)val.textContent=nextCloseCountdown(k);
  // Cuando arranca el partido, re-renderiza para que el badge apunte al siguiente.
- if(diff<=0&&currentTab==="mis_pronos"&&partidosView==="grupos"){renderTab();}
+ if(diff<=0&&currentTab==="mis_pronos"){renderTab();}
 }
 setInterval(updateNextCloseBadge,1000);
 // Minuto en vivo: refresco en sitio cada 30s para que no falle aunque no re-renderice.
@@ -5309,22 +5326,7 @@ function renderMisPronos(){
  const grpMissing=allGroupMatches.filter(m=>{const p=myPredictions[m.id];return !isLocked(m)&&(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="");}).length;
 
  // Próximo partido: timer al inicio del siguiente partido del torneo.
- const _nm=getNextMatchKickoff();
- let nextCloseBadge='';
- if(_nm){
-  const _isGrp=_nm.m.phase==="groups";
-  const _p=_isGrp?(myPredictions[_nm.m.id]||{}):((myElimPreds||{})[_nm.m.id]||{});
-  const _predDone=_p.h!==undefined&&_p.h!==""&&_p.a!==undefined&&_p.a!=="";
-  const _ctx=_isGrp?("Grupo "+_nm.m.group):(((ELIM_PHASES.find(p=>p.id===_nm.m.phase)||{}).label)||"");
-  const _go=_isGrp?`setGroup('${_nm.m.group}')`:`setPartidosView('eliminatorias')`;
-  const _sc=_predDone?"#15803d":"#dc2626";
-  nextCloseBadge=`<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" onclick="${_go}" style="cursor:pointer;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.2">
-  <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted)">Próximo partido</span>
-  <span id="next-close-val" style="font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;color:${_sc}">${nextCloseCountdown(_nm.m.kickoff)}</span>
-  <span style="font-size:10px;font-weight:700;color:var(--text-muted)">${flag(_nm.m.home)} ${_nm.m.home} vs ${_nm.m.away} ${flag(_nm.m.away)}${_ctx?" · "+_ctx:""}</span>
-  <span style="font-size:10px;font-weight:900;color:${_sc}">${_predDone?"Ya pronosticaste":"Falta pronosticar"}</span>
- </div>`;
- }
+ const nextCloseBadge=nextMatchBadgeHtml();
 
  return`
  <div class="card" style="margin-bottom:14px">
@@ -5448,6 +5450,64 @@ function elimTeamFor(m,side){
  if(ov&&ov[side])return ov[side];
  return base;
 }
+function _elimPens(res){
+ if(!res)return null;
+ const h=res.pensH,a=res.pensA;
+ if(h==null||h===""||a==null||a==="")return null;
+ const nh=parseInt(h),na=parseInt(a);
+ if(isNaN(nh)||isNaN(na))return null;
+ return{h:nh,a:na};
+}
+function elimWinner(m){
+ const res=allResults[m.id];if(!res)return null;
+ const H=elimTeamFor(m,'home'),A=elimTeamFor(m,'away');
+ if(res.winner&&res.winner===H)return H;
+ if(res.winner&&res.winner===A)return A;
+ const h=res.h,a=res.a;
+ if(h==null||h===""||a==null||a==="")return res.winner||null;
+ const nh=parseInt(h),na=parseInt(a);
+ if(isNaN(nh)||isNaN(na))return res.winner||null;
+ if(nh>na)return H;if(na>nh)return A;
+ const p=_elimPens(res);
+ if(p){if(p.h>p.a)return H;if(p.a>p.h)return A;}
+ return res.winner||null;
+}
+function elimLoser(m){
+ const w=elimWinner(m);if(!w)return null;
+ const H=elimTeamFor(m,'home'),A=elimTeamFor(m,'away');
+ return w===H?A:(w===A?H:null);
+}
+function adminElimResultRow(m,homeTeam,awayTeam,res,pens){
+ const w=res.winner||"";
+ const btn=(team)=>`<button onclick="event.stopPropagation();saveElimWin(${m.id},this.dataset.t)" data-t="${(team||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:10px;font-weight:800;border:1px solid ${w===team?'#22c55e':'var(--border)'};background:${w===team?'#14532d':'var(--surface-2)'};color:${w===team?'#22c55e':'var(--text-muted)'};border-radius:8px;padding:5px;cursor:pointer;font-family:'Nunito',sans-serif">${team}</button>`;
+ return `<div onclick="event.stopPropagation()" style="margin:0 10px 8px;padding:7px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2)">
+  <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px">Admin · ganador / penales</div>
+  <div style="display:flex;gap:5px;margin-bottom:5px">${btn(homeTeam)}${btn(awayTeam)}</div>
+  <div style="display:flex;gap:5px;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted)">
+   Pen:<input type="number" min="0" max="30" value="${pens?pens.h:''}" onchange="saveElimPens(${m.id},'H',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   <span>-</span>
+   <input type="number" min="0" max="30" value="${pens?pens.a:''}" onchange="saveElimPens(${m.id},'A',this.value)" style="width:38px;padding:2px;text-align:center"/>
+  </div>
+ </div>`;
+}
+function nextMatchBadgeHtml(){
+ const _nm=getNextMatchKickoff();
+ if(!_nm)return'';
+ const _isGrp=_nm.m.phase==="groups";
+ const _p=_isGrp?(myPredictions[_nm.m.id]||{}):((myElimPreds||{})[_nm.m.id]||{});
+ const _predDone=_p.h!==undefined&&_p.h!==""&&_p.a!==undefined&&_p.a!=="";
+ const _ctx=_isGrp?("Grupo "+_nm.m.group):(((ELIM_PHASES.find(p=>p.id===_nm.m.phase)||{}).label)||"");
+ const _hn=_isGrp?_nm.m.home:resolveElimTeam(_nm.m.home);
+ const _an=_isGrp?_nm.m.away:resolveElimTeam(_nm.m.away);
+ const _go=_isGrp?`setPartidosView('grupos');setGroup('${_nm.m.group}')`:`setElimPhase('${_nm.m.phase}');setPartidosView('eliminatorias');setElimView('pronos')`;
+ const _sc=_predDone?"#15803d":"#dc2626";
+ return `<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" onclick="${_go}" style="cursor:pointer;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.2">
+  <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted)">Próximo partido</span>
+  <span id="next-close-val" style="font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;color:${_sc}">${nextCloseCountdown(_nm.m.kickoff)}</span>
+  <span style="font-size:10px;font-weight:700;color:var(--text-muted)">${flag(_hn)} ${_hn} vs ${_an} ${flag(_an)}${_ctx?" · "+_ctx:""}</span>
+  <span style="font-size:10px;font-weight:900;color:${_sc}">${_predDone?"Ya pronosticaste":"Falta pronosticar"}</span>
+ </div>`;
+}
 function bracketSlot(raw,m,side){
  let t=resolveElimTeam(raw);
  if(m&&side&&!API_CODE[t]){const ov=elimRealTeams[m.id];if(ov&&ov[side])t=ov[side];}
@@ -5457,19 +5517,30 @@ function bracketSlot(raw,m,side){
 }
 function _brTie(m){
  const res=allResults[m.id];
- const hasRes=res&&res.winner!==undefined&&res.winner!==null&&res.winner!=="";
+ const hasRes=res&&res.h!==undefined&&res.h!==null&&res.h!=="";
  const live=isLive(m);
  const H=bracketSlot(m.home,m,"home"),A=bracketSlot(m.away,m,"away");
- const hWin=hasRes&&res.winner===H.name,aWin=hasRes&&res.winner===A.name;
- const row=(o,win,score)=>{
+ const win=hasRes?elimWinner(m):null;
+ const hWin=win&&win===H.name,aWin=win&&win===A.name;
+ const pens=_elimPens(res);
+ const row=(o,isWin,score,pen)=>{
   const mark=o.resolved?flag(o.name):'<span class="obr-dot">&bull;</span>';
-  return '<div class="obr-row '+(hasRes?(win?'win':'lose'):'')+'"><span class="obr-fl">'+mark+'</span><span class="nm '+(o.resolved?'':'obr-ph')+'">'+o.name+'</span><span class="sc">'+(hasRes?(score!=null?score:'-'):'')+'</span></div>';
+  const penTxt=(pens&&pen!=null)?'<span class="obr-pen">('+pen+')</span>':'';
+  return '<div class="obr-row '+(hasRes?(isWin?'win':'lose'):'')+'"><span class="obr-fl">'+mark+'</span><span class="nm '+(o.resolved?'':'obr-ph')+'">'+o.name+'</span><span class="sc">'+(hasRes?(score!=null&&score!==''?score:'-'):'')+penTxt+'</span></div>';
  };
- return '<div class="obr-tie" style="'+(live?'border-color:#ef4444':'')+'">'
-  +row(H,hWin,res&&res.h)
+ const clickable=hasRes&&!live&&elimMatchHasAnyPrediction(m);
+ const exp=expandedMatches.has(m.id);
+ const onclick=clickable?' onclick="toggleMatchExpand('+m.id+')"':'';
+ const spec=(clickable&&exp)?'<div class="obr-spec">'+elimSpectatorBlock(m,res)+'</div>':'';
+ const metaRight=live?'<span class="live-dot"></span>'+liveClock(m):(localMatchDate(m.kickoff)+' · '+localMatchTime(m.kickoff));
+ const advance=(hasRes&&win)?'<div class="obr-adv">'+flag(win)+' '+win+' avanza</div>':'';
+ return '<div class="obr-tie'+(clickable?' obr-clk':'')+(live?' obr-live':'')+'"'+onclick+'>'
+  +row(H,hWin,res&&res.h,pens&&pens.h)
   +'<div class="obr-divider"></div>'
-  +row(A,aWin,res&&res.a)
-  +'<div class="obr-date">'+localMatchDate(m.kickoff)+(live?' <span class="live-dot"></span>':'')+'</div>'
+  +row(A,aWin,res&&res.a,pens&&pens.a)
+  +'<div class="obr-date">'+metaRight+'</div>'
+  +advance
+  +spec
   +'</div>';
 }
 function renderOfficialBracket(){
@@ -5484,11 +5555,16 @@ function renderEliminatorias(){
  const subToggle=`<div style="display:flex;gap:6px;margin-bottom:14px;background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:4px"><button onclick="setElimView('bracket')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;border:none;background:${elimView==='bracket'?'var(--primary)':'transparent'};color:${elimView==='bracket'?'#fff':'var(--text-muted)'};${elimView==='bracket'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('eliminatoria',13,elimView==='bracket'?'#fff':'var(--text-muted)')} Bracket</button><button onclick="setElimView('pronos')" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';cursor:pointer;border:none;background:${elimView==='pronos'?'var(--primary)':'transparent'};color:${elimView==='pronos'?'#fff':'var(--text-muted)'};${elimView==='pronos'?'box-shadow:0 2px 0 var(--primary-dark)':''};transition:all .15s">${tpIcon('partidos',13,elimView==='pronos'?'#fff':'var(--text-muted)')} Mis pronósticos</button></div>`;
  if(elimView==='bracket')return subToggle+renderOfficialBracket();
  const myPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPoints((myElimPreds||{})[m.id],allResults[m.id])||0),0);
- const phasesHtml=ELIM_PHASES.map(phase=>renderBracketPhase(phase)).join("");
+ const _curPhase=ELIM_PHASES.find(p=>p.id===currentElimPhase)||ELIM_PHASES[0];
+ const phasesHtml=renderBracketPhase(_curPhase);
  return subToggle+`
  <div class="card" style="margin-bottom:14px">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
  <div style="font-size:28px;font-weight:900;color:#f59e0b">${myPts} pts</div>
+ ${nextMatchBadgeHtml()}
  </div>
+ </div>
+ ${elimPhasePills()}
  <div class="bracket-outer">${phasesHtml}</div>`;
 }
 
@@ -5518,7 +5594,11 @@ function resolveElimTeam(name){
   return (order&&order[pos])?order[pos]:name;
  }
  const wm=name.match(/^G(\d+)$/);
- if(wm){const prevRes=allResults[parseInt(wm[1])];return prevRes?.winner||name;}
+ if(wm){const pm=MATCHES.find(x=>x.id===parseInt(wm[1]));const w=pm?elimWinner(pm):null;return w||name;}
+ const gw=name.match(/Ganador\s*SF\s*([12])/i);
+ if(gw){const pm=MATCHES.find(x=>x.id===(gw[1]==="1"?101:102));const w=pm?elimWinner(pm):null;return w||name;}
+ const lw=name.match(/Perdedor\s*SF\s*([12])/i);
+ if(lw){const pm=MATCHES.find(x=>x.id===(lw[1]==="1"?101:102));const w=pm?elimLoser(pm):null;return w||name;}
  return name;
 }
 function elimMatchHasAnyPrediction(m){
@@ -5612,11 +5692,12 @@ function renderBracketPhase(phase){
  const pts=calcElimPoints(pred,res);
  const tier=scoreTier(pred,res);
  const matchLocked=isLocked(m);
- const hasRes=res?.winner!==undefined;
+ const hasRes=res?.h!==undefined&&res?.h!=='';
  const live=isLive(m);
  const borderColor=hasRes?(tier===3?"#22c55e":tier===2?"var(--primary)":"#ef4444"):live?"#ef4444":"var(--border-soft)";
- const homeIsWinner=hasRes&&res.winner===homeTeam;
- const awayIsWinner=hasRes&&res.winner===awayTeam;
+ const _ewin=hasRes?elimWinner(m):null;
+ const homeIsWinner=_ewin===homeTeam;
+ const awayIsWinner=_ewin===awayTeam;
  const predIsHome=pred.winner===homeTeam,predIsAway=pred.winner===awayTeam;
  let ptsBadge="";
  if(hasRes&&pts!==null){
@@ -5643,35 +5724,39 @@ function renderBracketPhase(phase){
  <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-meta">
- <span> ${localMatchDate(m.kickoff)}</span>
- <span> ${m.stadium}</span>
+ <span>${localMatchDate(m.kickoff)} · ${localMatchTime(m.kickoff)}</span>
+ <span>${m.stadium}</span>
  </div>
  <div style="padding:0 10px">${lineupHTML(m)}</div>
  ${_specToggle}${_specBlock}
  </div>`;
  }
- return`<div class="bracket-match locked" style="border-color:${borderColor}">
+ const _pens=_elimPens(res);
+ const _played=hasRes&&!live;
+ const _clickable=_played&&_canSpec;
+ const _cardClick=_clickable?` onclick="if(event.target.closest('.score-input,button,input,.pred-reaction-badge,a'))return;toggleMatchExpand(${m.id})"`:"";
+ const _arrow=(_canSpec&&!_played)?_specToggle:"";
+ const _liveMeta=live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong> <span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800">${liveClock(m)}</span>`:(localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff));
+ return`<div class="bracket-match locked${_clickable?' bm-clickable':''}" style="border-color:${borderColor}"${_cardClick}>
  <div class="bm-team ${homeIsWinner?"winner":hasRes?"loser":""}">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
- <span class="bm-score">${res?.h??"-"}</span>
- ${homeIsWinner?`<span style="font-size:12px;margin-left:4px"></span>`:""}
+ <span class="bm-score">${res?.h??"-"}${_pens?`<span style="font-size:11px;color:var(--text-dim);margin-left:2px">(${_pens.h})</span>`:""}</span>
  </div>
  <div class="bm-sep"></div>
  <div class="bm-team ${awayIsWinner?"winner":hasRes?"loser":""}">
  <span style="min-width:20px">${flag(awayTeam)}</span>
  <span style="flex:1;font-size:12px">${awayTeam}</span>
- <span class="bm-score">${res?.a??"-"}</span>
- ${awayIsWinner?`<span style="font-size:12px;margin-left:4px"></span>`:""}
+ <span class="bm-score">${res?.a??"-"}${_pens?`<span style="font-size:11px;color:var(--text-dim);margin-left:2px">(${_pens.a})</span>`:""}</span>
  </div>
  <div class="bm-meta">
- <span> ${localMatchDate(m.kickoff)}</span>
- <span> ${m.stadium}</span>
- ${live?`<span class="live-dot"></span>`:""}
+ <span>${_liveMeta}</span>
+ <span>${m.stadium}</span>
  <span style="margin-left:auto">${ptsBadge}</span>
  </div>
  <div style="padding:0 10px 6px">${matchEventsHTML(m)}${lineupHTML(m)}</div>
- ${_specToggle}${_specBlock}
+ ${(isAdmin&&hasRes)?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
+ ${_arrow}${_specBlock}
  </div>`;
  }).join("");
  return`<div class="bracket-section">
@@ -6589,6 +6674,8 @@ window.saveElimWinner=async function(matchId,winner){
  track('elim_winner_saved',{phase:m.phase});
  showToast("Guardado ");
 };
+window.saveElimWin=async function(id,team){if(!isAdmin)return;try{await db.ref('liveScores/'+id+'/winner').set(team||null);showToast('Ganador guardado ');}catch(e){showToast('No se pudo guardar','#ef4444',3000);}};
+window.saveElimPens=async function(id,side,val){if(!isAdmin)return;const v=(val===''||val==null)?null:String(parseInt(val));try{await db.ref('liveScores/'+id+'/pens'+side).set(v);}catch(e){}};
 window.saveEspecial=async function(field,val){
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT))return;
  try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/especiales/${field}`).set(val); }
@@ -7640,7 +7727,7 @@ function renderTab(){
  c.innerHTML=(fns[currentTab]||renderPartidos)();
  if(currentTab==="grupos")initDragDrop();
  if(currentTab==="chat")initChat();
- if((currentTab==="mis_pronos"&&(partidosView==="grupos"||(partidosView==="eliminatorias"&&elimView==="pronos")))||currentTab==="especiales")setTimeout(initReactionListeners,50);
+ if((currentTab==="mis_pronos"&&(partidosView==="grupos"||(partidosView==="eliminatorias"&&(elimView==="pronos"||elimView==="bracket"))))||currentTab==="especiales")setTimeout(initReactionListeners,50);
 }
 
 window.addEventListener("load",initFirebase);
