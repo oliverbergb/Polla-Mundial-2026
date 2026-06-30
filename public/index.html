@@ -331,7 +331,7 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .obr-grid{display:flex;gap:12px;min-width:max-content;align-items:stretch;padding:0 4px}
 .obr-col{display:flex;flex-direction:column;justify-content:space-around;gap:8px;min-width:148px}
 .obr-col-hdr{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--primary);text-transform:uppercase;text-align:center;padding-bottom:4px}
-.obr-tie{background:var(--surface);border:2px solid var(--border-soft);border-radius:12px;overflow:hidden;box-shadow:0 3px 0 var(--border-strong)}
+.obr-tie{background:var(--surface);border:2px solid var(--border-soft);border-radius:12px;overflow:hidden;box-shadow:0 3px 0 var(--border-strong);display:flex;flex-direction:column;justify-content:center;min-height:66px}
 .obr-row{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:12px;font-weight:700}
 .obr-row.win{background:rgba(34,197,94,.12);color:var(--success-text)}
 .obr-row.lose{color:var(--text-dim)}
@@ -352,8 +352,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .obr-adv{font-size:9px;font-weight:800;color:var(--success-text);background:rgba(34,197,94,.12);padding:3px 8px;text-align:center}
 .obr-spec{padding:2px 8px 8px;border-top:1px solid var(--border-soft)}
 .obr-grid{gap:22px}
-.obr-col:not(:last-child) .obr-tie::after{content:"";position:absolute;left:100%;top:50%;width:11px;height:2px;background:var(--border)}
-.obr-col:not(:first-child) .obr-tie::before{content:"";position:absolute;right:100%;top:50%;width:11px;height:2px;background:var(--border)}
+.obr-col:not(:last-child) .obr-tie::after{content:"";position:absolute;left:100%;top:50%;width:11px;height:2px;background:var(--border-strong)}
+.obr-col:not(:first-child) .obr-tie::before{content:"";position:absolute;right:100%;top:50%;width:11px;height:2px;background:var(--border-strong)}
 
 /* ── COLLECTIVE BAR ── */
 .coll-bar-wrap{margin-top:10px;padding:10px 12px;background:var(--surface-2);border-radius:14px;border:2px solid var(--border)}
@@ -1489,33 +1489,33 @@ const MATCHES=[
  {id:71,date:"27 Jun",time:"18:30",home:"Colombia",away:"Portugal",group:"K",stadium:"Miami",phase:"groups",kickoff:"2026-06-27T23:30:00Z"},
  {id:72,date:"27 Jun",time:"18:30",home:"RD Congo",away:"Uzbekistán",group:"K",stadium:"Atlanta",phase:"groups",kickoff:"2026-06-27T23:30:00Z"},
  {id:73,date:"28 Jun",time:"14:00",home:"2º Grupo A",away:"2º Grupo B",group:null,stadium:"Los Ángeles",phase:"r32",kickoff:"2026-06-28T19:00:00Z"},
- {id:74,date:"29 Jun",time:"14:00",home:"1º Grupo E",away:"3º C/D/F",group:null,stadium:"Boston",phase:"r32",kickoff:"2026-06-29T19:00:00Z"},
- {id:75,date:"29 Jun",time:"17:00",home:"1º Grupo F",away:"2º Grupo C",group:null,stadium:"Monterrey",phase:"r32",kickoff:"2026-06-29T22:00:00Z"},
- {id:76,date:"29 Jun",time:"11:00",home:"1º Grupo C",away:"2º Grupo F",group:null,stadium:"Houston",phase:"r32",kickoff:"2026-06-29T16:00:00Z"},
- {id:77,date:"30 Jun",time:"14:00",home:"1º Grupo I",away:"3º varios",group:null,stadium:"Nueva York",phase:"r32",kickoff:"2026-06-30T19:00:00Z"},
- {id:78,date:"30 Jun",time:"11:00",home:"2º Grupo E",away:"2º Grupo I",group:null,stadium:"Dallas",phase:"r32",kickoff:"2026-06-30T16:00:00Z"},
- {id:79,date:"1 Jul",time:"11:00",home:"1º Grupo A",away:"3º varios",group:null,stadium:"Azteca, CDMX",phase:"r32",kickoff:"2026-07-01T16:00:00Z"},
- {id:80,date:"1 Jul",time:"20:00",home:"1º Grupo L",away:"3º varios",group:null,stadium:"Atlanta",phase:"r32",kickoff:"2026-07-02T01:00:00Z"},
- {id:81,date:"1 Jul",time:"14:00",home:"1º Grupo D",away:"3º varios",group:null,stadium:"San Francisco",phase:"r32",kickoff:"2026-07-01T19:00:00Z"},
- {id:82,date:"1 Jul",time:"17:00",home:"1º Grupo H",away:"2º Grupo J",group:null,stadium:"Los Ángeles",phase:"r32",kickoff:"2026-07-01T22:00:00Z"},
- {id:83,date:"2 Jul",time:"17:00",home:"1º Grupo G",away:"3º varios",group:null,stadium:"Seattle",phase:"r32",kickoff:"2026-07-02T22:00:00Z"},
+ {id:74,date:"29 Jun",time:"15:30",home:"1º Grupo E",away:"3º C/D/F",group:null,stadium:"Boston",phase:"r32",kickoff:"2026-06-29T20:30:00Z"},
+ {id:75,date:"29 Jun",time:"20:00",home:"1º Grupo F",away:"2º Grupo C",group:null,stadium:"Monterrey",phase:"r32",kickoff:"2026-06-30T01:00:00Z"},
+ {id:76,date:"29 Jun",time:"12:00",home:"1º Grupo C",away:"2º Grupo F",group:null,stadium:"Houston",phase:"r32",kickoff:"2026-06-29T17:00:00Z"},
+ {id:77,date:"30 Jun",time:"16:00",home:"1º Grupo I",away:"3º varios",group:null,stadium:"Nueva York",phase:"r32",kickoff:"2026-06-30T21:00:00Z"},
+ {id:78,date:"30 Jun",time:"12:00",home:"2º Grupo E",away:"2º Grupo I",group:null,stadium:"Dallas",phase:"r32",kickoff:"2026-06-30T17:00:00Z"},
+ {id:79,date:"30 Jun",time:"20:00",home:"1º Grupo A",away:"3º varios",group:null,stadium:"Azteca, CDMX",phase:"r32",kickoff:"2026-07-01T01:00:00Z"},
+ {id:80,date:"1 Jul",time:"11:00",home:"1º Grupo L",away:"3º varios",group:null,stadium:"Atlanta",phase:"r32",kickoff:"2026-07-01T16:00:00Z"},
+ {id:81,date:"1 Jul",time:"19:00",home:"1º Grupo D",away:"3º varios",group:null,stadium:"San Francisco",phase:"r32",kickoff:"2026-07-02T00:00:00Z"},
+ {id:82,date:"1 Jul",time:"15:00",home:"1º Grupo H",away:"2º Grupo J",group:null,stadium:"Los Ángeles",phase:"r32",kickoff:"2026-07-01T20:00:00Z"},
+ {id:83,date:"2 Jul",time:"18:00",home:"1º Grupo G",away:"3º varios",group:null,stadium:"Seattle",phase:"r32",kickoff:"2026-07-02T23:00:00Z"},
  {id:84,date:"2 Jul",time:"14:00",home:"2º Grupo K",away:"2º Grupo L",group:null,stadium:"Toronto",phase:"r32",kickoff:"2026-07-02T19:00:00Z"},
- {id:85,date:"2 Jul",time:"17:00",home:"1º Grupo B",away:"3º varios",group:null,stadium:"Vancouver",phase:"r32",kickoff:"2026-07-02T22:00:00Z"},
- {id:86,date:"3 Jul",time:"14:00",home:"1º Grupo J",away:"2º Grupo H",group:null,stadium:"Miami",phase:"r32",kickoff:"2026-07-03T19:00:00Z"},
- {id:87,date:"3 Jul",time:"20:00",home:"1º Grupo K",away:"3º varios",group:null,stadium:"Kansas City",phase:"r32",kickoff:"2026-07-04T01:00:00Z"},
- {id:88,date:"3 Jul",time:"17:00",home:"2º Grupo D",away:"2º Grupo G",group:null,stadium:"Dallas",phase:"r32",kickoff:"2026-07-03T22:00:00Z"},
- {id:89,date:"4 Jul",time:"14:00",home:"G74",away:"G77",group:null,stadium:"Philadelphia",phase:"r16",kickoff:"2026-07-04T19:00:00Z"},
- {id:90,date:"4 Jul",time:"17:00",home:"G73",away:"G75",group:null,stadium:"Houston",phase:"r16",kickoff:"2026-07-04T22:00:00Z"},
- {id:91,date:"5 Jul",time:"14:00",home:"G76",away:"G78",group:null,stadium:"Nueva York",phase:"r16",kickoff:"2026-07-05T19:00:00Z"},
- {id:92,date:"5 Jul",time:"17:00",home:"G79",away:"G80",group:null,stadium:"Azteca, CDMX",phase:"r16",kickoff:"2026-07-05T22:00:00Z"},
+ {id:85,date:"2 Jul",time:"22:00",home:"1º Grupo B",away:"3º varios",group:null,stadium:"Vancouver",phase:"r32",kickoff:"2026-07-03T03:00:00Z"},
+ {id:86,date:"3 Jul",time:"17:00",home:"1º Grupo J",away:"2º Grupo H",group:null,stadium:"Miami",phase:"r32",kickoff:"2026-07-03T22:00:00Z"},
+ {id:87,date:"3 Jul",time:"20:30",home:"1º Grupo K",away:"3º varios",group:null,stadium:"Kansas City",phase:"r32",kickoff:"2026-07-04T01:30:00Z"},
+ {id:88,date:"3 Jul",time:"13:00",home:"2º Grupo D",away:"2º Grupo G",group:null,stadium:"Dallas",phase:"r32",kickoff:"2026-07-03T18:00:00Z"},
+ {id:89,date:"4 Jul",time:"16:00",home:"G74",away:"G77",group:null,stadium:"Philadelphia",phase:"r16",kickoff:"2026-07-04T21:00:00Z"},
+ {id:90,date:"4 Jul",time:"12:00",home:"G73",away:"G75",group:null,stadium:"Houston",phase:"r16",kickoff:"2026-07-04T17:00:00Z"},
+ {id:91,date:"5 Jul",time:"15:00",home:"G76",away:"G78",group:null,stadium:"Nueva York",phase:"r16",kickoff:"2026-07-05T20:00:00Z"},
+ {id:92,date:"5 Jul",time:"19:00",home:"G79",away:"G80",group:null,stadium:"Azteca, CDMX",phase:"r16",kickoff:"2026-07-06T00:00:00Z"},
  {id:93,date:"6 Jul",time:"14:00",home:"G83",away:"G84",group:null,stadium:"Dallas",phase:"r16",kickoff:"2026-07-06T19:00:00Z"},
- {id:94,date:"6 Jul",time:"17:00",home:"G81",away:"G82",group:null,stadium:"Seattle",phase:"r16",kickoff:"2026-07-06T22:00:00Z"},
- {id:95,date:"7 Jul",time:"14:00",home:"G86",away:"G88",group:null,stadium:"Atlanta",phase:"r16",kickoff:"2026-07-07T19:00:00Z"},
- {id:96,date:"7 Jul",time:"17:00",home:"G85",away:"G87",group:null,stadium:"Vancouver",phase:"r16",kickoff:"2026-07-07T22:00:00Z"},
- {id:97,date:"9 Jul",time:"14:00",home:"G89",away:"G90",group:null,stadium:"Boston",phase:"qf",kickoff:"2026-07-09T19:00:00Z"},
+ {id:94,date:"6 Jul",time:"19:00",home:"G81",away:"G82",group:null,stadium:"Seattle",phase:"r16",kickoff:"2026-07-07T00:00:00Z"},
+ {id:95,date:"7 Jul",time:"11:00",home:"G86",away:"G88",group:null,stadium:"Atlanta",phase:"r16",kickoff:"2026-07-07T16:00:00Z"},
+ {id:96,date:"7 Jul",time:"15:00",home:"G85",away:"G87",group:null,stadium:"Vancouver",phase:"r16",kickoff:"2026-07-07T20:00:00Z"},
+ {id:97,date:"9 Jul",time:"15:00",home:"G89",away:"G90",group:null,stadium:"Boston",phase:"qf",kickoff:"2026-07-09T20:00:00Z"},
  {id:98,date:"10 Jul",time:"14:00",home:"G93",away:"G94",group:null,stadium:"Los Ángeles",phase:"qf",kickoff:"2026-07-10T19:00:00Z"},
- {id:99,date:"11 Jul",time:"14:00",home:"G91",away:"G92",group:null,stadium:"Miami",phase:"qf",kickoff:"2026-07-11T19:00:00Z"},
- {id:100,date:"11 Jul",time:"17:00",home:"G95",away:"G96",group:null,stadium:"Kansas City",phase:"qf",kickoff:"2026-07-11T22:00:00Z"},
+ {id:99,date:"11 Jul",time:"16:00",home:"G91",away:"G92",group:null,stadium:"Miami",phase:"qf",kickoff:"2026-07-11T21:00:00Z"},
+ {id:100,date:"11 Jul",time:"20:00",home:"G95",away:"G96",group:null,stadium:"Kansas City",phase:"qf",kickoff:"2026-07-12T01:00:00Z"},
  {id:101,date:"14 Jul",time:"14:00",home:"G97",away:"G98",group:null,stadium:"Dallas",phase:"sf",kickoff:"2026-07-14T19:00:00Z"},
  {id:102,date:"15 Jul",time:"14:00",home:"G99",away:"G100",group:null,stadium:"Atlanta",phase:"sf",kickoff:"2026-07-15T19:00:00Z"},
  {id:103,date:"18 Jul",time:"16:00",home:"Perdedor SF1",away:"Perdedor SF2",group:null,stadium:"Miami",phase:"third",kickoff:"2026-07-18T21:00:00Z"},
@@ -4026,6 +4026,9 @@ function iniciarMasterPolling(){
  if(score.endedTs!=null)allResults[numId].endedTs=score.endedTs;
  if(score.gkH)allResults[numId].gkH=score.gkH;
  if(score.gkA)allResults[numId].gkA=score.gkA;
+ if(score.winner!=null)allResults[numId].winner=score.winner;else delete allResults[numId].winner;
+ if(score.pensH!=null)allResults[numId].pensH=score.pensH;else delete allResults[numId].pensH;
+ if(score.pensA!=null)allResults[numId].pensA=score.pensA;else delete allResults[numId].pensA;
  _liveScoresCache[numId]=Object.assign({},allResults[numId]);
  });
  requestRender();
@@ -4397,7 +4400,7 @@ function groupPills(allowLive=true){
  }).join("")}</div>`;
 }
 function elimPhasePills(){
- return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--surface-3)":"transparent"};color:${currentElimPhase===p.id?"var(--text)":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--text)":"var(--border)"}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
+ return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--primary)":"transparent"};color:${currentElimPhase===p.id?"#fff":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--primary)":"var(--border)"};${currentElimPhase===p.id?"box-shadow:0 2px 0 var(--primary-dark)":""}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
 }
 
 // ─── TAB: GRUPOS ──────────────────────────────────────────
@@ -4920,8 +4923,7 @@ function lineupInnerHTML(id,d,m){
  return`<div style="margin-top:6px;text-align:left">
  <button onclick="event.stopPropagation();toggleLineup(${id},this)" style="background:none;border:none;padding:2px 0;color:var(--text-dim);font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">Alineaciones ${open?"▴":"▾"}</button>
  <div id="lu-${id}" style="display:${open?"block":"none"}">
- ${pitchHTML(d.home,`${flag(m.home)} ${m.home}`,mk.home)}
- ${pitchHTML(d.away,`${flag(m.away)} ${m.away}`,mk.away)}
+ ${(()=>{const _lh=(m.phase&&m.phase!=="groups")?elimTeamFor(m,"home"):m.home;const _la=(m.phase&&m.phase!=="groups")?elimTeamFor(m,"away"):m.away;return pitchHTML(d.home,`${flag(_lh)} ${_lh}`,mk.home)+pitchHTML(d.away,`${flag(_la)} ${_la}`,mk.away);})()}
  </div></div>`;
 }
 function lineupHTML(m){
@@ -5533,7 +5535,7 @@ function _brTie(m){
  const onclick=clickable?' onclick="toggleMatchExpand('+m.id+')"':'';
  const spec=(clickable&&exp)?'<div class="obr-spec">'+elimSpectatorBlock(m,res)+'</div>':'';
  const metaRight=live?'<span class="live-dot"></span>'+liveClock(m):(localMatchDate(m.kickoff)+' · '+localMatchTime(m.kickoff));
- const advance=(hasRes&&win)?'<div class="obr-adv">'+flag(win)+' '+win+' avanza</div>':'';
+ const advance='';
  return '<div class="obr-tie'+(clickable?' obr-clk':'')+(live?' obr-live':'')+'"'+onclick+'>'
   +row(H,hWin,res&&res.h,pens&&pens.h)
   +'<div class="obr-divider"></div>'
@@ -5694,7 +5696,7 @@ function renderBracketPhase(phase){
  const matchLocked=isLocked(m);
  const hasRes=res?.h!==undefined&&res?.h!=='';
  const live=isLive(m);
- const borderColor=hasRes?(tier===3?"#22c55e":tier===2?"var(--primary)":"#ef4444"):live?"#ef4444":"var(--border-soft)";
+ const borderColor=live?"#ef4444":"var(--border-soft)";
  const _ewin=hasRes?elimWinner(m):null;
  const homeIsWinner=_ewin===homeTeam;
  const awayIsWinner=_ewin===awayTeam;
@@ -5702,7 +5704,7 @@ function renderBracketPhase(phase){
  let ptsBadge="";
  if(hasRes&&pts!==null){
  const cl=tier===3?"background:#166534;color:#4ade80":tier===2?"background:var(--warning-soft);color:var(--warning)":tier===1?"background:var(--warning-soft);color:var(--warning)":"background:#450a0a;color:#f87171";
- ptsBadge=`<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${cl}">${pts>0?(tier===3?" +"+pts:"≈ +"+pts):" 0"}</span>`;
+ ptsBadge=`<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${cl}">${pts>0?" +"+pts:" 0"}</span>`;
  }
  const anyElimPred=elimMatchHasAnyPrediction(m);
  const _isExp=expandedMatches.has(m.id);
@@ -5755,7 +5757,7 @@ function renderBracketPhase(phase){
  <span style="margin-left:auto">${ptsBadge}</span>
  </div>
  <div style="padding:0 10px 6px">${matchEventsHTML(m)}${lineupHTML(m)}</div>
- ${(isAdmin&&hasRes)?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
+ ${(isAdmin&&hasRes&&String(res.h)!==""&&String(res.a)!==""&&parseInt(res.h)===parseInt(res.a))?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
  ${_arrow}${_specBlock}
  </div>`;
  }).join("");
