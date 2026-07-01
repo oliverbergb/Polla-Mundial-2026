@@ -1607,6 +1607,49 @@ function scoreTier(pred,res){
  if(Math.sign(ph-pa)===Math.sign(rh-ra))return 1;
  return 0;
 }
+// ── ELIMINATORIAS: marcador de los 90' (tiempo reglamentario) ──
+// En eliminatorias los puntos SIEMPRE se calculan con el resultado de los 90'
+// (sin prórroga ni penales). res.h/res.a guardan el marcador FINAL (que puede
+// incluir prórroga). Este helper devuelve el marcador de los 90':
+//   1) override manual del admin (regH/regA), si existe;
+//   2) cálculo por eventos: goles con minuto <= 90, PERO solo si los eventos
+//      reconstruyen exactamente el marcador final (evita contar de menos si
+//      faltan eventos; en fase de grupos siempre coincide con el final);
+//   3) fallback: el marcador final.
+// _reg = true cuando los 90' difieren del final (hubo goles en la prórroga).
+function elimReg90(res){
+ if(!res)return res;
+ const oH=res.regH,oA=res.regA;
+ if(oH!=null&&oH!==''&&oA!=null&&oA!==''&&!isNaN(parseInt(oH))&&!isNaN(parseInt(oA)))
+  return {h:String(parseInt(oH)),a:String(parseInt(oA)),_src:'admin',_reg:(String(parseInt(oH))!==String(res.h)||String(parseInt(oA))!==String(res.a)),pensH:res.pensH,pensA:res.pensA,winner:res.winner,events:res.events};
+ const fh=(res.h==null||res.h==='')?null:parseInt(res.h);
+ const fa=(res.a==null||res.a==='')?null:parseInt(res.a);
+ if(res.events&&res.events.length&&fh!=null&&fa!=null){
+  let allH=0,allA=0,regH=0,regA=0;
+  for(const e of res.events){
+   if(e.type!=='goal'&&e.type!=='own_goal')continue;
+   const homeScored=(e.type==='own_goal')?!e.isHome:e.isHome;
+   if(homeScored)allH++;else allA++;
+   if((e.min!=null?e.min:0)<=90){if(homeScored)regH++;else regA++;}
+  }
+  if(allH===fh&&allA===fa)
+   return {h:String(regH),a:String(regA),_src:'events',_reg:(regH!==fh||regA!==fa),pensH:res.pensH,pensA:res.pensA,winner:res.winner,events:res.events};
+ }
+ return {h:res.h,a:res.a,_src:'final',_reg:false,pensH:res.pensH,pensA:res.pensA,winner:res.winner,events:res.events};
+}
+// Aviso visual cuando los 90' (lo que puntúa) difieren del marcador final por prórroga.
+function elimReg90NoteHtml(m,res){
+ if(!m||m.phase==='groups'||!res)return'';
+ const hasRes=res.h!==undefined&&res.h!==null&&res.h!=='';
+ if(!hasRes)return'';
+ const reg=elimReg90(res);
+ if(!reg._reg)return'';
+ const pen=_elimPens(res);
+ const penTxt=pen?' \u00b7 penales '+pen.h+'-'+pen.a:'';
+ return '<div style="margin:2px 10px 6px;font-size:10px;font-weight:800;color:var(--text-muted);text-align:center;line-height:1.4">'
+  +'<span style="color:var(--primary)">90\': '+reg.h+' \u2013 '+reg.a+'</span> vale para puntos'
+  +' \u00b7 Final '+res.h+' \u2013 '+res.a+' tras pr\u00f3rroga'+penTxt+'</div>';
+}
 function _activeRules(){return (currentPolla&&currentPolla.rules)||DEFAULT_RULES;}
 // Variantes "sin reglas": ahora delegan en las reglas ACTIVAS de la polla, para que los
 // puntos mostrados en pantalla coincidan SIEMPRE con los que cuenta el ranking.
@@ -1825,7 +1868,7 @@ function calcMatchPointsR(pred,res,r){
 }
 function calcElimPointsR(pred,res,r){
  // Igual que fase de grupos (marcador de 90'): exacto / ganador+diferencia / solo ganador.
- const t=scoreTier(pred,res);if(t===null)return null;
+ const t=scoreTier(pred,elimReg90(res));if(t===null)return null;
  if(t===3)return r.ptsExactoElim??3;
  if(t===2)return r.ptsExactoSinClasif??2;
  if(t===1)return r.ptsSoloClasif??1;
@@ -5507,8 +5550,24 @@ function elimLoser(m){
 }
 function adminElimResultRow(m,homeTeam,awayTeam,res,pens){
  const w=res.winner||"";
+ const _reg=elimReg90(res);
+ const _rH=(res.regH!=null&&res.regH!=='')?res.regH:_reg.h;
+ const _rA=(res.regA!=null&&res.regA!=='')?res.regA:_reg.a;
+ const _isDraw=String(res.h)!==""&&String(res.a)!==""&&parseInt(res.h)===parseInt(res.a);
+ const _regBlock=`<div onclick="event.stopPropagation()" style="margin:0 10px 8px;padding:7px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2)">
+  <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px">Admin \u00b7 resultado 90' (para puntos)</div>
+  <div style="display:flex;gap:5px;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted)">
+   <span>${homeTeam}</span>
+   <input type="number" min="0" max="30" value="${_rH}" onchange="saveElimReg(${m.id},'H',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   <span>-</span>
+   <input type="number" min="0" max="30" value="${_rA}" onchange="saveElimReg(${m.id},'A',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   <span>${awayTeam}</span>
+  </div>
+  <div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:4px">Auto: ${_reg.h}-${_reg.a} \u00b7 Final: ${res.h}-${res.a}</div>
+ </div>`;
+ if(!_isDraw)return _regBlock;
  const btn=(team)=>`<button onclick="event.stopPropagation();saveElimWin(${m.id},this.dataset.t)" data-t="${(team||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:10px;font-weight:800;border:1px solid ${w===team?'#22c55e':'var(--border)'};background:${w===team?'#14532d':'var(--surface-2)'};color:${w===team?'#22c55e':'var(--text-muted)'};border-radius:8px;padding:5px;cursor:pointer;font-family:'Nunito',sans-serif">${team}</button>`;
- return `<div onclick="event.stopPropagation()" style="margin:0 10px 8px;padding:7px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2)">
+ return _regBlock+`<div onclick="event.stopPropagation()" style="margin:0 10px 8px;padding:7px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2)">
   <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px">Admin · ganador / penales</div>
   <div style="display:flex;gap:5px;margin-bottom:5px">${btn(homeTeam)}${btn(awayTeam)}</div>
   <div style="display:flex;gap:5px;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted)">
@@ -5569,6 +5628,7 @@ function _brTie(m){
   +'<div class="brc-top"><span class="brc-when">'+whenTxt+'</span>'+pill+'</div>'
   +row(H,hWin,res&&res.h,pens&&pens.h)
   +row(A,aWin,res&&res.a,pens&&pens.a)
+  +elimReg90NoteHtml(m,res)
   +'</div>';
 }
 // Orden vertical del bracket — calcado del bracket oficial (como el de Google):
@@ -5695,7 +5755,7 @@ function elimSpectatorBlock(m,res){
   const pred=(user.elimPredictions||{})[m.id];
   if(!pred||pred.h===undefined||pred.h===''||pred.a===undefined||pred.a==='') return null;
   const pts=hasRes?calcElimPoints(pred,res):null;
-  const tier=hasRes?scoreTier(pred,res):null;
+  const tier=hasRes?scoreTier(pred,elimReg90(res)):null;
   return {uid,user,pred,pts,tier};
  }).filter(Boolean);
  if(hasRes) entries.sort((a,b)=>(b.pts||0)-(a.pts||0));
@@ -5705,11 +5765,12 @@ function elimSpectatorBlock(m,res){
  const myPred=(allUsers[currentUser.uid]?.elimPredictions||{})[m.id];
  if(myPred&&myPred.h!==undefined&&myPred.h!==''&&myPred.a!==undefined&&myPred.a!==''){
   const myPts=hasRes?calcElimPoints(myPred,res):null;
-  const myTier=hasRes?scoreTier(myPred,res):null;
+  const myTier=hasRes?scoreTier(myPred,elimReg90(res)):null;
   myRowHtml=rowHtml(currentUser.uid,{name:currentUser.name||'Tú'},myPred,myPts,myTier,true);
  }
  if(!rows&&!myRowHtml) return '';
  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+  ${elimReg90NoteHtml(m,res)}
   <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos</div>
   ${myRowHtml}${rows}
  </div>`;
@@ -5732,7 +5793,7 @@ function renderBracketPhase(phase){
  const pred=(myElimPreds||{})[m.id]||{};
  const res=allResults[m.id];
  const pts=calcElimPoints(pred,res);
- const tier=scoreTier(pred,res);
+ const tier=scoreTier(pred,elimReg90(res));
  const matchLocked=isLocked(m);
  const hasRes=res?.h!==undefined&&res?.h!=='';
  const live=isLive(m);
@@ -5796,8 +5857,9 @@ function renderBracketPhase(phase){
  <span>${m.stadium}</span>
  <span style="margin-left:auto">${ptsBadge}</span>
  </div>
+ ${elimReg90NoteHtml(m,res)}
  <div style="padding:0 10px 6px">${matchEventsHTML(m)}${lineupHTML(m)}</div>
- ${(isAdmin&&hasRes&&String(res.h)!==""&&String(res.a)!==""&&parseInt(res.h)===parseInt(res.a))?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
+ ${(isAdmin&&hasRes&&String(res.h)!==""&&String(res.a)!=="")?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
  ${_arrow}${_specBlock}
  </div>`;
  }).join("");
@@ -6722,6 +6784,7 @@ window.saveElimWinner=async function(matchId,winner){
 };
 window.saveElimWin=async function(id,team){if(!isAdmin)return;try{await db.ref('liveScores/'+id+'/winner').set(team||null);showToast('Ganador guardado ');}catch(e){showToast('No se pudo guardar','#ef4444',3000);}};
 window.saveElimPens=async function(id,side,val){if(!isAdmin)return;const v=(val===''||val==null)?null:String(parseInt(val));try{await db.ref('liveScores/'+id+'/pens'+side).set(v);}catch(e){}};
+window.saveElimReg=async function(id,side,val){if(!isAdmin)return;const v=(val===''||val==null)?null:String(parseInt(val));try{await db.ref('liveScores/'+id+'/reg'+side).set(v);}catch(e){}};
 window.saveEspecial=async function(field,val){
  if(new Date()>=new Date(TOURNAMENT_LOCKOUT))return;
  try{ await db.ref(`${pollaBase()}/participantes/${currentUser.uid}/especiales/${field}`).set(val); }
@@ -7401,7 +7464,7 @@ window.openH2H=function(opponentUid){
    const pred=m.phase==="groups"?preds[m.id]:elim[m.id];
    const res=allResults[m.id];
    if(!pred||!res)return;
-   const t=scoreTier(pred,res);
+   const t=scoreTier(pred,m.phase==="groups"?res:elimReg90(res));
    if(t===3)exactos++;
    else if(t>=1)ganadores++;
   });
@@ -7492,7 +7555,7 @@ window.openHallOfFame=function(){
   if(!res||res.h===undefined||res.h==="")return;
   const pred=m.phase==="groups"?myPreds[m.id]:myElim[m.id];
   const pts=m.phase==="groups"?calcMatchPointsR(pred,res,r):calcElimPointsR(pred,res,r);
-  const t=scoreTier(pred,res);
+  const t=scoreTier(pred,m.phase==="groups"?res:elimReg90(res));
   if(t===3)exactos++;
   const d=new Date(m.kickoff);
   const ymd=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
