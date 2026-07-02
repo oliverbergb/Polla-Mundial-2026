@@ -5106,6 +5106,30 @@ function collectiveBar(m){
  </div>
  </div>`;
 }
+// Igual que collectiveBar pero para eliminatorias (usa elimPredictions y los equipos ya resueltos).
+function collectiveBarElim(m){
+ const users=Object.values(allUsers);
+ if(users.length<2)return"";
+ let home=0,draw=0,away=0;
+ users.forEach(u=>{
+  const p=(u.elimPredictions||{})[m.id];
+  if(!p||p.h===undefined||p.h===""||p.a===undefined||p.a==="")return;
+  const ph=parseInt(p.h),pa=parseInt(p.a);
+  if(isNaN(ph)||isNaN(pa))return;
+  if(ph>pa)home++;else if(ph===pa)draw++;else away++;
+ });
+ const total=home+draw+away;
+ if(!total)return"";
+ const pH=Math.round(home/total*100),pD=Math.round(draw/total*100),pA=100-pH-pD;
+ const H=elimTeamFor(m,'home'),A=elimTeamFor(m,'away');
+ const seg=(pct,bg)=>pct<=0?"":`<div class="coll-seg" style="width:${pct}%;background:${bg}">${pct>=15?pct+"%":""}</div>`;
+ const legendItem=(pct,bg,label)=>`<span class="coll-leg-item"><span class="coll-dot" style="background:${bg}"></span>${label} ${pct}%</span>`;
+ return`<div class="coll-bar-wrap">
+ <div class="coll-bar-title">Pronóstico colectivo (${total} participante${total!==1?"s":""})</div>
+ <div class="coll-bar-row">${seg(pH,"#1d4ed8")}${seg(pD,"#71717a")}${seg(pA,"#b91c1c")}</div>
+ <div class="coll-legend">${legendItem(pH,"#1d4ed8",flag(H))}${legendItem(pD,"#71717a","Empate")}${legendItem(pA,"#b91c1c",flag(A))}</div>
+ </div>`;
+}
 // Cuenta tarjetas rojas por lado (incluye doble amarilla, marcada como red por la API).
 function redCardCounts(m){
  const res=allResults[m.id];
@@ -5145,6 +5169,12 @@ function matchEventsHTML(m){
 }
 function matchScoreBlock(m,pred,res){
  const locked=isLocked(m),hasRes=res?.h!==undefined&&res?.h!=="";
+ // En vivo sin goles aún: mostrar 0-0, no el placeholder "-".
+ if(isLive(m)){
+  const lh=(res&&res.h!=null&&res.h!=="")?res.h:0;
+  const la=(res&&res.a!=null&&res.a!=="")?res.a:0;
+  return`<div class="vs-scores"><div class="pred-row"><span class="score-box result">${lh}</span><span class="score-sep">:</span><span class="score-box result">${la}</span></div></div>`;
+ }
  if(locked&&hasRes){
  return`<div class="vs-scores">
  <div class="pred-row"><span class="score-box result">${res.h}</span><span class="score-sep">:</span><span class="score-box result">${res.a}</span></div>
@@ -5490,7 +5520,7 @@ function renderMisPronos(){
   ? `<div>${spectatorBlock(m,res,{live:cardState==='live'})}${isPostLockout?collectiveBar(m):''}</div>`
   : '';
 
- return`<div class="match-card mc-${cardState}" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
+ return`<div class="match-card mc-${cardState}" data-match-card="${m.id}" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
  <div class="match-meta">
  <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:(susp?`<strong style="color:#f59e0b">⚠ ${suspendedLabel(m)}</strong>${(()=>{const sm=suspendedMinuteText(m);return sm?`<span style="color:#f59e0b;font-weight:800;margin-left:5px">${sm}</span>`:"";})()}`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff))} · ${m.stadium}</span>
  ${ptsBadge || countdownBadge}
@@ -5599,6 +5629,23 @@ function adminElimResultRow(m,homeTeam,awayTeam,res,pens){
   </div>
  </div>`;
 }
+// Lleva la vista hasta la tarjeta del partido, con scroll suave — pero SOLO si no se ve
+// entera ya. Se llama después de que el badge cambia de vista/grupo/fase (por eso el timeout,
+// para esperar el re-render).
+window.scrollToMatchCard=function(id){
+ setTimeout(()=>{
+  const el=document.querySelector('[data-match-card="'+id+'"]');
+  if(!el)return;
+  const r=el.getBoundingClientRect();
+  const fullyVisible=r.top>=56 && r.bottom<=(window.innerHeight-12);
+  if(fullyVisible)return; // ya visible: no hace falta scrollear
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  const prev=el.style.boxShadow;
+  el.style.transition='box-shadow .3s';
+  el.style.boxShadow='0 0 0 3px var(--primary)';
+  setTimeout(()=>{el.style.boxShadow=prev;},1400);
+ },90);
+};
 function nextMatchBadgeHtml(){
  const _nm=getNextMatchKickoff();
  if(!_nm)return'';
@@ -5608,7 +5655,7 @@ function nextMatchBadgeHtml(){
  const _ctx=_isGrp?("Grupo "+_nm.m.group):(((ELIM_PHASES.find(p=>p.id===_nm.m.phase)||{}).label)||"");
  const _hn=_isGrp?_nm.m.home:elimTeamFor(_nm.m,"home");
  const _an=_isGrp?_nm.m.away:elimTeamFor(_nm.m,"away");
- const _go=_isGrp?`setPartidosView('grupos');setGroup('${_nm.m.group}')`:`setElimPhase('${_nm.m.phase}');setPartidosView('eliminatorias');setElimView('pronos')`;
+ const _go=(_isGrp?`setPartidosView('grupos');setGroup('${_nm.m.group}')`:`setElimPhase('${_nm.m.phase}');setPartidosView('eliminatorias');setElimView('pronos')`)+`;scrollToMatchCard('${_nm.m.id}')`;
  const _sc=_predDone?"#15803d":"#dc2626";
  return `<div id="next-close-badge" data-kickoff="${_nm.m.kickoff}" onclick="${_go}" style="cursor:pointer;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.2">
   <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted)">Próximo partido</span>
@@ -5636,7 +5683,7 @@ function _brTie(m){
   const mark=o.resolved?('<span class="brc-fl">'+flag(o.name)+'</span>'):'<span class="brc-fl"><span class="brc-shield"></span></span>';
   const nm=o.resolved?o.name:"A definir";
   const penTxt=(pens&&pen!=null)?'<span class="brc-pen">('+pen+')</span>':'';
-  const sc=hasRes?(score!=null&&score!==''?score:'-'):'';
+  const sc=hasRes?(score!=null&&score!==''?score:'-'):(live?((score!=null&&score!=='')?score:0):'');
   const arw=(hasRes&&isWin)?'<span class="brc-arw">&#9664;</span>':'<span class="brc-arw"></span>';
   return '<div class="brc-row '+(hasRes?(isWin?'win':'lose'):'')+'">'+mark
    +'<span class="brc-nm '+(o.resolved?'':'ph')+'">'+nm+'</span>'
@@ -5793,6 +5840,7 @@ function elimSpectatorBlock(m,res){
  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
   <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos</div>
   ${myRowHtml}${rows}
+  ${isLocked(m)?collectiveBarElim(m):''}
  </div>`;
 }
 function renderBracketPhase(phase){
@@ -5834,7 +5882,7 @@ function renderBracketPhase(phase){
  const _specBlock=(_canSpec&&_isExp)?`<div style="padding:0 10px 8px">${elimSpectatorBlock(m,res)}</div>`:'';
  if(!matchLocked){
  // Editable match
- return`<div class="bracket-match" style="border-color:${borderColor}">
+ return`<div class="bracket-match" data-match-card="${m.id}" style="border-color:${borderColor}">
  <div class="bm-team">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
@@ -5860,17 +5908,17 @@ function renderBracketPhase(phase){
  const _cardClick=_clickable?` onclick="if(event.target.closest('.score-input,button,input,.pred-reaction-badge,a'))return;toggleMatchExpand(${m.id})"`:"";
  const _arrow=(_canSpec&&!_played)?_specToggle:"";
  const _liveMeta=live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong> <span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800">${liveClock(m)}</span>`:(localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff));
- return`<div class="bracket-match locked${_clickable?' bm-clickable':''}" style="border-color:${borderColor}"${_cardClick}>
+ return`<div class="bracket-match locked${_clickable?' bm-clickable':''}" data-match-card="${m.id}" style="border-color:${borderColor}"${_cardClick}>
  <div class="bm-team ${homeIsWinner?"winner":hasRes?"loser":""}">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
- <span class="bm-score">${res?.h??"-"}${_pens?`<span style="font-size:11px;color:var(--text-dim);margin-left:2px">(${_pens.h})</span>`:""}</span>
+ <span class="bm-score">${(res?.h!=null&&res?.h!=="")?res.h:(live?0:"-")}${_pens?`<span style="font-size:11px;color:var(--text-dim);margin-left:2px">(${_pens.h})</span>`:""}</span>
  </div>
  <div class="bm-sep"></div>
  <div class="bm-team ${awayIsWinner?"winner":hasRes?"loser":""}">
  <span style="min-width:20px">${flag(awayTeam)}</span>
  <span style="flex:1;font-size:12px">${awayTeam}</span>
- <span class="bm-score">${res?.a??"-"}${_pens?`<span style="font-size:11px;color:var(--text-dim);margin-left:2px">(${_pens.a})</span>`:""}</span>
+ <span class="bm-score">${(res?.a!=null&&res?.a!=="")?res.a:(live?0:"-")}${_pens?`<span style="font-size:11px;color:var(--text-dim);margin-left:2px">(${_pens.a})</span>`:""}</span>
  </div>
  <div class="bm-meta">
  <span>${_liveMeta}</span>
