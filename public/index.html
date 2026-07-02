@@ -84,6 +84,8 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
  .header{padding:12px 12px 0!important;margin:6px 6px 4px!important}
  .header h1{font-size:18px!important;margin:2px 0!important}
  .group-pills{display:grid!important;grid-template-columns:repeat(6,auto)!important;justify-content:center!important}
+ .elim-pills{grid-template-columns:repeat(6,1fr)!important;gap:4px!important;padding:0 2px}
+ .elim-pills .pill{padding:7px 2px!important;font-size:10px!important;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 0 var(--border-strong)}
  .hdr-collapsible{display:none!important}
  .header.hdr-open .hdr-collapsible{display:block!important}
  .hdr-toggle{display:inline-flex!important;align-items:center;justify-content:center;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px}
@@ -1649,6 +1651,21 @@ function elimReg90NoteHtml(m,res){
  return '<div style="margin:2px 10px 6px;font-size:10px;font-weight:800;color:var(--text-muted);text-align:center;line-height:1.4">'
   +'<span style="color:var(--primary)">90\': '+reg.h+' \u2013 '+reg.a+'</span> vale para puntos'
   +' \u00b7 Final '+res.h+' \u2013 '+res.a+' tras pr\u00f3rroga'+penTxt+'</div>';
+}
+// El panel admin de "resultado 90' (para puntos)" solo tiene sentido cuando el partido
+// PUDO ir a prórroga/penales. No todos los mata-matas se van a tiempo extra, así que lo
+// mostramos SOLO si: el admin ya fijó un 90' manual (regH/regA), hubo penales, el marcador
+// final fue empate (un mata-mata empatado forzosamente fue a prórroga/penales), o hay algún
+// gol después del minuto 90 en los eventos. En cualquier otro caso 90' == final y se oculta.
+function elimNeedsRegAdmin(res){
+ if(!res)return false;
+ if(res.regH!=null&&res.regH!==''&&res.regA!=null&&res.regA!=='')return true;
+ if(_elimPens(res))return true;
+ const h=(res.h==null||res.h==='')?null:parseInt(res.h);
+ const a=(res.a==null||res.a==='')?null:parseInt(res.a);
+ if(h!=null&&a!=null&&!isNaN(h)&&!isNaN(a)&&h===a)return true;
+ if(Array.isArray(res.events)&&res.events.some(e=>(e.type==='goal'||e.type==='own_goal')&&e.min!=null&&e.min>90))return true;
+ return false;
 }
 function _activeRules(){return (currentPolla&&currentPolla.rules)||DEFAULT_RULES;}
 // Variantes "sin reglas": ahora delegan en las reglas ACTIVAS de la polla, para que los
@@ -4469,7 +4486,7 @@ function groupPills(allowLive=true){
  }).join("")}</div>`;
 }
 function elimPhasePills(){
- return`<div class="group-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--primary)":"transparent"};color:${currentElimPhase===p.id?"#fff":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--primary)":"var(--border)"};${currentElimPhase===p.id?"box-shadow:0 2px 0 var(--primary-dark)":""}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
+ return`<div class="group-pills elim-pills">${ELIM_PHASES.map(p=>`<button class="pill" style="background:${currentElimPhase===p.id?"var(--primary)":"transparent"};color:${currentElimPhase===p.id?"#fff":"var(--text-muted)"};border:1px solid ${currentElimPhase===p.id?"var(--primary)":"var(--border)"};${currentElimPhase===p.id?"box-shadow:0 2px 0 var(--primary-dark)":""}" onclick="setElimPhase('${p.id}')">${p.label}</button>`).join("")}</div>`;
 }
 
 // ─── TAB: GRUPOS ──────────────────────────────────────────
@@ -4742,7 +4759,12 @@ async function buildApiIdMap(){
   try{
    elimRealTeams={};
    for(const m of MATCHES){
-    if(!m.phase||m.phase==="groups")continue;
+    // SOLO 16avos (r32): ahí un lado es un grupo confirmado y el otro un "mejor tercero"
+    // que solo la API sabe cuál es, así que buscamos el rival real por fixture.
+    // De octavos en adelante los equipos SIEMPRE salen de los ganadores del bracket
+    // (Gxx / Ganador SF). NUNCA se adivinan por la API: hacerlo metía rivales falsos
+    // (ej. "Bélgica vs Estados Unidos") tomando un partido cercano cualquiera.
+    if(m.phase!=="r32")continue;
     const hR=resolveElimTeam(m.home),aR=resolveElimTeam(m.away);
     const hReal=!!API_CODE[hR],aReal=!!API_CODE[aR];
     if(hReal&&aReal)continue;          // ambos resueltos: nada que rellenar
@@ -5628,7 +5650,6 @@ function _brTie(m){
   +'<div class="brc-top"><span class="brc-when">'+whenTxt+'</span>'+pill+'</div>'
   +row(H,hWin,res&&res.h,pens&&pens.h)
   +row(A,aWin,res&&res.a,pens&&pens.a)
-  +elimReg90NoteHtml(m,res)
   +'</div>';
 }
 // Orden vertical del bracket — calcado del bracket oficial (como el de Google):
@@ -5770,7 +5791,6 @@ function elimSpectatorBlock(m,res){
  }
  if(!rows&&!myRowHtml) return '';
  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-  ${elimReg90NoteHtml(m,res)}
   <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos</div>
   ${myRowHtml}${rows}
  </div>`;
@@ -5859,7 +5879,7 @@ function renderBracketPhase(phase){
  </div>
  ${elimReg90NoteHtml(m,res)}
  <div style="padding:0 10px 6px">${matchEventsHTML(m)}${lineupHTML(m)}</div>
- ${(isAdmin&&hasRes&&String(res.h)!==""&&String(res.a)!=="")?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
+ ${(isAdmin&&hasRes&&String(res.h)!==""&&String(res.a)!==""&&elimNeedsRegAdmin(res))?adminElimResultRow(m,homeTeam,awayTeam,res,_pens):""}
  ${_arrow}${_specBlock}
  </div>`;
  }).join("");
