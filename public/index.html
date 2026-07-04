@@ -4115,6 +4115,8 @@ function iniciarMasterPolling(){
  if(score.winner!=null)allResults[numId].winner=score.winner;else delete allResults[numId].winner;
  if(score.pensH!=null)allResults[numId].pensH=score.pensH;else delete allResults[numId].pensH;
  if(score.pensA!=null)allResults[numId].pensA=score.pensA;else delete allResults[numId].pensA;
+ if(score.regH!=null)allResults[numId].regH=score.regH;else delete allResults[numId].regH;
+ if(score.regA!=null)allResults[numId].regA=score.regA;else delete allResults[numId].regA;
  _liveScoresCache[numId]=Object.assign({},allResults[numId]);
  });
  requestRender();
