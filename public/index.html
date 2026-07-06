@@ -5569,7 +5569,7 @@ function renderMisPronos(){
 
  // What goes INSIDE when expanded
  const expandedInside = showExpandedContent
-  ? `<div>${spectatorBlock(m,res,{live:cardState==='live'})}${isPostLockout?collectiveBar(m):''}</div>`
+  ? `<div>${spectatorBlock(m,res,{live:cardState==='live'})}${collectiveBar(m)}</div>`
   : '';
 
  return`<div class="match-card mc-${cardState}" data-match-card="${m.id}" style="border-left:3px solid ${color};${cursorStyle}" ${onClickAttr}>
@@ -5892,7 +5892,7 @@ function elimSpectatorBlock(m,res){
  return `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
   <div style="font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Pronósticos</div>
   ${myRowHtml}${rows}
-  ${isLocked(m)?collectiveBarElim(m):''}
+  ${collectiveBarElim(m)}
  </div>`;
 }
 function renderBracketPhase(phase){
