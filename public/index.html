@@ -1535,7 +1535,7 @@ const MATCHES=[
  {id:89,date:"4 Jul",time:"16:00",home:"G74",away:"G77",group:null,stadium:"Philadelphia",phase:"r16",kickoff:"2026-07-04T21:00:00Z"},
  {id:90,date:"4 Jul",time:"12:00",home:"G73",away:"G75",group:null,stadium:"Houston",phase:"r16",kickoff:"2026-07-04T17:00:00Z"},
  {id:91,date:"5 Jul",time:"15:00",home:"G76",away:"G78",group:null,stadium:"Nueva York",phase:"r16",kickoff:"2026-07-05T20:00:00Z"},
- {id:92,date:"5 Jul",time:"19:00",home:"G79",away:"G80",group:null,stadium:"Azteca, CDMX",phase:"r16",kickoff:"2026-07-06T00:00:00Z"},
+ {id:92,date:"5 Jul",time:"20:00",home:"G79",away:"G80",group:null,stadium:"Azteca, CDMX",phase:"r16",kickoff:"2026-07-06T01:00:00Z"},
  {id:93,date:"6 Jul",time:"14:00",home:"G82",away:"G84",group:null,stadium:"Dallas",phase:"r16",kickoff:"2026-07-06T19:00:00Z"},
  {id:94,date:"6 Jul",time:"19:00",home:"G81",away:"G83",group:null,stadium:"Seattle",phase:"r16",kickoff:"2026-07-07T00:00:00Z"},
  {id:95,date:"7 Jul",time:"11:00",home:"G88",away:"G86",group:null,stadium:"Atlanta",phase:"r16",kickoff:"2026-07-07T16:00:00Z"},
@@ -2297,7 +2297,7 @@ function loadData(){
  });
  _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};applyLiveScores();requestRender();});
  _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)requestRender();}});
- if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};if(currentPollaId)requestRender();});}
+ if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};const so=w.scheduleOverride||{};MATCHES.forEach(m=>{const ov=so[m.id];if(ov&&ov.kickoff){if(ov.kickoff!==m.kickoff)m.kickoff=ov.kickoff;if(ov.time)m.time=ov.time;if(ov.date)m.date=ov.date;}});if(currentPollaId)requestRender();});}
  startLineupWatcher();
  // Red de seguridad: si los resultados/participantes llegan en ráfagas justo al entrar,
  // forzamos repintados diferidos para que los puntos aparezcan sin tener que refrescar.
