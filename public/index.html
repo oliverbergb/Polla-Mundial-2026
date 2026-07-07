@@ -4239,6 +4239,15 @@ function iniciarMasterPolling(){
     const pub={};
     Object.entries(map).forEach(([localId,info])=>{if(info&&info.apiId!=null)pub[info.apiId]=Number(localId);});
     if(Object.keys(pub).length)db.ref("apiIdMap").set(pub);
+    // Publicar los cruces de eliminatoria YA resueltos (equipos reales, con la orientación
+    // corregida) para que admin-pollas los muestre tal cual, sin volver a adivinarlos.
+    const er={};
+    MATCHES.filter(x=>x.phase&&x.phase!=="groups").forEach(x=>{
+     const h=elimTeamFor(x,"home"),a=elimTeamFor(x,"away");
+     const ho=API_CODE[h]?h:null,ao=API_CODE[a]?a:null;
+     if(ho||ao)er[x.id]={home:ho,away:ao};
+    });
+    if(Object.keys(er).length)db.ref("elimResolved").set(er);
    }catch(e){}
   })();
  }
