@@ -312,7 +312,8 @@ const sc=v=>(v===""||v==null)?"–":v;
 let WORLD={especiales:{},groupOverride:{}};
 let LIVE={};            // marcadores globales del nodo /liveScores
 let POLLAS={};          // id -> polla
-let STATUS={};          // uid -> {online,lastSeen}  (presencia)
+let STATUS={};          // uid -> {online,lastSeen,onlineSince}  (presencia)
+let ELIMRES={};         // localId -> {home,away}  (cruces de eliminatoria resueltos por la app)
 let LEADER=[];          // filas globales de jugadores
 let _spyId=null,_spyUid=null,_spyEdit=false;
 
@@ -335,6 +336,7 @@ auth.onAuthStateChanged(async user=>{
  render();
  // Presencia en vivo: solo refresca el panel, no re-renderiza todo.
  try{ db.ref("status").on("value",function(s){ STATUS=s.val()||{}; renderPresence(); }); }catch(e){}
+ try{ db.ref("elimResolved").on("value",function(s){ ELIMRES=s.val()||{}; if(typeof render==="function")render(); }); }catch(e){}
 });
 
 const activeParts=p=>Object.entries(p.participantes||{}).filter(([,u])=>u&&!u.left);
@@ -603,8 +605,9 @@ function renderSpy(){
   const t=scoreTier(pred,res);
   const pts=isGroups?calcMatchPointsR(pred,res,rules):calcElimPointsR(pred,res,rules);
   const future=new Date()<new Date(m.kickoff);
-  const _hn=isGroups?m.home:_apResolve(m.home);
-  const _an=isGroups?m.away:_apResolve(m.away);
+  const _er=ELIMRES[m.id]||{};
+  const _hn=isGroups?m.home:(_er.home||_apResolve(m.home));
+  const _an=isGroups?m.away:(_er.away||_apResolve(m.away));
   const teams=`${flag(_hn)} ${esc(_hn)} <span style="color:#6b5c44">vs</span> ${flag(_an)} ${esc(_an)}`;
   const predTxt=(pred&&pred.h!=null&&pred.h!=="")?`${sc(pred.h)}-${sc(pred.a)}`:'<span style="color:#6b5c44">sin pronóstico</span>';
   const resTxt=(res&&res.h!=null&&res.h!=="")?`res ${sc(res.h)}-${sc(res.a)}`:(future?`<span style="color:#6b5c44">${m.date} ${m.time}</span>`:'<span style="color:#6b5c44">—</span>');
