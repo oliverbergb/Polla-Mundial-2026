@@ -447,6 +447,14 @@ function render(){
 }
 
 /* ── Presencia: solo jugadores de "Rica Polla" ── */
+// Formatea una DURACIÓN (en ms) como "1 h 05 min", "12 min", "45 s".
+function _dur(ms){
+ if(ms==null||ms<0)return"";
+ const s=Math.floor(ms/1000);
+ if(s<60)return s+" s";
+ const m=Math.floor(s/60); if(m<60)return m+" min";
+ const h=Math.floor(m/60),rm=m%60; return h+" h"+(rm?" "+String(rm).padStart(2,"0")+" min":"");
+}
 function _ago(ts){
  if(!ts)return"sin registro";
  const s=Math.floor((Date.now()-ts)/1000);
@@ -460,22 +468,35 @@ function renderPresence(){
  const panel=document.getElementById("presencePanel");
  if(!panel)return;
  const seen={},list=[];
- Object.entries(POLLAS).forEach(([pid,p])=>{
+ Object.values(POLLAS).forEach(p=>{
   if(!(p.nombre||"").toLowerCase().includes("rica polla"))return;
   Object.entries(p.participantes||{}).forEach(([uid,u])=>{
    if(!u||u.left||seen[uid])return; seen[uid]=1;
-   list.push({uid,name:u.name||"¿?",pid});
+   list.push({uid,name:u.name||"¿?"});
   });
  });
  if(!list.length){panel.innerHTML="";return;}
- list.forEach(r=>{const st=STATUS[r.uid]||{};r.online=!!st.online;r.lastSeen=st.lastSeen||0;});
+ list.forEach(r=>{const st=STATUS[r.uid]||{};r.online=!!st.online;r.lastSeen=st.lastSeen||0;r.onlineSince=st.onlineSince||0;});
  list.sort((a,b)=>(b.online-a.online)||(b.lastSeen-a.lastSeen)||a.name.localeCompare(b.name));
  const on=list.filter(r=>r.online).length;
  let h=`<h3>🟢 Rica Polla — en línea (${on}/${list.length})</h3><div class="presence">`;
+ const now=Date.now();
  list.forEach(r=>{
   const dot=r.online?'#22c55e':'#5a4a32';
-  const txt=r.online?'en línea':_ago(r.lastSeen);
-  h+=`<div class="pres-row"><span class="pres-dot" style="background:${dot}"></span><span class="pres-name">${esc(r.name)}</span><span class="pres-when">${esc(txt)}</span><button class="ghost" style="padding:2px 10px;font-size:12px" onclick="spy('${r.pid}','${r.uid}')">Ver</button></div>`;
+  let txt;
+  if(r.online){
+   // Cuánto lleva conectado en esta sesión = ahora - inicio de sesión (onlineSince).
+   const conn=r.onlineSince?_dur(now-r.onlineSince):null;
+   txt=conn?('en línea · '+conn):'en línea';
+  }else{
+   txt=_ago(r.lastSeen);
+   // Activo hace ≤2 h: además, cuánto duró su última sesión (fin - inicio), si lo sabemos.
+   const recent=r.lastSeen&&(now-r.lastSeen)<=2*3600000;
+   if(recent&&r.onlineSince&&r.lastSeen>r.onlineSince){
+    txt+=' · duró '+_dur(r.lastSeen-r.onlineSince);
+   }
+  }
+  h+=`<div class="pres-row"><span class="pres-dot" style="background:${dot}"></span><span class="pres-name">${esc(r.name)}</span><span class="pres-when">${esc(txt)}</span></div>`;
  });
  panel.innerHTML=h+`</div>`;
 }
