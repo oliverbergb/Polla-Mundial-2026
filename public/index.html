@@ -1196,6 +1196,19 @@ function apiTeamEq(appName,apiTeam){
 // Para mapear con la API se usa el equipo REAL: en eliminatorias el rótulo ("2º Grupo A","G74") se resuelve al país.
 function _apiHome(x){if(x.phase&&x.phase!=="groups"){const o=elimRealTeams[x.id];return (o&&o.home)||resolveElimTeam(x.home);}return x.home;}
 function _apiAway(x){if(x.phase&&x.phase!=="groups"){const o=elimRealTeams[x.id];return (o&&o.away)||resolveElimTeam(x.away);}return x.away;}
+// Empareja un partido de la API con el local SIN depender del orden local/visitante.
+// En eliminatorias el bracket asigna local/visitante por siembra, que puede ir al revés
+// que la API (ej. la API pone Portugal de local y nuestro slot tiene a España de local).
+// Antes exigíamos el mismo orden → el cruce no se encontraba y el resultado no cargaba.
+// Devuelve {match,swap}; swap=true cuando el LOCAL de la API es el VISITANTE en nuestro slot.
+function findLocalMatchForApi(m){
+ if(!m||!m.home_team||!m.away_team)return null;
+ let match=MATCHES.find(x=>apiTeamEq(_apiHome(x),m.home_team)&&apiTeamEq(_apiAway(x),m.away_team));
+ if(match)return {match,swap:false};
+ match=MATCHES.find(x=>apiTeamEq(_apiHome(x),m.away_team)&&apiTeamEq(_apiAway(x),m.home_team));
+ if(match)return {match,swap:true};
+ return null;
+}
 const PHASE_LABELS={groups:"Grupos",r32:"16avos",r16:"Octavos",qf:"Cuartos",sf:"Semis",third:"3er Puesto",final:"Final"};
 const ELIM_PHASES=[{id:"r32",label:"16avos"},{id:"r16",label:"Octavos"},{id:"qf",label:"Cuartos"},{id:"sf",label:"Semis"},{id:"third",label:"3er Puesto"},{id:"final",label:"Final"}];
 const POS_COLORS=["#22c55e","#22c55e","var(--primary)","#ef4444"];
@@ -2015,14 +2028,20 @@ function _everLeaders(){
 function fueLiderSemana(uid){return _everLeaders().has(uid);}
 // Racha MÁXIMA histórica (permanente): la mejor cadena de aciertos consecutivos que
 // haya tenido, aunque ahora mismo no esté en racha. (getStreak = racha ACTUAL, en vivo.)
+// Tier de un partido para la racha: grupos usan predictions vs resultado; eliminatorias
+// usan elimPredictions vs el marcador de los 90' (elimReg90), igual que se dan los puntos.
+function _streakTier(uid,m){
+ const u=allUsers[uid]||{};
+ if(m.phase==="groups")return scoreTier((u.predictions||{})[m.id],allResults[m.id]);
+ return scoreTier((u.elimPredictions||{})[m.id],elimReg90(allResults[m.id]));
+}
 function maxStreak(uid){
- const preds=(allUsers[uid]||{}).predictions||{};
- // Mismo orden y filtro que getStreak (orden de MATCHES, determinista). Reordenar por
- // kickoff barajaba los partidos simultáneos y partía rachas válidas en dos.
- const played=MATCHES.filter(m=>m.phase==="groups"&&allResults[m.id]?.h!==undefined&&allResults[m.id]?.h!=="");
+ // Orden de MATCHES (determinista y cronológico por id: grupos 1-72, luego eliminatorias).
+ // Ahora INCLUYE eliminatorias, así la racha refleja todo el torneo, no solo la fase de grupos.
+ const played=MATCHES.filter(m=>allResults[m.id]?.h!==undefined&&allResults[m.id]?.h!=="");
  let best=0,cur=0;
  for(let i=0;i<played.length;i++){
-  const t=scoreTier(preds[played[i].id],allResults[played[i].id]);
+  const t=_streakTier(uid,played[i]);
   if(t>=1){cur++;if(cur>best)best=cur;}else cur=0;
  }
  return best;
@@ -2085,11 +2104,13 @@ function getRankedUsers(){
 }
 
 function getStreak(uid){
- const preds=(allUsers[uid]||{}).predictions||{};
- const played=MATCHES.filter(m=>m.phase==="groups"&&allResults[m.id]?.h!==undefined&&allResults[m.id]?.h!=="");
+ // Racha ACTUAL sobre TODO el torneo (grupos + eliminatorias). Antes solo miraba grupos,
+ // así que al terminar la fase de grupos la racha quedaba congelada (ej. ×13 para siempre)
+ // aunque el jugador ya hubiera fallado en octavos. Ahora se corta con el primer fallo real.
+ const played=MATCHES.filter(m=>allResults[m.id]?.h!==undefined&&allResults[m.id]?.h!=="");
  let streak=0;
  for(let i=played.length-1;i>=0;i--){
- const t=scoreTier(preds[played[i].id],allResults[played[i].id]);
+ const t=_streakTier(uid,played[i]);
  if(t>=1)streak++;else break;
  }
  return streak;
@@ -2148,8 +2169,10 @@ function initFirebase(){
    const TS=firebase.database.ServerValue.TIMESTAMP;
    db.ref(".info/connected").on("value",function(snap){
     if(snap.val()===false)return;
-    ref.onDisconnect().set({online:false,lastSeen:TS}).then(function(){
-     ref.set({online:true,lastSeen:TS});
+    // onDisconnect con update (no set) para NO borrar onlineSince: así el admin puede ver
+    // cuánto duró la última sesión (lastSeen - onlineSince) aun estando desconectado.
+    ref.onDisconnect().update({online:false,lastSeen:TS}).then(function(){
+     ref.set({online:true,lastSeen:TS,onlineSince:TS});
     });
    });
   }catch(e){}
@@ -4245,27 +4268,29 @@ async function fetchLiveResults(){
   const _stopped=_STOPPED_RE.test(_st);
   if(m.status!=="completed"&&m.status!=="in_progress"&&!_stopped)continue;
   if(!_stopped&&(m.home_score==null||m.away_score==null))continue;
-  const mm=MATCHES.find(x=>apiTeamEq(_apiHome(x),m.home_team)&&apiTeamEq(_apiAway(x),m.away_team));
-  if(!mm)continue;
+  const found=findLocalMatchForApi(m);
+  if(!found)continue;
+  const mm=found.match;
   const delta=Math.abs(new Date(mm.kickoff)-new Date(m.datetime));
   const cur=bestByLocal[mm.id];
-  if(!cur||delta<cur._delta)bestByLocal[mm.id]={m,match:mm,_delta:delta};
+  if(!cur||delta<cur._delta)bestByLocal[mm.id]={m,match:mm,swap:found.swap,_delta:delta};
  }
  const updates={};
- for(const {m,match} of Object.values(bestByLocal)){
+ for(const {m,match,swap} of Object.values(bestByLocal)){
  const _st=String(m.status||"").toLowerCase();
  const _stopped=_STOPPED_RE.test(_st);
- const newH=m.home_score,newA=m.away_score;
+ // Orientación LOCAL: si la API trae los equipos al revés que nuestro slot, invertimos.
+ const newH=swap?m.away_score:m.home_score,newA=swap?m.home_score:m.away_score;
  const prev=_prevScores[match.id];
  if(!_stopped&&prev!==undefined&&(prev.h!==newH||prev.a!==newA)){
  // Fetch events when score changes
- fetchMatchEvents(m.id,match.id);
+ fetchMatchEvents(m.id,match.id,swap);
  showGoalNotif(match,newH,newA);
  }
  // Aunque NO cambie el marcador, si el partido está en juego refrescamos eventos
  // para capturar rojas y cambios (la caché interna evita exceso de llamadas).
  else if(m.status==="in_progress"){
- fetchMatchEvents(m.id,match.id);
+ fetchMatchEvents(m.id,match.id,swap);
  }
  _prevScores[match.id]={h:newH,a:newA};
  // Suspendido/aplazado: registramos el estado para que la app NO lo muestre como "EN VIVO".
@@ -4274,8 +4299,9 @@ async function fetchLiveResults(){
  if(newA!=null)updates[`liveScores/${match.id}/a`]=String(newA);
  // Penales en eliminatorias (defensivo: la API puede traerlos con distintos nombres).
  if(match.phase&&match.phase!=="groups"){
-  const _ph=(m.home_penalty??m.home_penalties??m.penalty_home??m.home_penalty_score??m.home_pens??m.home_shootout??null);
-  const _pa=(m.away_penalty??m.away_penalties??m.penalty_away??m.away_penalty_score??m.away_pens??m.away_shootout??null);
+  const _rawPh=(m.home_penalty??m.home_penalties??m.penalty_home??m.home_penalty_score??m.home_pens??m.home_shootout??null);
+  const _rawPa=(m.away_penalty??m.away_penalties??m.penalty_away??m.away_penalty_score??m.away_pens??m.away_shootout??null);
+  const _ph=swap?_rawPa:_rawPh,_pa=swap?_rawPh:_rawPa;
   if(_ph!=null)updates[`liveScores/${match.id}/pensH`]=String(_ph);
   if(_pa!=null)updates[`liveScores/${match.id}/pensA`]=String(_pa);
  }
@@ -4320,7 +4346,7 @@ async function fetchLiveResults(){
   // Si el partido terminó y nunca capturamos sus eventos (poller caído durante el juego), los traemos una vez.
   if((!cur||!cur.events||!cur.events.length)&&!_evBackfilled.has(match.id)){
    _evBackfilled.add(match.id);
-   fetchMatchEvents(m.id,match.id);
+   fetchMatchEvents(m.id,match.id,swap);
   }
   // Valla invicta: guardar el nombre del arquero titular para la tabla del Guante de Oro.
   if((newH===0||newA===0)&&(!cur||(!cur.gkH&&!cur.gkA))&&!_gkFetched.has(match.id)){
@@ -4344,7 +4370,7 @@ async function fetchLiveResults(){
 
 // ─── MATCH EVENTS (goals + red cards) — GOAT tier ─────────
 const _eventsCache={};
-async function fetchMatchEvents(apiMatchId,localMatchId){
+async function fetchMatchEvents(apiMatchId,localMatchId,swap){
  if(_eventsCache[localMatchId]&&Date.now()-_eventsCache[localMatchId].ts<10000)return;
  const _m=MATCHES.find(x=>x.id===localMatchId);
  try{
@@ -4372,8 +4398,10 @@ async function fetchMatchEvents(apiMatchId,localMatchId){
    min:(e.time_minute??0)+(e.added_time?0:0),
    add:e.added_time??0,
    type,
-   isHome:e.is_home===true,
-   team:_m?(e.is_home===true?_m.home:_m.away):"",
+   // isHome se guarda SIEMPRE en orientación LOCAL (lado local de NUESTRO slot),
+   // así los goles/cambios se pintan en el equipo correcto aunque la API venga al revés.
+   isHome:swap?(e.is_home!==true):(e.is_home===true),
+   team:_m?((swap?(e.is_home!==true):(e.is_home===true))?_m.home:_m.away):"",
    player:e.player?.short_name||e.player?.name||"",
    pin:e.player_in?.short_name||e.player_in?.name||"",
    pout:e.player_out?.short_name||e.player_out?.name||""
@@ -4796,13 +4824,17 @@ async function buildApiIdMap(){
   for(const m of all){
    // Solo edición 2026: el cursor a veces trae partidos de otras ediciones que nos pisarían el ID correcto.
    if(!m.season||m.season.year!==2026)continue;
-   const match=MATCHES.find(x=>apiTeamEq(_apiHome(x),m.home_team)&&apiTeamEq(_apiAway(x),m.away_team));
-   if(!match)continue;
+   const found=findLocalMatchForApi(m);
+   if(!found)continue;
+   const match=found.match;
    // Puede haber duplicados del mismo cruce: nos quedamos con el que coincide en fecha con el kickoff local.
    const newDelta=Math.abs(new Date(match.kickoff)-new Date(m.datetime));
    const cur=_apiIdMap[match.id];
    if(cur&&cur._delta<=newDelta)continue;
-   _apiIdMap[match.id]={apiId:m.id,homeId:m.home_team?.id,awayId:m.away_team?.id,_delta:newDelta};
+   // homeId/awayId en orientación LOCAL para que las alineaciones caigan en el lado correcto.
+   const _hId=found.swap?m.away_team?.id:m.home_team?.id;
+   const _aId=found.swap?m.home_team?.id:m.away_team?.id;
+   _apiIdMap[match.id]={apiId:m.id,homeId:_hId,awayId:_aId,_delta:newDelta};
   }
   Object.values(_apiIdMap).forEach(v=>delete v._delta); // limpiar campo auxiliar
   // ── Resolver equipos reales de eliminatoria (mejores terceros y rivales) desde la API ──
