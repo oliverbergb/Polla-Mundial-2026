@@ -337,6 +337,50 @@ auth.onAuthStateChanged(async user=>{
  // Presencia en vivo: solo refresca el panel, no re-renderiza todo.
  try{ db.ref("status").on("value",function(s){ STATUS=s.val()||{}; renderPresence(); }); }catch(e){}
  try{ db.ref("elimResolved").on("value",function(s){ ELIMRES=s.val()||{}; if(typeof render==="function")render(); }); }catch(e){}
+ // Fallback autónomo: el admin resuelve los cruces de eliminatoria llamando a la MISMA API
+ // que la app y tomando el partido más cercano en fecha/hora (nombres reales, sin adivinar).
+ try{ loadElimFromApi(); setInterval(loadElimFromApi, 120000); }catch(e){}
+const API_CODE={"México":"MEX","Sudáfrica":"RSA","Corea del Sur":"KOR","Rep. Checa":"CZE","Brasil":"BRA","Marruecos":"MAR","Haití":"HAI","Escocia":"SCO","Canadá":"CAN","Qatar":"QAT","Suiza":"SUI","Bosnia":"BIH","Estados Unidos":"USA","Paraguay":"PAR","Australia":"AUS","Turquía":"TUR","Alemania":"GER","Costa de Marfil":"CIV","Ecuador":"ECU","Curazao":"CUW","Países Bajos":"NED","Japón":"JPN","Túnez":"TUN","Suecia":"SWE","Bélgica":"BEL","Egipto":"EGY","Irán":"IRN","Nueva Zelanda":"NZL","España":"ESP","Cabo Verde":"CPV","Arabia Saudita":"KSA","Uruguay":"URU","Francia":"FRA","Senegal":"SEN","Noruega":"NOR","Irak":"IRQ","Argentina":"ARG","Argelia":"ALG","Austria":"AUT","Jordania":"JOR","Portugal":"POR","Uzbekistán":"UZB","Colombia":"COL","RD Congo":"COD","Inglaterra":"ENG","Croacia":"CRO","Ghana":"GHA","Panamá":"PAN"};
+const API_NAME={"México":"mexico","Sudáfrica":"southafrica","Corea del Sur":"southkorea","Rep. Checa":"czechia","Brasil":"brazil","Marruecos":"morocco","Haití":"haiti","Escocia":"scotland","Canadá":"canada","Qatar":"qatar","Suiza":"switzerland","Bosnia":"bosnia","Estados Unidos":"unitedstates","Paraguay":"paraguay","Australia":"australia","Turquía":"turkiye","Alemania":"germany","Costa de Marfil":"ivorycoast","Ecuador":"ecuador","Curazao":"curacao","Países Bajos":"netherlands","Japón":"japan","Túnez":"tunisia","Suecia":"sweden","Bélgica":"belgium","Egipto":"egypt","Irán":"iran","Nueva Zelanda":"newzealand","España":"spain","Cabo Verde":"capeverde","Arabia Saudita":"saudiarabia","Uruguay":"uruguay","Francia":"france","Senegal":"senegal","Noruega":"norway","Irak":"iraq","Argentina":"argentina","Argelia":"algeria","Austria":"austria","Jordania":"jordan","Portugal":"portugal","Uzbekistán":"uzbekistan","Colombia":"colombia","RD Congo":"congo","Inglaterra":"england","Croacia":"croatia","Ghana":"ghana","Panamá":"panama"};
+const _norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
+const _API_BY_CODE={},_API_BY_NAME={};
+Object.keys(API_CODE).forEach(es=>{_API_BY_CODE[API_CODE[es]]=es;});
+Object.keys(API_NAME).forEach(es=>{_API_BY_NAME[API_NAME[es]]=es;});
+function apiTeamToApp(t){
+ if(!t)return null;
+ const code=t.abbreviation&&String(t.abbreviation).toUpperCase();
+ if(code&&_API_BY_CODE[code])return _API_BY_CODE[code];
+ const n=_norm(t.name);
+ if(n&&_API_BY_NAME[n])return _API_BY_NAME[n];
+ for(const k in _API_BY_NAME){if(n&&k&&(n===k||n.includes(k)||k.includes(n)))return _API_BY_NAME[k];}
+ return null;
+}
+async function loadElimFromApi(){
+ try{
+  let all=[],cursor=null,g=0;
+  do{
+   const r=await fetch("/api/bdl?endpoint=matches&seasons[]=2026&per_page=100"+(cursor!=null?`&cursor=${cursor}`:""));
+   if(!r.ok)break; const d=await r.json(); if(!d.data)break;
+   all=all.concat(d.data); cursor=d.meta&&d.meta.next_cursor; g++;
+  }while(cursor!=null&&g<10);
+  if(!all.length)return;
+  const er={};
+  MATCHES.filter(x=>x.phase&&x.phase!=="groups").forEach(x=>{
+   let best=null,bd=Infinity;
+   for(const m of all){
+    if(!m.season||m.season.year!==2026)continue;
+    if(!m.home_team||!m.away_team)continue;
+    const dd=Math.abs(new Date(x.kickoff)-new Date(m.datetime));
+    if(dd<bd){bd=dd;best=m;}
+   }
+   if(best&&bd<=6*3600000){
+    const h=apiTeamToApp(best.home_team),a=apiTeamToApp(best.away_team);
+    if(h||a)er[x.id]={home:h||null,away:a||null};
+   }
+  });
+  if(Object.keys(er).length){ELIMRES=Object.assign({},ELIMRES,er);if(typeof render==="function")render();}
+ }catch(e){}
+}
 });
 
 const activeParts=p=>Object.entries(p.participantes||{}).filter(([,u])=>u&&!u.left);
