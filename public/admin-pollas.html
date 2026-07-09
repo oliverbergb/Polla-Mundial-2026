@@ -303,6 +303,17 @@ function totalPoints(u,rules,results,world){
  return matchPts+espPts+grpPts+elimPts;
 }
 
+/* Cuenta marcadores EXACTOS (tier 3) en grupos + eliminatoria */
+function countExactos(u,results){
+ const preds=u.predictions||{},elim=u.elimPredictions||{};
+ let n=0;
+ MATCHES.forEach(m=>{
+  const pred=m.phase==="groups"?preds[m.id]:elim[m.id];
+  if(scoreTier(pred,results[m.id])===3)n++;
+ });
+ return n;
+}
+
 /* ════════════ FIN lógica de puntaje ════════════ */
 
 function esc(s){return String(s==null?"":s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
@@ -375,7 +386,7 @@ async function loadElimFromApi(){
    }
    if(best&&bd<=6*3600000){
     const h=apiTeamToApp(best.home_team),a=apiTeamToApp(best.away_team);
-    if(h||a)er[x.id]={home:h||null,away:a||null};
+    if(h&&a&&h!==a)er[x.id]={home:h,away:a};
    }
   });
   if(Object.keys(er).length){ELIMRES=Object.assign({},ELIMRES,er);if(typeof render==="function")render();}
@@ -415,6 +426,7 @@ function buildLeaderboard(){
     pollaId:id, pollaName:p.nombre||"(sin nombre)", code:p.code||"—",
     uid, name:u.name||"¿?", email:u.email||"",
     pts:totalPoints(u,rules,results,WORLD),
+    exactos:countExactos(u,results),
     isCreator:uid===p.creadorUid,
     members:activeParts(p).length
    });
@@ -449,7 +461,7 @@ function render(){
  let rows=LEADER;
  if(lbQuery) rows=rows.filter(r=>r.name.toLowerCase().includes(lbQuery)||r.pollaName.toLowerCase().includes(lbQuery));
  const shown=lbAll?rows:rows.slice(0,30);
- html+=`<table class="lb"><thead><tr><th>#</th><th>Jugador</th><th>Polla</th><th>Código</th><th style="text-align:right">Pts</th><th></th></tr></thead><tbody>`;
+ html+=`<table class="lb"><thead><tr><th>#</th><th>Jugador</th><th>Polla</th><th>Código</th><th style="text-align:right" title="Marcadores exactos">🎯</th><th style="text-align:right">Pts</th><th></th></tr></thead><tbody>`;
  shown.forEach((r,i)=>{
   const rank=lbQuery?"·":(i+1);
   html+=`<tr class="${!lbQuery&&i===0?'gold':''}">
@@ -457,6 +469,7 @@ function render(){
    <td>${esc(r.name)}${r.isCreator?" 👑":""}</td>
    <td style="color:#b8a98f">${esc(r.pollaName)}</td>
    <td><code style="cursor:pointer" title="Copiar código" onclick="copyCode(event,'${esc(r.code)}')">${esc(r.code)}</code></td>
+   <td style="text-align:right;font-weight:700;color:#e8b04b">${r.exactos}</td>
    <td class="pts">${r.pts}</td>
    <td><button class="ghost small" onclick="spy('${r.pollaId}','${r.uid}')">👁 Ver</button></td>
   </tr>`;
