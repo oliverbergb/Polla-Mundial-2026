@@ -1138,6 +1138,24 @@ const FIREBASE_CONFIG={
 const ADMIN_NAME="ADMIN";
 const ADMIN_UID="BGRX6wt6TpR2srb38VG9gRUjk4g2";
 const TOURNAMENT_LOCKOUT="2026-06-11T19:00:00Z";
+// ─── TORNEOS (multi-torneo) ────────────────────────────────
+// Cada polla guarda p.torneo. Las pollas antiguas (sin campo) son del
+// Mundial 2026 automáticamente, así nada existente se rompe.
+const UCL_DRAW_DATE="2026-08-27T16:00:00Z";  // sorteo fase liga (ajustar si UEFA cambia fecha)
+const UCL_LOCKOUT="2026-09-15T16:00:00Z";    // 1er partido fase liga = cierre de pronósticos
+const TOURNAMENTS={
+ mundial2026:{key:"mundial2026",nombre:"Mundial 2026",badge:"\u{1F3C6} Mundial 2026",color:"#b97708",soft:"rgba(245,165,34,.16)",lockout:TOURNAMENT_LOCKOUT},
+ champions2027:{key:"champions2027",nombre:"Champions League 26/27",badge:"\u2B50 Champions 26/27",color:"#1e3dad",soft:"rgba(30,61,173,.10)",lockout:UCL_LOCKOUT}
+};
+function pollaTorneo(p){return TOURNAMENTS[(p&&p.torneo)||"mundial2026"]||TOURNAMENTS.mundial2026;}
+function esChampions(p){return pollaTorneo(p).key==="champions2027";}
+function torneoBadgeHtml(p){const t=pollaTorneo(p);return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:${t.color};background:${t.soft};border-radius:7px;padding:2px 7px;white-space:nowrap">${t.badge}</span>`;}
+let _crearTorneo="mundial2026";
+// Fixture UCL: se llenará desde BallDontLie vía el proxy de Vercel (mismo
+// patrón que /api/bdl del Mundial, agregando el parámetro de liga UEFA CL)
+// cuando exista el sorteo. Mismo esquema que MATCHES para reusar el motor
+// de puntos: fase liga ≙ "grupos" (tabla única de 36) y knockout ≙ elim.
+const UCL_MATCHES=[];
 const TOURNAMENT_END="2026-07-19T23:00:00Z";
 
 const ESPECIALES_FIELDS=[
@@ -2279,6 +2297,9 @@ function _onPollaChild(path,handlers){
 function detachPollaListeners(){_pollaListeners.forEach(({ref,evt,cb})=>{try{ref.off(evt||"value",cb);}catch(e){}});_pollaListeners=[];}
 function loadData(){
  if(!currentPollaId){renderPollaLobby();return;}
+ // Las pollas de Champions viven en su sala de espera hasta que exista el
+ // fixture (sorteo UEFA). El motor de tabs/puntos de abajo es del Mundial.
+ if(currentPolla&&esChampions(currentPolla)){try{localStorage.setItem("tpLastPolla",currentPollaId);}catch(e){}renderChampionsSala(currentPollaId);return;}
  // Recuerda la última polla abierta para volver a ella al reabrir la app.
  try{localStorage.setItem("tpLastPolla",currentPollaId);}catch(e){}
  detachPollaListeners();
@@ -3474,6 +3495,7 @@ function renderLogin(mode){if(mode==="forgot")renderForgot();else renderLanding(
 function renderPollaLobby(){
  setFabs(false);
  const pollaIds=Object.keys(myPollas);
+ pollaIds.sort((a,b)=>(esChampions(myPollas[a])?1:0)-(esChampions(myPollas[b])?1:0));
  const initials=currentUser.name.slice(0,2).toUpperCase();
  const avatarBg=avatarColor(currentUser.name);
  document.getElementById("root").innerHTML=`
@@ -3482,7 +3504,7 @@ function renderPollaLobby(){
  <!-- TOP BAR -->
  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
  <div style="width:40px"></div>
- <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:var(--border);text-transform:uppercase">MUNDIAL 2026</div>
+ <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:var(--border);text-transform:uppercase">TUS TORNEOS</div>
  <button onclick="logout()" style="background:var(--surface);border:none;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">Salir</button>
  </div>
 
@@ -3506,14 +3528,14 @@ function renderPollaLobby(){
  const canLeave=!isCreator; // los no-creadores pueden salirse siempre (antes y después de empezar)
  const n=Object.values(p.participantes||{}).filter(x=>x&&!x.left).length;
  const notLast=i<pollaIds.length-1;
- const canDeleteP=isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT);
+ const canDeleteP=isCreator&&new Date()<new Date(pollaTorneo(p).lockout);
  const showMenu=isCreator||canLeave; // siempre hay al menos una opción
  return`<div class="polla-swipe-row" style="position:relative;background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;margin-bottom:10px;overflow:hidden">
  <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--surface);transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background='var(--surface)'">
  
  <div style="flex:1;min-width:0">
  <div style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla sin nombre"}</div>
- <div style="font-size:11px;color:var(--text-dim);margin-top:1px">${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</div>
+ <div style="font-size:11px;color:var(--text-dim);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">${torneoBadgeHtml(p)}<span>${n} participante${n!==1?"s":""}${isCreator?" · <span style='color:#7c3aed'>creador</span>":""}</span></div>
  </div>
  <div style="display:flex;align-items:center;gap:4px">
  ${showMenu?`<button class="polla-dots-btn" onclick="event.stopPropagation();togglePollaMenu('${id}','${(p.nombre||'esta polla').replace(/'/g,"\\'")}',this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:20px;padding:6px 8px;border-radius:6px;letter-spacing:2px;line-height:1;font-weight:900" onmouseenter="this.style.color='var(--text-muted)'" onmouseleave="this.style.color='var(--text-dim)'">···</button>`:""}
@@ -3566,7 +3588,7 @@ window.togglePollaMenu=function(id,nombre,btn){
  const btnStyleN=btnStyle.replace('#dc2626','var(--text)');
  const items=[];
  if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();openRenamePolla('${id}');" style="${btnStyleN}" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='none'">Cambiar nombre</button>`);
- if(isCreator&&new Date()<new Date(TOURNAMENT_LOCKOUT))items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
+ if(isCreator&&new Date()<new Date(pollaTorneo(polla).lockout))items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
  if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'"> Salirse</button>`);
  if(!items.length)return;
  m.innerHTML=items.join('');
@@ -3610,7 +3632,7 @@ window.deletePolla=async function(pollaId,nombre){
  if(!polla||polla.creadorUid!==currentUser.uid){
  showToast("Solo el creador puede eliminar la polla","#ef4444");return;
  }
- if(new Date()>=new Date(TOURNAMENT_LOCKOUT)){
+ if(new Date()>=new Date(pollaTorneo(polla).lockout)){
  showToast("El torneo ya empezó; no puedes eliminar la polla","#ef4444",4000);return;
  }
  showConfirmModal(
@@ -3632,7 +3654,7 @@ window.leavePolla=async function(pollaId,nombre){
  if(polla&&polla.creadorUid===currentUser.uid){
  showToast("El creador no puede salirse de su propia polla","#ef4444",4000);return;
  }
- const started=new Date()>=new Date(TOURNAMENT_LOCKOUT);
+ const started=new Date()>=new Date(pollaTorneo(polla).lockout);
  const msg=started
  ? "Saldrás del ranking de esta polla. Tus pronósticos seguirán visibles para el resto y, si vuelves a entrar con el mismo código, regresarás al ranking."
  : "Saldrás de esta polla. Si vuelves a entrar con el mismo código, regresarás al ranking.";
@@ -3656,6 +3678,7 @@ window.leavePolla=async function(pollaId,nombre){
 };
 
 window.enterPolla=function(id){
+ if(esChampions(myPollas[id])){currentPollaId=id;currentPolla=myPollas[id];try{localStorage.setItem("tpLastPolla",id);}catch(e){}renderChampionsSala(id);return;}
  currentPollaId=id;currentPolla=myPollas[id];
  currentTab=tpFirstTab();currentGroup="A";currentElimPhase="r32";
  // Sembramos el estado desde el snapshot que YA está en memoria (myPollas se cargó
@@ -3699,6 +3722,7 @@ function renderCrearPolla(){
  setFabs(false);
  const _postLockCrear=new Date()>=new Date(TOURNAMENT_LOCKOUT);
  _crearPreset=_postLockCrear?"clasica":"completa";
+ _crearTorneo="mundial2026";
  const savedName=sessionStorage.getItem("pendingPollaName")||"";
  document.getElementById("root").innerHTML=`
  <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
@@ -3709,6 +3733,14 @@ function renderCrearPolla(){
  </div>
  <div style="flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:64px 20px 40px">
  <div style="margin:auto 0;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center">
+ <div style="width:100%;margin-bottom:18px">
+ <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;text-align:center;margin-bottom:8px">Torneo</div>
+ <div style="display:flex;gap:8px">
+ <button type="button" id="torneoBtn-mundial2026" onclick="tpSetTorneo('mundial2026')" style="flex:1;border:2px solid #f5a522;background:rgba(245,165,34,.16);color:#b97708;border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">\u{1F3C6} Mundial 2026<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">En juego</span></button>
+ <button type="button" id="torneoBtn-champions2027" onclick="tpSetTorneo('champions2027')" style="flex:1;border:2px solid var(--border);background:var(--surface);color:var(--text-muted);border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">\u2B50 Champions 26/27<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Desde septiembre</span></button>
+ </div>
+ <div id="torneoChampsNote" style="display:none;background:rgba(30,61,173,.08);border:1px solid rgba(30,61,173,.25);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.6"><b style="color:#1e3dad">\u2B50 Polla de Champions League 26/27.</b> Crea tu polla e invita a tu gente desde ya. El fixture de la fase liga se carga solito cuando la UEFA haga el sorteo (finales de agosto) y ahí se abren los pronósticos. Cierran con el primer partido (15 sep 2026).</div>
+ </div>
  <div style="position:relative;width:340px;max-width:100%;margin:0 auto 8px">
  <svg id="pollaChick" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="54 113 432 404" style="position:absolute;left:18px;top:-53px;width:64px;height:auto;z-index:5;pointer-events:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.12))">
   <defs>
@@ -3776,7 +3808,7 @@ function renderCrearPolla(){
  </div>
  <div class="error" id="crearError" style="text-align:center;margin-bottom:12px;width:100%"></div>
  <button class="btn" onclick="doCrearPolla()" style="margin-bottom:20px;width:100%">Crear polla </button>
- <div style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+ <div id="crearConfigWC" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
  <div style="padding:12px 14px 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase">Configurar polla</div>
  <div style="padding:4px 14px 10px;display:flex;gap:8px">
   <button type="button" data-preset="clasica" onclick="tpPreset('clasica')" style="flex:1;border:2px solid ${_postLockCrear?'var(--primary)':'var(--border)'};background:${_postLockCrear?'var(--primary-soft)':'var(--surface)'};color:${_postLockCrear?'var(--primary)':'var(--text-muted)'};border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Clásica<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Solo marcadores</span></button>
@@ -3917,16 +3949,17 @@ window.doCrearPolla=async function(){
  // Capture rules now, while the form is still in the DOM. Deferred creation
  // (after sign-in) runs once the form is gone, which would otherwise reset
  // every toggle/score selection back to its default.
- const rules=readPollaRules();
+ const torneo=_crearTorneo||"mundial2026";
+ const rules=torneo==="champions2027"?uclDefaultRules():readPollaRules();
  if(!currentUser){
  sessionStorage.setItem("pendingPollaName",nombre);
  // Queue the polla creation; auth handler will run it after sign-in.
  // If the user already has a stored profile, they'll skip the name picker entirely.
- pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre,rules);sessionStorage.removeItem("pendingPollaName");};
+ pendingPollaAction=async()=>{await _doCreatePolla(sessionStorage.getItem("pendingPollaName")||nombre,rules,torneo);sessionStorage.removeItem("pendingPollaName");};
  renderAuthScreen("");
  return;
  }
- await _doCreatePolla(nombre,rules);
+ await _doCreatePolla(nombre,rules,torneo);
 };
 
 function readPollaRules(){
@@ -3946,14 +3979,14 @@ function readPollaRules(){
  };
 }
 
-async function _doCreatePolla(nombre,rules){
+async function _doCreatePolla(nombre,rules,torneo){
  sessionStorage.removeItem("pendingPollaName");
  nombre=(nombre||"").trim();
  if(!nombre||nombre.length<2){showToast("La polla necesita un nombre.","#ef4444",3500);renderPollaLobby();return;}
  if(!rules)rules=readPollaRules();
  const code=generateCode();
  const pollaId=db.ref("pollas").push().key;
- const pollaData={nombre,rules,code,creadorUid:currentUser.uid,creadaEn:Date.now(),
+ const pollaData={nombre,rules,code,torneo:torneo||"mundial2026",creadorUid:currentUser.uid,creadaEn:Date.now(),
  participantes:{[currentUser.uid]:{name:currentUser.name||"Jugador",email:(currentUser.email||"").toLowerCase(),joinedAt:Date.now(),predictions:{},especiales:{},groupPredictions:{},elimPredictions:{}}}};
  try{
  await db.ref(`pollas/${pollaId}`).set(pollaData);
@@ -3972,7 +4005,8 @@ function renderInvite(pollaId,nombre,code){
  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);"><div style="max-width:480px;width:100%;padding:24px 16px;text-align:center;position:relative;z-index:1">
  <div style="margin-bottom:6px">${tpMascot("verde",112)}</div>
  <h2 style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">¡Polla creada!</h2>
- <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px">${nombre}</p>
+ <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">${nombre}</p>
+ <div style="margin-bottom:20px">${torneoBadgeHtml(myPollas[pollaId]||currentPolla)}</div>
  <div style="background:var(--surface);border-radius:14px;overflow:hidden;margin-bottom:16px">
  <div style="padding:20px 20px 14px">
  <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase">Código</div>
@@ -3987,6 +4021,79 @@ function renderInvite(pollaId,nombre,code){
  <button class="btn-secondary" onclick="enterPolla('${pollaId}')">Entrar a la polla →</button>
  </div></div>`;
 }
+
+// ─── CHAMPIONS LEAGUE 26/27 ───────────────────────────────
+// Reglas por defecto UCL: mismos conceptos que el Mundial. "Grupos" ≙ fase
+// liga (tabla única de 36) y eliminatorias ≙ knockout. Editables por el
+// creador antes del lockout, igual que siempre.
+function uclDefaultRules(){
+ const r=JSON.parse(JSON.stringify(DEFAULT_RULES));
+ r.incluirPartidosGrupos=true;r.incluirEliminatoria=true;
+ // Clasificación y especiales se habilitan cuando cargue el fixture/planteles.
+ r.incluirClasificacion=false;r.incluirEspeciales=false;
+ return r;
+}
+window.tpSetTorneo=function(k){
+ _crearTorneo=k;
+ Object.keys(TOURNAMENTS).forEach(key=>{
+ const b=document.getElementById("torneoBtn-"+key);if(!b)return;
+ const t=TOURNAMENTS[key],on=key===k;
+ b.style.borderColor=on?(key==="mundial2026"?"#f5a522":t.color):"var(--border)";
+ b.style.background=on?t.soft:"var(--surface)";
+ b.style.color=on?t.color:"var(--text-muted)";
+ });
+ const cfg=document.getElementById("crearConfigWC");if(cfg)cfg.style.display=k==="champions2027"?"none":"";
+ const note=document.getElementById("torneoChampsNote");if(note)note.style.display=k==="champions2027"?"block":"none";
+};
+// Sala de espera de una polla Champions: invitar gente + participantes.
+// Cuando la UEFA sortee la fase liga, aquí se enchufa el fixture (UCL_MATCHES
+// desde BallDontLie) y esta sala se reemplaza por las tabs de pronósticos.
+window.renderChampionsSala=function(id){
+ const p=myPollas[id]||currentPolla||{};
+ setFabs(false);
+ const parts=Object.entries(p.participantes||{}).filter(([u,x])=>x&&!x.left);
+ const isCreator=p.creadorUid===currentUser.uid;
+ const link=`${window.location.origin}${window.location.pathname}?polla=${p.code}`;
+ const dLeft=Math.max(0,Math.ceil((new Date(UCL_DRAW_DATE)-new Date())/(24*3600*1000)));
+ document.getElementById("root").innerHTML=`
+ <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
+ <div style="background:linear-gradient(135deg,#0b1b6e,#1e3dad);padding:18px 16px 22px;color:#fff">
+ <div style="display:flex;align-items:center;justify-content:space-between">
+ <button onclick="currentPollaId=null;currentPolla=null;try{localStorage.removeItem('tpLastPolla');}catch(e){}renderPollaLobby();" style="background:rgba(255,255,255,.14);border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">\u2039 Mis pollas</button>
+ <div style="font-size:10px;font-weight:700;letter-spacing:3px;opacity:.85">CHAMPIONS 26/27</div>
+ <div style="width:86px"></div>
+ </div>
+ <div style="text-align:center;margin-top:16px">
+ <div style="font-size:34px">\u2B50</div>
+ <div style="font-size:21px;font-weight:900;letter-spacing:-0.5px;margin-top:4px">${p.nombre||"Polla Champions"}</div>
+ <div style="font-size:12px;opacity:.85;margin-top:3px">${parts.length} participante${parts.length!==1?"s":""}${isCreator?" · eres el creador":""}</div>
+ </div>
+ </div>
+ <div style="flex:1;padding:16px 20px 32px;max-width:680px;width:100%;margin:0 auto;box-sizing:border-box">
+ <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:16px;margin-bottom:12px">
+ <div style="font-size:13px;font-weight:900;color:var(--text);margin-bottom:6px">\u23F3 Esperando el sorteo de la UEFA</div>
+ <div style="font-size:12.5px;color:var(--text-muted);line-height:1.65">El sorteo de la fase liga es a finales de agosto${dLeft>0?` (faltan ~${dLeft} días)`:""}. Apenas salga, el fixture aparece aquí solito y se abren los pronósticos para todos. Cierran con el primer partido: <b>${localMatchDate(UCL_LOCKOUT)} · ${localMatchTime(UCL_LOCKOUT)}</b>.</div>
+ </div>
+ <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;overflow:hidden;margin-bottom:12px">
+ <div style="padding:14px 16px 4px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase">Invita a tu gente</div>
+ <div style="padding:8px 16px 4px;text-align:center">
+ <div onclick="copyText('${p.code}','Código copiado')" style="font-size:32px;font-weight:900;color:var(--text);letter-spacing:7px;cursor:pointer;user-select:all" title="Toca para copiar">${p.code||""}</div>
+ <div style="font-size:10px;color:var(--text-dim);margin-top:2px">toca para copiar</div>
+ </div>
+ <div style="border-top:1px solid var(--border);padding:12px 16px;margin-top:10px">
+ <button class="btn-secondary" onclick="copyText('${link}','Link copiado')" style="width:100%">Copiar link de invitación</button>
+ </div>
+ </div>
+ <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:14px 16px">
+ <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Participantes</div>
+ ${parts.map(([uid,x])=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+ <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor(x.name||"?")};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0">${(x.name||"?").slice(0,2).toUpperCase()}</div>
+ <div style="font-size:13.5px;font-weight:700;color:var(--text)">${x.name||"Jugador"}${uid===p.creadorUid?" <span style=\'font-size:10px;color:#7c3aed;font-weight:800\'>creador</span>":""}</div>
+ </div>`).join("")}
+ </div>
+ </div>
+ </div>`;
+};
 
 // ─── UNIRSE A POLLA ───────────────────────────────────────
 function renderUnirse(){
