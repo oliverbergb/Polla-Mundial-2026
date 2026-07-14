@@ -1123,7 +1123,7 @@ const TP_ICONS={"partidos": {"vb": "298 53 108 162", "inner": "<path d=\"m381.46
 function tpIcon(name,size,color){const i=TP_ICONS[name];if(!i)return"";const s=size||16,c=color||"currentColor";return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${i.vb}" width="${s}" height="${s}" fill="${c}" aria-hidden="true" style="vertical-align:-3px;flex-shrink:0">${i.inner}</svg>`;}
 function tpFirstTab(){return "mis_pronos";}
 let _crearPreset="completa";
-window.tpPreset=function(kind){if(kind==="completa"&&new Date()>=new Date(TOURNAMENT_LOCKOUT))return;_crearPreset=kind;const on=kind==="completa";const ids=["incluirClasificacion","incluirEspeciales"];ids.forEach(id=>{const cb=document.getElementById(id);if(cb)cb.checked=on;const tr=document.getElementById("toggle-track-"+id),dot=document.getElementById("toggle-dot-"+id);if(tr)tr.style.background=on?"#22c55e":"var(--border)";if(dot)dot.style.transform=on?"translateX(18px)":"translateX(0)";});document.querySelectorAll("[data-preset]").forEach(b=>{const a=b.getAttribute("data-preset")===kind;b.style.borderColor=a?"var(--primary)":"var(--border)";b.style.color=a?"var(--primary)":"var(--text-muted)";b.style.background=a?"var(--primary-soft)":"var(--surface)";});};
+window.tpPreset=function(kind){if(kind==="completa"&&new Date()>=new Date(TOURNAMENTS[_crearTorneo||"mundial2026"].lockout))return;_crearPreset=kind;const on=kind==="completa";const ids=["incluirClasificacion","incluirEspeciales"];ids.forEach(id=>{const cb=document.getElementById(id);if(cb)cb.checked=on;const tr=document.getElementById("toggle-track-"+id),dot=document.getElementById("toggle-dot-"+id);if(tr)tr.style.background=on?"#22c55e":"var(--border)";if(dot)dot.style.transform=on?"translateX(18px)":"translateX(0)";});document.querySelectorAll("[data-preset]").forEach(b=>{const a=b.getAttribute("data-preset")===kind;b.style.borderColor=a?"var(--primary)":"var(--border)";b.style.color=a?"var(--primary)":"var(--text-muted)";b.style.background=a?"var(--primary-soft)":"var(--surface)";});};
 // ─── CONFIG ───────────────────────────────────────────────
 const FIREBASE_CONFIG={
  apiKey:"AIzaSyBTkbXyjOiEoY2t-9YRA0b7wlIB0AEUgUA",
@@ -1144,11 +1144,14 @@ const TOURNAMENT_LOCKOUT="2026-06-11T19:00:00Z";
 const UCL_DRAW_DATE="2026-08-27T16:00:00Z";  // sorteo fase liga (ajustar si UEFA cambia fecha)
 const UCL_LOCKOUT="2026-09-15T16:00:00Z";    // 1er partido fase liga = cierre de pronósticos
 const TOURNAMENTS={
- mundial2026:{key:"mundial2026",nombre:"Mundial 2026",badge:"\u{1F3C6} Mundial 2026",color:"#b97708",soft:"rgba(245,165,34,.16)",lockout:TOURNAMENT_LOCKOUT},
- champions2027:{key:"champions2027",nombre:"Champions League 26/27",badge:"\u2B50 Champions 26/27",color:"#1e3dad",soft:"rgba(30,61,173,.10)",lockout:UCL_LOCKOUT}
+ mundial2026:{key:"mundial2026",nombre:"Mundial 2026",badge:"Mundial 2026",color:"#b97708",soft:"rgba(245,165,34,.16)",lockout:TOURNAMENT_LOCKOUT},
+ champions2027:{key:"champions2027",nombre:"Champions League 26/27",badge:"Champions League 26/27",color:"#1e3dad",soft:"rgba(30,61,173,.10)",lockout:UCL_LOCKOUT}
 };
 function pollaTorneo(p){return TOURNAMENTS[(p&&p.torneo)||"mundial2026"]||TOURNAMENTS.mundial2026;}
 function esChampions(p){return pollaTorneo(p).key==="champions2027";}
+// El creador puede eliminar su polla antes del lockout o, en cualquier
+// momento, si es el único participante activo (nadie pierde nada).
+function canDeletePollaFn(p){if(!p||!currentUser||p.creadorUid!==currentUser.uid)return false;const nAct=Object.values(p.participantes||{}).filter(x=>x&&!x.left).length;return new Date()<new Date(pollaTorneo(p).lockout)||nAct<=1;}
 function torneoBadgeHtml(p){const t=pollaTorneo(p);return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:${t.color};background:${t.soft};border-radius:7px;padding:2px 7px;white-space:nowrap">${t.badge}</span>`;}
 let _crearTorneo="mundial2026";
 // Fixture UCL: se llenará desde BallDontLie vía el proxy de Vercel (mismo
@@ -3504,7 +3507,6 @@ function renderPollaLobby(){
  <!-- TOP BAR -->
  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0">
  <div style="width:40px"></div>
- <div style="font-size:10px;font-weight:700;letter-spacing:4px;color:var(--border);text-transform:uppercase">TUS TORNEOS</div>
  <button onclick="logout()" style="background:var(--surface);border:none;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">Salir</button>
  </div>
 
@@ -3528,7 +3530,7 @@ function renderPollaLobby(){
  const canLeave=!isCreator; // los no-creadores pueden salirse siempre (antes y después de empezar)
  const n=Object.values(p.participantes||{}).filter(x=>x&&!x.left).length;
  const notLast=i<pollaIds.length-1;
- const canDeleteP=isCreator&&new Date()<new Date(pollaTorneo(p).lockout);
+ const canDeleteP=canDeletePollaFn(p);
  const showMenu=isCreator||canLeave; // siempre hay al menos una opción
  return`<div class="polla-swipe-row" style="position:relative;background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;margin-bottom:10px;overflow:hidden">
  <div class="polla-swipe-inner" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--surface);transition:background .15s,transform .2s;overflow:hidden" onclick="enterPolla('${id}')" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background='var(--surface)'">
@@ -3588,7 +3590,7 @@ window.togglePollaMenu=function(id,nombre,btn){
  const btnStyleN=btnStyle.replace('#dc2626','var(--text)');
  const items=[];
  if(isCreator)items.push(`<button onclick="event.stopPropagation();closePollaMenus();openRenamePolla('${id}');" style="${btnStyleN}" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='none'">Cambiar nombre</button>`);
- if(isCreator&&new Date()<new Date(pollaTorneo(polla).lockout))items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
+ if(canDeletePollaFn(polla))items.push(`<button onclick="event.stopPropagation();closePollaMenus();deletePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'">Eliminar polla</button>`);
  if(canLeave)items.push(`<button onclick="event.stopPropagation();closePollaMenus();leavePolla('${id}','${safeName}');" style="${btnStyle}" onmouseenter="this.style.background='#fef3c0'" onmouseleave="this.style.background='none'"> Salirse</button>`);
  if(!items.length)return;
  m.innerHTML=items.join('');
@@ -3632,8 +3634,8 @@ window.deletePolla=async function(pollaId,nombre){
  if(!polla||polla.creadorUid!==currentUser.uid){
  showToast("Solo el creador puede eliminar la polla","#ef4444");return;
  }
- if(new Date()>=new Date(pollaTorneo(polla).lockout)){
- showToast("El torneo ya empezó; no puedes eliminar la polla","#ef4444",4000);return;
+ if(!canDeletePollaFn(polla)){
+ showToast("El torneo ya empezó; solo puedes eliminar la polla si eres el único participante","#ef4444",4500);return;
  }
  showConfirmModal(
  "",
@@ -3678,7 +3680,7 @@ window.leavePolla=async function(pollaId,nombre){
 };
 
 window.enterPolla=function(id){
- if(esChampions(myPollas[id])){currentPollaId=id;currentPolla=myPollas[id];try{localStorage.setItem("tpLastPolla",id);}catch(e){}renderChampionsSala(id);return;}
+ if(esChampions(myPollas[id])){currentPollaId=id;currentPolla=myPollas[id];_uclTab="partidos";_uclJornada=1;try{localStorage.setItem("tpLastPolla",id);}catch(e){}renderChampionsSala(id);return;}
  currentPollaId=id;currentPolla=myPollas[id];
  currentTab=tpFirstTab();currentGroup="A";currentElimPhase="r32";
  // Sembramos el estado desde el snapshot que YA está en memoria (myPollas se cargó
@@ -3717,12 +3719,13 @@ function ruleRow(id,label,val){
  </div>`;
 }
 function exBox(html){return`<div style="background:var(--surface);border-radius:8px;padding:10px 12px;margin:8px 0 10px;font-size:12px;color:var(--text-muted);line-height:1.8">${html}</div>`;}
-function renderCrearPolla(){
+function renderCrearPolla(keepTorneo){
  const r=DEFAULT_RULES;
  setFabs(false);
- const _postLockCrear=new Date()>=new Date(TOURNAMENT_LOCKOUT);
+ if(!keepTorneo)_crearTorneo="mundial2026";
+ const _esUcl=_crearTorneo==="champions2027";
+ const _postLockCrear=new Date()>=new Date(TOURNAMENTS[_crearTorneo].lockout);
  _crearPreset=_postLockCrear?"clasica":"completa";
- _crearTorneo="mundial2026";
  const savedName=sessionStorage.getItem("pendingPollaName")||"";
  document.getElementById("root").innerHTML=`
  <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
@@ -3733,13 +3736,13 @@ function renderCrearPolla(){
  </div>
  <div style="flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:64px 20px 40px">
  <div style="margin:auto 0;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center">
- <div style="width:100%;margin-bottom:18px">
+ <div style="width:100%;margin-bottom:52px">
  <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;text-align:center;margin-bottom:8px">Torneo</div>
  <div style="display:flex;gap:8px">
- <button type="button" id="torneoBtn-mundial2026" onclick="tpSetTorneo('mundial2026')" style="flex:1;border:2px solid #f5a522;background:rgba(245,165,34,.16);color:#b97708;border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">\u{1F3C6} Mundial 2026<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">En juego</span></button>
- <button type="button" id="torneoBtn-champions2027" onclick="tpSetTorneo('champions2027')" style="flex:1;border:2px solid var(--border);background:var(--surface);color:var(--text-muted);border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">\u2B50 Champions 26/27<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Desde septiembre</span></button>
+ <button type="button" onclick="tpSetTorneo('mundial2026')" style="flex:1;border:2px solid ${!_esUcl?'#f5a522':'var(--border)'};background:${!_esUcl?'rgba(245,165,34,.16)':'var(--surface)'};color:${!_esUcl?'#b97708':'var(--text-muted)'};border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">Mundial 2026<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">En juego</span></button>
+ <button type="button" onclick="tpSetTorneo('champions2027')" style="flex:1;border:2px solid ${_esUcl?'#1e3dad':'var(--border)'};background:${_esUcl?'rgba(30,61,173,.10)':'var(--surface)'};color:${_esUcl?'#1e3dad':'var(--text-muted)'};border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">Champions League 26/27<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Desde septiembre</span></button>
  </div>
- <div id="torneoChampsNote" style="display:none;background:rgba(30,61,173,.08);border:1px solid rgba(30,61,173,.25);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.6"><b style="color:#1e3dad">\u2B50 Polla de Champions League 26/27.</b> Crea tu polla e invita a tu gente desde ya. El fixture de la fase liga se carga solito cuando la UEFA haga el sorteo (finales de agosto) y ahí se abren los pronósticos. Cierran con el primer partido (15 sep 2026).</div>
+ ${_esUcl?`<div style="background:rgba(30,61,173,.08);border:1px solid rgba(30,61,173,.25);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.6;text-align:center"><b style="color:#1e3dad">Polla de Champions League 26/27.</b> Crea tu polla e invita a tu gente desde ya. El fixture de la fase liga se carga solito cuando la UEFA haga el sorteo (finales de agosto) y ahí se abren los pronósticos. Cierran con el primer partido (15 sep 2026).</div>`:''}
  </div>
  <div style="position:relative;width:340px;max-width:100%;margin:0 auto 8px">
  <svg id="pollaChick" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="54 113 432 404" style="position:absolute;left:18px;top:-53px;width:64px;height:auto;z-index:5;pointer-events:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.12))">
@@ -3816,10 +3819,10 @@ function renderCrearPolla(){
    ?`<button type="button" disabled style="flex:1;border:2px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12px;cursor:not-allowed;opacity:.6;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px">No disponible</span></button>`
    :`<button type="button" data-preset="completa" onclick="tpPreset('completa')" style="flex:1;border:2px solid var(--primary);background:var(--primary-soft);color:var(--primary);border-radius:10px;padding:9px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12px;cursor:pointer;line-height:1.25">Completa<br><span style="font-weight:600;font-size:10px;color:var(--primary-dark)">Todo incluido</span></button>`}
  </div>
- ${_postLockCrear?`<div style="padding:0 14px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45;text-align:center">La versión Completa ya no está disponible: el Mundial ya comenzó y las predicciones de Clasificación y Especiales cerraron con el primer partido. Las pollas nuevas se crean en modo Clásico (solo marcadores).</div>`:''}
+ ${_postLockCrear?`<div style="padding:0 14px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45;text-align:center">La versión Completa ya no está disponible: ${_esUcl?"la Champions League ya comenzó":"el Mundial ya comenzó"} y las predicciones de Clasificación y Especiales cerraron con el primer partido. Las pollas nuevas se crean en modo Clásico (solo marcadores).</div>`:''}
  ${[
- {id:"incluirPartidosGrupos", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"298 53 108 162\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/></svg>", label:"Partidos", desc:"Marcadores: fase de grupos y eliminatorias"},
-        {id:"incluirClasificacion", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"288 416 136 142\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m412.33,469.08l-54.27,34.27c-1.73,1.1-3.95,1.1-5.68,0l-54.27-34.27c-3.27-2.07-3.31-6.83-.07-8.95l54.27-35.54c1.77-1.16,4.06-1.16,5.83,0l54.27,35.54c3.24,2.12,3.2,6.88-.07,8.95Z\"/><path d=\"m355.23,523.77c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.35,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.37-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/><path d=\"m355.23,543.76c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.36,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.36-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/></svg>", label:"Clasificación grupos", desc:"Orden final de cada grupo"},
+ {id:"incluirPartidosGrupos", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"298 53 108 162\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m381.46,68.47h-5.15c-.69-5-4.97-8.85-10.16-8.85h-27.47c-5.19,0-9.47,3.85-10.16,8.85h-3.75c-10.21,0-18.49,8.28-18.49,18.49v97.83c0,10.21,8.28,18.49,18.49,18.49h56.68c10.21,0,18.49-8.28,18.49-18.49v-97.83c0-10.21-8.28-18.49-18.49-18.49Zm-61.67,23.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm58.57,84.83h-58.57c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h58.57c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm8.47-12.6h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Zm-67.03-20.66h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03Zm-4.03-22.34c0-2.23,1.8-4.03,4.03-4.03h34.36c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03h-34.36c-2.23,0-4.03-1.8-4.03-4.03Zm71.06-8.57h-67.4c-2.23,0-4.03-1.8-4.03-4.03s1.8-4.03,4.03-4.03h67.4c2.23,0,4.03,1.8,4.03,4.03s-1.8,4.03-4.03,4.03Z\"/></svg>", label:"Partidos", desc:_esUcl?"Marcadores: fase liga y eliminatorias":"Marcadores: fase de grupos y eliminatorias"},
+        {id:"incluirClasificacion", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"288 416 136 142\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m412.33,469.08l-54.27,34.27c-1.73,1.1-3.95,1.1-5.68,0l-54.27-34.27c-3.27-2.07-3.31-6.83-.07-8.95l54.27-35.54c1.77-1.16,4.06-1.16,5.83,0l54.27,35.54c3.24,2.12,3.2,6.88-.07,8.95Z\"/><path d=\"m355.23,523.77c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.35,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.37-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/><path d=\"m355.23,543.76c-.95,0-1.9-.27-2.73-.8l-54.26-34.73c-2.36-1.51-3.04-4.64-1.54-7,1.51-2.36,4.64-3.04,7-1.54l51.55,32.99,54.94-34.7c2.36-1.49,5.49-.79,6.99,1.58,1.49,2.37.79,5.49-1.58,6.99l-57.66,36.42c-.83.52-1.77.78-2.7.78Z\"/></svg>", label:_esUcl?"Clasificación fase liga":"Clasificación grupos", desc:_esUcl?"Orden final de la tabla de 36 equipos":"Orden final de cada grupo"},
         {id:"incluirEspeciales", icon:"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"118 410 150 140\" width=\"16\" height=\"16\" fill=\"currentColor\" style=\"vertical-align:-3px;flex-shrink:0\"><path d=\"m193.28,423.11l16.12,32.66c.55,1.12,1.62,1.9,2.86,2.08l36.04,5.24c3.12.45,4.36,4.28,2.11,6.48l-26.08,25.42c-.9.87-1.3,2.13-1.09,3.36l6.16,35.89c.53,3.1-2.73,5.47-5.51,4.01l-32.23-16.95c-1.11-.58-2.43-.58-3.54,0l-32.23,16.95c-2.79,1.47-6.05-.9-5.51-4.01l6.16-35.89c.21-1.23-.2-2.49-1.09-3.36l-26.08-25.42c-2.26-2.2-1.01-6.03,2.11-6.48l36.04-5.24c1.24-.18,2.31-.96,2.86-2.08l16.12-32.66c1.39-2.82,5.42-2.82,6.82,0Z\"/></svg>", label:"Especiales", desc:"Campeón, Bota de Oro, Guante de Oro, MVP"}
  ].map((s,i,arr)=>`
  <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;${i<arr.length-1?"border-bottom:1px solid var(--border)":""}">
@@ -3950,7 +3953,7 @@ window.doCrearPolla=async function(){
  // (after sign-in) runs once the form is gone, which would otherwise reset
  // every toggle/score selection back to its default.
  const torneo=_crearTorneo||"mundial2026";
- const rules=torneo==="champions2027"?uclDefaultRules():readPollaRules();
+ const rules=readPollaRules();
  if(!currentUser){
  sessionStorage.setItem("pendingPollaName",nombre);
  // Queue the polla creation; auth handler will run it after sign-in.
@@ -3970,11 +3973,11 @@ function readPollaRules(){
  ptsExactoSinClasif:getRuleVal("ptsExactoSinClasif"),ptsSoloClasif:getRuleVal("ptsSoloClasif"),
  ptsPosGrupo:getRuleVal("ptsPosGrupo"),
  incluirPartidosGrupos:document.getElementById("incluirPartidosGrupos")?.checked!==false,
- incluirClasificacion:new Date()>=new Date(TOURNAMENT_LOCKOUT)?false:document.getElementById("incluirClasificacion")?.checked!==false,
+ incluirClasificacion:new Date()>=new Date(TOURNAMENTS[_crearTorneo||"mundial2026"].lockout)?false:document.getElementById("incluirClasificacion")?.checked!==false,
  incluirEliminatoria:true,
  espCampeon:getRuleVal("espCampeon"),espBotaOro:getRuleVal("espBotaOro"),
  espGuanteOro:getRuleVal("espGuanteOro"),espMejorJugador:getRuleVal("espMejorJugador"),
- incluirEspeciales:new Date()>=new Date(TOURNAMENT_LOCKOUT)?false:document.getElementById("incluirEspeciales")?.checked!==false,
+ incluirEspeciales:new Date()>=new Date(TOURNAMENTS[_crearTorneo||"mundial2026"].lockout)?false:document.getElementById("incluirEspeciales")?.checked!==false,
  verPronosticos:document.getElementById("verPronosticos")?.checked!==false,
  };
 }
@@ -4023,31 +4026,16 @@ function renderInvite(pollaId,nombre,code){
 }
 
 // ─── CHAMPIONS LEAGUE 26/27 ───────────────────────────────
-// Reglas por defecto UCL: mismos conceptos que el Mundial. "Grupos" ≙ fase
-// liga (tabla única de 36) y eliminatorias ≙ knockout. Editables por el
-// creador antes del lockout, igual que siempre.
-function uclDefaultRules(){
- const r=JSON.parse(JSON.stringify(DEFAULT_RULES));
- r.incluirPartidosGrupos=true;r.incluirEliminatoria=true;
- // Clasificación y especiales se habilitan cuando cargue el fixture/planteles.
- r.incluirClasificacion=false;r.incluirEspeciales=false;
- return r;
-}
-window.tpSetTorneo=function(k){
- _crearTorneo=k;
- Object.keys(TOURNAMENTS).forEach(key=>{
- const b=document.getElementById("torneoBtn-"+key);if(!b)return;
- const t=TOURNAMENTS[key],on=key===k;
- b.style.borderColor=on?(key==="mundial2026"?"#f5a522":t.color):"var(--border)";
- b.style.background=on?t.soft:"var(--surface)";
- b.style.color=on?t.color:"var(--text-muted)";
- });
- const cfg=document.getElementById("crearConfigWC");if(cfg)cfg.style.display=k==="champions2027"?"none":"";
- const note=document.getElementById("torneoChampsNote");if(note)note.style.display=k==="champions2027"?"block":"none";
-};
-// Sala de espera de una polla Champions: invitar gente + participantes.
-// Cuando la UEFA sortee la fase liga, aquí se enchufa el fixture (UCL_MATCHES
-// desde BallDontLie) y esta sala se reemplaza por las tabs de pronósticos.
+window.tpSetTorneo=function(k){if(_crearTorneo===k)return;_crearTorneo=k;renderCrearPolla(true);};
+let _uclTab="partidos";
+let _uclJornada=1;
+window.uclSetTab=function(t){_uclTab=t;renderChampionsSala(currentPollaId);};
+window.uclSetJornada=function(j){_uclJornada=j;renderChampionsSala(currentPollaId);};
+// Polla de Champions League: misma experiencia que la del Mundial pero
+// brandeada UEFA. Mientras no exista el sorteo (finales de agosto) se muestra
+// el ESQUELETO del fixture: fase liga (36 equipos, 8 jornadas) y
+// eliminatorias, con los equipos en gris "por sortear". Cuando UCL_MATCHES se
+// llene desde BallDontLie, estas tabs se conectan al motor real de puntos.
 window.renderChampionsSala=function(id){
  const p=myPollas[id]||currentPolla||{};
  setFabs(false);
@@ -4055,42 +4043,65 @@ window.renderChampionsSala=function(id){
  const isCreator=p.creadorUid===currentUser.uid;
  const link=`${window.location.origin}${window.location.pathname}?polla=${p.code}`;
  const dLeft=Math.max(0,Math.ceil((new Date(UCL_DRAW_DATE)-new Date())/(24*3600*1000)));
+ const navy="#1e3dad";
+ const ff="font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'";
+ const skelBar=(w)=>`<div style="height:10px;border-radius:5px;background:var(--border-soft);width:${w}px;max-width:32%"></div>`;
+ const skelTeam=(rev)=>`<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;${rev?"flex-direction:row-reverse;":""}"><div style="width:26px;height:26px;border-radius:50%;background:var(--border-soft);flex-shrink:0"></div>${skelBar(64)}</div>`;
+ const skelMatch=()=>`<div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:12px;padding:13px 12px;margin-bottom:8px"><div style="text-align:center;font-size:10px;color:var(--text-dim);margin-bottom:9px;letter-spacing:.5px;text-transform:uppercase">Equipos por sortear</div><div style="display:flex;align-items:center;gap:10px">${skelTeam(false)}<div style="display:flex;gap:6px;align-items:center;flex-shrink:0"><div style="width:34px;height:34px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-soft)"></div><div style="font-size:11px;color:var(--text-dim);font-weight:700">vs</div><div style="width:34px;height:34px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-soft)"></div></div>${skelTeam(true)}</div></div>`;
+ const tabBtn=(key,label)=>`<button onclick="uclSetTab('${key}')" style="flex:1;background:none;border:none;border-bottom:3px solid ${_uclTab===key?navy:"transparent"};color:${_uclTab===key?navy:"var(--text-muted)"};font-weight:800;font-size:13px;padding:11px 4px;cursor:pointer;${ff}">${label}</button>`;
+ let body="";
+ if(_uclTab==="partidos"){
+ const elimPhases=[["Playoffs","16 equipos · feb 2027"],["Octavos","mar 2027"],["Cuartos","abr 2027"],["Semifinales","abr y may 2027"],["Final","jun 2027"]];
+ body=`
+ <div style="display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch;justify-content:center">
+ ${Array.from({length:8},(_,i)=>i+1).map(j=>`<button onclick="uclSetJornada(${j})" style="flex-shrink:0;border:1.5px solid ${_uclJornada===j?navy:"var(--border)"};background:${_uclJornada===j?"rgba(30,61,173,.10)":"var(--surface)"};color:${_uclJornada===j?navy:"var(--text-muted)"};border-radius:10px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;${ff}">J${j}</button>`).join("")}
+ </div>
+ <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;text-align:center">Fase liga · Jornada ${_uclJornada} de 8 · 18 partidos por jornada</div>
+ ${skelMatch()}${skelMatch()}${skelMatch()}${skelMatch()}
+ <div style="text-align:center;font-size:11px;color:var(--text-dim);padding:4px 0 16px">+ 14 partidos más en esta jornada</div>
+ <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin:4px 0 8px;text-align:center">Eliminatorias</div>
+ ${elimPhases.map(([f,d])=>`<div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:800;color:var(--text)">${f}</div><div style="font-size:11px;color:var(--text-dim)">${d}</div></div>`).join("")}`;
+ }else if(_uclTab==="clasificacion"){
+ body=`
+ <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;text-align:center;line-height:1.6">Tabla única de 36 equipos. Del 1 al 8 pasan directo a octavos;<br>del 9 al 24 juegan playoffs.</div>
+ <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:12px;overflow:hidden">
+ ${Array.from({length:12},(_,i)=>i+1).map(pos=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border-soft)"><div style="width:20px;font-size:11px;font-weight:900;color:${pos<=8?"#16a34a":navy}">${pos}</div><div style="width:22px;height:22px;border-radius:50%;background:var(--border-soft);flex-shrink:0"></div><div style="height:9px;border-radius:5px;background:var(--border-soft);width:${110-pos*4}px"></div><div style="margin-left:auto;font-size:10px;color:var(--text-dim)">0 pts</div></div>`).join("")}
+ <div style="padding:9px 14px;text-align:center;font-size:11px;color:var(--text-dim)">... hasta el puesto 36</div>
+ </div>
+ <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:10px;font-size:10.5px;color:var(--text-dim)"><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a"></span>Directo a octavos</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${navy}"></span>Playoffs</span></div>`;
+ }else{
+ const ranked=parts.map(([uid,x])=>({uid,name:(x&&x.name)||"Jugador"})).sort((a,b)=>a.name.localeCompare(b.name));
+ body=`
+ <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;text-align:center">El ranking arranca con el primer partido de la fase liga.</div>
+ <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:12px;overflow:hidden">
+ ${ranked.map((u,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;${i<ranked.length-1?"border-bottom:1px solid var(--border-soft);":""}"><div style="width:20px;font-size:11px;font-weight:900;color:var(--text-dim)">${i+1}</div><div style="width:28px;height:28px;border-radius:50%;background:${avatarColor(u.name)};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${u.name.slice(0,2).toUpperCase()}</div><div style="font-size:13px;font-weight:700;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.name}${u.uid===p.creadorUid?" <span style='font-size:10px;color:#7c3aed;font-weight:800'>creador</span>":""}</div><div style="margin-left:auto;font-size:12px;font-weight:800;color:var(--text-dim);flex-shrink:0">0 pts</div></div>`).join("")}
+ </div>`;
+ }
  document.getElementById("root").innerHTML=`
  <div style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
- <div style="background:linear-gradient(135deg,#0b1b6e,#1e3dad);padding:18px 16px 22px;color:#fff">
- <div style="display:flex;align-items:center;justify-content:space-between">
- <button onclick="currentPollaId=null;currentPolla=null;try{localStorage.removeItem('tpLastPolla');}catch(e){}renderPollaLobby();" style="background:rgba(255,255,255,.14);border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">\u2039 Mis pollas</button>
- <div style="font-size:10px;font-weight:700;letter-spacing:3px;opacity:.85">CHAMPIONS 26/27</div>
- <div style="width:86px"></div>
+ <div style="background:linear-gradient(135deg,#0b1b6e,#1e3dad);padding:14px 16px 16px;color:#fff;position:sticky;top:0;z-index:10">
+ <div style="display:flex;align-items:center">
+ <button onclick="currentPollaId=null;currentPolla=null;try{localStorage.removeItem('tpLastPolla');}catch(e){}renderPollaLobby();" style="background:rgba(255,255,255,.14);border:none;border-radius:8px;color:#fff;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-label="Volver"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+ <div style="flex:1;text-align:center;min-width:0;padding:0 8px">
+ <div style="font-size:17px;font-weight:900;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre||"Polla Champions League"}</div>
+ <div style="font-size:10.5px;opacity:.85;margin-top:1px">Champions League 26/27 · ${parts.length} participante${parts.length!==1?"s":""}${isCreator?" · eres el creador":""}</div>
  </div>
- <div style="text-align:center;margin-top:16px">
- <div style="font-size:34px">\u2B50</div>
- <div style="font-size:21px;font-weight:900;letter-spacing:-0.5px;margin-top:4px">${p.nombre||"Polla Champions"}</div>
- <div style="font-size:12px;opacity:.85;margin-top:3px">${parts.length} participante${parts.length!==1?"s":""}${isCreator?" · eres el creador":""}</div>
+ <div style="width:32px;flex-shrink:0"></div>
  </div>
  </div>
- <div style="flex:1;padding:16px 20px 32px;max-width:680px;width:100%;margin:0 auto;box-sizing:border-box">
- <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:16px;margin-bottom:12px">
- <div style="font-size:13px;font-weight:900;color:var(--text);margin-bottom:6px">\u23F3 Esperando el sorteo de la UEFA</div>
- <div style="font-size:12.5px;color:var(--text-muted);line-height:1.65">El sorteo de la fase liga es a finales de agosto${dLeft>0?` (faltan ~${dLeft} días)`:""}. Apenas salga, el fixture aparece aquí solito y se abren los pronósticos para todos. Cierran con el primer partido: <b>${localMatchDate(UCL_LOCKOUT)} · ${localMatchTime(UCL_LOCKOUT)}</b>.</div>
- </div>
- <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;overflow:hidden;margin-bottom:12px">
- <div style="padding:14px 16px 4px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase">Invita a tu gente</div>
- <div style="padding:8px 16px 4px;text-align:center">
- <div onclick="copyText('${p.code}','Código copiado')" style="font-size:32px;font-weight:900;color:var(--text);letter-spacing:7px;cursor:pointer;user-select:all" title="Toca para copiar">${p.code||""}</div>
- <div style="font-size:10px;color:var(--text-dim);margin-top:2px">toca para copiar</div>
- </div>
- <div style="border-top:1px solid var(--border);padding:12px 16px;margin-top:10px">
- <button class="btn-secondary" onclick="copyText('${link}','Link copiado')" style="width:100%">Copiar link de invitación</button>
+ <div style="flex:1;max-width:680px;width:100%;margin:0 auto;box-sizing:border-box;padding:14px 16px 32px">
+ <div style="background:rgba(30,61,173,.07);border:1px solid rgba(30,61,173,.22);border-radius:14px;padding:14px 16px;margin-bottom:12px">
+ <div style="font-size:13px;font-weight:900;color:${navy};margin-bottom:5px;text-align:center">Esperando el sorteo de la UEFA</div>
+ <div style="font-size:12px;color:var(--text-muted);line-height:1.6;text-align:center">El fixture aparece solito cuando salga el sorteo de la fase liga (finales de agosto${dLeft>0?`, faltan ~${dLeft} días`:""}). Ahí se abren los pronósticos y cierran con el primer partido: <b>${localMatchDate(UCL_LOCKOUT)} · ${localMatchTime(UCL_LOCKOUT)}</b>.</div>
+ <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap">
+ <div onclick="copyText('${p.code}','Código copiado')" style="font-size:17px;font-weight:900;color:var(--text);letter-spacing:4px;cursor:pointer;user-select:all;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 14px" title="Toca para copiar">${p.code||""}</div>
+ <button class="btn-secondary" onclick="copyText('${link}','Link copiado')" style="padding:9px 14px;font-size:12px">Copiar link de invitación</button>
  </div>
  </div>
- <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:14px 16px">
- <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Participantes</div>
- ${parts.map(([uid,x])=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0">
- <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor(x.name||"?")};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0">${(x.name||"?").slice(0,2).toUpperCase()}</div>
- <div style="font-size:13.5px;font-weight:700;color:var(--text)">${x.name||"Jugador"}${uid===p.creadorUid?" <span style=\'font-size:10px;color:#7c3aed;font-weight:800\'>creador</span>":""}</div>
- </div>`).join("")}
+ <div style="display:flex;background:var(--surface);border:1px solid var(--border-soft);border-radius:12px;overflow:hidden;margin-bottom:14px">
+ ${tabBtn("partidos","Partidos")}${tabBtn("clasificacion","Clasificación")}${tabBtn("ranking","Ranking")}
  </div>
+ ${body}
  </div>
  </div>`;
 };
