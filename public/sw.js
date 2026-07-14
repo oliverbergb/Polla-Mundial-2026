@@ -6,7 +6,7 @@
 
    IMPORTANTE: sube el número de versión (CACHE) en cada deploy. Como el navegador
    revalida sw.js en cada navegación, cambiar este archivo fuerza la actualización. */
-const CACHE = "tupolla-v213";
+const CACHE = "tupolla-v222";
 const ASSET_RE = /\.(?:js|css|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot)$/i;
 
 self.addEventListener("install", (e) => {
