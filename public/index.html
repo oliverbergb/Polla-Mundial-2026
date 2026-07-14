@@ -60,6 +60,9 @@ body{background:#edf6ff;background-attachment:fixed;color:var(--text);font-famil
 .header-bg{display:none}
 .header h1{position:relative;font-size:22px;font-weight:900;letter-spacing:-0.3px;margin:6px 0 2px;text-transform:uppercase;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';color:var(--text)}
 .header-sub{position:relative;color:var(--text-muted);font-size:11px;margin-bottom:4px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:700}
+/* Champions League: dentro de una polla UCL el acento naranja pasa a azul.
+   Toda la UI usa var(--primary*), así que basta redefinirlas en este scope. */
+body.tp-ucl{--primary:#1e3dad;--primary-hover:#182f8a;--primary-dark:#12246b;--primary-soft:#E3E9FB;}
 .countdown-bar{position:relative;background:var(--primary-soft);border-radius:20px;padding:6px 14px;margin:8px 0;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--primary-dark);border:2px solid var(--primary);font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'}
 .tabs-wrap{position:relative;display:flex;justify-content:center}
 .tabs-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:30px;background:linear-gradient(to right,transparent,var(--surface));pointer-events:none;z-index:2}
@@ -2299,10 +2302,37 @@ function _onPollaChild(path,handlers){
  return ref;
 }
 function detachPollaListeners(){_pollaListeners.forEach(({ref,evt,cb})=>{try{ref.off(evt||"value",cb);}catch(e){}});_pollaListeners=[];}
+// ─── RECORDAR POSICIÓN DENTRO DE LA POLLA ────────────────
+// Cada cambio de pestaña/pastilla se guarda por polla; al reentrar (o reabrir
+// la app) el usuario vuelve exactamente a donde lo dejó.
+function _saveTabState(){
+ if(!currentPollaId)return;
+ try{localStorage.setItem("tpNav_"+currentPollaId,JSON.stringify({tab:currentTab,group:currentGroup,elim:currentElimPhase,pv:partidosView,ev:elimView,uj:uclJornada,upv:uclPartVista,uef:uclElimFase}));}catch(e){}
+}
+function _restoreTabState(id){
+ let st=null;
+ try{st=JSON.parse(localStorage.getItem("tpNav_"+id)||"null");}catch(e){}
+ if(!st)return;
+ const r=((myPollas[id]||currentPolla||{}).rules)||{};
+ const validTabs=["mis_pronos","ranking","chat"];
+ if(r.incluirClasificacion!==false)validTabs.push("grupos");
+ if(r.incluirEspeciales!==false)validTabs.push("especiales");
+ if(st.tab&&validTabs.includes(st.tab))currentTab=st.tab;
+ if(st.group&&GROUPS[st.group])currentGroup=st.group;
+ if(st.elim&&ELIM_PHASES.some(p=>p.id===st.elim))currentElimPhase=st.elim;
+ if(st.pv==="grupos"||st.pv==="eliminatorias"){partidosView=st.pv;_partidosViewTouched=true;}
+ if(st.ev==="bracket"||st.ev==="pronos")elimView=st.ev;
+ const j=parseInt(st.uj);if(j>=1&&j<=8)uclJornada=j;
+ if(st.upv==="liga"||st.upv==="eliminatorias")uclPartVista=st.upv;
+ if(st.uef&&UCL_ELIM_FASES.some(f=>f.id===st.uef))uclElimFase=st.uef;
+ // Si vuelve directo al chat, márcalo como leído (igual que setTab).
+ if(currentTab==="chat"){try{localStorage.setItem("tpChatSeen_"+id,String(Date.now()));}catch(e){}chatUnread=0;}
+}
 function loadData(){
  if(!currentPollaId){renderPollaLobby();return;}
  // Recuerda la última polla abierta para volver a ella al reabrir la app.
  try{localStorage.setItem("tpLastPolla",currentPollaId);}catch(e){}
+ _restoreTabState(currentPollaId);
  detachPollaListeners();
  // Evita acumular intervalos del countdown al cambiar de polla (antes se creaba uno nuevo cada vez).
  if(_countdownTimer){clearInterval(_countdownTimer);_countdownTimer=null;}
@@ -2330,7 +2360,7 @@ function loadData(){
  }
  requestRender();
  if(document.getElementById("modal-participants")?.style.display==="flex")renderParticipantsList();
- if(tournamentEnded()&&!sessionStorage.getItem("hofShown")){
+ if(tournamentEnded()&&!esChampions(currentPolla)&&!sessionStorage.getItem("hofShown")){ // HOF es del Mundial; no dispararlo en pollas Champions
   const ranked=getRankedUsers();
   if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
  }
@@ -2371,6 +2401,7 @@ function loadData(){
 
 // ─── LANDING ──────────────────────────────────────────────
 function renderLanding(){
+ document.body.classList.remove("tp-ucl");
  if(window.IS_APP){
   if(!window.__tpAppOnboarded){ window.__tpAppOnboarded=true; return renderAppSplash(); }
   return renderLandingApp();
@@ -3495,6 +3526,7 @@ function renderLogin(mode){if(mode==="forgot")renderForgot();else renderLanding(
 // ─── POLLA LOBBY ──────────────────────────────────────────
 function renderPollaLobby(){
  setFabs(false);
+ document.body.classList.remove("tp-ucl");
  const pollaIds=Object.keys(myPollas);
  pollaIds.sort((a,b)=>(esChampions(myPollas[a])?1:0)-(esChampions(myPollas[b])?1:0));
  const initials=currentUser.name.slice(0,2).toUpperCase();
@@ -4032,9 +4064,9 @@ window.tpSetTorneo=function(k){if(_crearTorneo===k)return;_crearTorneo=k;renderC
 // UCL_MATCHES se llene desde BallDontLie, estos renderers se sustituyen por
 // los reales (renderPartidos / renderGrupos / renderEspeciales adaptados).
 let uclJornada=1,uclPartVista="liga",uclElimFase="playoffs";
-window.setUclJornada=function(j){uclJornada=j;renderTab();};
-window.setUclPartVista=function(v){uclPartVista=v;renderTab();};
-window.setUclElimFase=function(f){uclElimFase=f;renderTab();};
+window.setUclJornada=function(j){uclJornada=j;_saveTabState();renderTab();};
+window.setUclPartVista=function(v){uclPartVista=v;_saveTabState();renderTab();};
+window.setUclElimFase=function(f){uclElimFase=f;_saveTabState();renderTab();};
 const UCL_NAVY="#1e3dad";
 const UCL_ELIM_FASES=[
  {id:"playoffs",label:"Playoffs",n:8,when:"feb 2027"},
@@ -4656,6 +4688,7 @@ function render(){
  if(!currentPollaId){renderPollaLobby();return;}
  if(currentPollaId&&(!currentPolla||!currentPolla.nombre)){renderPollaLobby();return;}
  setFabs(!!currentPollaId);
+ document.body.classList.toggle("tp-ucl",esChampions(currentPolla));
  const countdown=getCountdown();
  isCreator=!!(currentPolla&&currentPolla.creadorUid===currentUser.uid);
  isAdmin=!!(currentUser&&currentUser.uid===ADMIN_UID);
@@ -7278,9 +7311,9 @@ function renderParticipantsList(){
  ${uid!==currentUser.uid&&canDelete?`<button onclick="deleteUser('${uid}','${(u.name||'').replace(/'/g,"\\'")}')" style="background:var(--danger-soft);color:var(--danger-text);border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';flex-shrink:0">Eliminar</button>`:uid===currentUser.uid?`<span style="font-size:11px;color:var(--text-dim);flex-shrink:0">eres tú</span>`:""}
  </div>`).join("");
 }
-window.setTab=function(t){currentTab=t;if(t==="chat"&&currentPollaId){localStorage.setItem("tpChatSeen_"+currentPollaId,String(Date.now()));chatUnread=0;}track('tab_viewed',{tab:t});render();if(window.IS_APP){var _c=document.getElementById("tab-content");if(_c)_c.classList.add("tp-tab-anim");}};
-window.setGroup=function(g){currentGroup=g;renderTab();};
-window.setElimPhase=function(p){currentElimPhase=p;renderTab();};
+window.setTab=function(t){currentTab=t;_saveTabState();if(t==="chat"&&currentPollaId){localStorage.setItem("tpChatSeen_"+currentPollaId,String(Date.now()));chatUnread=0;}track('tab_viewed',{tab:t});render();if(window.IS_APP){var _c=document.getElementById("tab-content");if(_c)_c.classList.add("tp-tab-anim");}};
+window.setGroup=function(g){currentGroup=g;_saveTabState();renderTab();};
+window.setElimPhase=function(p){currentElimPhase=p;_saveTabState();renderTab();};
 
 // ─── KEYBOARD NAVIGATION ──────────────────────────────────
 // Se ancla a que la barra de pestañas esté visible (no a currentPollaId), así no
@@ -7305,6 +7338,19 @@ document.addEventListener("keydown",function(e){
   }
   // Izquierda/Derecha: SOLO pastillas; nunca cambian de pestaña.
   const dir=e.key==="ArrowRight"?1:-1;
+  // Champions: izquierda/derecha mueven jornadas (fase liga) o fases (eliminatorias)
+  if(currentPolla&&esChampions(currentPolla)){
+   if(currentTab==="mis_pronos"&&uclPartVista==="liga"){
+    e.preventDefault();
+    setUclJornada(((uclJornada-1+dir)%8+8)%8+1);
+   }else if(currentTab==="mis_pronos"&&uclPartVista==="eliminatorias"){
+    e.preventDefault();
+    const ids=UCL_ELIM_FASES.map(f=>f.id);
+    const i=ids.indexOf(uclElimFase);
+    setUclElimFase(ids[(i+dir+ids.length)%ids.length]);
+   }
+   return; // en Champions no hay grupos A-L ni fases del Mundial
+  }
   const onGroups=currentTab==="grupos"||(currentTab==="mis_pronos"&&partidosView==="grupos");
   const onElim=currentTab==="mis_pronos"&&partidosView==="eliminatorias";
   if(onGroups){
@@ -8147,8 +8193,8 @@ function renderPartidos(){
  </div>`;
  return toggle+(partidosView==='eliminatorias'?renderEliminatorias():renderMisPronos());
 }
-window.setPartidosView=function(v){partidosView=v;_partidosViewTouched=true;renderTab();};
-window.setElimView=function(v){elimView=v;renderTab();};
+window.setPartidosView=function(v){partidosView=v;_partidosViewTouched=true;_saveTabState();renderTab();};
+window.setElimView=function(v){elimView=v;_saveTabState();renderTab();};
 
 // ─── RENDER TAB (with reactions init) ────────────────────
 function renderTab(){
