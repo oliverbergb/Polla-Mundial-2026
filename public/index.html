@@ -2402,6 +2402,7 @@ function loadData(){
 // ─── LANDING ──────────────────────────────────────────────
 function renderLanding(){
  document.body.classList.remove("tp-ucl");
+ _setThemeColor("#FF9600");
  if(window.IS_APP){
   if(!window.__tpAppOnboarded){ window.__tpAppOnboarded=true; return renderAppSplash(); }
   return renderLandingApp();
@@ -2436,7 +2437,7 @@ function renderLanding(){
    <button onclick="renderCrearPolla()" style="width:100%;padding:17px;background:#FF9600;color:#fff;border:none;border-bottom:5px solid #CC7700;border-radius:16px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-size:15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#E68600'" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='';this.style.background='#FF9600'">Crear una polla</button>
    <button onclick="renderAuthScreen(null)" style="width:100%;padding:15px;background:#fff;color:#777;border:2px solid #e5e5e5;border-bottom:5px solid #ccc;border-radius:16px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-size:15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#f5f5f5'" onmousedown="this.style.borderBottomWidth='0';this.style.transform='translateY(5px)'" onmouseup="this.style.borderBottomWidth='5px';this.style.transform=''" onmouseleave="this.style.borderBottomWidth='5px';this.style.transform='';this.style.background='#fff'">Ya tengo una cuenta</button>
    <div style="position:relative">
-    <input id="landingCode" type="text" placeholder="¿Tienes un código?" maxlength="6" style="width:100%;background:#fff;border:2px solid #e5e5e5;border-radius:14px;color:#3C3C3C;padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'" onkeydown="if(event.key==='Enter')doJoinFromLanding()" onfocus="this.style.borderColor='#FF9600'" onblur="this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'"/>
+    <input id="landingCode" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" placeholder="¿Tienes un código?" maxlength="6" style="width:100%;background:#fff;border:2px solid #e5e5e5;border-radius:14px;color:#3C3C3C;padding:13px 56px 13px 16px;font-size:15px;font-weight:800;letter-spacing:4px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';outline:none;box-sizing:border-box;text-transform:uppercase;transition:border-color .2s" oninput="this.value=this.value.toUpperCase();this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'" onkeydown="if(event.key==='Enter')doJoinFromLanding()" onfocus="this.style.borderColor='#FF9600'" onblur="this.style.borderColor=this.value.length>0?'#FF9600':'#e5e5e5'"/>
     <button onclick="doJoinFromLanding()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#FF9600;border:none;border-bottom:3px solid #CC7700;border-radius:10px;color:#fff;padding:7px 13px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';line-height:1">→</button>
    </div>
    <div id="landingError" style="color:#FF4B4B;font-size:13px;font-weight:800;min-height:18px"></div>
@@ -3205,7 +3206,7 @@ function renderLandingApp(){
     <button class="tp-ob-btn tp-ob-btn-ghost" onclick="renderAuthScreen(null)">Ya tengo una cuenta</button>
     <div class="tp-ob-code" id="tp-ob-code">
      <div class="tp-ob-code-row">
-      <input id="landingCode" class="tp-ob-code-input" type="text" maxlength="6" placeholder="CÓDIGO" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doJoinFromLanding()"/>
+      <input id="landingCode" class="tp-ob-code-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" maxlength="6" placeholder="CÓDIGO" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doJoinFromLanding()"/>
       <button class="tp-ob-code-go" onclick="doJoinFromLanding()">&#8594;</button>
      </div>
      <div id="landingError" style="color:var(--danger);font-size:13px;font-weight:800;min-height:16px"></div>
@@ -3527,6 +3528,7 @@ function renderLogin(mode){if(mode==="forgot")renderForgot();else renderLanding(
 function renderPollaLobby(){
  setFabs(false);
  document.body.classList.remove("tp-ucl");
+ _setThemeColor("#FF9600");
  const pollaIds=Object.keys(myPollas);
  pollaIds.sort((a,b)=>(esChampions(myPollas[a])?1:0)-(esChampions(myPollas[b])?1:0));
  const initials=currentUser.name.slice(0,2).toUpperCase();
@@ -3742,7 +3744,7 @@ function ruleRow(id,label,val){
  return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
  <span style="font-size:13px;color:var(--text)">${label}</span>
  <div style="display:flex;align-items:center;gap:6px">
- <input type="number" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'"/>
+ <input type="number" inputmode="numeric" pattern="[0-9]*" id="rule_${id}" value="${val}" min="1" max="20" style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'"/>
  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span>
  </div>
  </div>`;
@@ -3832,7 +3834,7 @@ function renderCrearPolla(keepTorneo){
     <path class="cls-11" d="m230.09,363.32l-19.15,13.52s-19.86-21.61-45.63-4.18c0,0,7.99-13.32,17.11-17.99,0,0,19.76-11.47,47.66,8.65Z"/>
   </g>
  </svg>
- <input class="input" id="pollaName" type="text" placeholder="Nombre de tu polla (ej. Polla del trabajo)" name="polla-name-field" autocomplete="off" autocapitalize="words"
+ <input class="input" id="pollaName" type="text" enterkeyhint="go" placeholder="Nombre de tu polla (ej. Polla del trabajo)" name="polla-name-field" autocomplete="off" autocapitalize="words"
  maxlength="40" autocorrect="off" value="${savedName}"
  style="width:100%;font-size:20px;font-weight:700;padding:16px;text-align:center;position:relative;z-index:1"
  onkeydown="if(event.key==='Enter')doCrearPolla()"
@@ -3937,7 +3939,7 @@ ${s.id==="incluirPartidosGrupos"?`<span style="flex-shrink:0;font-size:10px;font
  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
  <span style="font-size:13px;color:var(--text)">Por cada equipo en posición exacta</span>
  <div style="display:flex;align-items:center;gap:6px">
- <input type="number" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
+ <input type="number" inputmode="numeric" pattern="[0-9]*" id="rule_ptsPosGrupo" value="${r.ptsPosGrupo??2}" min="1" max="20"
  oninput="document.getElementById('ex-ptsPosGrupo').textContent=this.value||'?'"
  style="width:48px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'"/>
  <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span>
@@ -4088,11 +4090,7 @@ function uclSkelMatchCard(meta){
  </div>
  <div class="match-teams">
  <span class="team home">${uclSkelTeam(false)}</span>
- <div class="vs-scores"><div class="pred-row">
- <input class="score-input" type="number" placeholder="-" disabled style="opacity:.45"/>
- <span class="score-sep">:</span>
- <input class="score-input" type="number" placeholder="-" disabled style="opacity:.45"/>
- </div></div>
+ <div class="vs-scores"><div class="pred-row"><span class="score-box pred" style="opacity:.55">-</span><span class="score-sep">:</span><span class="score-box pred" style="opacity:.55">-</span></div></div>
  <span class="team">${uclSkelTeam(true)}</span>
  </div>
  </div>`;
@@ -4174,7 +4172,7 @@ function renderUclEspeciales(){
  <span style="font-weight:700;font-size:14px">${f.label}</span>
  <span style="font-size:11px;color:var(--text-muted)">${fpts(f)} pts</span>
  </div>
- <input class="input" type="text" disabled placeholder="Disponible tras el sorteo" style="width:100%;font-size:13px;padding:10px 12px;opacity:.55;box-sizing:border-box"/>
+ <div class="input" style="width:100%;font-size:13px;padding:10px 12px;box-sizing:border-box;color:var(--text-dim);opacity:.75">Disponible tras el sorteo</div>
  </div>`).join("")}`;
 }
 
@@ -4190,7 +4188,7 @@ function renderUnirse(){
  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px">
  <div style="width:100%;max-width:340px">
  <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;text-align:center">Escribe el código que te pasaron</p>
- <input class="input" id="joinCode" type="text" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:22px;font-weight:700;text-align:center;width:100%;box-sizing:border-box"/>
+ <input class="input" id="joinCode" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" placeholder="Ej: ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:4px;font-size:22px;font-weight:700;text-align:center;width:100%;box-sizing:border-box"/>
  <div class="error" id="joinError"></div>
  <button class="btn" onclick="doJoinPolla(event)" style="width:100%">Unirme</button>
  </div>
@@ -4681,6 +4679,7 @@ window.toggleHeader=function(){
  if(c)c.style.transform=hdrExpanded?"rotate(180deg)":"";
 };
 // ─── RENDER ───────────────────────────────────────────────
+function _setThemeColor(c){document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute("content",c));}
 function render(){
  if(!currentUser){renderLanding();return;}
  // Sin polla activa → lobby. Protege el repintado diferido (requestRender) cuando se
@@ -4689,6 +4688,7 @@ function render(){
  if(currentPollaId&&(!currentPolla||!currentPolla.nombre)){renderPollaLobby();return;}
  setFabs(!!currentPollaId);
  document.body.classList.toggle("tp-ucl",esChampions(currentPolla));
+ _setThemeColor(esChampions(currentPolla)?"#1e3dad":"#FF9600");
  const countdown=getCountdown();
  isCreator=!!(currentPolla&&currentPolla.creadorUid===currentUser.uid);
  isAdmin=!!(currentUser&&currentUser.uid===ADMIN_UID);
@@ -5471,13 +5471,13 @@ function matchScoreBlock(m,pred,res){
  </div>`;
  }
  return`<div class="vs-scores"><div class="pred-row">
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}"
+ <input class="score-input" type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="99" placeholder="-" value="${pred?.h??""}"
    data-match="${m.id}" data-side="h"
    oninput="clampScoreInput(this)"
    onchange="savePred(${m.id},'h',this.value)"
    onkeydown="scoreInputKey(event,${m.id},'h')"/>
  <span class="score-sep">:</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}"
+ <input class="score-input" type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="99" placeholder="-" value="${pred?.a??""}"
    data-match="${m.id}" data-side="a"
    oninput="clampScoreInput(this)"
    onchange="savePred(${m.id},'a',this.value)"
@@ -5809,7 +5809,7 @@ function renderMisPronos(){
  <span>${live?`<span class="live-dot"></span><strong style="color:#ef4444">EN VIVO</strong><span class="live-min" data-mid="${m.id}" data-kickoff="${m.kickoff}" style="color:#ef4444;font-weight:800;margin-left:5px">${liveClock(m)}</span>`:(susp?`<strong style="color:#f59e0b">⚠ ${suspendedLabel(m)}</strong>${(()=>{const sm=suspendedMinuteText(m);return sm?`<span style="color:#f59e0b;font-weight:800;margin-left:5px">${sm}</span>`:"";})()}`:localMatchDate(m.kickoff)+" · "+localMatchTime(m.kickoff))} · ${m.stadium}</span>
  ${ptsBadge || countdownBadge}
  </div>
- ${(isAdmin&&(live||susp))?`<div style="margin:-2px 0 6px;text-align:right"><button onclick="event.stopPropagation();toggleMatchSuspend(${m.id},${live?'true':'false'})" style="font-size:10px;font-weight:800;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Nunito',sans-serif">${live?'Suspender':'Reanudar'}</button></div>`:''}
+ ${(isAdmin&&(live||susp))?`<div style="margin:-2px 0 6px;text-align:right"><button onclick="event.stopPropagation();toggleMatchSuspend(${m.id},${live?'true':'false'})" style="font-size:10px;font-weight:800;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">${live?'Suspender':'Reanudar'}</button></div>`:''}
  <div class="match-teams">
  <span class="team home">${flag(m.home)} ${m.home}${live?redCardBadge(redCardCounts(m).home):""}</span>
  ${matchScoreBlock(m,pred,res)}
@@ -5894,22 +5894,22 @@ function adminElimResultRow(m,homeTeam,awayTeam,res,pens){
   <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px">Admin \u00b7 resultado 90' (para puntos)</div>
   <div style="display:flex;gap:5px;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted)">
    <span>${homeTeam}</span>
-   <input type="number" min="0" max="30" value="${_rH}" onchange="saveElimReg(${m.id},'H',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="30" value="${_rH}" onchange="saveElimReg(${m.id},'H',this.value)" style="width:38px;padding:2px;text-align:center"/>
    <span>-</span>
-   <input type="number" min="0" max="30" value="${_rA}" onchange="saveElimReg(${m.id},'A',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="30" value="${_rA}" onchange="saveElimReg(${m.id},'A',this.value)" style="width:38px;padding:2px;text-align:center"/>
    <span>${awayTeam}</span>
   </div>
   <div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:4px">Auto: ${_reg.h}-${_reg.a} \u00b7 Final: ${res.h}-${res.a}</div>
  </div>`;
  if(!_isDraw)return _regBlock;
- const btn=(team)=>`<button onclick="event.stopPropagation();saveElimWin(${m.id},this.dataset.t)" data-t="${(team||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:10px;font-weight:800;border:1px solid ${w===team?'#22c55e':'var(--border)'};background:${w===team?'#14532d':'var(--surface-2)'};color:${w===team?'#22c55e':'var(--text-muted)'};border-radius:8px;padding:5px;cursor:pointer;font-family:'Nunito',sans-serif">${team}</button>`;
+ const btn=(team)=>`<button onclick="event.stopPropagation();saveElimWin(${m.id},this.dataset.t)" data-t="${(team||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:10px;font-weight:800;border:1px solid ${w===team?'#22c55e':'var(--border)'};background:${w===team?'#14532d':'var(--surface-2)'};color:${w===team?'#22c55e':'var(--text-muted)'};border-radius:8px;padding:5px;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">${team}</button>`;
  return _regBlock+`<div onclick="event.stopPropagation()" style="margin:0 10px 8px;padding:7px;border:1px dashed var(--border);border-radius:10px;background:var(--surface-2)">
   <div style="font-size:9px;font-weight:800;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px">Admin · ganador / penales</div>
   <div style="display:flex;gap:5px;margin-bottom:5px">${btn(homeTeam)}${btn(awayTeam)}</div>
   <div style="display:flex;gap:5px;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted)">
-   Pen:<input type="number" min="0" max="30" value="${pens?pens.h:''}" onchange="saveElimPens(${m.id},'H',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   Pen:<input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="30" value="${pens?pens.h:''}" onchange="saveElimPens(${m.id},'H',this.value)" style="width:38px;padding:2px;text-align:center"/>
    <span>-</span>
-   <input type="number" min="0" max="30" value="${pens?pens.a:''}" onchange="saveElimPens(${m.id},'A',this.value)" style="width:38px;padding:2px;text-align:center"/>
+   <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="30" value="${pens?pens.a:''}" onchange="saveElimPens(${m.id},'A',this.value)" style="width:38px;padding:2px;text-align:center"/>
   </div>
  </div>`;
 }
@@ -6170,13 +6170,13 @@ function renderBracketPhase(phase){
  <div class="bm-team">
  <span style="min-width:20px">${flag(homeTeam)}</span>
  <span style="flex:1;font-size:12px">${homeTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.h??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
+ <input class="score-input" type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="99" placeholder="-" value="${pred?.h??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'h',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-sep"></div>
  <div class="bm-team">
  <span style="min-width:20px">${flag(awayTeam)}</span>
  <span style="flex:1;font-size:12px">${awayTeam}</span>
- <input class="score-input" type="number" min="0" max="99" placeholder="-" value="${pred?.a??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
+ <input class="score-input" type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="99" placeholder="-" value="${pred?.a??""}" oninput="clampScoreInput(this)" onchange="saveElimPred(${m.id},'a',this.value)" style="width:42px;font-size:13px;padding:3px 2px"/>
  </div>
  <div class="bm-meta">
  <span>${localMatchDate(m.kickoff)} · ${localMatchTime(m.kickoff)}</span>
@@ -6630,7 +6630,7 @@ function renderChat(){
  <div id="chat-charwarn" style="display:none;font-size:11px;font-weight:800;text-align:right;padding:2px 10px 4px;line-height:1"></div>
  <div class="chat-input-row">
  <button class="chat-stickers-btn" onclick="toggleStickerTray()" style="background:var(--surface-2);border:2px solid var(--border);color:var(--text-muted);border-radius:50%;width:40px;height:40px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Stickers"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
- <textarea class="chat-input" id="chat-input" placeholder="Escribe algo..." maxlength="210" rows="1"
+ <textarea class="chat-input" id="chat-input" enterkeyhint="send" autocorrect="on" placeholder="Escribe algo..." maxlength="210" rows="1"
  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
  oninput="chatInputResize(this)"></textarea>
  <button class="chat-send" onclick="sendChat()">↑</button>
@@ -7204,7 +7204,7 @@ window.openEditRules=function(){
  const row=(id,label,val)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-soft)">
   <span style="font-size:13px;color:var(--text)">${label}</span>
   <div style="display:flex;align-items:center;gap:6px">
-  <input type="number" id="erule_${id}" value="${val}" min="1" max="20" style="width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'"/>
+  <input type="number" inputmode="numeric" pattern="[0-9]*" id="erule_${id}" value="${val}" min="1" max="20" style="width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'"/>
   <span style="font-size:11px;color:var(--text-dim);width:20px">pts</span></div></div>`;
  const hdr=t=>`<div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin:14px 0 4px">${t}</div>`;
  const clasifOn=r.incluirClasificacion!==false, espOn=r.incluirEspeciales!==false;
