@@ -2360,9 +2360,9 @@ function loadData(){
  }
  requestRender();
  if(document.getElementById("modal-participants")?.style.display==="flex")renderParticipantsList();
- if(tournamentEnded()&&!esChampions(currentPolla)&&!sessionStorage.getItem("hofShown")){ // HOF es del Mundial; no dispararlo en pollas Champions
+ if(tournamentEnded()&&!esChampions(currentPolla)&&!localStorage.getItem("hofShown")){ // HOF es del Mundial; no dispararlo en pollas Champions
   const ranked=getRankedUsers();
-  if(ranked.length>0){sessionStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
+  if(ranked.length>0){localStorage.setItem("hofShown","1");setTimeout(()=>openHallOfFame(),1200);}
  }
  };
  _onPollaChild(`${base}/participantes`,{
@@ -2373,7 +2373,7 @@ function loadData(){
  _onPolla(`${base}/results`,snap=>{allResults=snap.val()||{};phaseLocks=allResults.phase_locks||{};applyLiveScores();requestRender();});
  _onPolla(`${base}/rules`,snap=>{const rv=snap.val();if(rv){if(!currentPolla)return;currentPolla.rules=rv;if(myPollas[currentPollaId])myPollas[currentPollaId].rules=rv;if(currentPollaId)requestRender();}});
  if(!_worldHooked){_worldHooked=true;db.ref("world").on("value",snap=>{const w=snap.val()||{};globalWorld={especiales:w.especiales||{},groupOverride:w.groupOverride||{}};const so=w.scheduleOverride||{};MATCHES.forEach(m=>{const ov=so[m.id];if(ov&&ov.kickoff){if(ov.kickoff!==m.kickoff)m.kickoff=ov.kickoff;if(ov.time)m.time=ov.time;if(ov.date)m.date=ov.date;}});if(currentPollaId)requestRender();});}
- if(!esChampions(currentPolla))startLineupWatcher(); // alineaciones BDL: solo Mundial (hasta cablear UCL)
+ if(!esChampions(currentPolla)&&!tournamentEnded())startLineupWatcher(); // alineaciones BDL: solo Mundial (hasta cablear UCL)
  // Red de seguridad: si los resultados/participantes llegan en ráfagas justo al entrar,
  // forzamos repintados diferidos para que los puntos aparezcan sin tener que refrescar.
  setTimeout(()=>{if(currentPollaId)requestRender();},500);
@@ -2396,7 +2396,7 @@ function loadData(){
   updateChatBadge();
  });
  iniciarMasterPolling();
- _countdownTimer=setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||"¡Arrancó el Mundial!";const bar=document.getElementById("countdown-bar");if(bar){const lv=countdownLevel();if(lv==="red"){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}else if(lv==="green"){bar.style.borderColor="#22c55e";bar.style.color="#15803d";bar.style.background="#DCFCE7";}else{bar.style.borderColor="";bar.style.color="";bar.style.background="";}}}},1000);
+ _countdownTimer=setInterval(()=>{const el=document.getElementById("countdown-val");if(el){const c=getCountdown();el.textContent=c||(currentPolla&&esChampions(currentPolla)?"¡Arrancó la Champions!":"¡Arrancó el Mundial!");const bar=document.getElementById("countdown-bar");if(bar){const lv=countdownLevel();if(lv==="red"){bar.style.borderColor="#ef4444";bar.style.color="#ef4444";bar.style.background="#FFE3E3";}else if(lv==="green"){bar.style.borderColor="#22c55e";bar.style.color="#15803d";bar.style.background="#DCFCE7";}else{bar.style.borderColor="";bar.style.color="";bar.style.background="";}}}},1000);
 }
 
 // ─── LANDING ──────────────────────────────────────────────
@@ -3584,6 +3584,13 @@ function renderPollaLobby(){
  <div style="font-size:13px;color:var(--text-muted);line-height:1.5">Crea tu polla o únete con el código<br>que te mandaron.</div>
  </div>`}
 
+${localStorage.getItem("uclPromo1")?"":`
+ <div id="ucl-promo-card" style="background:rgba(30,61,173,.08);border:1.5px solid rgba(30,61,173,.28);border-radius:14px;padding:14px 40px 14px 16px;margin-bottom:14px;position:relative">
+  <button onclick="dismissUclPromo()" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:4px 8px;line-height:1">✕</button>
+  <div style="font-size:13.5px;font-weight:900;color:#1e3dad;margin-bottom:4px">¿Y después del Mundial?</div>
+  <div style="font-size:12px;color:var(--text-muted);line-height:1.55;margin-bottom:10px">Ya puedes crear tu polla de la <b>Champions League 26/27</b> e invitar a tu gente. Los pronósticos se abren con el sorteo (finales de agosto).</div>
+  <button onclick="crearPollaUcl()" style="background:#1e3dad;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">Crear polla de Champions</button>
+ </div>`}
  <div style="display:flex;flex-direction:column;gap:10px">
  <button onclick="renderCrearPolla()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#ffffff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';box-shadow:0 4px 16px rgba(255,179,16,0.25);transition:filter .15s" onmouseenter="this.style.filter='brightness(0.93)'" onmouseleave="this.style.filter=''"> Crear una polla</button>
  <button onclick="renderUnirse()" style="width:100%;background:var(--surface);color:var(--text-muted);border:1px solid var(--border-soft);border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';transition:background .15s" onmouseenter="this.style.background='var(--surface-2)'" onmouseleave="this.style.background='var(--surface)'"> Unirme a una polla</button>
@@ -3601,6 +3608,8 @@ function renderPollaLobby(){
  // (el swipe se reemplazó por el menú de 3 puntos, también en móvil)
 }
 
+window.dismissUclPromo=function(){localStorage.setItem("uclPromo1","1");const c=document.getElementById("ucl-promo-card");if(c)c.remove();};
+window.crearPollaUcl=function(){localStorage.setItem("uclPromo1","1");_crearTorneo="champions2027";renderCrearPolla(true);};
 window.closePollaMenus=function(){
  document.querySelectorAll('.polla-menu-pop,[id^="menu-"]').forEach(m=>m.remove());
 };
@@ -3753,7 +3762,7 @@ function exBox(html){return`<div style="background:var(--surface);border-radius:
 function renderCrearPolla(keepTorneo){
  const r=DEFAULT_RULES;
  setFabs(false);
- if(!keepTorneo)_crearTorneo="mundial2026";
+ if(!keepTorneo)_crearTorneo=tournamentEnded()?"champions2027":"mundial2026";
  const _esUcl=_crearTorneo==="champions2027";
  const _postLockCrear=new Date()>=new Date(TOURNAMENTS[_crearTorneo].lockout);
  _crearPreset=_postLockCrear?"clasica":"completa";
@@ -3770,7 +3779,7 @@ function renderCrearPolla(keepTorneo){
  <div style="width:100%;margin-bottom:52px">
  <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;text-align:center;margin-bottom:8px">Torneo</div>
  <div style="display:flex;gap:8px">
- <button type="button" onclick="tpSetTorneo('mundial2026')" style="flex:1;border:2px solid ${!_esUcl?'#f5a522':'var(--border)'};background:${!_esUcl?'rgba(245,165,34,.16)':'var(--surface)'};color:${!_esUcl?'#b97708':'var(--text-muted)'};border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">Mundial 2026<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">En juego</span></button>
+ <button type="button" onclick="tpSetTorneo('mundial2026')" style="flex:1;border:2px solid ${!_esUcl?'#f5a522':'var(--border)'};background:${!_esUcl?'rgba(245,165,34,.16)':'var(--surface)'};color:${!_esUcl?'#b97708':'var(--text-muted)'};border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">Mundial 2026<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">${tournamentEnded()?"Finalizado":"En juego"}</span></button>
  <button type="button" onclick="tpSetTorneo('champions2027')" style="flex:1;border:2px solid ${_esUcl?'#1e3dad':'var(--border)'};background:${_esUcl?'rgba(30,61,173,.10)':'var(--surface)'};color:${_esUcl?'#1e3dad':'var(--text-muted)'};border-radius:12px;padding:10px 6px;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';font-weight:800;font-size:12.5px;cursor:pointer;line-height:1.3">Champions League 26/27<br><span style="font-weight:600;font-size:10px;color:var(--text-dim)">Desde septiembre</span></button>
  </div>
  ${_esUcl?`<div style="background:rgba(30,61,173,.08);border:1px solid rgba(30,61,173,.25);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.6;text-align:center"><b style="color:#1e3dad">Polla de Champions League 26/27.</b> Crea tu polla e invita a tu gente desde ya. El fixture de la fase liga se carga solito cuando la UEFA haga el sorteo (finales de agosto) y ahí se abren los pronósticos. Cierran con el primer partido (15 sep 2026).</div>`:''}
@@ -4718,7 +4727,7 @@ function render(){
  </div>
  </div>
  <div style="display:flex;justify-content:center;margin-bottom:4px">
- ${countdown?`<div class="countdown-bar" id="countdown-bar" style="position:relative${countdownStyle()}"> <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e"> ¡${esChampions(currentPolla)?"La Champions League":"El Mundial"} está en curso!</div>`}
+ ${countdown?`<div class="countdown-bar" id="countdown-bar" style="position:relative${countdownStyle()}"> <span id="countdown-val">${countdown}</span> para el inicio</div>`:`<div class="countdown-bar" style="position:relative;border-color:#22c55e;color:#22c55e"> ${esChampions(currentPolla)?"¡La Champions League está en curso!":(tournamentEnded()?"¡El Mundial 2026 terminó!":"¡El Mundial está en curso!")}</div>`}
  </div>
  <div class="tabs-wrap"><div class="tabs" id="main-tabs">${tabs.map(([id,label])=>`<button class="tab ${currentTab===id?"active":""}" style="position:relative" onclick="setTab('${id}')">${label}${id==="chat"?`<span id="chat-tab-badge" class="chat-unread-badge" style="${chatUnread>0?"":"display:none"}">${chatUnread>9?"9+":(chatUnread||"")}</span>`:""}</button>`).join("")}</div></div>
  <div class="hdr-collapsible" style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-soft)">
@@ -7993,6 +8002,7 @@ window.openHallOfFame=function(){
   ${restHtml}
   ${personalHtml}
   <button onclick="shareHallOfFame()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';margin-bottom:8px;box-shadow:0 4px 0 var(--primary-dark)">📤 Compartir mi resumen</button>
+  <button onclick="closeHallOfFame();crearPollaUcl()" style="width:100%;background:#1e3dad;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji';margin-bottom:8px">Seguimos con la Champions 26/27</button>
   <button onclick="closeHallOfFame()" style="width:100%;background:var(--surface-2);color:var(--text);border:2px solid var(--border);border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji'">Cerrar</button>
  `;
  document.getElementById("hof-overlay").style.display="flex";
