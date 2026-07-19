@@ -1171,6 +1171,26 @@ const ESPECIALES_FIELDS=[
  {id:"mejorJugador",label:"Mejor Jugador",placeholder:"Ej: Messi",pts:5},
 ];
 
+// ─── ESPECIALES: comparación tolerante (tildes, alias, nombre parcial) ───
+function normEsp(x){return (x||"").toString().trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();}
+const ESP_ALIASES=[
+ ["rodri","rodrigo","rodrigo rodri","rodri hernandez","rodrigo hernandez","rodrigo hernandez cascante"],
+ ["mbappe","kylian mbappe","kylian mbappe lottin"],
+ ["unai simon","simon","unai simon mendibil"],
+ ["espana","spain","seleccion espanola","seleccion de espana","la roja"],
+];
+function espCanon(n){for(const g of ESP_ALIASES)if(g.includes(n))return g[0];return n;}
+window.espMatch=function(pred,real){
+ let p=espCanon(normEsp(pred)),r=espCanon(normEsp(real));
+ if(!p||!r)return false;
+ if(p===r)return true;
+ const pt=p.split(" "),rt=r.split(" ");
+ const [st,lt]=pt.length<=rt.length?[pt,rt]:[rt,pt];
+ if(st.length===1&&st[0].length<3)return false;
+ return st.every(t=>lt.includes(t));
+};
+
+
 const GROUPS={
  A:["México","Sudáfrica","Corea del Sur","Rep. Checa"],
  B:["Canadá","Qatar","Suiza","Bosnia"],
@@ -1906,8 +1926,7 @@ function totalPoints(u){
  const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
  const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
  const pts=r[ruleKey]??f.pts;
- const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
- return s+(p&&rv&&p===rv?pts:0);
+ return s+(espMatch(esp[f.id],adminEsp[f.id])?pts:0);
  },0):0;
  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g]||GROUPS[g],officialGroupOrder(g),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
@@ -6439,7 +6458,7 @@ function renderEspeciales(){
  const rules=(currentPolla&&currentPolla.rules)||DEFAULT_RULES;
  const fpts=f=>rules["esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1)]??f.pts;
  let espPts=0;
- ESPECIALES_FIELDS.forEach(f=>{const p=(myEsp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();if(p&&rv&&p===rv)espPts+=fpts(f);});
+ ESPECIALES_FIELDS.forEach(f=>{if(espMatch(myEsp[f.id],adminEsp[f.id]))espPts+=fpts(f);});
  return`
  <div class="card" style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
  <div>
@@ -6448,7 +6467,7 @@ function renderEspeciales(){
  </div>
  ${ESPECIALES_FIELDS.map(f=>{
  const pred=myEsp[f.id]||"",real=(adminEsp[f.id]||"").trim();
- const correct=real&&pred.trim().toLowerCase()===real.toLowerCase();
+ const correct=real&&espMatch(pred,real);
  const wrong=real&&pred.trim()&&!correct;
  const isTeam=f.id==="campeon";
  const suggestions=isTeam?ALL_TEAMS:(f.id==="guanteOro"?DT_GOALKEEPERS:DT_PLAYERS);
@@ -6480,7 +6499,7 @@ function renderEspeciales(){
   return `<button onclick="toggleEspecialExpand('${f.id}')" aria-label="Ver pronósticos" style="display:block;margin:3px auto 0;background:none;border:none;color:var(--primary);opacity:.55;cursor:pointer;font-size:14px;line-height:1;padding:0 16px">${expE?'▴':'▾'}</button>`+
    (expE?`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">${answers.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(a=>{
      const color=avatarColor(a.name);
-     const isCorrect=real&&a.val.toLowerCase()===real.toLowerCase();
+     const isCorrect=real&&espMatch(a.val,real);
      const predRxns=matchReactions[a.uid]||{};
      const rxnByEmoji={};
      Object.entries(predRxns).forEach(([reactorUid,e])=>{(rxnByEmoji[e]=rxnByEmoji[e]||[]).push(reactorUid);});
@@ -7691,8 +7710,7 @@ window.openBreakdown=function(uid,skipAnim){
  const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
  const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
  const pts=r[ruleKey]??f.pts;
- const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
- return s+(p&&rv&&p===rv?pts:0);
+ return s+(espMatch(esp[f.id],adminEsp[f.id])?pts:0);
  },0):0;
  const grpPts=r.incluirClasificacion!==false?Object.keys(GROUPS).reduce((s,g)=>s+calcGroupPredPointsR(grp[g]||GROUPS[g],officialGroupOrder(g),r),0):0;
  const elimPts=MATCHES.filter(m=>m.phase!=="groups").reduce((s,m)=>s+(calcElimPointsR(elim[m.id],allResults[m.id],r)||0),0);
@@ -7834,8 +7852,7 @@ window.openH2H=function(opponentUid){
   const espPts=r.incluirEspeciales?ESPECIALES_FIELDS.reduce((s,f)=>{
    const ruleKey="esp"+f.id.charAt(0).toUpperCase()+f.id.slice(1);
    const pts=r[ruleKey]??f.pts;
-   const p=(esp[f.id]||"").trim().toLowerCase(),rv=(adminEsp[f.id]||"").trim().toLowerCase();
-   return s+(p&&rv&&p===rv?pts:0);
+   return s+(espMatch(esp[f.id],adminEsp[f.id])?pts:0);
   },0):0;
   // Exact match counts
   let exactos=0,ganadores=0;
